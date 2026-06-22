@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lexend:wght@100..900&family=Roboto:wght@100;300;400;500;700;900&family=JetBrains+Mono:wght@100..800&display=swap');
+@import "./styles/ios-theme.css";
+@import "tailwindcss";
+
+/* Tailwind v4: dark: variant pakai class .dark di <html> (next-themes). */
+@variant dark (&:where(.dark, .dark *));
+
+/* ── shadcn bridge — petakan token shadcn ke nilai Clinical Precision ── */
+@layer base {
+  :root {
+    --background:         240 15% 96%;       /* #F3F3F8 */
+    --foreground:         210 9% 11%;        /* #1A1C1F */
+    --card:               0 0% 100%;         /* #FFFFFF */
+    --card-foreground:    210 9% 11%;
+    --popover:            0 0% 100%;
+    --popover-foreground: 210 9% 11%;
+    --primary:            211 100% 35%;      /* #0056B3 */
+    --primary-foreground: 0 0% 100%;
+    --secondary:          240 15% 92%;
+    --secondary-foreground: 210 9% 11%;
+    --muted:              240 15% 92%;
+    --muted-foreground:   215 11% 29%;       /* #424752 */
+    --accent:             240 15% 92%;
+    --accent-foreground:  210 9% 11%;
+    --destructive:        358 77% 40%;       /* #B6171E */
+    --destructive-foreground: 0 0% 100%;
+    --border:             225 15% 80%;       /* #C2C6D4 */
+    --input:              225 15% 80%;
+    --ring:               211 100% 35%;
+    --radius:             12px;
+  }
+
+  .dark {
+  color-scheme: dark;
+    --background:         225 12% 8%;        /* #111215 */
+    --foreground:         240 10% 95%;       /* #F0F0F5 */
+    --card:               210 9% 11%;        /* #1A1C1F */
+    --card-foreground:    240 10% 95%;
+    --popover:            210 10% 14%;       /* #222428 */
+    --popover-foreground: 240 10% 95%;
+    --primary:            218 100% 84%;      /* #ACC7FF */
+    --primary-foreground: 210 9% 11%;
+    --secondary:          210 9% 16%;        /* #2D2F33 */
+    --secondary-foreground: 240 10% 95%;
+    --muted:              210 9% 16%;
+    --muted-foreground:   225 10% 80%;       /* #C2C6D4 */
+    --accent:             210 9% 16%;
+    --accent-foreground:  240 10% 95%;
+    --destructive:        358 77% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border:             210 8% 25%;        /* #3A3D44 */
+    --input:              210 8% 25%;
+    --ring:               218 100% 84%;
+  }
+}
+
+/* ── Tailwind token mapping ──────────────────────────────────────────────── */
+@theme inline {
+  --font-sans:               "Lexend", -apple-system, sans-serif;
+  --font-mono:               "JetBrains Mono", monospace;
+  --color-background:        var(--bg-secondary);
+  --color-foreground:        hsl(var(--foreground));
+  --color-card:              var(--bg-tertiary);
+  --color-card-foreground:   hsl(var(--card-foreground));
+  --color-primary:           hsl(var(--primary));
+  --color-primary-foreground:hsl(var(--primary-foreground));
+  --color-muted:             hsl(var(--muted));
+  --color-muted-foreground:  hsl(var(--muted-foreground));
+  --color-destructive:       hsl(var(--destructive));
+  --color-border:            var(--glass-border);
+  --color-input:             hsl(var(--input));
+  --color-ring:              hsl(var(--ring));
+  --color-accent:            hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover:           var(--bg-elevated);
+  --color-popover-foreground:hsl(var(--popover-foreground));
+
+  /* Alias lama yang masih dipakai komponen */
+  --color-surface:           var(--bg-tertiary);
+  --color-fg-primary:        hsl(var(--foreground));
+  --color-fg-secondary:      hsl(var(--muted-foreground));
+  --color-fg-disabled:       hsl(var(--muted-foreground));
+  --color-accent-fg:         hsl(var(--primary-foreground));
+
+  /* Map font weights to react dynamically to font-weight offset slider */
+  --font-weight-light:       var(--fw-light, 300);
+  --font-weight-normal:      var(--fw-normal, 400);
+  --font-weight-medium:      var(--fw-medium, 500);
+  --font-weight-semibold:    var(--fw-semibold, 600);
+  --font-weight-bold:        var(--fw-bold, 700);
+  --font-weight-extrabold:    var(--fw-extrabold, 800);
+  --font-weight-black:       var(--fw-black, 900);
+}
+
+/* ── Bento Card & Custom Helpers ─────────────────────────────────────────── */
+.bento-card {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-card, 16px);
+  padding: 16px;
+  box-shadow: var(--shadow-1, 0 1px 3px rgba(0,0,0,0.1));
+  transition: all var(--dur-base, 200ms) var(--ease-out, ease-out);
+}
+.bento-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--glass-border));
+  box-shadow: var(--shadow-2, 0 4px 16px rgba(0,0,0,0.08));
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+html {
+  font-size: calc(16px * var(--font-scale)) !important;
+}
+html, body, #root { height: 100%; overscroll-behavior-y: none; }
+body { 
+  margin: 0; 
+  -webkit-tap-highlight-color: transparent; 
+  background-color: var(--bg-secondary);
+}
+.dark body {
+  background-color: var(--bg-secondary);
+}
+button, a[role], input, select { touch-action: manipulation; }
+
+.mdkit-dotgrid {
+  background-color: var(--bg-secondary);
+}
+.dark .mdkit-dotgrid {
+  background-color: var(--bg-secondary);
+}
+
+@keyframes page-route-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-page-route {
+  animation: page-route-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Black & White Mode (Universal Grayscale Filter) ── */
+html.bw-mode,
+.bw-mode {
+  filter: grayscale(100%) !important;
+}

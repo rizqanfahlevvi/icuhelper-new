@@ -1,0 +1,8 @@
+{
+  "name": "ICU Helper",
+  "description": "Ur Daily ER \u0026 Intensive Care Companion for quick calculations and guidelines.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

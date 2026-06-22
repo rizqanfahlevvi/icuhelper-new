@@ -1,0 +1,432 @@
+/* ============================================================================
+   PICNIC Helper · iOS Design Language
+   ----------------------------------------------------------------------------
+   Token + komponen gaya Apple iOS 17/18 (grouped-inset, translucent chrome,
+   bottom tab bar). Diekstrak dari mockup visual yang sudah disetujui.
+
+   Cara pakai (React + Vite + Tailwind + shadcn/ui):
+   1. Taruh file ini di  src/styles/ios-theme.css
+   2. Import di paling atas  src/index.css :  @import "./styles/ios-theme.css";
+   3. Dark mode mengikuti konvensi shadcn (class .dark di <html>) DAN
+      prefers-color-scheme sebagai fallback.
+   4. Font: pakai system stack (-apple-system) + Inter sbg fallback non-Apple.
+      Di index.html tambahkan:
+      <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
+   Catatan: kelas .ios-* di bawah adalah CSS biasa — boleh dipakai berdampingan
+   dengan Tailwind. Untuk komponen shadcn (Card, Button, Badge), lihat blok
+   "SHADCN BRIDGE" di bawah agar warnanya otomatis mengikuti palet iOS.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   1 · TOKENS — Light (default)
+   --------------------------------------------------------------------------- */
+:root {
+  /* Font families */
+  --font-sans: "Lexend", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+
+  /* Font size multiplier (default is 1) */
+  --font-scale: 1;
+
+  /* Font weight values (default is 400 / 600 / 700) */
+  --fw-normal: 400;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Type scale (Clinical Precision with Lexend) */
+  --type-large-title: var(--fw-bold) calc(34px * var(--font-scale))/calc(41px * var(--font-scale)) var(--font-sans);
+  --type-title-1:     var(--fw-bold) calc(28px * var(--font-scale))/calc(34px * var(--font-scale)) var(--font-sans);
+  --type-title-2:     var(--fw-semibold) calc(22px * var(--font-scale))/calc(28px * var(--font-scale)) var(--font-sans);
+  --type-title-3:     var(--fw-semibold) calc(20px * var(--font-scale))/calc(25px * var(--font-scale)) var(--font-sans);
+  --type-headline:    var(--fw-semibold) calc(17px * var(--font-scale))/calc(22px * var(--font-scale)) var(--font-sans);
+  --type-body:        var(--fw-normal) calc(17px * var(--font-scale))/calc(22px * var(--font-scale)) var(--font-sans);
+  --type-callout:     var(--fw-normal) calc(16px * var(--font-scale))/calc(21px * var(--font-scale)) var(--font-sans);
+  --type-subheadline: var(--fw-normal) calc(15px * var(--font-scale))/calc(20px * var(--font-scale)) var(--font-sans);
+  --type-footnote:    var(--fw-normal) calc(13px * var(--font-scale))/calc(18px * var(--font-scale)) var(--font-sans);
+  --type-caption-1:   var(--fw-normal) calc(12px * var(--font-scale))/calc(16px * var(--font-scale)) var(--font-sans);
+  --type-caption-2:   var(--fw-normal) calc(11px * var(--font-scale))/calc(13px * var(--font-scale)) var(--font-sans);
+
+  /* System tints (Rich Clinical palette, light) */
+  --sys-blue: #0056b3;   --sys-green: #15803d;  --sys-indigo: #312e81;
+  --sys-orange: #b45309; --sys-pink: #9d171d;   --sys-purple: #7e22ce;
+  --sys-red: #ba1a1a;    --sys-teal: #0f766e;   --sys-cyan: #0369a1;
+  --sys-yellow: #a16207; --sys-mint: #0d9488;  --sys-brown: #7c2d12;
+
+  /* Backgrounds (Corporate Modern style - Clinical Precision) */
+  --bg-secondary: #f3f3f8;       /* surface-container-low: #f3f3f8 */
+  --bg-tertiary:  #ffffff;       /* card / surface background */
+  --bg-elevated:  #ffffff;       /* modal / sheet background */
+  --bg-overlay:   rgba(26, 28, 31, 0.40);
+  --glass-border: #cbd5e1;       /* improved visibility for borders in light */
+
+  /* Fills (interactive surfaces) */
+  --fill-secondary: #e2e8f0;    /* surface-container */
+  --fill-tertiary:  #cbd5e1;    /* surface-container-high */
+
+  /* Labels / text hierarchy */
+  --label-primary:   #0f172a;    /* slate-900 for ultra-crisp headings */
+  --label-secondary: #334155;    /* slate-700 for secondary text */
+  --label-tertiary:  #64748b;    /* slate-500 for captions / tertiary info */
+
+  /* Separators */
+  --separator: #e2e8f0;
+
+  /* Brand + clinical category accents */
+  --accent: #0056b3;             /* primary-container: #0056b3 */
+  --accent-tint: #d7e2ff;        /* primary-fixed: #d7e2ff */
+  --accent-fg: #ffffff;
+  --on-tint: #ffffff;
+  --success: var(--sys-green);
+  --warning: var(--sys-orange);
+  --danger:  var(--sys-red);
+
+  --tint-vital:  var(--sys-red);     /* hemodinamik / vasopressor */
+  --tint-resp:   var(--sys-teal);    /* airway / ABG / ventilator / ETT */
+  --tint-neuro:  var(--sys-purple);  /* neuro / sedasi */
+  --tint-fluid:  var(--sys-blue);    /* cairan */
+  --tint-drug:   var(--sys-indigo);  /* obat */
+  --tint-renal:  var(--sys-mint);    /* renal */
+  --tint-score:  var(--sys-orange);  /* skoring */
+  --tint-theory: var(--sys-brown);   /* teori */
+
+  /* Radii (Apple Native - Clinical Precision rounded) */
+  --r-card: 16px;  --r-sm: 12px;  --r-pill: 999px;
+
+  /* Elevation */
+  --shadow-1: 0 1px 2px 0 rgba(60,64,67,0.15), 0 1px 3px 1px rgba(60,64,67,0.08);
+  --shadow-2: 0 4px 16px 0 rgba(60,64,67,0.08), 0 1px 3px 0 rgba(60,64,67,0.04);
+
+  /* Materials */
+  --material-chrome: #ffffff;
+  --blur-base: none;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  --dur-fast: 120ms;  --dur-base: 200ms;
+
+  /* Min touch target */
+  --hit: 44px;
+}
+
+/* ---------------------------------------------------------------------------
+   2 · TOKENS — Dark  (shadcn .dark class)
+   --------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --sys-blue: #93c5fd;   --sys-green: #86efac;  --sys-indigo: #c7d2fe;
+    --sys-orange: #fdba74; --sys-pink: #fca5a5;   --sys-purple: #d8b4fe;
+    --sys-red: #ea4335;    --sys-teal: #99f6e4;   --sys-cyan: #7dd3fc;
+    --sys-yellow: #fde047; --sys-mint: #6ee7b7;  --sys-brown: #ffedd5;
+
+    --bg-secondary: #0b0c0e;       /* Solid dark screen background */
+    --bg-tertiary:  #151719;       /* Solid dark card background */
+    --bg-elevated:  #1d2024;       /* Elevated view background */
+    --bg-overlay:   rgba(0, 0, 0, 0.75);
+    --glass-border: #2d3139;       /* Crisp border */
+
+    --fill-secondary: #22252a;
+    --fill-tertiary:  #2d3139;
+
+    --label-primary:   #f8fafc;    /* Slate-50 for high-contrast text */
+    --label-secondary: #cbd5e1;    /* Slate-300 */
+    --label-tertiary:  #94a3b8;    /* Slate-400 */
+
+    --separator: #22252a;
+
+    --accent: #93c5fd;             /* Premium soft light blue */
+    --accent-tint: rgba(147, 197, 253, 0.12);
+    --accent-fg: #0b0c0e;
+    --on-tint: #0b0c0e;
+    --material-chrome: #151719;
+    --shadow-1: 0 4px 12px rgba(0, 0, 0, 0.55);
+    --shadow-2: 0 12px 32px rgba(0, 0, 0, 0.65);
+    --blur-base: none;
+  }
+}
+.dark {
+  color-scheme: dark;
+  --sys-blue: #93c5fd;   --sys-green: #86efac;  --sys-indigo: #c7d2fe;
+  --sys-orange: #fdba74; --sys-pink: #fca5a5;   --sys-purple: #d8b4fe;
+  --sys-red: #ea4335;    --sys-teal: #99f6e4;   --sys-cyan: #7dd3fc;
+  --sys-yellow: #fde047; --sys-mint: #6ee7b7;  --sys-brown: #ffedd5;
+
+  --bg-secondary: #0b0c0e;       /* Solid dark screen background */
+  --bg-tertiary:  #151719;       /* Solid dark card background */
+  --bg-elevated:  #1d2024;       /* Elevated view background */
+  --bg-overlay:   rgba(0, 0, 0, 0.75);
+  --glass-border: #2d3139;       /* Crisp border */
+
+  --fill-secondary: #22252a;
+  --fill-tertiary:  #2d3139;
+
+  --label-primary:   #f8fafc;    /* Slate-50 for high-contrast text */
+  --label-secondary: #cbd5e1;    /* Slate-300 */
+  --label-tertiary:  #94a3b8;    /* Slate-400 */
+
+  --separator: #22252a;
+
+  --accent: #93c5fd;             /* Premium soft light blue */
+  --accent-tint: rgba(147, 197, 253, 0.12);
+  --accent-fg: #0b0c0e;
+  --on-tint: #0b0c0e;
+  --material-chrome: #151719;
+  --shadow-1: 0 4px 12px rgba(0, 0, 0, 0.55);
+  --shadow-2: 0 12px 32px rgba(0, 0, 0, 0.65);
+  --blur-base: none;
+}
+
+.bw-mode,
+.dark.bw-mode {
+  --sys-blue: var(--label-primary);
+  --sys-green: var(--label-primary);
+  --sys-indigo: var(--label-primary);
+  --sys-orange: var(--label-primary);
+  --sys-pink: var(--label-primary);
+  --sys-purple: var(--label-primary);
+  --sys-red: var(--label-primary);
+  --sys-teal: var(--label-primary);
+  --sys-cyan: var(--label-primary);
+  --sys-yellow: var(--label-primary);
+  --sys-mint: var(--label-primary);
+  --sys-brown: var(--label-primary);
+
+  --accent: var(--label-primary);
+  --accent-tint: var(--fill-secondary);
+  --accent-fg: var(--bg-secondary);
+  --on-tint: var(--bg-secondary);
+
+  --tint-vital:  var(--label-primary);
+  --tint-resp:   var(--label-primary);
+  --tint-neuro:  var(--label-primary);
+  --tint-fluid:  var(--label-primary);
+  --tint-drug:   var(--label-primary);
+  --tint-renal:  var(--label-primary);
+  --tint-score:  var(--label-primary);
+  --tint-theory: var(--label-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   3 · BASE
+   --------------------------------------------------------------------------- */
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-secondary);
+  color: var(--label-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Type helpers */
+.ios-large-title { font: var(--type-large-title); letter-spacing: 0.011em; color: var(--label-primary); }
+.ios-nav-title { font: var(--type-title-3); letter-spacing: -0.02em; color: var(--label-primary); text-align: center; }
+.ios-title-1     { font: var(--type-title-1);     letter-spacing: 0.007em; color: var(--label-primary); }
+.ios-title-2     { font: var(--type-title-2);     letter-spacing: 0.005em; color: var(--label-primary); }
+.ios-title-3     { font: var(--type-title-3); color: var(--label-primary); }
+.ios-headline    { font: var(--type-headline);    letter-spacing: -0.022em; color: var(--label-primary); }
+.ios-body        { font: var(--type-body);        letter-spacing: -0.022em; color: var(--label-primary); }
+.ios-callout     { font: var(--type-callout);     letter-spacing: -0.018em; color: var(--label-primary); }
+.ios-subhead     { font: var(--type-subheadline); letter-spacing: -0.011em; color: var(--label-secondary); }
+.ios-footnote    { font: var(--type-footnote); color: var(--label-secondary); }
+.ios-caption     { font: var(--type-caption-1); color: var(--label-secondary); }
+.ios-mono        { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+
+/* Category tint utility */
+.tint-vital  { --tint: var(--tint-vital); }
+.tint-resp   { --tint: var(--tint-resp); }
+.tint-neuro  { --tint: var(--tint-neuro); }
+.tint-fluid  { --tint: var(--tint-fluid); }
+.tint-drug   { --tint: var(--tint-drug); }
+.tint-renal  { --tint: var(--tint-renal); }
+.tint-score  { --tint: var(--tint-score); }
+.tint-theory { --tint: var(--tint-theory); }
+
+/* ---------------------------------------------------------------------------
+   4 · SCREEN + CHROME
+   --------------------------------------------------------------------------- */
+.ios-screen { background: var(--bg-secondary); min-height: 100%; }
+
+/* Top nav bar */
+.ios-nav {
+  position: sticky; top: 0; z-index: 20; height: 60px;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 16px;
+  background: var(--material-chrome);
+  -webkit-backdrop-filter: var(--blur-base); backdrop-filter: var(--blur-base);
+  border-bottom: 0.5px solid var(--separator);
+}
+.ios-nav--plain {
+  background: var(--bg-secondary); border-bottom-color: transparent;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.ios-nav-title { font: var(--type-headline); letter-spacing: -0.022em; color: var(--label-primary); }
+.ios-nav-btn {
+  display: inline-flex; align-items: center; gap: 2px; background: none; border: 0; cursor: pointer;
+  color: var(--accent); font: var(--type-body); letter-spacing: -0.02em; padding: 0 4px; min-height: var(--hit);
+}
+
+/* Bottom tab bar */
+.ios-tabbar {
+  flex-shrink: 0; width: 100%;
+  height: calc(88px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: flex; align-items: stretch;
+  background: var(--material-chrome);
+  -webkit-backdrop-filter: var(--blur-base); backdrop-filter: var(--blur-base);
+  border-top: 0.5px solid var(--separator);
+}
+.ios-tab {
+  flex: 1; background: none; border: 0; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  color: var(--label-tertiary); transition: color var(--dur-fast);
+  font-family: var(--font-sans);
+  text-decoration: none;
+  height: 100%;
+}
+.ios-tab > span { font-size: 10.5px; font-weight: 500; letter-spacing: -0.01em; white-space: nowrap; }
+.ios-tab[aria-selected="true"], .ios-tab.is-active { color: var(--accent); }
+
+/* ---------------------------------------------------------------------------
+   5 · GROUPED-INSET LIST
+   --------------------------------------------------------------------------- */
+.ios-section {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 22px 8px 6px;
+}
+.ios-section > .label {
+  font: var(--type-footnote); text-transform: uppercase; letter-spacing: 0.04em;
+  font-weight: 600; color: var(--label-secondary); white-space: nowrap;
+}
+.ios-section > .action { font: var(--type-footnote); color: var(--accent); font-weight: 500; cursor: pointer; }
+
+.ios-list {
+  margin: 0; background: var(--bg-tertiary);
+  backdrop-filter: var(--blur-base); -webkit-backdrop-filter: var(--blur-base);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-card); overflow: hidden; box-shadow: var(--shadow-1);
+}
+.ios-row {
+  display: flex; align-items: center; gap: 12px; padding: 9px 14px; min-height: var(--hit);
+  cursor: pointer; transition: background var(--dur-fast) var(--ease-out);
+  background: transparent;
+  text-decoration: none;
+}
+.ios-row + .ios-row { border-top: 0.5px solid var(--separator); }
+.ios-row:active { background: var(--fill-secondary); }
+.ios-row-icon {
+  width: 29px; height: 29px; border-radius: 30%; flex-shrink: 0;
+  display: grid; place-items: center; color: #fff; background: var(--tint, var(--accent));
+  box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.15);
+}
+.ios-row-icon > svg { width: 18px; height: 18px; }
+.ios-row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ios-row-label { font: var(--type-body); letter-spacing: -0.022em; color: var(--label-primary); }
+.ios-row-sub { font: var(--type-footnote); color: var(--label-secondary); margin-top: 1px; line-height: 1.25; }
+.ios-chevron { color: var(--label-tertiary); flex-shrink: 0; }
+.ios-badge {
+  font: var(--type-caption-2); font-weight: 600; padding: 3px 8px; border-radius: var(--r-pill);
+  background: var(--fill-secondary); color: var(--label-secondary);
+}
+.ios-badge--accent { background: var(--accent-tint); color: var(--accent); }
+
+.ios-input-box {
+  width: 72px; padding: 4px 8px; text-align: right; font-weight: 600; font-size: 14px;
+  background: var(--fill-secondary); border: 1px solid var(--glass-border);
+  border-radius: 6px; color: var(--label-primary); outline: none;
+  font-family: var(--font-mono); transition: all var(--dur-fast);
+}
+.ios-input-box:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-tint); background: var(--bg-tertiary); }
+
+.ios-select-box {
+  flex: 1; max-width: 180px; padding: 4px 6px; text-align: right; font-weight: 500; font-size: 14px;
+  background: var(--fill-secondary); border: 1px solid var(--glass-border);
+  border-radius: 6px; color: var(--label-primary); outline: none; transition: all var(--dur-fast);
+}
+.ios-select-box:focus { border-color: var(--accent); }
+
+/* ---------------------------------------------------------------------------
+   6 · CARD / RESULT / SEGMENTED / WARNING
+   --------------------------------------------------------------------------- */
+.ios-card {
+  margin: 0; background: var(--bg-tertiary);
+  backdrop-filter: var(--blur-base); -webkit-backdrop-filter: var(--blur-base);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-card); box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+
+.ios-result-grid { display: flex; }
+.ios-result { flex: 1; padding: 13px 14px 14px; display: flex; flex-direction: column; gap: 3px; }
+.ios-result + .ios-result { border-left: 0.5px solid var(--separator); }
+.ios-result-label {
+  font: var(--type-caption-2); text-transform: uppercase; letter-spacing: 0.005em;
+  font-weight: 600; color: var(--label-secondary);
+}
+.ios-result-value {
+  font-family: var(--font-mono); font-feature-settings: "tnum";
+  font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: var(--tint, var(--accent));
+}
+.ios-result-unit {
+  font: var(--type-subheadline); font-family: var(--font-mono);
+  color: var(--label-secondary); font-weight: 600; margin-left: 4px;
+}
+.ios-result-note { font: var(--type-caption-1); color: var(--label-tertiary); }
+
+/* segmented control */
+.ios-segmented {
+  display: flex; gap: 2px; padding: 2px; margin: 0;
+  background: var(--fill-tertiary); border-radius: var(--r-sm);
+  border: 1px solid var(--separator);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.ios-segmented::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+.ios-segmented > button {
+  flex: 1 0 auto; border: 0; cursor: pointer; padding: 7px 8px; border-radius: 7px;
+  font: var(--type-subheadline); font-weight: 400; letter-spacing: -0.01em;
+  background: transparent; color: var(--label-primary);
+  transition: all var(--dur-fast) var(--ease-out);
+  min-height: var(--hit);
+  white-space: nowrap;
+}
+.ios-segmented > button[aria-selected="true"] {
+  background: var(--bg-tertiary); font-weight: 600; box-shadow: var(--shadow-1);
+  border: 1px solid var(--glass-border);
+}
+
+/* warning / patient-safety banner */
+.ios-warn {
+  display: flex; gap: 9px; align-items: flex-start; margin: 0;
+  padding: 11px 13px; border-radius: var(--r-card); font: var(--type-footnote);
+  line-height: 1.4; color: var(--label-primary);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+.ios-warn--danger { background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.ios-warn > svg { flex-shrink: 0; margin-top: 1px; color: var(--warning); }
+.ios-warn--danger > svg { color: var(--danger); }
+
+/* ---------------------------------------------------------------------------
+   7 · SITASI + DISCLAIMER
+   --------------------------------------------------------------------------- */
+.ios-disclaimer {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin: 18px 0 0; padding: 0 12px; text-align: center;
+  font: var(--type-caption-1); color: var(--label-tertiary); line-height: 1.35;
+}
+.ios-disclaimer > svg { flex-shrink: 0; }
+
+/* ---------------------------------------------------------------------------
+   8 · UTILITY - NO SCROLLBAR
+   --------------------------------------------------------------------------- */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
