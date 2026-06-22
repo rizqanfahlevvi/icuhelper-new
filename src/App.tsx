@@ -14,6 +14,9 @@ import PlaceholderPage from './pages/PlaceholderPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from './lib/firebase';
+import { ShieldAlert, ExternalLink, LogOut } from 'lucide-react';
 
 import PatientsPage from './pages/PatientsPage';
 import CalculatorIndex from './pages/calculator/CalculatorIndex';
@@ -61,8 +64,95 @@ import ScoringCpis from './pages/scoring/ScoringCpis';
 import ScoringRass from './pages/scoring/ScoringRass';
 import ScoringSofa from './pages/scoring/ScoringSofa';
 
+function VerificationPage() {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error("Gagal keluar:", err);
+    }
+  };
+
+  return (
+    <div 
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ backgroundColor: "var(--bg-secondary)" }}
+    >
+      <div 
+        className="w-full max-w-md p-6 text-center ios-card"
+        style={{ 
+          backgroundColor: "var(--bg-tertiary)",
+          borderRadius: "var(--r-card)",
+          border: "1px solid var(--glass-border)",
+          boxShadow: "var(--shadow-2)"
+        }}
+        id="verification-card"
+      >
+        <div className="flex flex-col items-center mb-6 text-center">
+          <div 
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-white animate-pulse"
+            style={{ 
+              background: "linear-gradient(135deg, var(--sys-orange, #ff9500), #ffb340)",
+              boxShadow: "0 4px 12px rgba(255, 149, 0, 0.25)"
+            }}
+          >
+            <ShieldAlert size={32} />
+          </div>
+          <h1 
+            className="text-2xl font-bold tracking-tight mb-2"
+            style={{ color: "var(--label-primary)" }}
+          >
+            Akun Dalam Verifikasi
+          </h1>
+          <p 
+            className="text-base leading-relaxed mb-6"
+            style={{ color: "var(--label-secondary)" }}
+          >
+            Terima kasih sudah mendaftar! Akun Anda sedang dalam proses verifikasi. Silakan lengkapi profil dokter Anda terlebih dahulu.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full font-semibold text-white shadow-sm flex items-center justify-center gap-2 px-4 py-3"
+            style={{
+              backgroundColor: "var(--sys-blue)",
+              borderRadius: "12px",
+              minHeight: "44px"
+            }}
+            id="btn-complete-profile"
+          >
+            <span>Lengkapi Profil Dokter</span>
+            <ExternalLink size={16} />
+          </a>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full font-semibold border flex items-center justify-center gap-2 px-4 py-3 animate-fade-in"
+            style={{
+              borderColor: "var(--glass-border)",
+              backgroundColor: "var(--bg-tertiary)",
+              color: "var(--sys-red, #ff3b30)",
+              borderRadius: "12px",
+              minHeight: "44px"
+            }}
+            id="btn-logout"
+          >
+            <LogOut size={16} />
+            <span>Keluar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isAuthorized } = useAuth();
 
   if (isLoading) {
     return (
@@ -79,6 +169,10 @@ function ProtectedRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (!isAuthorized) {
+    return <VerificationPage />;
   }
 
   return <Outlet />;
