@@ -45,6 +45,18 @@ export default function MainLayout() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Swipe gesture states
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
@@ -282,79 +294,44 @@ export default function MainLayout() {
       onTouchMove={handleTouchMove}
     >
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:flex flex-col fixed inset-y-0 border-r border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-tertiary)] z-10 transition-all duration-300 ${isSidebarExpanded ? 'w-[240px]' : 'w-[80px]'}`}>
-        <div className={`flex ${isSidebarExpanded ? 'items-center justify-between px-4' : 'flex-col items-center gap-4 px-2'} mt-6 mb-4`}>
-          <div className={`flex items-center ${isSidebarExpanded ? 'gap-3' : 'justify-center'}`}>
+      <aside className={`hidden md:flex flex-col fixed inset-y-0 border-r border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-tertiary)] z-10 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-[240px]' : 'w-[80px]'}`}>
+        <div className={`flex ${isSidebarExpanded ? 'items-center justify-center px-4' : 'flex-col items-center justify-center px-2'} mt-6 mb-4 h-8`}>
+          <div className="flex items-center justify-center gap-3">
             <LogoIcon className="w-8 h-8 flex-shrink-0" />
-            {isSidebarExpanded && <h1 className="font-bold text-[18px] tracking-[0px] text-[var(--label-primary)] overflow-hidden whitespace-nowrap">ICU<span className="text-[var(--accent)]">Helper</span></h1>}
+            <AnimatePresence>
+              {isSidebarExpanded && (
+                <motion.h1 
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: 'auto' }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="font-bold text-[18px] tracking-[0px] text-[var(--label-primary)] overflow-hidden whitespace-nowrap"
+                >
+                  ICU<span className="text-[var(--accent)]">Helper</span>
+                </motion.h1>
+              )}
+            </AnimatePresence>
           </div>
-          <button 
-            onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-            className="p-1.5 flex items-center justify-center rounded-lg text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)] transition-colors flex-shrink-0"
-            title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
-          >
-            {isSidebarExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-          </button>
         </div>
 
-        {/* User Profile Card (Moved to Top) */}
-        {user && (
-          <div className="px-3 mb-4">
-            {isSidebarExpanded ? (
-              <div className="p-3.5 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col gap-3 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none flex-shrink-0">
-                    {getInitialFromProfile()}
-                  </div>
-                  <div className="flex-grow min-w-0">
-                    <p className="text-xs font-bold text-[var(--label-primary)] truncate-2-lines" title={getFullNameWithPrefix()}>
-                      {getFullNameWithPrefix()}
-                    </p>
-                    <p className="text-[11px] text-[var(--label-secondary)] truncate">
-                      {getRoleLabel()}
-                    </p>
-                    {getSubscriptionBadge()}
-                  </div>
-                </div>
-                <div className="border-t border-[var(--separator)] pt-2">
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-full py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs font-bold text-[#ff3b30] hover:bg-[#ff3b30]/8 dark:hover:bg-[#ff3b30]/15 transition-colors cursor-pointer"
-                    id="btn-sidebar-desktop-logout"
-                  >
-                    <LogOut size={13} />
-                    <span>Keluar</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="p-2 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col items-center gap-2.5 shadow-sm">
-                <div 
-                  className="w-9 h-9 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none"
-                  title={getFullNameWithPrefix()}
-                >
-                  {getInitialFromProfile()}
-                </div>
-                <div className="w-full border-t border-[var(--separator)] pt-2">
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-8 h-8 rounded-full text-[#ff3b30] hover:bg-[#ff3b30]/10 flex items-center justify-center transition-colors cursor-pointer"
-                    title="Sistem Keluar"
-                    id="btn-sidebar-desktop-logout-collapsed"
-                  >
-                    <LogOut size={13} />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
-        <nav className="flex-1 overflow-y-auto flex flex-col gap-1 no-scrollbar px-3">
-          {isSidebarExpanded && <span className="text-[10px] uppercase tracking-[0.1em] text-[var(--label-secondary)] font-bold mb-3 px-3 block whitespace-nowrap">Menu</span>}
-          {!isSidebarExpanded && <div className="h-2"></div>}
+
+        <nav className="flex-1 overflow-x-hidden overflow-y-auto flex flex-col gap-1 no-scrollbar px-3 mt-2">
+          <div className="h-4 flex items-center px-3 mb-2">
+            <AnimatePresence>
+              {isSidebarExpanded && (
+                <motion.span 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-[10px] uppercase tracking-[0.1em] text-[var(--label-secondary)] font-bold whitespace-nowrap block"
+                >
+                  Menu
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
           {NAV_ITEMS.map((item) => {
             const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
             return (
@@ -369,7 +346,19 @@ export default function MainLayout() {
                 } ${isSidebarExpanded ? 'gap-3' : 'justify-center'}`}
               >
                 <item.icon className="w-5 h-5 flex-shrink-0" />
-                {isSidebarExpanded && <span className="whitespace-nowrap overflow-hidden">{item.name}</span>}
+                <AnimatePresence>
+                  {isSidebarExpanded && (
+                    <motion.span 
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: 'auto' }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="whitespace-nowrap overflow-hidden"
+                    >
+                      {item.name}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </Link>
             );
           })}
@@ -377,18 +366,86 @@ export default function MainLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 relative w-full flex flex-col h-screen overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'md:ml-[240px] md:w-[calc(100%-240px)]' : 'md:ml-[80px] md:w-[calc(100%-80px)]'}`}>
-        {/* Mobile Top Bar */}
-        <header className="ios-nav md:hidden">
-          <div className="flex items-center gap-2">
+      <main className={`flex-1 relative w-full flex flex-col h-screen overflow-hidden transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'md:ml-[240px] md:w-[calc(100%-240px)]' : 'md:ml-[80px] md:w-[calc(100%-80px)]'}`}>
+        {/* Unified Top Bar */}
+        <header className="ios-nav justify-between">
+          <div className="flex items-center gap-2 md:hidden">
             <button onClick={() => setIsMobileMenuOpen(true)} className="ios-nav-btn p-1 -ml-1" aria-label="Open menu">
               <MenuIcon size={20} />
             </button>
             <LogoIcon className="w-6 h-6 flex-shrink-0" />
-            <span className="ios-nav-title">ICU</span>
+            <h1 className="font-bold text-[16px] tracking-[0px] text-[var(--label-primary)] overflow-hidden whitespace-nowrap">ICU<span className="text-[var(--accent)]">Helper</span></h1>
           </div>
-          <div className="flex items-center gap-1">
-            <button onClick={toggleTheme} className="ios-nav-btn" aria-label="Toggle theme">
+          
+          <div className="hidden md:flex items-center gap-2 ml-1">
+            <button 
+              onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+              className="p-1.5 flex items-center justify-center rounded-lg text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)] transition-colors flex-shrink-0"
+              title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+            >
+              <MenuIcon size={20} />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3 relative">
+            {user && (
+              <div ref={profileDropdownRef} className="flex items-center relative mr-0 md:mr-1">
+                <button
+                  type="button"
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-[var(--fill-secondary)] transition-colors"
+                >
+                  <span className="text-sm font-semibold text-[var(--label-primary)] truncate max-w-[150px] md:max-w-[200px]">
+                    Hi, {getFullNameWithPrefix()}
+                  </span>
+                  <div className="w-8 h-8 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none flex-shrink-0 border border-[var(--glass-border)] hidden md:flex">
+                    {getInitialFromProfile()}
+                  </div>
+                </button>
+                
+                <AnimatePresence>
+                  {isProfileDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-[calc(100%+8px)] right-0 w-64 p-3.5 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col gap-3 shadow-lg z-[100] origin-top-right md:right-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-lg select-none flex-shrink-0">
+                          {getInitialFromProfile()}
+                        </div>
+                        <div className="flex-grow min-w-0">
+                          <p className="text-sm font-bold text-[var(--label-primary)] truncate" title={getFullNameWithPrefix()}>
+                            {getFullNameWithPrefix()}
+                          </p>
+                          <p className="text-[11px] text-[var(--label-secondary)] truncate">
+                            {getRoleLabel()}
+                          </p>
+                          {getSubscriptionBadge()}
+                        </div>
+                      </div>
+                      <div className="border-t border-[var(--separator)] pt-2.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            handleLogout();
+                          }}
+                          className="w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-[#ff3b30] hover:bg-[#ff3b30]/10 transition-colors cursor-pointer"
+                        >
+                          <LogOut size={14} />
+                          <span>Keluar</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+            <div className="w-[1px] h-4 bg-[var(--separator)]"></div>
+            <button onClick={toggleTheme} className="ios-nav-btn ml-1" aria-label="Toggle theme">
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
           </div>
@@ -429,38 +486,7 @@ export default function MainLayout() {
                   </button>
                 </div>
                 
-                {/* User Profile Card for Mobile Sidebar (iOS Grouped Card Style) */}
-                {user && (
-                  <div className="px-4 pt-4">
-                    <div className="p-3.5 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col gap-3.5 shadow-sm">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-lg select-none flex-shrink-0">
-                          {getInitialFromProfile()}
-                        </div>
-                        <div className="flex-grow min-w-0">
-                          <p className="text-sm font-bold text-[var(--label-primary)] truncate" title={getFullNameWithPrefix()}>
-                            {getFullNameWithPrefix()}
-                          </p>
-                          <p className="text-xs text-[var(--label-secondary)] truncate">
-                            {getRoleLabel()}
-                          </p>
-                          {getSubscriptionBadge()}
-                        </div>
-                      </div>
-                      <div className="border-t border-[var(--separator)] pt-2.5">
-                        <button
-                          type="button"
-                          onClick={handleLogout}
-                          className="w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-[#ff3b30] hover:bg-[#ff3b30]/8 dark:hover:bg-[#ff3b30]/15 transition-colors cursor-pointer"
-                          id="btn-sidebar-mobile-logout"
-                        >
-                          <LogOut size={14} />
-                          <span>Keluar</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+
 
                 <nav className="flex-1 overflow-y-auto flex flex-col gap-1 p-4 pb-20 no-scrollbar">
                   <span className="text-[11px] uppercase tracking-[0.15em] text-[var(--label-secondary)] font-bold mb-3 px-2 block">Menu Utama</span>
