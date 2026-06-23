@@ -30,7 +30,7 @@ import { getStorageEstimate, refreshCacheAndReload, performHardReset, StorageEst
 export default function AboutSettings() {
   const [activeTab, setActiveTab] = useState<'settings' | 'about'>('settings');
   const [estimate, setEstimate] = useState<StorageEstimateInfo>({ used: '0 Bytes', quota: '0 Bytes', percentage: 0 });
-  const [isOpenChangelog, setIsOpenChangelog] = useState<{ [key: string]: boolean }>({ v2: true, v1: false });
+  const [isOpenChangelog, setIsOpenChangelog] = useState<{ [key: string]: boolean }>({ v3: true, v2: false, v1: false });
 
   // Get Store State
   const {
@@ -425,7 +425,7 @@ export default function AboutSettings() {
                 <h2 className="text-xl font-bold text-foreground flex items-center gap-1.5">
                   ICU Helper
                   <span className="text-[10px] font-bold bg-primary/15 text-primary border border-primary/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    v2.0
+                    v3.0
                   </span>
                 </h2>
                 <p className="text-xs text-muted-foreground italic mt-1">
@@ -538,7 +538,7 @@ export default function AboutSettings() {
                     <span className="text-[10px] text-muted-foreground">Bug, Saran & Komentar</span>
                   </a>
                   <a
-                    href="https://saweria.co/rizqan"
+                    href="https://saweria.co/rizqanfahlevvi"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex flex-col items-center justify-center p-4 bg-card hover:bg-muted/10 border border-border rounded-2xl text-center gap-1.5 transition-colors shadow-sm group"
@@ -558,6 +558,33 @@ export default function AboutSettings() {
                 </h3>
 
                 <div className="space-y-3 divide-y divide-border/60">
+                  {/* Version 3.0 */}
+                  <div className="pt-2">
+                    <button
+                      onClick={() => setIsOpenChangelog(prev => ({ ...prev, v3: !prev.v3 }))}
+                      className="w-full flex items-center justify-between text-left font-bold text-sm text-foreground focus:outline-none"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs">
+                          v3.0
+                        </span>
+                        <span>Verifikasi & Dark Mode Support</span>
+                      </div>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpenChangelog.v3 ? 'rotate-180' : ''}`} />
+                    </button>
+                    {isOpenChangelog.v3 && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="mt-2 text-xs text-muted-foreground space-y-1.5 pl-2 border-l-2 border-primary/10"
+                      >
+                        <p>• 🎨 Dukungan penuh <strong>Dark Mode</strong> pada kartu verifikasi akses bedside.</p>
+                        <p>• 🔒 Peningkatan kontras teks dan background overlay verifikasi agar tetap terbaca dengan nyaman.</p>
+                        <p>• ☕ Integrasi tautan dukungan <strong>Saweria</strong> pengembang terbaru (rizqanfahlevvi).</p>
+                      </motion.div>
+                    )}
+                  </div>
+
                   {/* Version 2.0 */}
                   <div className="pt-2">
                     <button
