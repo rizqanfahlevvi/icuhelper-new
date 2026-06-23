@@ -277,7 +277,7 @@ export default function MainLayout() {
 
   return (
     <div 
-      className="ios-screen flex w-full"
+      className="ios-screen flex w-full overflow-x-hidden"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
     >
@@ -301,27 +301,51 @@ export default function MainLayout() {
         {user && (
           <div className="px-3 mb-4">
             {isSidebarExpanded ? (
-              <div className="p-3 rounded-xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none flex-shrink-0">
-                  {getInitialFromProfile()}
+              <div className="p-3.5 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col gap-3 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none flex-shrink-0">
+                    {getInitialFromProfile()}
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <p className="text-xs font-bold text-[var(--label-primary)] truncate-2-lines" title={getFullNameWithPrefix()}>
+                      {getFullNameWithPrefix()}
+                    </p>
+                    <p className="text-[11px] text-[var(--label-secondary)] truncate">
+                      {getRoleLabel()}
+                    </p>
+                    {getSubscriptionBadge()}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-[var(--label-primary)] truncate-2-lines" title={getFullNameWithPrefix()}>
-                    {getFullNameWithPrefix()}
-                  </p>
-                  <p className="text-[11px] text-[var(--label-secondary)] truncate">
-                    {getRoleLabel()}
-                  </p>
-                  {getSubscriptionBadge()}
+                <div className="border-t border-[var(--separator)] pt-2">
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 text-xs font-bold text-[#ff3b30] hover:bg-[#ff3b30]/8 dark:hover:bg-[#ff3b30]/15 transition-colors cursor-pointer"
+                    id="btn-sidebar-desktop-logout"
+                  >
+                    <LogOut size={13} />
+                    <span>Keluar</span>
+                  </button>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center">
+              <div className="p-2 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col items-center gap-2.5 shadow-sm">
                 <div 
                   className="w-9 h-9 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none"
                   title={getFullNameWithPrefix()}
                 >
                   {getInitialFromProfile()}
+                </div>
+                <div className="w-full border-t border-[var(--separator)] pt-2">
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-8 h-8 rounded-full text-[#ff3b30] hover:bg-[#ff3b30]/10 flex items-center justify-center transition-colors cursor-pointer"
+                    title="Sistem Keluar"
+                    id="btn-sidebar-desktop-logout-collapsed"
+                  >
+                    <LogOut size={13} />
+                  </button>
                 </div>
               </div>
             )}
@@ -350,37 +374,10 @@ export default function MainLayout() {
             );
           })}
         </nav>
-        {/* User Profile Footer (Logout Only) */}
-        {user && (
-          <div className="p-4 border-t border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-tertiary)] flex flex-col gap-2.5">
-            {isSidebarExpanded ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full py-1.5 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-semibold text-white transition-opacity hover:opacity-90 cursor-pointer"
-                style={{ backgroundColor: "var(--sys-red, #ff3b30)" }}
-                id="btn-sidebar-desktop-logout"
-              >
-                <LogOut size={14} />
-                <span>Keluar</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-10 h-10 mx-auto rounded-full bg-[var(--accent)]/10 text-[var(--sys-red, #ff3b30)] flex items-center justify-center hover:bg-[var(--fill-secondary)] transition-colors cursor-pointer"
-                title="Sistem Keluar"
-                id="btn-sidebar-desktop-logout-collapsed"
-              >
-                <LogOut size={18} />
-              </button>
-            )}
-          </div>
-        )}
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 relative w-full flex flex-col h-screen overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[80px]'}`}>
+      <main className={`flex-1 relative w-full flex flex-col h-screen overflow-hidden transition-all duration-300 ${isSidebarExpanded ? 'md:ml-[240px] md:w-[calc(100%-240px)]' : 'md:ml-[80px] md:w-[calc(100%-80px)]'}`}>
         {/* Mobile Top Bar */}
         <header className="ios-nav md:hidden">
           <div className="flex items-center gap-2">
@@ -432,20 +429,35 @@ export default function MainLayout() {
                   </button>
                 </div>
                 
-                {/* User Profile Card for Mobile Sidebar (Moved to Top) */}
+                {/* User Profile Card for Mobile Sidebar (iOS Grouped Card Style) */}
                 {user && (
-                  <div className="p-4 border-b border-[var(--separator)] bg-[var(--bg-secondary)] flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-lg select-none flex-shrink-0">
-                      {getInitialFromProfile()}
-                    </div>
-                    <div className="flex-grow min-w-0">
-                      <p className="text-sm font-bold text-[var(--label-primary)] truncate" title={getFullNameWithPrefix()}>
-                        {getFullNameWithPrefix()}
-                      </p>
-                      <p className="text-xs text-[var(--label-secondary)] truncate">
-                        {getRoleLabel()}
-                      </p>
-                      {getSubscriptionBadge()}
+                  <div className="px-4 pt-4">
+                    <div className="p-3.5 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col gap-3.5 shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-lg select-none flex-shrink-0">
+                          {getInitialFromProfile()}
+                        </div>
+                        <div className="flex-grow min-w-0">
+                          <p className="text-sm font-bold text-[var(--label-primary)] truncate" title={getFullNameWithPrefix()}>
+                            {getFullNameWithPrefix()}
+                          </p>
+                          <p className="text-xs text-[var(--label-secondary)] truncate">
+                            {getRoleLabel()}
+                          </p>
+                          {getSubscriptionBadge()}
+                        </div>
+                      </div>
+                      <div className="border-t border-[var(--separator)] pt-2.5">
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-[#ff3b30] hover:bg-[#ff3b30]/8 dark:hover:bg-[#ff3b30]/15 transition-colors cursor-pointer"
+                          id="btn-sidebar-mobile-logout"
+                        >
+                          <LogOut size={14} />
+                          <span>Keluar</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -471,29 +483,13 @@ export default function MainLayout() {
                     );
                   })}
                 </nav>
-
-                 {/* User Profile Footer for Mobile Sidebar (Logout Only) */}
-                {user && (
-                  <div className="p-4 border-t border-[var(--separator)] bg-[var(--bg-tertiary)] flex flex-col gap-3">
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      className="w-full py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 cursor-pointer"
-                      style={{ backgroundColor: "var(--sys-red, #ff3b30)" }}
-                      id="btn-sidebar-mobile-logout"
-                    >
-                      <LogOut size={16} />
-                      <span>Keluar</span>
-                    </button>
-                  </div>
-                )}
               </motion.aside>
             </div>
           )}
         </AnimatePresence>
 
         {/* Scrollable Viewport */}
-        <div className={`flex-1 w-full pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto no-scrollbar'}`} id="main-scrollable-viewport">
+        <div className={`flex-1 w-full pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
           {isLocked && (
             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto bg-white/45 dark:bg-black/45 backdrop-blur-md"
                  id="verification-restriction-overlay"

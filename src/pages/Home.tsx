@@ -144,7 +144,7 @@ export default function Home() {
       {/* Hero Header Section */}
       <div className="pt-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 mb-3.5">
-          <span className="text-[11px] font-bold text-teal-600 dark:text-teal-400 dark:text-teal-400 tracking-wide uppercase">
+          <span className="text-[11px] font-bold text-teal-600 dark:text-teal-400 tracking-wide uppercase">
             ⚡ Your Daily Companion in ER & Intensive Care
           </span>
         </div>
@@ -243,7 +243,7 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-2 px-2 snap-x">
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 snap-x">
             {recentItems.map((item, index) => {
               if (!item) return null;
               const Icon = item.icon || Activity;
