@@ -90,7 +90,7 @@ function VerificationPage() {
       >
         <div className="flex flex-col items-center mb-6 text-center">
           <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-white animate-pulse"
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-[var(--accent-fg)] animate-pulse"
             style={{ 
               background: "linear-gradient(135deg, var(--sys-orange, #ff9500), #ffb340)",
               boxShadow: "0 4px 12px rgba(255, 149, 0, 0.25)"
@@ -117,9 +117,10 @@ function VerificationPage() {
             href="https://tally.so/r/44EOGr"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full font-semibold text-white shadow-sm flex items-center justify-center gap-2 px-4 py-3"
+            className="w-full font-semibold shadow-sm flex items-center justify-center gap-2 px-4 py-3 active:scale-[0.98] hover:opacity-90 transition-all cursor-pointer"
             style={{
               backgroundColor: "var(--sys-blue)",
+              color: "var(--accent-fg)",
               borderRadius: "12px",
               minHeight: "44px"
             }}
@@ -132,11 +133,8 @@ function VerificationPage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full font-semibold border flex items-center justify-center gap-2 px-4 py-3 animate-fade-in"
+            className="w-full font-semibold border flex items-center justify-center gap-2 px-4 py-3 animate-fade-in transition-all duration-200 hover:opacity-95 cursor-pointer text-[var(--sys-red)] border-[var(--glass-border)] bg-[var(--bg-tertiary)] dark:text-red-400 dark:border-red-950/60 dark:bg-red-950/20"
             style={{
-              borderColor: "var(--glass-border)",
-              backgroundColor: "var(--bg-tertiary)",
-              color: "var(--sys-red, #ff3b30)",
               borderRadius: "12px",
               minHeight: "44px"
             }}

@@ -589,7 +589,7 @@ export default function MainLayout() {
                    style={{ backgroundColor: "var(--bg-tertiary)" }}
               >
                 <div 
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-white"
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-[var(--accent-fg)]"
                   style={{ 
                     background: "linear-gradient(135deg, var(--sys-orange, #ff9500), #ffb340)",
                     boxShadow: "0 4px 12px rgba(255, 149, 0, 0.25)"
@@ -607,8 +607,12 @@ export default function MainLayout() {
                   href="https://tally.so/r/44EOGr"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full font-bold text-white px-5 py-3 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 text-xs cursor-pointer"
-                  style={{ backgroundColor: "var(--sys-orange, #ff9500)", minHeight: "44px" }}
+                  className="w-full font-bold px-5 py-3 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 text-xs cursor-pointer hover:opacity-90"
+                  style={{ 
+                    backgroundColor: "var(--sys-orange, #ff9500)", 
+                    color: "var(--accent-fg)",
+                    minHeight: "44px" 
+                  }}
                 >
                   <span>Verifikasi Sekarang</span>
                   <ExternalLink size={14} />
