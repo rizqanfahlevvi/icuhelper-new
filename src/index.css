@@ -143,6 +143,16 @@ button, a[role], input, select { touch-action: manipulation; }
   animation: page-route-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ── Theme Transition for Smooth Switches ── */
+.theme-transition,
+.theme-transition *,
+.theme-transition::before, 
+.theme-transition::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow, filter, backdrop-filter, opacity;
+  transition-duration: 300ms;
+  transition-timing-function: ease-in-out;
+}
+
 /* ── Black & White Mode (Universal Grayscale Filter) ── */
 html.bw-mode,
 .bw-mode {

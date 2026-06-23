@@ -400,7 +400,7 @@ export default function MainLayout() {
         {/* Mobile App Sidebar Drawer */}
         <AnimatePresence>
           {isMobileMenuOpen && (
-            <div className="fixed inset-0 z-50 md:hidden flex">
+            <div className="fixed inset-0 z-[60] md:hidden flex">
               {/* Overlay */}
               <motion.div 
                 className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -493,9 +493,9 @@ export default function MainLayout() {
         </AnimatePresence>
 
         {/* Scrollable Viewport */}
-        <div className="flex-1 overflow-y-auto w-full no-scrollbar pb-[100px] md:pb-0 flex flex-col relative" id="main-scrollable-viewport">
+        <div className={`flex-1 w-full pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto no-scrollbar'}`} id="main-scrollable-viewport">
           {isLocked && (
-            <div className="absolute inset-x-0 top-0 bottom-0 z-30 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto bg-white/45 dark:bg-black/45 backdrop-blur-md"
+            <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto bg-white/45 dark:bg-black/45 backdrop-blur-md"
                  id="verification-restriction-overlay"
             >
               <div className="p-8 rounded-3xl ios-card flex flex-col items-center max-w-sm mx-auto shadow-2xl border border-[var(--glass-border)]"
@@ -529,7 +529,7 @@ export default function MainLayout() {
               </div>
             </div>
           )}
-          <div key={location.pathname} className={`w-full flex-grow flex flex-col ${isLocked ? 'pointer-events-none select-none filter blur-[2px]' : 'animate-page-route'}`}>
+          <div key={location.pathname} className={`w-full flex-grow flex flex-col ${isLocked ? 'pointer-events-none select-none' : 'animate-page-route'}`}>
             <Outlet />
           </div>
           <footer className="w-full text-center py-6 px-4 mt-auto border-t border-[var(--separator)] text-[11px] text-[var(--label-secondary)] font-medium">

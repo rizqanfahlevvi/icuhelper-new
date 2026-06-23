@@ -243,6 +243,14 @@ export default function App() {
     }
   }, [fontFamily, fontScale, fontWeight, themeMode, bwMode]);
 
+  useEffect(() => {
+    // Enable transition after initial load to prevent flicker
+    const timer = setTimeout(() => {
+      document.documentElement.classList.add('theme-transition');
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>
