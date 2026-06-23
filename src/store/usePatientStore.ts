@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { idbStorage } from '../utils/idbStorage';
 
 export interface Patient {
   id: string;
@@ -165,6 +166,7 @@ export const usePatientStore = create<PatientState>()(
     }),
     {
       name: 'icu-patient-multi',
+      storage: createJSONStorage(() => idbStorage),
     }
   )
 );

@@ -1,3 +1,5 @@
+import { clearPatientDb } from './idbStorage';
+
 export interface StorageEstimateInfo {
   used: string;       // human readable
   quota: string;      // human readable
@@ -99,7 +101,14 @@ export async function refreshCacheAndReload(): Promise<void> {
 export async function performHardReset(): Promise<void> {
   if (typeof window === 'undefined') return;
 
-  // Clear caches and unregister WS
+  try {
+    // Clear the offline patient database
+    await clearPatientDb();
+  } catch (e) {
+    console.error('Failed to clear offline patient database during hard reset:', e);
+  }
+
+  // Clear caches and unregister SW
   await refreshCacheAndReload();
 
   // Clear all localStorage data

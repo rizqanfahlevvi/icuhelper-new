@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, Calculator, Pill, Menu as MenuIcon, BookOpen, Activity, 
   ArrowDownCircle, Monitor, Settings, History, BookText, ChevronRight, ChevronLeft, X, Sun, Moon, User, LogOut,
-  ShieldAlert, Lock, ExternalLink
+  ShieldAlert, Lock, ExternalLink, Star
 } from 'lucide-react';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useRecentToolsStore } from '../../store/useRecentToolsStore';
 import { getFavoritableItemByPath } from '../../data/favoritableItems';
+import { useFavoritesStore } from '../../store/useFavoritesStore';
 import LogoIcon from '../ui/LogoIcon';
 import { useAuth } from '../../context/AuthContext';
 import { signOut } from 'firebase/auth';
@@ -42,6 +43,20 @@ export default function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const isCurrentFav = isFavorite(location.pathname);
+  const favoritableItem = getFavoritableItemByPath(location.pathname);
+  const isParentMenu = NAV_ITEMS.some(item => item.path === location.pathname);
+
+  const getPageTitle = () => {
+    if (location.pathname === '/') return 'ICU Helper';
+    if (favoritableItem) return favoritableItem.name;
+    const navItem = NAV_ITEMS.find(n => n.path === location.pathname || location.pathname.startsWith(n.path + '/'));
+    if (navItem) return navItem.name;
+    return 'Menu';
+  };
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -368,37 +383,42 @@ export default function MainLayout() {
       {/* Main Content Area */}
       <main className={`flex-1 relative w-full flex flex-col h-screen overflow-hidden transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'md:ml-[240px] md:w-[calc(100%-240px)]' : 'md:ml-[80px] md:w-[calc(100%-80px)]'}`}>
         {/* Unified Top Bar */}
-        <header className="ios-nav justify-between">
-          <div className="flex items-center gap-2 md:hidden">
-            <button onClick={() => setIsMobileMenuOpen(true)} className="ios-nav-btn p-1 -ml-1" aria-label="Open menu">
+        <header className="ios-nav justify-between relative">
+          {/* Left Brand and Menu Toggles */}
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)} 
+              className="ios-nav-btn p-1 -ml-1 md:hidden" 
+              aria-label="Open menu"
+            >
               <MenuIcon size={20} />
             </button>
-            <LogoIcon className="w-6 h-6 flex-shrink-0" />
-            <h1 className="font-bold text-[16px] tracking-[0px] text-[var(--label-primary)] overflow-hidden whitespace-nowrap">ICU<span className="text-[var(--accent)]">Helper</span></h1>
-          </div>
-          
-          <div className="hidden md:flex items-center gap-2 ml-1">
             <button 
               onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-              className="p-1.5 flex items-center justify-center rounded-lg text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)] transition-colors flex-shrink-0"
+              className="p-1.5 hidden md:flex items-center justify-center rounded-lg text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)] transition-colors flex-shrink-0"
               title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
             >
               <MenuIcon size={20} />
             </button>
+            <div className="flex items-center gap-2 ml-1">
+              <LogoIcon className="w-6 h-6 flex-shrink-0" />
+              <h1 className="font-bold text-[16px] tracking-[0px] text-[var(--label-primary)] overflow-hidden whitespace-nowrap hidden md:block">ICU<span className="text-[var(--accent)]">Helper</span></h1>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3 relative">
+          {/* Right Navigation: profile dropdown, separator, and theme switcher */}
+          <div className="flex items-center gap-2.5 z-10 relative">
             {user && (
-              <div ref={profileDropdownRef} className="flex items-center relative mr-0 md:mr-1">
+              <div ref={profileDropdownRef} className="flex items-center relative">
                 <button
                   type="button"
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-[var(--fill-secondary)] transition-colors"
+                  className="flex items-center gap-2 px-1.5 sm:px-2 py-1.5 rounded-xl hover:bg-[var(--fill-secondary)] transition-colors"
                 >
-                  <span className="text-sm font-semibold text-[var(--label-primary)] truncate max-w-[150px] md:max-w-[200px]">
+                  <span className="text-sm font-semibold text-[var(--label-primary)] truncate max-w-[120px] md:max-w-[180px] hidden sm:inline">
                     Hi, {getFullNameWithPrefix()}
                   </span>
-                  <div className="w-8 h-8 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none flex-shrink-0 border border-[var(--glass-border)] hidden md:flex">
+                  <div className="w-8 h-8 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none flex-shrink-0 border border-[var(--glass-border)] flex">
                     {getInitialFromProfile()}
                   </div>
                 </button>
@@ -410,7 +430,7 @@ export default function MainLayout() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-[calc(100%+8px)] right-0 w-64 p-3.5 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col gap-3 shadow-lg z-[100] origin-top-right md:right-0"
+                      className="absolute top-[calc(100%+8px)] right-0 w-64 p-3.5 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col gap-3 shadow-lg z-[100] origin-top-right"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-lg select-none flex-shrink-0">
@@ -450,6 +470,51 @@ export default function MainLayout() {
             </button>
           </div>
         </header>
+
+        {/* iOS-Style Sub Navigation Bar */}
+        {!isParentMenu && (
+          <div className="h-[46px] flex items-center justify-between px-4 bg-[var(--bg-secondary)] sticky top-[60px] z-20 w-full relative">
+            {/* Left: Back button with standard iOS blue Chevron and text */}
+            <div className="flex items-center min-w-[80px]">
+              {location.pathname !== '/' && (
+                <button
+                  onClick={() => navigate(-1)}
+                  className="flex items-center gap-0.5 text-[var(--accent)] hover:opacity-80 transition-opacity font-medium -ml-1 text-[15px] py-1 cursor-pointer"
+                  title="Kembali"
+                >
+                  <ChevronLeft size={20} className="stroke-[2.5]" />
+                  <span>Kembali</span>
+                </button>
+              )}
+            </div>
+
+            {/* Center: Screen Title */}
+            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none max-w-[170px] sm:max-w-xs md:max-w-md text-center">
+              <h2 className="font-semibold text-[15px] tracking-tight text-[var(--label-primary)] truncate">
+                {getPageTitle()}
+              </h2>
+            </div>
+
+            {/* Right: iOS Star Favorite Toggle Button */}
+            <div className="flex items-center justify-end min-w-[80px]">
+              {favoritableItem && (
+                <button
+                  onClick={() => toggleFavorite(location.pathname)}
+                  className="p-1 px-2.5 rounded-full hover:bg-[var(--fill-secondary)] text-[var(--label-secondary)] hover:text-[#ffcc00] transition-all flex items-center gap-1 cursor-pointer"
+                  title={isCurrentFav ? "Hapus dari Favorit" : "Simpan ke Favorit"}
+                >
+                  <Star 
+                    size={16} 
+                    className={`transition-all duration-200 ${isCurrentFav ? 'fill-[#ffcc00] text-[#ffcc00] stroke-[#ffcc00] scale-110' : 'text-[var(--label-secondary)]'}`} 
+                  />
+                  <span className={`text-[12px] font-medium hidden sm:inline ${isCurrentFav ? 'text-[#ffcc00] font-semibold' : 'text-[var(--label-secondary)]'}`}>
+                    {isCurrentFav ? 'Favorit' : 'Suka'}
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Mobile App Sidebar Drawer */}
         <AnimatePresence>
