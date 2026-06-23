@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { User, Mail, Lock, UserPlus, AlertCircle, CheckCircle } from "lucide-react";
+import { User, Mail, Lock, UserPlus, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { auth, db } from "../lib/firebase";
 
 export default function SignUpPage() {
+  const [namaLengkap, setNamaLengkap] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +25,10 @@ export default function SignUpPage() {
     setSuccess(null);
 
     // Form validations
+    if (!namaLengkap.trim()) {
+      setError("Nama lengkap wajib diisi.");
+      return;
+    }
     if (!username.trim()) {
       setError("Nama pengguna (username) wajib diisi.");
       return;
@@ -46,6 +53,7 @@ export default function SignUpPage() {
         uid: user.uid,
         email: user.email || "",
         username: username,
+        namaLengkap: namaLengkap,
         role: "pending",
         subscriptionStatus: "inactive",
         subscriptionPlan: null,
@@ -152,6 +160,39 @@ export default function SignUpPage() {
               className="block text-xs font-semibold uppercase tracking-wider mb-1.5 ml-1"
               style={{ color: "var(--label-secondary)" }}
             >
+              NAMA LENGKAP
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: "var(--label-tertiary)" }}>
+                <User size={18} />
+              </span>
+              <input
+                type="text"
+                required
+                className="w-full pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2"
+                style={{
+                  backgroundColor: "var(--fill-secondary)",
+                  border: "1px solid var(--glass-border)",
+                  borderRadius: "12px",
+                  color: "var(--label-primary)",
+                  minHeight: "44px"
+                }}
+                placeholder="Contoh: Rizqan Fahlevi"
+                value={namaLengkap}
+                onChange={(e) => setNamaLengkap(e.target.value)}
+                disabled={isLoading || !!success}
+              />
+            </div>
+            <p className="text-[11px] mt-1 ml-1 leading-normal" style={{ color: "var(--label-secondary)" }}>
+              Tulis nama tanpa gelar. Gelar akan ditambahkan otomatis setelah verifikasi.
+            </p>
+          </div>
+
+          <div>
+            <label 
+              className="block text-xs font-semibold uppercase tracking-wider mb-1.5 ml-1"
+              style={{ color: "var(--label-secondary)" }}
+            >
               Nama Pengguna (Username)
             </label>
             <div className="relative">
@@ -219,9 +260,9 @@ export default function SignUpPage() {
                 <Lock size={18} />
               </span>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
-                className="w-full pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2"
+                className="w-full pl-10 pr-10 py-3 text-sm focus:outline-none focus:ring-2"
                 style={{
                   backgroundColor: "var(--fill-secondary)",
                   border: "1px solid var(--glass-border)",
@@ -234,6 +275,16 @@ export default function SignUpPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading || !!success}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer touch-target"
+                style={{ color: "var(--label-tertiary)" }}
+                disabled={isLoading || !!success}
+                id="toggle-password-visibility"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
@@ -249,9 +300,9 @@ export default function SignUpPage() {
                 <Lock size={18} />
               </span>
               <input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 required
-                className="w-full pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2"
+                className="w-full pl-10 pr-10 py-3 text-sm focus:outline-none focus:ring-2"
                 style={{
                   backgroundColor: "var(--fill-secondary)",
                   border: "1px solid var(--glass-border)",
@@ -264,6 +315,16 @@ export default function SignUpPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isLoading || !!success}
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer touch-target"
+                style={{ color: "var(--label-tertiary)" }}
+                disabled={isLoading || !!success}
+                id="toggle-confirm-password-visibility"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 

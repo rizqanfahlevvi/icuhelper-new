@@ -7,6 +7,7 @@ export interface UserProfile {
   uid: string;
   email: string;
   username: string;
+  namaLengkap?: string;
   role: "pending" | "doctor" | "resident" | "specialist" | "admin";
   subscriptionStatus: "inactive" | "trial" | "active" | "expired";
   profileCompleted: boolean;

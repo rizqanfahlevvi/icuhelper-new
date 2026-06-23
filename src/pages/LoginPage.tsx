@@ -6,12 +6,13 @@ import {
   GoogleAuthProvider 
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { Mail, Lock, LogIn, AlertCircle, Chrome } from "lucide-react";
+import { Mail, Lock, LogIn, AlertCircle, Chrome, Eye, EyeOff } from "lucide-react";
 import { auth, db } from "../lib/firebase";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -39,7 +40,7 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error("Login email error:", err);
       let message = "Gagal masuk. Silakan periksa kembali email dan password Anda.";
-      if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
+      if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
         message = "Email atau password salah.";
       } else if (err.code === "auth/invalid-email") {
         message = "Format email tidak valid.";
@@ -191,9 +192,9 @@ export default function LoginPage() {
                 <Lock size={18} />
               </span>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
-                className="w-full pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2"
+                className="w-full pl-10 pr-10 py-3 text-sm focus:outline-none focus:ring-2"
                 style={{
                   backgroundColor: "var(--fill-secondary)",
                   border: "1px solid var(--glass-border)",
@@ -206,6 +207,16 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer touch-target"
+                style={{ color: "var(--label-tertiary)" }}
+                disabled={isLoading}
+                id="toggle-login-password-visibility"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 

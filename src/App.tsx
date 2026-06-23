@@ -114,7 +114,7 @@ function VerificationPage() {
 
         <div className="space-y-3">
           <a
-            href="#"
+            href="https://tally.so/r/44EOGr"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full font-semibold text-white shadow-sm flex items-center justify-center gap-2 px-4 py-3"
@@ -152,7 +152,7 @@ function VerificationPage() {
 }
 
 function ProtectedRoute() {
-  const { isAuthenticated, isLoading, isAuthorized } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -169,10 +169,6 @@ function ProtectedRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
-  }
-
-  if (!isAuthorized) {
-    return <VerificationPage />;
   }
 
   return <Outlet />;
