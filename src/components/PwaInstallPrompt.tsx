@@ -34,12 +34,8 @@ export function PwaInstallPrompt() {
       }
     }
 
-    // fallback for testing if no event fires and we want to show it:
-    // This allows desktop users or android users to see the banner 
-    // even if they don't meet all PWA criteria yet (like service worker)
-    // Uncomment for testing if needed
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname.includes('run.app');
-    if (!isIosDevice && !isStandalone && isLocalhost) {
+    // fallback: show prompt for everyone who is not standalone 
+    if (!isIosDevice && !isStandalone) {
       const hasDismissed = localStorage.getItem('pwa_install_dismissed');
       if (!hasDismissed) {
          // Add small delay so it doesn't pop immediately on load
