@@ -34,15 +34,6 @@ export function PwaInstallPrompt() {
       }
     }
 
-    // fallback: show prompt for everyone who is not standalone 
-    if (!isIosDevice && !isStandalone) {
-      const hasDismissed = localStorage.getItem('pwa_install_dismissed');
-      if (!hasDismissed) {
-         // Add small delay so it doesn't pop immediately on load
-         setTimeout(() => setShowPrompt(true), 2000);
-      }
-    }
-
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
