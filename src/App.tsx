@@ -50,6 +50,7 @@ import TeoriGagalNapas from './pages/theory/TeoriGagalNapas';
 import TeoriAirway from './pages/theory/TeoriAirway';
 import TeoriSepsis from './pages/theory/TeoriSepsis';
 import TeoriDKAHHS from './pages/theory/TeoriDKAHHS';
+import TeoriFisiologi from './pages/theory/TeoriFisiologi';
 import TeoriSyok from './pages/theory/TeoriSyok';
 import TeoriB1B6 from './pages/theory/TeoriB1B6';
 import TeoriSATSBT from './pages/theory/TeoriSATSBT';
@@ -63,6 +64,8 @@ import ScoringCandida from './pages/scoring/ScoringCandida';
 import ScoringCpis from './pages/scoring/ScoringCpis';
 import ScoringRass from './pages/scoring/ScoringRass';
 import ScoringSofa from './pages/scoring/ScoringSofa';
+
+import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 
 function VerificationPage() {
   const handleLogout = async () => {
@@ -285,7 +288,7 @@ export default function App() {
               <Route path="/theory/aki-crrt" element={<TeoriAKICRRT />} />
               <Route path="/theory/b1b6" element={<TeoriB1B6 />} />
               <Route path="/theory/dka-hhs" element={<TeoriDKAHHS />} />
-              <Route path="/theory/fisiologi" element={<PlaceholderPage title="Fisiologi Dasar" category="theory" />} />
+              <Route path="/theory/fisiologi" element={<TeoriFisiologi />} />
               <Route path="/theory/gagalnapas" element={<TeoriGagalNapas />} />
               <Route path="/theory/impending" element={<TeoriImpending />} />
               <Route path="/theory/nutrisi" element={<TeoriNutrisi />} />
@@ -317,6 +320,7 @@ export default function App() {
             </Route>
           </Route>
         </Routes>
+        <PwaInstallPrompt />
       </BrowserRouter>
     </AuthProvider>
   );

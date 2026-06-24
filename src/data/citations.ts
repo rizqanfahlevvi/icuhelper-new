@@ -318,5 +318,268 @@ export const ICU_REFS: Record<string, any> = {
     vol: '63',
     pages: 'e61–e111',
     doi: '10.1093/cid/ciw353'
+  },
+  singer2016: {
+    authors: 'Singer M, Deutschman CS, Seymour CW, et al.',
+    title: 'The Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3)',
+    journal: 'JAMA', year: 2016, vol: '315', pages: '801–810',
+    doi: '10.1001/jama.2016.0287'
+  },
+  vincent1996: {
+    authors: 'Vincent JL, Moreno R, Takala J, et al.',
+    title: 'The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure',
+    journal: 'Intensive Care Med', year: 1996, vol: '22', pages: '707–710',
+    doi: '10.1007/BF01709751'
+  },
+  ferreira2001: {
+    authors: 'Ferreira FL, Bota DP, Bross A, Mélot C, Vincent JL',
+    title: 'Serial evaluation of the SOFA score to predict outcome in critically ill patients',
+    journal: 'JAMA', year: 2001, vol: '286', pages: '1754–1758',
+    doi: '10.1001/jama.286.14.1754'
+  },
+  lambden2019: {
+    authors: 'Lambden S, Laterre PF, Levy MM, Francois B',
+    title: 'The SOFA score—development, utility and challenges of accurate assessment in clinical trials',
+    journal: 'Crit Care', year: 2019, vol: '23', pages: '374',
+    doi: '10.1186/s13054-019-2663-7'
+  },
+  seymour2016: {
+    authors: 'Seymour CW, Liu VX, Iwashyna TJ, et al.',
+    title: 'Assessment of clinical criteria for sepsis: for the Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3)',
+    journal: 'JAMA', year: 2016, vol: '315', pages: '762–774',
+    doi: '10.1001/jama.2016.0288'
+  },
+  knaus1985: {
+    authors: 'Knaus WA, Draper EA, Wagner DP, Zimmerman JE',
+    title: 'APACHE II: a severity of disease classification system',
+    journal: 'Crit Care Med', year: 1985, vol: '13', pages: '818–829',
+    doi: '10.1097/00003246-198510000-00009'
+  },
+  zimmerman2006: {
+    authors: 'Zimmerman JE, Kramer AA, McNair DS, Malila FM',
+    title: 'Acute Physiology and Chronic Health Evaluation (APACHE) IV: hospital mortality assessment for today\'s critically ill patients',
+    journal: 'Crit Care Med', year: 2006, vol: '34', pages: '1297–1310',
+    doi: '10.1097/01.CCM.0000215112.84523.F0'
+  },
+  sessler2002: {
+    authors: 'Sessler CN, Gosnell MS, Grap MJ, et al.',
+    title: 'The Richmond Agitation-Sedation Scale: validity and reliability in adult intensive care unit patients',
+    journal: 'Am J Respir Crit Care Med', year: 2002, vol: '166', pages: '1338–1344',
+    doi: '10.1164/rccm.2107138'
+  },
+  ely2001: {
+    authors: 'Ely EW, Inouye SK, Bernard GR, et al.',
+    title: 'Delirium in mechanically ventilated patients: validity and reliability of the confusion assessment method for the intensive care unit (CAM-ICU)',
+    journal: 'JAMA', year: 2001, vol: '286', pages: '2703–2710',
+    doi: '10.1001/jama.286.21.2703'
+  },
+  padis2025: {
+    authors: 'Devlin JW, Skrobik Y, Gélinas C, et al.',
+    title: 'SCCM PADIS Clinical Practice Guidelines focused update 2025',
+    journal: 'Crit Care Med', year: 2025, vol: '53', pages: 'e711–e727',
+    doi: '10.1097/CCM.0000000000006590'
+  },
+  rockwood2005: {
+    authors: 'Rockwood K, Song X, MacKnight C, et al.',
+    title: 'A global clinical measure of fitness and frailty in elderly people',
+    journal: 'CMAJ', year: 2005, vol: '173', pages: '489–495',
+    doi: '10.1503/cmaj.050051'
+  },
+  darvall2019: {
+    authors: 'Darvall JN, Bellomo R, Bailey M, et al.',
+    title: 'Frailty and outcomes from pneumonia in critical illness: a population-based cohort study',
+    journal: 'Crit Care', year: 2019, vol: '23', pages: '220',
+    doi: '10.1186/s13054-019-2506-6'
+  },
+  hewitt2020: {
+    authors: 'Hewitt J, Carter B, Vilches-Moraga A, et al.',
+    title: 'The effect of frailty on survival in patients with COVID-19 (COPE): a multicentre, European, observational cohort study',
+    journal: 'Lancet Public Health', year: 2020, vol: '5', pages: 'e444–e451',
+    doi: '10.1016/S2468-2667(20)30146-8'
+  },
+  leon2006: {
+    authors: 'León C, Ruiz-Santana S, Saavedra P, et al.',
+    title: 'A bedside scoring system ("Candida score") for early antifungal treatment in nonneutropenic critically ill patients with Candida colonization',
+    journal: 'Crit Care Med', year: 2006, vol: '34', pages: '730–737',
+    doi: '10.1097/01.CCM.0000202208.37364.7D'
+  },
+  cornely2023: {
+    authors: 'Cornely OA, Bassetti M, Kühnel S, et al.; ESCMID-ECMM fungal disease study group',
+    title: 'ESCMID-ECMM guideline for the diagnosis and management of Candida diseases 2023',
+    journal: 'Clin Microbiol Infect', year: 2023, vol: '29 Suppl 2', pages: 'S1–S42',
+    doi: '10.1016/j.cmi.2023.09.019'
+  },
+  pugin1991: {
+    authors: 'Pugin J, Auckenthaler R, Mili N, Janssens JP, Lew PD, Suter PM',
+    title: 'Diagnosis of ventilator-associated pneumonia by bacteriologic analysis of bronchoscopic and nonbronchoscopic blind bronchoalveolar lavage fluid',
+    journal: 'Am Rev Respir Dis', year: 1991, vol: '143', pages: '1121–1129',
+    doi: '10.1164/ajrccm/143.5_Pt_1.1121'
+  },
+  singh2000: {
+    authors: 'Singh N, Rogers P, Atwood CW, Wagener MM, Yu VL',
+    title: 'Short-course empiric antibiotic therapy for patients with pulmonary infiltrates in the intensive care unit',
+    journal: 'Am J Respir Crit Care Med', year: 2000, vol: '162', pages: '505–511',
+    doi: '10.1164/ajrccm.162.2.9909095'
+  },
+  raith2017: {
+    authors: 'Raith EP, Udy AA, Bailey M, et al.',
+    title: 'Prognostic accuracy of the SOFA score, SIRS criteria, and qSOFA score for in-hospital mortality among adults with suspected infection admitted to the intensive care unit',
+    journal: 'JAMA', year: 2017, vol: '317', pages: '290–300',
+    doi: '10.1001/jama.2016.20328'
+  },
+  matthay2023: {
+    authors: 'Matthay MA, Arabi Y, Arroliga AC, et al.',
+    title: 'A new global definition of acute respiratory distress syndrome',
+    journal: 'Am J Respir Crit Care Med', year: 2023, vol: '209', pages: '37–47',
+    doi: '10.1164/rccm.202303-0558WS'
+  },
+  esicm2023ards: {
+    authors: 'Grasselli G, Calfee CS, Camporota L, et al.',
+    title: 'ESICM guidelines on acute respiratory distress syndrome: definition, phenotyping and respiratory support strategies',
+    journal: 'Intensive Care Med', year: 2023, vol: '49', pages: '727–759',
+    doi: '10.1007/s00134-023-07050-7'
+  },
+  guerin2013: {
+    authors: 'Guérin C, Reignier J, Richard JC, et al.; PROSEVA Study Group',
+    title: 'Prone positioning in severe acute respiratory distress syndrome',
+    journal: 'N Engl J Med', year: 2013, vol: '368', pages: '2159–2168',
+    doi: '10.1056/NEJMoa1214103'
+  },
+  amato2015: {
+    authors: 'Amato MB, Meade MO, Slutsky AS, et al.',
+    title: 'Driving pressure and survival in the acute respiratory distress syndrome',
+    journal: 'N Engl J Med', year: 2015, vol: '372', pages: '747–755',
+    doi: '10.1056/NEJMsa1410639'
+  },
+  frat2015: {
+    authors: 'Frat JP, Thille AW, Mercat A, et al.; FLORALI Study Group',
+    title: 'High-flow oxygen through nasal cannula in acute hypoxemic respiratory failure',
+    journal: 'N Engl J Med', year: 2015, vol: '372', pages: '2185–2196',
+    doi: '10.1056/NEJMoa1503326'
+  },
+  rochwerg2017: {
+    authors: 'Rochwerg B, Brochard L, Elliott MW, et al.',
+    title: 'Official ERS/ATS clinical practice guidelines: noninvasive ventilation for acute respiratory failure',
+    journal: 'Eur Respir J', year: 2017, vol: '50', pages: '1602426',
+    doi: '10.1183/13993003.02426-2016'
+  },
+  roca2019: {
+    authors: 'Roca O, Caralt B, Messika J, et al.',
+    title: 'An index combining respiratory rate and oxygenation to predict outcome of nasal high-flow therapy',
+    journal: 'Am J Respir Crit Care Med', year: 2019, vol: '199', pages: '1368–1376',
+    doi: '10.1164/rccm.201803-0589OC'
+  },
+  ahmad2025: {
+    authors: 'Ahmad I, El-Boghdadly K, Bhagrath R, et al.; Difficult Airway Society',
+    title: 'Difficult Airway Society guidelines for management of unanticipated difficult tracheal intubation in adults 2025',
+    journal: 'Br J Anaesth', year: 2025, vol: '135', pages: '693–717',
+    doi: '10.1016/j.bja.2025.10.006'
+  },
+  apfelbaum2022: {
+    authors: 'Apfelbaum JL, Hagberg CA, Connis RT, et al.; American Society of Anesthesiologists',
+    title: 'Practice guidelines for management of the difficult airway: 2022 update by the ASA Task Force',
+    journal: 'Anesthesiology', year: 2022, vol: '136', pages: '31–81',
+    doi: '10.1097/ALN.0000000000004002'
+  },
+  araujo2024: {
+    authors: 'Araújo AM, Reyes LF, Duque P, et al.',
+    title: 'Video versus direct laryngoscopy for orotracheal intubation in critically ill adults: a systematic review and meta-analysis',
+    journal: 'Crit Care', year: 2024, vol: '28', pages: '44',
+    doi: '10.1186/s13054-023-04727-9'
+  },
+  brown2023: {
+    authors: 'Brown CA, Mosier JM, Wojcieszak J, et al.',
+    title: 'Successful laryngoscopy is associated with a lower incidence of in-hospital death among emergency intubation patients',
+    journal: 'N Engl J Med', year: 2023, vol: '389', pages: '1943–1952',
+    doi: '10.1056/NEJMoa2301705'
+  },
+  vincent2013: {
+    authors: 'Vincent JL, De Backer D',
+    title: 'Circulatory shock',
+    journal: 'N Engl J Med', year: 2013, vol: '369', pages: '1726–1734',
+    doi: '10.1056/NEJMra1208943'
+  },
+  kapur2019: {
+    authors: 'Baran DA, Grines CL, Bailey S, et al.',
+    title: 'SCAI clinical expert consensus statement on the classification of cardiogenic shock',
+    journal: 'Catheter Cardiovasc Interv', year: 2019, vol: '94', pages: '29–37',
+    doi: '10.1002/ccd.28329'
+  },
+  debacker2010: {
+    authors: 'De Backer D, Biston P, Devriendt J, et al.',
+    title: 'Comparison of dopamine and norepinephrine in the treatment of shock',
+    journal: 'N Engl J Med', year: 2010, vol: '362', pages: '779–789',
+    doi: '10.1056/NEJMoa0907118'
+  },
+  monnet2016: {
+    authors: 'Monnet X, Marik PE, Teboul JL',
+    title: 'Passive leg raising for predicting fluid responsiveness: a systematic review and meta-analysis',
+    journal: 'Intensive Care Med', year: 2016, vol: '42', pages: '1935–1947',
+    doi: '10.1007/s00134-015-4134-1'
+  },
+  umpierrez2024: {
+    authors: 'Umpierrez GE, Davis GM, ElSayed NA, et al.',
+    title: 'Hyperglycemic crises in adult patients with diabetes: a consensus report',
+    journal: 'Diabetes Care', year: 2024, vol: '47', pages: '1257–1275',
+    doi: '10.2337/dci24-0032'
+  },
+  kitabchi2009: {
+    authors: 'Kitabchi AE, Umpierrez GE, Miles JM, Fisher JN',
+    title: 'Hyperglycemic crises in adult patients with diabetes',
+    journal: 'Diabetes Care', year: 2009, vol: '32', pages: '1335–1343',
+    doi: '10.2337/dc09-9032'
+  },
+  kdigo2012: {
+    authors: 'Kidney Disease: Improving Global Outcomes (KDIGO) AKI Work Group',
+    title: 'KDIGO Clinical Practice Guideline for Acute Kidney Injury',
+    journal: 'Kidney Int Suppl', year: 2012, vol: '2', pages: '1–138',
+    doi: '10.1038/kisup.2012.1'
+  },
+  gaudry2021: {
+    authors: 'Gaudry S, Hajage D, Martin-Lefevre L, et al.',
+    title: 'Comparison of two delayed strategies for renal replacement therapy initiation for severe acute kidney injury (AKIKI-2)',
+    journal: 'JAMA', year: 2021, vol: '325', pages: '2306–2315',
+    doi: '10.1001/jama.2021.4350'
+  },
+  starrt2020: {
+    authors: 'STARRT-AKI Investigators',
+    title: 'Timing of initiation of renal-replacement therapy in acute kidney injury',
+    journal: 'N Engl J Med', year: 2020, vol: '383', pages: '240–251',
+    doi: '10.1056/NEJMoa2000741'
+  },
+  espen2023: {
+    authors: 'Singer P, Rattanachaiwong S',
+    title: 'ESPEN practical guideline: clinical nutrition in the intensive care unit 2023',
+    journal: 'Clin Nutr', year: 2023, vol: '42', pages: '1671–1689',
+    doi: '10.1016/j.clnu.2023.06.027'
+  },
+  girard2008: {
+    authors: 'Girard TD, Kress JP, Fuchs BD, et al.',
+    title: 'Efficacy and safety of a paired sedation and ventilator weaning protocol (Awakening and Breathing Controlled trial)',
+    journal: 'Lancet', year: 2008, vol: '371', pages: '126–134',
+    doi: '10.1016/S0140-6736(08)60105-1'
+  },
+  ouellette2017: {
+    authors: 'Ouellette DR, Patel S, Girard TD, et al.',
+    title: 'Liberation from mechanical ventilation in critically ill adults: an official ATS/ACCP clinical practice guideline',
+    journal: 'Chest', year: 2017, vol: '151', pages: '166–180',
+    doi: '10.1016/j.chest.2016.10.028'
+  },
+  kalil2016: {
+    authors: 'Kalil AC, Metersky ML, Klompas M, et al.',
+    title: 'Management of adults with hospital-acquired and ventilator-associated pneumonia: 2016 IDSA and ATS Clinical Practice Guidelines',
+    journal: 'Clin Infect Dis', year: 2016, vol: '63', pages: 'e61–e111',
+    doi: '10.1093/cid/ciw353'
+  },
+  klompas2022: {
+    authors: 'Klompas M, Branson R, Cawcutt K, et al.',
+    title: 'Strategies to prevent ventilator-associated pneumonia, ventilator-associated events, and nonventilator hospital-acquired pneumonia in acute-care hospitals: 2022 update',
+    journal: 'Infect Control Hosp Epidemiol', year: 2022, vol: '43', pages: '687–713',
+    doi: '10.1017/ice.2022.88'
+  },
+  papdi2022sepsis: {
+    authors: 'Perhimpunan Dokter Spesialis Penyakit Dalam Indonesia (PAPDI)',
+    title: 'Pedoman Tatalaksana Sepsis dan Syok Sepsis — PAPDI 2022',
+    journal: 'PAPDI', year: 2022, vol: '', pages: '', doi: ''
   }
 };

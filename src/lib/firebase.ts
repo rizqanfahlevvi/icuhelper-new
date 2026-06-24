@@ -14,6 +14,7 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = initializeFirestore(app, {
+  experimentalAutoDetectLongPolling: true,
   localCache: persistentLocalCache({
     tabManager: persistentMultipleTabManager()
   })

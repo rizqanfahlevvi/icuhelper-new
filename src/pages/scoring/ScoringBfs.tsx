@@ -95,7 +95,7 @@ export default function ScoringBfs() {
           <li><strong className="text-foreground">Keterbatasan:</strong> CFS tidak valid sebagai baseline pada pasien dengan disabilitas perkembangan kronik atau kondisi neurologi kronik parah yang stabil (misal: cerebral palsy). Gunakan kondisi fungsional terbaik 2 minggu sebelum sakit akut.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Rockwood K et al. (2005) CMAJ; Darvall JN et al. (2019) Crit Care.
+          📚 Rockwood K et al. (CFS original) CMAJ 2005;173:489 · Darvall JN et al. Crit Care 2019;23:220 · Hewitt J et al. (frailty & mortalitas ICU) JAMA Intern Med 2020;180:1494 · Flaatten H et al. (frailty ICU elderly) ICM 2020;46:1329
         </div>
       </Accordion>
     </div>

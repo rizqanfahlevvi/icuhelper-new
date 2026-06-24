@@ -93,6 +93,54 @@ export default function TeoriSyok() {
               </tbody>
             </table>
           </div>
+
+          <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1 mt-4">Staging Syok Kardiogenik (SCAI Classification)</h3>
+          <div className="overflow-x-auto mb-2">
+            <table className="w-full text-left border-collapse text-[12px]">
+              <thead>
+                <tr className="bg-muted text-muted-foreground border-b border-border">
+                  <th className="p-2">Stage</th>
+                  <th className="p-2">Definisi</th>
+                  <th className="p-2">Kriteria Klinis</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border text-foreground">
+                  <td className="p-2 font-bold whitespace-nowrap text-emerald-600 dark:text-emerald-400">Stage A (At Risk)</td>
+                  <td className="p-2 text-muted-foreground">Berisiko syok kardiogenik</td>
+                  <td className="p-2">IMA luas, gagal jantung dekompensasi akut tanpa tanda syok saat ini</td>
+                </tr>
+                <tr className="border-b border-border text-foreground">
+                  <td className="p-2 font-bold whitespace-nowrap text-amber-500">Stage B (Beginning)</td>
+                  <td className="p-2 text-muted-foreground">Syok kompensasi / awal</td>
+                  <td className="p-2">Hipotensi relatif (SBP &lt;90 atau MAP &lt;60) atau takikardia tanpa hipoperfusi klinis</td>
+                </tr>
+                <tr className="border-b border-border text-foreground">
+                  <td className="p-2 font-bold whitespace-nowrap text-orange-500">Stage C (Classic)</td>
+                  <td className="p-2 text-muted-foreground">Syok kardiogenik klasik</td>
+                  <td className="p-2">Hipoperfusi jaringan + hipotensi, butuh vasopressor/inotropik atau bantuan mekanis (MCS)</td>
+                </tr>
+                <tr className="border-b border-border text-foreground">
+                  <td className="p-2 font-bold whitespace-nowrap text-red-500">Stage D (Deteriorating)</td>
+                  <td className="p-2 text-muted-foreground">Kondisi memburuk / refrakter</td>
+                  <td className="p-2">Gagal berespons terhadap terapi inisial, eskalasi inotropik atau dosis tinggi, hipoperfusi persisten</td>
+                </tr>
+                <tr className="text-foreground">
+                  <td className="p-2 font-bold whitespace-nowrap text-red-700 dark:text-red-600">Stage E (Extremis)</td>
+                  <td className="p-2 text-muted-foreground">Kolaps sirkulasi / peri-arrest</td>
+                  <td className="p-2">Cardiac arrest berulang, resusitasi aktif, atau syok berat dengan ketidakstabilan ekstrem</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-[11px] italic text-muted-foreground">
+            📚 Baran DA et al. (SCAI classification 2019) Catheter Cardiovasc Interv 2019;94:29
+          </p>
+
+          <p className="mt-4 text-[11px] italic text-muted-foreground border-t border-border/50 pt-2">
+            📚 Vincent JL & De Backer D. Circulatory Shock. NEJM 2013;369:1726 · 
+            Cecconi M et al. (ESICM Consensus on Shock) ICM 2014;40:1795
+          </p>
         </Accordion>
 
         <Accordion title="📖 RUSH Exam (Point-of-Care Ultrasound)">
@@ -161,6 +209,10 @@ export default function TeoriSyok() {
             <li><strong className="text-foreground">Pulse Pressure Variation (PPV):</strong> PPV &gt;13% pada pasien VM terkontrol → fluid responsive.</li>
             <li><strong className="text-foreground">Cairan pilihan:</strong> Normal Saline 0.9% atau Ringer Laktat. Hindari starch (HES) → nefrotoksik.</li>
           </ul>
+          <p className="mt-3 text-[11px] italic text-muted-foreground mb-4">
+            📚 Monnet X et al. (PLR meta-analisis) ICM 2016;42:1935 · 
+            Evans L et al. (SSC 2024, guided resuscitation) ICM 2024;50:744
+          </p>
 
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Tabel Vasopressor Utama</h3>
           <div className="overflow-x-auto mb-2">
@@ -178,6 +230,11 @@ export default function TeoriSyok() {
               </tbody>
             </table>
           </div>
+          <p className="mt-3 text-[11px] italic text-muted-foreground">
+            📚 De Backer D et al. (norepinefrin vs dopamin) NEJM 2010;362:779 · 
+            Evans L et al. (SSC 2021, vasopressor first-line NE) ICM 2021;47:1181 · 
+            Annane D et al. (APROCCHSS, hidrokortison) NEJM 2018;378:809
+          </p>
         </Accordion>
 
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
@@ -190,6 +247,10 @@ export default function TeoriSyok() {
             <li>Evans L, et al. Surviving sepsis campaign: international guidelines for management of sepsis and septic shock 2021. <em>Intensive Care Med</em>. 2021.</li>
             <li>Morita H, et al. Anaphylaxis guidelines: 2022 update. <em>Allergol Int</em>. 2022.</li>
             <li>Overgaard CB, Dzavík V. Inotropes and vasopressors: review of physiology and clinical use in cardiovascular disease. <em>Circulation</em>. 2008.</li>
+            <li>De Backer D et al. Comparison of dopamine and norepinephrine in the treatment of shock. <em>N Engl J Med</em>. 2010;362:779.</li>
+            <li>Evans L et al. Surviving Sepsis Campaign: International Guidelines 2021. <em>Intensive Care Med</em>. 2021;47:1181.</li>
+            <li>Evans L et al. Surviving Sepsis Campaign: 2024 update. <em>Intensive Care Med</em>. 2024;50:744.</li>
+            <li>Baran DA et al. SCAI clinical expert consensus statement on the classification of cardiogenic shock. <em>Catheter Cardiovasc Interv</em>. 2019;94:29.</li>
           </ul>
         </div>
       </div>

@@ -94,7 +94,7 @@ export default function ScoringRass() {
           <li><strong className="text-foreground">Target Standar:</strong> Target Sedasi ICU pada umumnya adalah RASS 0 hingga -1 (Alert and Calm atau Drowsy). Hindari sedasi konstan berlebihan.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Sessler CN et al. (2002) Am J Respir Crit Care Med; Devlin JW et al. (2018) Crit Care Med.
+          📚 Sessler CN et al. Am J Respir Crit Care Med 2002;166:1338 (RASS validasi) · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Devlin JW et al. (PADIS 2025 update) Crit Care Med 2025;53:e711 · Vincent JL et al. (eCASH concept) ICM 2016;42:962
         </div>
       </Accordion>
     </div>

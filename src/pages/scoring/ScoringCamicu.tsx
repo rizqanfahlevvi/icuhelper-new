@@ -132,7 +132,7 @@ export default function ScoringCamicu() {
           <li><strong className="text-foreground">Prinsip Manajemen:</strong> Tindakan farmakologis dengan Haloperidol/Quetiapine BUKAN untuk menyembuhkan secara langsung, melainkan manajemen simptomatik hiperaktif. Utamakan perbaikan penyebab (THINK) dan hindari benzodiazepin. Dexmedetomidine sering disarankan meminimalisir delirium vs Propofol/Benzo.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Ely EW et al. (2001) JAMA; Devlin JW et al. (2018) Crit Care Med.
+          📚 Ely EW et al. (CAM-ICU) JAMA 2001;286:2703 · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · PADIS 2025 update Crit Care Med 2025;53:e711 · Pun BT et al. (MENDS-2) Crit Care Med 2021;49:1624
         </div>
       </Accordion>
     </div>

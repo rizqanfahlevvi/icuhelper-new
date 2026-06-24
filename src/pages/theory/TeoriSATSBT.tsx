@@ -38,7 +38,7 @@ export default function TeoriSATSBT() {
 
         <Accordion title="📖 SAT — Spontaneous Awakening Trial">
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Konsep & Syarat SAT</h3>
-          <p className="text-[12px] text-muted-foreground mb-3">SAT (penghentian sedasi harian) terbukti mengurangi durasi ventilator 2-3 hari. Tapi <strong>TIDAK dilakukan</strong> bila: kejang aktif, alcohol withdrawal persisten, agitasi berat (RASS +3/+4), TIK tinggi/indikasi sedasi khusus, status paralitik NMB, atau hemodinamik dan oksigenasi tidak stabil (FiO₂ &gt;70%, PEEP &gt;12) [2].</p>
+          <p className="text-[12px] text-muted-foreground mb-3">SAT (penghentian sedasi harian) terbukti mengurangi durasi ventilator 2-3 days. Tapi <strong>TIDAK dilakukan</strong> bila: kejang aktif, alcohol withdrawal persisten, agitasi berat (RASS +3/+4), TIK tinggi/indikasi sedasi khusus, status paralitik NMB, atau hemodinamik dan oksigenasi tidak stabil (FiO₂ &gt;70%, PEEP &gt;12) [2].</p>
           
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Cara Melakukan SAT</h3>
           <ol className="list-decimal pl-5 space-y-1 text-muted-foreground text-[12px] mb-4">
@@ -48,6 +48,11 @@ export default function TeoriSATSBT() {
             <li><strong className="text-success">Lulus:</strong> Buka mata saat dipanggil DAN ikuti 1 perintah sederhana. → <strong className="text-primary">Lanjut SBT</strong>.</li>
             <li><strong className="text-destructive">Gagal:</strong> Agitasi, SpO2 &lt;88%, takikardi hebat. → <strong className="text-foreground">Restart sedasi di 50% dosis sebelumnya</strong>.</li>
           </ol>
+          <p className="mt-3 text-[11px] italic text-muted-foreground">
+            📚 Girard TD et al. (ABC trial) Lancet 2008;371:126 · 
+            Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · 
+            PADIS 2025 update Crit Care Med 2025;53:e711
+          </p>
         </Accordion>
 
         <Accordion title="📖 SBT — Spontaneous Breathing Trial & Kesiapan Ekstubasi">
@@ -74,6 +79,10 @@ export default function TeoriSATSBT() {
             <li><strong className="text-foreground">Cuff Leak Test:</strong> Jika tidak bocor (negatif) → kemungkinan laryngeal edema → pertimbangkan steroid pre-ekstubasi [4].</li>
             <li><strong className="text-foreground">Eksutbasi ke HFNC/NIV:</strong> Direkomendasikan untuk PPOK, CHF, Obesitas atau usia &gt;65 untuk mencegah re-intubasi [5].</li>
           </ul>
+          <p className="mt-3 text-[11px] italic text-muted-foreground">
+            📚 Ouellette DR et al. (ATS/ACCP Weaning Guideline 2017) Chest 2017;151:166 · 
+            Esteban A et al. NEJM 1995;332:345
+          </p>
         </Accordion>
 
         <Accordion title="📖 VAP Bundle & Terapi VAP">
@@ -97,6 +106,10 @@ export default function TeoriSATSBT() {
             <li><strong>Dengan risiko MRSA:</strong> + Vancomycin atau Linezolid.</li>
             <li><strong>Dengan risiko MDR Pseudomonas (Pseudomonas tinggi lokal):</strong> Double coverage Pseudomonas (Cefepime + Amikasin, dst) [6].</li>
           </ul>
+          <p className="mt-3 text-[11px] italic text-muted-foreground">
+            📚 Kalil AC et al. (IDSA/ATS HAP/VAP 2016) Clin Infect Dis 2016;63:e61 · 
+            Klompas M et al. (SHEA 2022 update) Infect Control Hosp Epidemiol 2022;43:687
+          </p>
         </Accordion>
 
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
@@ -110,6 +123,10 @@ export default function TeoriSATSBT() {
             <li>Pluijms WA, et al. Predicting extubation failure. <em>Minerva Anestesiol</em>. 2013.</li>
             <li>Ouellette DR, et al. Liberation From Mechanical Ventilation in Critically Ill Adults. <em>Chest</em>. 2017.</li>
             <li>Klompas M, et al. Strategies to prevent ventilator-associated pneumonia in adult acute care hospitals: 2022 Update. <em>Infect Control Hosp Epidemiol</em>. 2022.</li>
+            <li>Girard TD et al. ABC trial. <em>Lancet</em>. 2008;371:126.</li>
+            <li>Ouellette DR et al. <em>Chest</em>. 2017;151:166.</li>
+            <li>Kalil AC et al. <em>Clin Infect Dis</em>. 2016;63:e61.</li>
+            <li>Klompas M et al. <em>Infect Control Hosp Epidemiol</em>. 2022;43:687.</li>
           </ul>
         </div>
       </div>

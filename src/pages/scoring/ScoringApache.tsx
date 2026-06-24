@@ -410,7 +410,7 @@ export default function ScoringApache() {
           <li><strong className="text-foreground">Rekomendasi Praktis:</strong> Untuk general ICU mortality dapat dihitung dengan SAPS-3 (skor online terpisah). Untuk monitoring harian disfungsi organ, SOFA Score lebih disarankan karena lebih prediktif untuk mortalitas di era Sepsis-3 (Raith EP et al. 2017).</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Knaus WA et al. (1985) Crit Care Med; Raith EP et al. (2017) JAMA.
+          📚 Knaus WA et al. (APACHE-II original) Crit Care Med 1985;13:818 · Zimmerman JE et al. (APACHE-IV validasi) Crit Care Med 2006;34:1297 · Raith EP et al. (SOFA lebih baik dari APACHE-II era Sepsis-3) JAMA 2017;317:290
         </div>
       </Accordion>
     </div>

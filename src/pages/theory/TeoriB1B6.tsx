@@ -49,6 +49,10 @@ export default function TeoriB1B6() {
             <li><strong className="text-foreground">Plateau Pressure:</strong> ≤28 cmH₂O (<strong className="text-destructive">Mutlak ≤30 cmH₂O</strong>)</li>
             <li><strong className="text-foreground">Driving Pressure:</strong> ≤15 cmH₂O (ideal) [3, 4]</li>
           </ul>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 Matthay MA et al. (ARDS 2023) AJRCCM 2023;209:37 · 
+            Evans L et al. (SSC 2021) ICM 2021;47:1181
+          </p>
         </Accordion>
 
         <Accordion title="❤️ B2 — Blood (Sirkulasi)">
@@ -72,6 +76,10 @@ export default function TeoriB1B6() {
               </ul>
             </div>
           </div>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 Vincent JL & De Backer D. (Circulatory Shock) NEJM 2013;369:1726 · 
+            De Backer D et al. NEJM 2010;362:779
+          </p>
         </Accordion>
 
         <Accordion title="🧠 B3 — Brain (Persarafan)">
@@ -94,6 +102,11 @@ export default function TeoriB1B6() {
               </ul>
             </div>
           </div>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 Ely EW et al. (CAM-ICU) JAMA 2001;286:2703 · 
+            Sessler CN et al. (RASS) AJRCCM 2002;166:1338 · 
+            Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825
+          </p>
         </Accordion>
 
         <Accordion title="🫘 B4 — Bladder (Renal & Cairan)">
@@ -112,6 +125,10 @@ export default function TeoriB1B6() {
             <li><strong className="text-foreground">Target Nutrisi:</strong> Kalori 25-30 kkal/kg/hari (hindari overfeed fase awal). Protein 1.2-2.0 g/kg/hari.</li>
             <li><strong className="text-foreground">Early Enteral:</strong> Mulai 24-48 jam. HOB 30-45°. Stop/tahan bila GRV &gt;500 mL/6j atau muntah berlebih.</li>
           </ul>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 Singer P et al. (ESPEN 2023) Clin Nutr 2023;42:1671 · 
+            Taylor BE et al. (SCCM/ASPEN 2022) JPEN 2022;46:12
+          </p>
         </Accordion>
 
         <Accordion title="🦴 B6 — Bone (Integumen & Ekstremitas)">
@@ -133,6 +150,9 @@ export default function TeoriB1B6() {
             <li>ARDS Definition Task Force. Acute respiratory distress syndrome: the Berlin Definition. <em>JAMA</em>. 2012.</li>
             <li>Amato MB, et al. Driving pressure and survival in the acute respiratory distress syndrome. <em>N Engl J Med</em>. 2015.</li>
             <li>Ait-Oufella H, et al. Mottling score predicts survival in septic shock. <em>Intensive Care Med</em>. 2011.</li>
+            <li>Vincent JL. Textbook of Critical Care. 8th ed. <em>Elsevier</em> 2023.</li>
+            <li>Evans L et al. SSC 2021. <em>Intensive Care Med</em>. 2021;47:1181.</li>
+            <li>Singer P et al. ESPEN 2023. <em>Clin Nutr</em>. 2023;42:1671.</li>
           </ul>
         </div>
       </div>

@@ -41,6 +41,12 @@ export default function TeoriGagalNapas() {
           <p className="mt-2 text-[12px] opacity-80 text-teal-700 dark:text-teal-300"><em>Matthay MA et al. Am J Respir Crit Care Med (2023) [3].</em></p>
         </div>
 
+        <p className="mt-2 text-[11px] italic text-muted-foreground mb-4">
+          📚 Berlin Definition. JAMA 2012;307:2526 · 
+          Matthay MA et al. (Global ARDS Definition 2023) Am J Respir Crit Care Med 2023;209:37 · 
+          Grasselli G et al. (ESICM ARDS Guidelines 2023) ICM 2023;49:727
+        </p>
+
         </div>
 
         <Accordion title="📖 Gagal Napas Tipe I — Hipoksemia (PaO₂ <60 mmHg)" defaultOpen={true}>
@@ -103,6 +109,9 @@ export default function TeoriGagalNapas() {
             <li><strong className="text-foreground">Mekanisme:</strong> Redistribusi ventilasi ke daerah dorsal yang lebih banyak, ↓ shunt, ↓ overdistensi ventral, ↑ drainase sekret, ↓ kompresi jantung ke paru.</li>
             <li><strong className="text-foreground">Kontraindikasi relatif:</strong> Fraktur tulang belakang tidak stabil, luka bakar anterior luas, tekanan intrakranial meningkat, kehamilan trimester III.</li>
           </ul>
+          <p className="mt-2 text-[11px] italic text-muted-foreground mb-4">
+            📚 Guérin C et al. (PROSEVA) NEJM 2013;368:2159 — prone &gt;16j/hr pada P/F&lt;150 → NNT ~6
+          </p>
 
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Neuromuscular Blockade (NMB) pada ARDS — Konflik Data</h3>
           <ul className="list-disc pl-5 mb-4 space-y-1 text-muted-foreground">
@@ -118,6 +127,10 @@ export default function TeoriGagalNapas() {
             <li><strong className="text-foreground">DRIVINGARDS trial (NEJM Evidence 2023):</strong> RCT pertama driving pressure-guided ventilation — tren protektif namun belum mencapai signifikansi statistik. Mendukung pendekatan DP-guided sebagai strategi tambahan, namun belum cukup untuk mengubah standar manajemen saat ini [8].</li>
             <li><strong className="text-foreground">Praktis:</strong> Jika VT 6 mL/kgIBW menghasilkan DP &gt;14 → turunkan VT ke 4–5 mL/kgIBW; jika perlu, toleransi permissive hypercapnia.</li>
           </ul>
+          <p className="mt-2 text-[11px] italic text-muted-foreground mb-2">
+            📚 Amato MB et al. NEJM 2015;372:747 · 
+            ARDSNet ARMA trial. NEJM 2000;342:1301
+          </p>
         </Accordion>
 
         <Accordion title="📖 Gagal Napas Tipe II — Hiperkapnia (PaCO₂ >45 mmHg)">
@@ -201,6 +214,8 @@ export default function TeoriGagalNapas() {
             <li>Jaber S, et al. Driving Pressure-Guided Ventilation for ARDS (DRIVINGARDS). <em>NEJM Evidence</em>. 2023.</li>
             <li>Nuckton TJ, et al. Pulmonary dead-space fraction as a risk factor for death in the acute respiratory distress syndrome. <em>N Engl J Med</em>. 2002.</li>
             <li>Jaber S, et al. Noninvasive ventilation to prevent require intubation in high-risk patients. <em>Intensive Care Med</em>. 2016.</li>
+            <li>Grasselli G et al. (ESICM ARDS 2023) <em>Intensive Care Med</em>. 2023;49:727.</li>
+            <li>Amato MB et al. <em>N Engl J Med</em>. 2015;372:747.</li>
           </ul>
         </div>
       </div>

@@ -97,7 +97,7 @@ export default function ScoringCandida() {
           <li><strong className="text-foreground">De-eskalasi:</strong> Turunkan dari ekinokandin ke flukonazol bila pasien sudah klinis stabil dan hasil kultur terbukti sensitif. Hentikan terapi sesudah 4-5 hari jika diagnostik negatif dan perbaikan klinis nyata.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 León C et al. (2006) Crit Care Med; Pappas PG et al. (2016) Clin Infect Dis.
+          📚 León C et al. (Candida Score original) Crit Care Med 2006;34:730 · León C et al. (validasi prospektif) Crit Care Med 2009;37:1624 · Pappas PG et al. (IDSA 2016) Clin Infect Dis 2016;62:e1 · Cornely OA et al. (ESCMID-ECMM 2023) Clin Microbiol Infect 2023;29(Suppl 2):S1
         </div>
       </Accordion>
     </div>

@@ -14,14 +14,10 @@ export default function ScoringSofa() {
   const total = respi + coag + liver + cardio + cns + renal;
 
   const mortality = () => {
-    if (total <= 1) return { m: '0%', r: 'Normal' };
-    if (total <= 3) return { m: '< 5%', r: 'Rendah' };
-    if (total <= 5) return { m: '< 10%', r: 'Sedang-Rendah' };
-    if (total <= 7) return { m: '15-20%', r: 'Sedang' };
-    if (total <= 9) return { m: '25-33%', r: 'Tinggi' };
-    if (total <= 11) return { m: '40-50%', r: 'Sangat Tinggi' };
-    if (total <= 14) return { m: '50-60%', r: 'Kritis' };
-    return { m: '> 90%', r: 'Fatum' };
+    if (total <= 6)  return { m: '< 10%',   r: 'Risiko Rendah',        color: 'text-emerald-600 dark:text-emerald-400' };
+    if (total <= 9)  return { m: '15–20%',  r: 'Risiko Sedang',        color: 'text-amber-600 dark:text-amber-400'   };
+    if (total <= 12) return { m: '40–50%',  r: 'Risiko Tinggi',        color: 'text-orange-600 dark:text-orange-400' };
+    return           { m: '> 80%',          r: 'Risiko Sangat Tinggi', color: 'text-red-600 dark:text-red-400'       };
   };
 
   const getBtnClass = (val: number, current: number) => {
@@ -55,7 +51,9 @@ export default function ScoringSofa() {
               <div className="w-px h-10 bg-blue-500/20"></div>
               <div className="text-left">
                 <div className="text-xs text-muted-foreground font-semibold">Estimasi Mortalitas</div>
-                <div className="font-bold text-lg text-foreground">{mortality().m}</div>
+                <div className={`font-bold text-lg ${mortality().color}`}>
+                  {mortality().m} ({mortality().r})
+                </div>
               </div>
            </div>
          </div>
@@ -140,10 +138,50 @@ export default function ScoringSofa() {
           <li><strong className="text-foreground">Latar Belakang:</strong> Dikembangkan Vincent et al. (1996) untuk menilai disfungsi organ secara berurutan. Pada <em>Sepsis-3</em> (2016), SOFA dijadikan dasar definisi baru: Sepsis = Infeksi + Δ SOFA &ge; 2 dari baseline.</li>
           <li><strong className="text-foreground">Sepsis-3:</strong> Disfungsi organ mengancam jiwa akibat disregulasi respons host terhadap infeksi. Menggantikan kriteria SIRS yang terlalu sensitif.</li>
           <li><strong className="text-foreground">Septic Shock:</strong> Sepsis + vasopressor untuk MAP &ge; 65 mmHg + Laktat &gt; 2 mmol/L meski sudah resusitasi adekuat.</li>
-          <li><strong className="text-foreground">Delta-SOFA:</strong> ΔSOFA pada 48 jam lebih prediktif dari nilai absolut; ΔSOFA meningkat = prognosis buruk independen. Gunakan untuk monitoring respons terapi harian.</li>
+          <li><strong className="text-foreground">Delta-SOFA:</strong> ΔSOFA ≥2 dari baseline = kriteria disfungsi organ Sepsis-3 (Singer M et al. JAMA 2016). ΔSOFA dalam 48 jam lebih prediktif daripada nilai absolut (Ferreira FL et al. JAMA 2001).</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Singer M et al. (2016) JAMA; Vincent JL et al. (1996) Intensive Care Med.
+
+        <div className="mt-4 overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-sm text-left">
+            <thead className="bg-slate-50 dark:bg-slate-800/30">
+              <tr className="text-slate-600 dark:text-slate-400">
+                <th className="px-3 py-2 font-semibold">SOFA Total</th>
+                <th className="px-3 py-2 font-semibold">Estimasi Mortalitas ICU</th>
+                <th className="px-3 py-2 font-semibold">Kategori</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-900 text-slate-600 dark:text-slate-300">
+              <tr>
+                <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">0 – 6</td>
+                <td className="px-3 py-2 text-emerald-600 dark:text-emerald-400 font-semibold">&lt; 10%</td>
+                <td className="px-3 py-2">Risiko Rendah</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">7 – 9</td>
+                <td className="px-3 py-2 text-amber-600 dark:text-amber-400 font-semibold">15 – 20%</td>
+                <td className="px-3 py-2">Risiko Sedang</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">10 – 12</td>
+                <td className="px-3 py-2 text-orange-600 dark:text-orange-400 font-semibold">40 – 50%</td>
+                <td className="px-3 py-2">Risiko Tinggi</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">≥ 13</td>
+                <td className="px-3 py-2 text-red-600 dark:text-red-400 font-semibold">&gt; 80%</td>
+                <td className="px-3 py-2">Risiko Sangat Tinggi</td>
+              </tr>
+              <tr className="bg-slate-50/50 dark:bg-slate-800/10 font-medium text-blue-600 dark:text-blue-400">
+                <td className="px-3 py-2">Δ SOFA ≥ 2</td>
+                <td className="px-3 py-2">→ Kriteria Sepsis-3</td>
+                <td className="px-3 py-2 text-xs italic text-slate-500 dark:text-slate-400">(jika ada sumber infeksi)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-800/20 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic leading-relaxed">
+          📚 Vincent JL et al. Intensive Care Med 1996;22:707 (SOFA original) · Ferreira FL et al. JAMA 2001;286:1754 (serial evaluation, tabel mortalitas) · Lambden S et al. Crit Care 2019;23:374 (comprehensive review) · Singer M et al. (Sepsis-3) JAMA 2016;315:801 · Evans L et al. (SSC 2021) ICM 2021;47:1181 · Evans L et al. (SSC 2024 update) ICM 2024;50:744
         </div>
       </Accordion>
     </div>

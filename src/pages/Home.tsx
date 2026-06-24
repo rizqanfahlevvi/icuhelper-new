@@ -9,6 +9,8 @@ import { useFavoritesStore } from '../store/useFavoritesStore';
 import { useRecentToolsStore } from '../store/useRecentToolsStore';
 import { ALL_FAVORITABLE_ITEMS, getFavoritableItemByPath } from '../data/favoritableItems';
 
+import { DailyNewsWidget } from '../components/DailyNewsWidget';
+
 function PatientEditorSheet({ onClose }: { onClose: () => void }) {
   const patient = usePatientStore();
   
@@ -230,6 +232,9 @@ export default function Home() {
           </Link>
         )}
       </div>
+
+      {/* Daily News Widget */}
+      <DailyNewsWidget />
 
       {/* Pinned / Recent Tools Section */}
       {recentItems.length > 0 && (

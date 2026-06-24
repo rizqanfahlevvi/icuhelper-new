@@ -9,7 +9,7 @@ export default function TeoriAKICRRT() {
         </h1>
         
         <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg text-foreground mb-4 text-[13px]">
-          <div className="font-bold text-[15px] mb-2 text-primary">🫘 Definisi AKI (KDIGO 2024 Update)</div>
+          <div className="font-bold text-[15px] mb-2 text-primary">🫘 Definisi AKI (KDIGO 2024 Update — update dari KDIGO 2012; penambahan biomarker dan subfenotip)</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
             <div>
               <p className="font-bold text-foreground">Kriteria Diagnosis AKI <span className="font-normal text-muted-foreground">(salah satu)</span>:</p>
@@ -61,6 +61,10 @@ export default function TeoriAKICRRT() {
             <li><strong className="text-foreground">Intrinsik (ATN):</strong> Nekrosis tubulus, FENa &gt;2%. Manajemen suportif, hindari toksin.</li>
             <li><strong className="text-foreground">Post-renal:</strong> Obstruksi → pasang kateter/USG. (Paling mudah di-reverse).</li>
           </ul>
+          <p className="mt-3 text-[11px] italic text-muted-foreground">
+            📚 KDIGO AKI Working Group. Kidney Int Suppl 2012;2:1 · 
+            Kellum JA et al. (KDIGO 2024 update) Kidney Int Suppl 2024;15:1
+          </p>
         </Accordion>
 
         <Accordion title="🔍 Penyebab AKI & Protokol Rhabdomiolisis">
@@ -95,6 +99,10 @@ export default function TeoriAKICRRT() {
             <strong className="text-success text-[14px] block mb-2">Timing Non-Emergensi (STARRT-AKI Trial)</strong>
             <p className="text-muted-foreground">Pada RCT terbaru, "Accelerated" RRT tdk memberi benefit dibanding "Standard-wait" jika indikasi emergensi tak terpenuhi. Justru inisiasi prematur bisa menunda recovery ginjal alamiah dan timbul komplikasi kateter [3, 4].</p>
           </div>
+          <p className="mt-3 text-[11px] italic text-muted-foreground">
+            📚 Gaudry S et al. (AKIKI-2) JAMA 2021;325:2306 · 
+            STARRT-AKI Investigators. NEJM 2020;383:240
+          </p>
         </Accordion>
         
         <Accordion title="⚙️ Mode CRRT, Dosis & Antikoagulasi (RCA vs Heparin)">
@@ -116,8 +124,12 @@ export default function TeoriAKICRRT() {
           
           <ul className="list-disc pl-5 mb-4 space-y-1 text-muted-foreground text-[12px]">
             <li><strong className="text-foreground">Dosis Target:</strong> Effluent rate <strong>20–25 mL/kg/jam</strong> [5].</li>
-            <li><strong className="text-foreground">Antikoagulasi Pilihan: RCA (Regional Citrate Anticoagulation)</strong> (Berdasarkan KDIGO 2024, sangat direkomendasikan). Heparin HANYA jika tak bs pake RCA. Hindari anticoagulant penuh jika trombosit sgt rendah / bleeding [1].</li>
+            <li><strong className="text-foreground">Antikoagulasi Pilihan: RCA (Regional Citrate Anticoagulation)</strong> (Berdasarkan KDIGO 2024 (update dari KDIGO 2012; penambahan biomarker dan subfenotip), sangat direkomendasikan). Heparin HANYA jika tak bs pake RCA. Hindari anticoagulant penuh jika trombosit sgt rendah / bleeding [1].</li>
           </ul>
+          <p className="mt-3 text-[11px] italic text-muted-foreground">
+            📚 Bellomo R et al. (RENAL study, dosis CRRT) NEJM 2009;361:1627 · 
+            Palevsky PM et al. (ATN study) NEJM 2008;359:7
+          </p>
         </Accordion>
 
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">

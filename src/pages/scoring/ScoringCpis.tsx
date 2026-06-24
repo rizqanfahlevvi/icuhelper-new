@@ -116,7 +116,7 @@ export default function ScoringCpis() {
           <li><strong className="text-foreground">ERS/ESICM HAP/VAP Guidelines 2022:</strong> Menekankan bahwa CPIS berguna hanya untuk de-eskalasi antibiotik, bukan kriteria diagnosis definitif.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Singh N et al. (2000) Am J Respir Crit Care Med; Torres A et al. (2022) Eur Respir J.
+          📚 Pugin J et al. (CPIS original) Am Rev Respir Dis 1991;143:1121 · Singh N et al. (modified CPIS + de-eskalasi) Am J Respir Crit Care Med 2000;162:505 · Kalil AC et al. (IDSA/ATS HAP/VAP 2016) Clin Infect Dis 2016;63:e61 · Klompas M et al. (SHEA 2022 update) Infect Control Hosp Epidemiol 2022;43:687
         </div>
       </Accordion>
     </div>

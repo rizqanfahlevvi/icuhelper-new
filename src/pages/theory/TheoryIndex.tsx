@@ -7,6 +7,7 @@ const THEORY_PAGES = [
   { path: 'aki-crrt', name: 'AKI & CRRT', desc: 'Acute Kidney Injury & Terapi Pengganti Ginjal' },
   { path: 'b1b6', name: 'Pendekatan B1-B6', desc: 'Sistem evaluasi komprehensif' },
   { path: 'dka-hhs', name: 'KAD & HHS', desc: 'Krisis Hiperglikemia' },
+  { path: 'fisiologi', name: 'Fisiologi Ventilasi Mekanik', desc: 'Mekanika respirasi dan interaksi paru-ventilator' },
   { path: 'gagalnapas', name: 'Gagal Napas', desc: 'Klasifikasi dan Tata Laksana Tipe 1 & 2' },
   { path: 'impending', name: 'Impending Need', desc: 'Tanda-tanda bahaya dini' },
   { path: 'nutrisi', name: 'Terapi Nutrisi', desc: 'Panduan pemberian nutrisi enteral/parenteral' },

@@ -81,6 +81,10 @@ export default function TeoriNutrisi() {
               </tbody>
             </table>
           </div>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 Singer P et al. (ESPEN ICU 2023) Clin Nutr 2023;42:1671 · 
+            Taylor BE et al. (ASPEN/SCCM 2022) JPEN 2022;46:12
+          </p>
         </Accordion>
 
         <Accordion title="📖 Enteral vs Parenteral — Kapan, Bagaimana & Monitoring">
@@ -115,6 +119,9 @@ export default function TeoriNutrisi() {
 
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Kapan Mulai Parenteral Nutrition (PN)?</h3>
           <p className="text-[12px] text-muted-foreground mb-4">Mulai PN setelah 24–48 jam/segera jika EN kontraindikasi (pada px malnutrisi). SPN (Supplemental PN) bila EN mencapai &lt;60% target di hari ke-3–5.</p>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 Singer P et al. ESPEN 2023 · Harvey SE et al. (CALORIES trial) NEJM 2014;371:1994
+          </p>
         </Accordion>
 
         <Accordion title="📖 Refeeding Syndrome — Risiko, Patofisiologi & Pencegahan">
@@ -126,6 +133,9 @@ export default function TeoriNutrisi() {
               <li><strong className="text-foreground">Pencegahan:</strong> Tiamin 200-300mg IV SEBELUM mulai makan, mulai 10-20 kkal/kg pelan, evaluasi posfat, K, Mg harian.</li>
             </ul>
           </div>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 Singer P et al. ESPEN 2023 — Refeeding syndrome section
+          </p>
         </Accordion>
 
         <Accordion title="📖 PICS & Rehabilitasi Nutrisi Pasca ICU">
@@ -140,6 +150,24 @@ export default function TeoriNutrisi() {
           </div>
         </Accordion>
 
+        <Accordion title="📖 Kontrol Glukosa">
+          <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-foreground mb-4">
+            <strong className="text-red-600 dark:text-red-400 block mb-1 font-bold text-[14px]">🩸 Kontrol Glukosa Darah (Glycemic Control)</strong>
+            <p className="text-muted-foreground text-[12px] mb-2">Manajemen hiperglikemia di ICU bertujuan mencegah komplikasi infeksi dan kegagalan organ tanpa memicu hipoglikemia.</p>
+            <ul className="list-disc pl-5 m-0 space-y-1 text-muted-foreground text-[12px]">
+              <li><strong className="text-foreground">Target Glukosa Darah:</strong> 140–180 mg/dL (rekomendasi kuat).</li>
+              <li><strong className="text-foreground">Hindari Kontrol Ketat (80–110 mg/dL):</strong> Meningkatkan risiko hipoglikemia berat dan mortalitas secara signifikan (NICE-SUGAR trial).</li>
+              <li><strong className="text-foreground">Indikasi Insulin:</strong> Mulai infus insulin kontinu jika GD &gt;180 mg/dL pada dua kali pemeriksaan berturut-turut.</li>
+              <li><strong className="text-foreground">Monitoring:</strong> Cek GD setiap 1–2 jam hingga infus stabil, kemudian setiap 4 jam.</li>
+            </ul>
+          </div>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 NICE-SUGAR Study Investigators. NEJM 2009;360:1283 · 
+            Evans L et al. (SSC 2021, target GD 144–180) ICM 2021 · 
+            Devlin JW et al. (PADIS 2018) Crit Care Med 2018
+          </p>
+        </Accordion>
+
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
             📚 Referensi Utama
@@ -150,6 +178,8 @@ export default function TeoriNutrisi() {
             <li>Friedli N, et al. Management and prevention of refeeding syndrome in medical inpatients: An evidence-based and consensus-supported algorithm. <em>Nutrition</em>. 2018.</li>
             <li>Needham DM, et al. Physical medicine and rehabilitation interventions in the intensive care unit: a call for action. <em>Am J Phys Med Rehabil</em>. 2010.</li>
             <li>Herridge MS, et al. One-year outcomes in survivors of the acute respiratory distress syndrome. <em>N Engl J Med</em>. 2003.</li>
+            <li>Taylor BE et al. (SCCM/ASPEN 2022) <em>JPEN</em>. 2022;46:12.</li>
+            <li>NICE-SUGAR Investigators. <em>N Engl J Med</em>. 2009;360:1283.</li>
           </ul>
         </div>
       </div>

@@ -99,6 +99,10 @@ export default function TeoriImpending() {
             <li><strong className="text-foreground">Keterbatasan:</strong> Tidak valid untuk pasien PPOK (RR rendah kronik), kardiogenik edema paru murni, atau immunocompromised berat [6].</li>
             <li><strong className="text-foreground">FLORALI trial update (2023):</strong> HFNC superior vs O₂ masker dan NIV pada hipoksemia akut non-PPOK; benefit lebih besar pada P/F &lt;200 [7].</li>
           </ul>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">
+            📚 Frat JP et al. (FLORALI) NEJM 2015;372:2185 · 
+            Roca O et al. (ROX index) Am J Respir Crit Care Med 2019;199:1368
+          </p>
         </Accordion>
 
         <Accordion title="📖 Algoritma NIV vs HFNC vs Intubasi Segera">
@@ -111,6 +115,10 @@ export default function TeoriImpending() {
               <li><strong className="text-foreground">Setting awal edema paru kardiogenik:</strong> CPAP 8–12 cmH₂O atau BiPAP IPAP 14–18 / EPAP 5–8</li>
               <li><strong className="text-foreground">Interface:</strong> Full-face mask (paling efektif), helmet CPAP (lebih nyaman, lebih baik untuk ARDS ringan), nasal mask (PPOK kronik)</li>
             </ul>
+            <p className="mt-2 text-[11px] italic text-muted-foreground">
+              📚 Rochwerg B et al. (ERS/ATS NIV 2017) Eur Respir J 2017;50:1602426 · 
+              Antonelli M et al. NEJM 1998;339:429 · Plant PK et al. (NIV COPD) Lancet 2000;355:1931
+            </p>
           </div>
           
           <div className="mb-4">
@@ -135,6 +143,10 @@ export default function TeoriImpending() {
               <li>Agitasi ekstrem, tidak kooperatif dengan NIV/HFNC</li>
               <li>Perburukan klinis progresif meski terapi optimal</li>
             </ul>
+            <p className="mt-2 text-[11px] italic text-muted-foreground">
+              📚 Brown CA et al. Walls Manual 6th ed. 2023 · 
+              Brown CA et al. (first-pass success & mortalitas) NEJM 2023;389:1943
+            </p>
           </div>
         </Accordion>
 
@@ -152,6 +164,9 @@ export default function TeoriImpending() {
             <li>Frat JP, et al. High-flow oxygen through nasal cannula in acute hypoxemic respiratory failure. <em>N Engl J Med</em>. 2015.</li>
             <li>Rochwerg B, et al. Official ERS/ATS clinical practice guidelines: noninvasive ventilation for acute respiratory failure. <em>Eur Respir J</em>. 2017.</li>
             <li>Grieco DL, et al. High-flow nasal oxygen vs noninvasive ventilation in patients with acute hypoxemic respiratory failure. <em>JAMA</em>. 2021.</li>
+            <li>Plant PK et al. (NIV COPD) <em>Lancet</em>. 2000;355:1931.</li>
+            <li>Brown CA et al. Walls Manual of Emergency Airway Management 6th ed. 2023.</li>
+            <li>Brown CA et al. (first-pass success & mortalitas) <em>N Engl J Med</em>. 2023;389:1943.</li>
           </ul>
         </div>
       </div>

@@ -14,6 +14,7 @@ import { useAuth } from '../../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { motion, AnimatePresence } from 'motion/react';
+import { ProfilePopup } from '../ProfilePopup';
 
 type NavItem = {
   name: string;
@@ -61,6 +62,7 @@ export default function MainLayout() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,9 +81,11 @@ export default function MainLayout() {
 
   const { user, userProfile, isAuthorized } = useAuth();
 
+  const normalizedSubscriptionStatus = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
+  
   const isLocked = !!user && (
     !isAuthorized || 
-    (userProfile?.subscriptionStatus === "inactive" || userProfile?.subscriptionStatus === "expired")
+    (normalizedSubscriptionStatus !== "active" && normalizedSubscriptionStatus !== "trial")
   );
 
   const getInitialFromProfile = () => {
@@ -125,7 +129,7 @@ export default function MainLayout() {
 
   const getSubscriptionBadge = () => {
     if (!userProfile) return null;
-    const status = userProfile.subscriptionStatus || "inactive";
+    const status = (userProfile.subscriptionStatus || "inactive").trim().toLowerCase();
     let dotColor = "var(--sys-red, #ff3b30)";
     let text = "Belum Berlangganan";
 
@@ -329,7 +333,66 @@ export default function MainLayout() {
           </div>
         </div>
 
-
+        {/* Desktop Sidebar Profile Badge */}
+        {user && (
+          <div className="px-3 mb-4">
+            <div 
+              className={`flex items-center ${isSidebarExpanded ? 'gap-3 p-3 bg-[var(--fill-secondary)] hover:bg-[var(--fill-tertiary)] cursor-pointer rounded-xl transition-colors' : 'justify-center cursor-pointer'} relative group`}
+              onClick={(e) => {
+                if (!(e.target as Element).closest('button')) {
+                  setIsProfilePopupOpen(true);
+                }
+              }}
+            >
+              <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-lg select-none flex-shrink-0 border border-[var(--glass-border)]">
+                {getInitialFromProfile()}
+              </div>
+              <AnimatePresence>
+                {isSidebarExpanded && (
+                  <>
+                    <motion.div 
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: 'auto' }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex-grow min-w-0 overflow-hidden whitespace-nowrap pr-8"
+                    >
+                      <p className="text-sm font-bold text-[var(--label-primary)] truncate" title={getFullNameWithPrefix()}>
+                        {getFullNameWithPrefix()}
+                      </p>
+                      <p className="text-[11px] text-[var(--label-secondary)] truncate mb-0.5">
+                        {getRoleLabel()}
+                      </p>
+                      {getSubscriptionBadge()}
+                    </motion.div>
+                    <motion.button
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      onClick={handleLogout}
+                      className="absolute right-3 p-1.5 rounded-lg text-[var(--label-secondary)] hover:text-[var(--sys-red)] hover:bg-[var(--sys-red)]/10 transition-colors"
+                      title="Keluar"
+                    >
+                      <LogOut size={16} />
+                    </motion.button>
+                  </>
+                )}
+              </AnimatePresence>
+              {!isSidebarExpanded && (
+                <div className="absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 bg-[var(--bg-primary)] border border-[var(--glass-border)] shadow-lg rounded-xl px-2 py-1 flex items-center gap-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity z-50">
+                  <button
+                    onClick={handleLogout}
+                    className="p-1.5 rounded-lg text-[var(--label-secondary)] hover:text-[var(--sys-red)] hover:bg-[var(--sys-red)]/10 transition-colors"
+                    title="Keluar"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <nav className="flex-1 overflow-x-hidden overflow-y-auto flex flex-col gap-1 no-scrollbar px-3 mt-2">
           <div className="h-4 flex items-center px-3 mb-2">
@@ -551,7 +614,43 @@ export default function MainLayout() {
                   </button>
                 </div>
                 
-
+                {/* Mobile Sidebar Profile Badge */}
+                {user && (
+                  <div className="p-4 border-b border-[var(--separator)]">
+                    <div 
+                      className="flex items-center gap-3 bg-[var(--fill-secondary)] hover:bg-[var(--fill-tertiary)] cursor-pointer transition-colors p-3 rounded-xl relative"
+                      onClick={(e) => {
+                        if (!(e.target as Element).closest('button')) {
+                          setIsProfilePopupOpen(true);
+                          setIsMobileMenuOpen(false);
+                        }
+                      }}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-lg select-none flex-shrink-0 border border-[var(--glass-border)]">
+                        {getInitialFromProfile()}
+                      </div>
+                      <div className="flex-grow min-w-0 overflow-hidden whitespace-nowrap pr-8">
+                        <p className="text-sm font-bold text-[var(--label-primary)] truncate" title={getFullNameWithPrefix()}>
+                          {getFullNameWithPrefix()}
+                        </p>
+                        <p className="text-[11px] text-[var(--label-secondary)] truncate mb-0.5">
+                          {getRoleLabel()}
+                        </p>
+                        {getSubscriptionBadge()}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          handleLogout();
+                        }}
+                        className="absolute right-3 p-1.5 rounded-lg text-[var(--label-secondary)] hover:text-[var(--sys-red)] hover:bg-[var(--sys-red)]/10 transition-colors"
+                        title="Keluar"
+                      >
+                        <LogOut size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <nav className="flex-1 overflow-y-auto flex flex-col gap-1 p-4 pb-20 no-scrollbar">
                   <span className="text-[11px] uppercase tracking-[0.15em] text-[var(--label-secondary)] font-bold mb-3 px-2 block">Menu Utama</span>
@@ -601,7 +700,7 @@ export default function MainLayout() {
                   Fitur Terkunci
                 </h3>
                 <p className="text-xs text-[var(--label-secondary)] leading-relaxed mb-6 font-medium">
-                  Anda belum melakukan verifikasi profile dokter dengan lengkapi form dibawah
+                  Anda belum melakukan verifikasi profil anda, Klik tombol verifikasi untuk mendapat akses penuh
                 </p>
                 <a 
                   href="https://tally.so/r/44EOGr"
@@ -673,6 +772,11 @@ export default function MainLayout() {
           />
         </div>
       </nav>
+      <ProfilePopup 
+        isOpen={isProfilePopupOpen} 
+        onClose={() => setIsProfilePopupOpen(false)} 
+        onLogout={handleLogout} 
+      />
     </div>
   );
 }
