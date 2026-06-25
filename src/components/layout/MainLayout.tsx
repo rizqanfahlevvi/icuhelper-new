@@ -727,48 +727,79 @@ export default function MainLayout() {
         </div>
       </main>
 
-      {/* Mobile Swipeable Bottom Bar */}
+      {/* Mobile Fixed Bottom Navigation Bar */}
       <nav className="fixed bottom-0 inset-x-0 z-20 border-t border-[var(--separator)] bg-[var(--material-chrome)] backdrop-blur-md h-[74px] md:hidden shadow-[0_-3px_12px_rgba(0,0,0,0.08)] select-none">
-        <div className="relative h-full w-full">
-          <div 
-            ref={scrollContainerRef}
-            onScroll={handleScroll}
-            className="flex items-stretch h-full w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory no-scrollbar"
+        <div className="flex items-stretch h-full w-full justify-around px-2">
+          {/* Home Tab */}
+          <Link
+            to="/"
+            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
+              location.pathname === '/'
+                ? 'text-[var(--accent)] font-semibold' 
+                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
+            }`}
           >
-            {NAV_ITEMS.map((item) => {
-              const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-              return (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={`flex-shrink-0 w-1/5 snap-start h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
-                    isActive 
-                      ? 'text-[var(--accent)] font-semibold' 
-                      : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
-                  }`}
-                >
-                  <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-                    <item.icon className="w-[18px] h-[18px]" strokeWidth={isActive ? 2.5 : 2} />
-                  </div>
-                  <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap px-0.5">{item.name}</span>
-                </Link>
-              );
-            })}
-          </div>
-          
-          {/* Visual Indicator (Fade di kiri) */}
-          <div 
-            className={`absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[var(--material-chrome)] to-transparent pointer-events-none transition-opacity duration-300 z-20 ${
-              canScrollLeft ? 'opacity-100' : 'opacity-0'
-            }`} 
-          />
-          
-          {/* Visual Indicator (Fade di kanan) agar user tahu bisa discroll */}
-          <div 
-            className={`absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[var(--material-chrome)] to-transparent pointer-events-none transition-opacity duration-300 z-20 ${
-              canScrollRight ? 'opacity-100' : 'opacity-0'
-            }`} 
-          />
+            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/' ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
+              <Home className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/' ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Beranda</span>
+          </Link>
+
+          {/* Kalkulator Tab */}
+          <Link
+            to="/calculator"
+            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
+              location.pathname === '/calculator' || location.pathname.startsWith('/calculator/')
+                ? 'text-[var(--accent)] font-semibold' 
+                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
+            }`}
+          >
+            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/calculator' || location.pathname.startsWith('/calculator/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
+              <Calculator className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/calculator' || location.pathname.startsWith('/calculator/') ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Kalkulator</span>
+          </Link>
+
+          {/* Skoring Tab */}
+          <Link
+            to="/scoring"
+            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
+              location.pathname === '/scoring' || location.pathname.startsWith('/scoring/')
+                ? 'text-[var(--accent)] font-semibold' 
+                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
+            }`}
+          >
+            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/scoring' || location.pathname.startsWith('/scoring/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
+              <Activity className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/scoring' || location.pathname.startsWith('/scoring/') ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Skoring</span>
+          </Link>
+
+          {/* Teori Tab */}
+          <Link
+            to="/theory"
+            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
+              location.pathname === '/theory' || location.pathname.startsWith('/theory/')
+                ? 'text-[var(--accent)] font-semibold' 
+                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
+            }`}
+          >
+            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/theory' || location.pathname.startsWith('/theory/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
+              <BookOpen className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/theory' || location.pathname.startsWith('/theory/') ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Teori</span>
+          </Link>
+
+          {/* Menu / Lainnya Tab */}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 text-[var(--label-tertiary)] hover:text-[var(--label-primary)]`}
+          >
+            <div className="p-1.5 rounded-xl transition-all">
+              <MenuIcon className="w-[20px] h-[20px]" strokeWidth={2} />
+            </div>
+            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Lainnya</span>
+          </button>
         </div>
       </nav>
       <ProfilePopup 
