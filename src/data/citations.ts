@@ -581,5 +581,83 @@ export const ICU_REFS: Record<string, any> = {
     authors: 'Perhimpunan Dokter Spesialis Penyakit Dalam Indonesia (PAPDI)',
     title: 'Pedoman Tatalaksana Sepsis dan Syok Sepsis — PAPDI 2022',
     journal: 'PAPDI', year: 2022, vol: '', pages: '', doi: ''
+  },
+  lim2003: {
+    authors: 'Lim WS, van der Eerden MM, Laing R, et al.',
+    title: 'Defining community acquired pneumonia severity on presentation to hospital: an international derivation and validation study',
+    journal: 'Thorax',
+    year: 2003,
+    vol: '58',
+    issue: '5',
+    pages: '377–382',
+    doi: '10.1136/thorax.58.5.377'
+  },
+  fine1997: {
+    authors: 'Fine MJ, Auble TE, Yealy DM, et al.',
+    title: 'A prediction rule to identify low-risk patients with community-acquired pneumonia',
+    journal: 'N Engl J Med',
+    year: 1997,
+    vol: '336',
+    issue: '4',
+    pages: '243–250',
+    doi: '10.1056/NEJM199701233360402'
+  },
+  charles2008: {
+    authors: 'Charles PG, Wolfe R, Whitby M, et al.',
+    title: 'SMART-COP: a tool for predicting the need for intensive respiratory or vasopressor support in community-acquired pneumonia',
+    journal: 'Clin Infect Dis',
+    year: 2008,
+    vol: '47',
+    issue: '3',
+    pages: '375–384',
+    doi: '10.1086/589754'
+  },
+  mandell2007: {
+    authors: 'Mandell LA, Wunderink RG, Anzueto A, et al.',
+    title: 'Infectious Diseases Society of America/American Thoracic Society consensus guidelines on the management of community-acquired pneumonia in adults',
+    journal: 'Clin Infect Dis',
+    year: 2007,
+    vol: '44',
+    pages: 'S27–S72',
+    doi: '10.1086/511159'
+  },
+  metlay2019: {
+    authors: 'Metlay JP, Waterer GW, Long AC, et al.',
+    title: 'Diagnosis and treatment of adults with community-acquired pneumonia: an official clinical practice guideline of the American Thoracic Society and Infectious Diseases Society of America',
+    journal: 'Am J Respir Crit Care Med',
+    year: 2019,
+    vol: '200',
+    issue: '7',
+    pages: 'e45–e67',
+    doi: '10.1164/rccm.201908-1581ST'
+  },
+  berlin2012: {
+    authors: 'ARDS Definition Task Force, Ranieri VM, Rubenfeld GD, et al.',
+    title: 'Acute respiratory distress syndrome: the Berlin Definition',
+    journal: 'JAMA',
+    year: 2012,
+    vol: '307',
+    issue: '23',
+    pages: '2526–2533',
+    doi: '10.1001/jama.2012.5669'
+  },
+  west2021: {
+    authors: "West JB, Luks AM.",
+    title: "West's Respiratory Physiology: The Essentials. 11th ed.",
+    journal: 'Lippincott Williams & Wilkins',
+    year: 2021,
+    vol: '',
+    pages: '',
+    doi: ''
+  },
+  sarkar2017: {
+    authors: 'Sarkar M, Bhardwaj R, Madabhavi I, Kumar K.',
+    title: 'Arterial blood gas analysis',
+    journal: 'Clin Respir J',
+    year: 2017,
+    vol: '11',
+    issue: '6',
+    pages: '769–781',
+    doi: '10.1111/crj.12618'
   }
 };
