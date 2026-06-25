@@ -450,16 +450,15 @@ export default function MainLayout() {
           {/* Left Brand and Menu Toggles */}
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => setIsMobileMenuOpen(true)} 
-              className="ios-nav-btn p-1 -ml-1 md:hidden" 
-              aria-label="Open menu"
-            >
-              <MenuIcon size={20} />
-            </button>
-            <button 
-              onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-              className="p-1.5 hidden md:flex items-center justify-center rounded-lg text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)] transition-colors flex-shrink-0"
-              title={isSidebarExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+              onClick={() => {
+                if (window.innerWidth < 768) {
+                  setIsMobileMenuOpen(true);
+                } else {
+                  setIsSidebarExpanded(!isSidebarExpanded);
+                }
+              }}
+              className="p-1.5 flex items-center justify-center rounded-lg text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)] transition-colors flex-shrink-0"
+              title="Toggle Menu"
             >
               <MenuIcon size={20} />
             </button>

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   signInWithEmailAndPassword, 
   signInWithPopup, 
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider 
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -15,8 +17,59 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showRedirectOption, setShowRedirectOption] = useState(false);
+  const [isInIframe, setIsInIframe] = useState(false);
   
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setIsInIframe(window.self !== window.top);
+  }, []);
+
+  // Handle redirect sign-in results on page mount
+  useEffect(() => {
+    const handleRedirectResultAsync = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          setIsLoading(true);
+          const user = result.user;
+          const userDocRef = doc(db, "users", user.uid);
+          try {
+            const userDoc = await getDoc(userDocRef);
+            if (!userDoc.exists()) {
+              await setDoc(userDocRef, {
+                uid: user.uid,
+                email: user.email || "",
+                username: user.displayName || user.email?.split("@")[0] || "User",
+                role: "pending",
+                subscriptionStatus: "inactive",
+                subscriptionPlan: null,
+                profileCompleted: false,
+                googleFormSubmitted: false,
+                createdAt: serverTimestamp(),
+                lastLogin: serverTimestamp()
+              });
+            } else {
+              await setDoc(userDocRef, {
+                lastLogin: serverTimestamp()
+              }, { merge: true });
+            }
+          } catch (firestoreErr) {
+            console.warn("Firestore error during Google Redirect login:", firestoreErr);
+          }
+          navigate("/");
+        }
+      } catch (err: any) {
+        console.error("Error getting redirect result:", err);
+        setError(`Gagal masuk lewat Google Redirect: ${err.message || ""}. Silakan gunakan masuk dengan Email.`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    handleRedirectResultAsync();
+  }, [navigate]);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,11 +82,15 @@ export default function LoginPage() {
       const user = auth.currentUser;
       if (user) {
         const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          await setDoc(userDocRef, {
-            lastLogin: serverTimestamp()
-          }, { merge: true });
+        try {
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            await setDoc(userDocRef, {
+              lastLogin: serverTimestamp()
+            }, { merge: true });
+          }
+        } catch (firestoreErr) {
+          console.warn("Firestore error during login (using offline mode):", firestoreErr);
         }
       }
       navigate("/");
@@ -64,36 +121,56 @@ export default function LoginPage() {
 
       // Check if user already exists in Firestore users collection
       const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
+      try {
+        const userDoc = await getDoc(userDocRef);
 
-      if (!userDoc.exists()) {
-        // Create new user record if they don't exist yet
-        await setDoc(userDocRef, {
-          uid: user.uid,
-          email: user.email || "",
-          username: user.displayName || user.email?.split("@")[0] || "User",
-          role: "pending",
-          subscriptionStatus: "inactive",
-          subscriptionPlan: null,
-          profileCompleted: false,
-          googleFormSubmitted: false,
-          createdAt: serverTimestamp(),
-          lastLogin: serverTimestamp()
-        });
-      } else {
-        // Update last login
-        await setDoc(userDocRef, {
-          lastLogin: serverTimestamp()
-        }, { merge: true });
+        if (!userDoc.exists()) {
+          // Create new user record if they don't exist yet
+          await setDoc(userDocRef, {
+            uid: user.uid,
+            email: user.email || "",
+            username: user.displayName || user.email?.split("@")[0] || "User",
+            role: "pending",
+            subscriptionStatus: "inactive",
+            subscriptionPlan: null,
+            profileCompleted: false,
+            googleFormSubmitted: false,
+            createdAt: serverTimestamp(),
+            lastLogin: serverTimestamp()
+          });
+        } else {
+          // Update last login
+          await setDoc(userDocRef, {
+            lastLogin: serverTimestamp()
+          }, { merge: true });
+        }
+      } catch (firestoreErr) {
+        console.warn("Firestore error during Google login (using offline mode):", firestoreErr);
       }
 
       navigate("/");
     } catch (err: any) {
       console.error("Google auth error:", err);
-      if (err.code !== "auth/popup-closed-by-user") {
-        setError("Gagal masuk menggunakan Google. Silakan coba kembali.");
+      setShowRedirectOption(true);
+      if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request" || err.code === "auth/popup-blocked") {
+        setError("Popup masuk Google ditutup/terblokir. Khusus browser HP (Chrome Android, Safari iOS) atau PWA, silakan gunakan tombol 'Masuk dengan Google (Redirect)' di bawah.");
+      } else {
+        setError(`Gagal masuk menggunakan Google. Silakan coba menggunakan metode Redirect atau masuk dengan Email. (${err.message || ""})`);
       }
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleRedirectLogin = async () => {
+    setError(null);
+    setIsLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithRedirect(auth, provider);
+    } catch (err: any) {
+      console.error("Google redirect login error:", err);
+      setError(`Gagal menginisiasi Redirect: ${err.message || ""}`);
       setIsLoading(false);
     }
   };
@@ -145,6 +222,22 @@ export default function LoginPage() {
             <AlertCircle size={18} className="mt-0.5 flex-shrink-0" style={{ color: "var(--sys-red)" }} />
             <div className="leading-relaxed" style={{ color: "var(--label-primary)" }}>
               {error}
+            </div>
+          </div>
+        )}
+
+        {isInIframe && (
+          <div 
+            className="mb-4 p-3 rounded-xl flex items-start gap-2.5 text-xs border"
+            style={{ 
+              borderColor: "var(--sys-orange, #f59e0b)",
+              backgroundColor: "rgba(245, 158, 11, 0.08)",
+            }}
+            id="iframe-warning-banner"
+          >
+            <AlertCircle size={16} className="mt-0.5 flex-shrink-0" style={{ color: "var(--sys-orange, #f59e0b)" }} />
+            <div className="leading-relaxed" style={{ color: "var(--label-primary)" }}>
+              <span className="font-semibold" style={{ color: "var(--sys-orange, #f59e0b)" }}>Mode Web Preview Terdeteksi:</span> Google Login Popup biasanya diblokir oleh browser di dalam iframe sandbox. Silakan klik tombol <strong className="underline">Masuk dengan Google (Redirect)</strong> di bawah, atau gunakan <strong className="underline">Email &amp; Password</strong>.
             </div>
           </div>
         )}
@@ -252,28 +345,53 @@ export default function LoginPage() {
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={isLoading}
-          className="w-full font-semibold border flex items-center justify-center gap-2 mb-6 hover:opacity-90 active:scale-[0.98] transition-all"
-          style={{
-            borderColor: "var(--glass-border)",
-            backgroundColor: "var(--bg-tertiary)",
-            color: "var(--label-primary)",
-            borderRadius: "12px",
-            minHeight: "44px"
-          }}
-          id="btn-google-login"
-        >
-          <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] shrink-0" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          <span>Masuk dengan Google</span>
-        </button>
+        <div className="flex flex-col gap-3 mb-6">
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+            className="w-full font-semibold border flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all text-xs"
+            style={{
+              borderColor: "var(--glass-border)",
+              backgroundColor: "var(--bg-tertiary)",
+              color: "var(--label-primary)",
+              borderRadius: "12px",
+              minHeight: "44px"
+            }}
+            id="btn-google-login"
+          >
+            <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] shrink-0" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span>Masuk dengan Google (Popup)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleGoogleRedirectLogin}
+            disabled={isLoading}
+            className="w-full font-bold border flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all text-xs"
+            style={{
+              borderColor: "var(--sys-blue)",
+              backgroundColor: "var(--bg-tertiary)",
+              color: "var(--sys-blue)",
+              borderRadius: "12px",
+              minHeight: "44px"
+            }}
+            id="btn-google-redirect-login"
+          >
+            <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] shrink-0" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span>Masuk dengan Google (Redirect - HP/PWA)</span>
+          </button>
+        </div>
 
         <div className="text-center pt-2">
           <p className="text-sm" style={{ color: "var(--label-secondary)" }}>

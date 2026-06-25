@@ -18,6 +18,7 @@ async function startServer() {
   });
 
   app.get("/api/daily-news", async (req, res) => {
+    const isRefresh = req.query.refresh === 'true';
     try {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
@@ -25,6 +26,8 @@ async function startServer() {
       }
 
       const ai = new GoogleGenAI({ apiKey });
+      
+      const refreshPrompt = isRefresh ? `\nPlease provide completely different news/guidelines from the previous ones. Randomized ID: ${Date.now()}` : "";
       
       const prompt = `Provide a daily summary of the latest medical news or clinical practice guideline updates specifically relevant to Emergency Room (ER/IGD) and Intensive Care Unit (ICU) patients. 
 Return exactly 3 to 5 items.
@@ -35,13 +38,13 @@ Each object must have the following keys:
 - "source": the name of the organization, journal, or guideline (string)
 - "link": a URL pointing to the actual guideline document or source article (string)
 
-Return ONLY the raw JSON array without any markdown formatting or code blocks.`;
+Return ONLY the raw JSON array without any markdown formatting or code blocks.${refreshPrompt}`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.5-flash",
         contents: prompt,
         config: {
-          temperature: 0.2,
+          temperature: isRefresh ? 0.7 : 0.2,
           tools: [{ googleSearch: {} }]
         }
       });
@@ -123,10 +126,12 @@ Return ONLY the raw JSON array without any markdown formatting or code blocks.`;
       ];
 
       // Always use fallback data if there's any API error
-      // Rotasi harian berdasarkan tanggal
+      // Rotasi harian berdasarkan tanggal, atau acak jika refresh
       const today = new Date();
       const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
-      const startIndex = dayOfYear % fallbackDatabase.length;
+      const startIndex = isRefresh 
+        ? Math.floor(Math.random() * fallbackDatabase.length) 
+        : (dayOfYear % fallbackDatabase.length);
       
       // Ambil 3 item secara melingkar (circular)
       const dailyNews = [];

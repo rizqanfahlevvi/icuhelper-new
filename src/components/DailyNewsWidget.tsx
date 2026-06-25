@@ -13,11 +13,12 @@ export function DailyNewsWidget() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchNews = async () => {
+  const fetchNews = async (forceRefresh = false) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/daily-news');
+      const url = forceRefresh ? `/api/daily-news?refresh=true&t=${Date.now()}` : `/api/daily-news?t=${Date.now()}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch news');
       const data = await res.json();
       if (Array.isArray(data)) {
@@ -48,7 +49,7 @@ export function DailyNewsWidget() {
       }
     }
 
-    fetchNews();
+    fetchNews(false);
   }, []);
 
   // Save to cache when news updates successfully
@@ -69,7 +70,7 @@ export function DailyNewsWidget() {
           </span>
         </div>
         <button 
-          onClick={fetchNews}
+          onClick={() => fetchNews(true)}
           disabled={loading}
           className="text-xs text-muted-foreground bg-muted/60 hover:bg-muted p-1.5 rounded-full transition-colors"
           title="Refresh Berita"
@@ -88,7 +89,7 @@ export function DailyNewsWidget() {
           <div className="p-5 text-center bg-red-50/50 dark:bg-red-900/10">
             <p className="text-[12px] text-red-600 dark:text-red-400 font-medium">{error}</p>
             <button 
-              onClick={fetchNews}
+              onClick={() => fetchNews(true)}
               className="mt-2 text-[11px] font-bold text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 px-3 py-1.5 rounded-lg"
             >
               Coba Lagi

@@ -70,9 +70,12 @@ export default async function handler(req, res) {
   ];
 
   const getFallback = () => {
+    const isRefresh = req.query.refresh === 'true';
     const today = new Date();
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
-    const startIndex = dayOfYear % fallbackDatabase.length;
+    const startIndex = isRefresh 
+      ? Math.floor(Math.random() * fallbackDatabase.length) 
+      : (dayOfYear % fallbackDatabase.length);
     
     const dailyNews = [];
     for (let i = 0; i < 3; i++) {
@@ -89,6 +92,10 @@ export default async function handler(req, res) {
     }
 
     const ai = new GoogleGenAI({ apiKey });
+    
+    const isRefresh = req.query.refresh === 'true';
+    const refreshPrompt = isRefresh ? `\nPlease provide completely different news/guidelines from the previous ones. Randomized ID: ${Date.now()}` : "";
+    
     const prompt = `Berikan 3 ringkasan berita medis terbaru, update guideline klinis, atau temuan studi klinis yang SANGAT RELEVAN untuk dokter jaga di IGD (Instalasi Gawat Darurat) dan ICU (Intensive Care Unit) dalam bahasa Indonesia.
 Fokus pada penanganan gawat darurat, resusitasi, critical care, ACLS, ATLS, sepsis, ventilasi mekanik, atau farmakoterapi kritis.
 
@@ -98,13 +105,13 @@ Respond in strict JSON array format with objects containing:
 - "source": the name of the organization, journal, or guideline (string)
 - "link": a URL pointing to the actual guideline document or source article (string)
 
-Return ONLY the raw JSON array without any markdown formatting or code blocks.`;
+Return ONLY the raw JSON array without any markdown formatting or code blocks.${refreshPrompt}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
-        temperature: 0.2,
+        temperature: isRefresh ? 0.7 : 0.2,
       }
     });
 
