@@ -314,17 +314,17 @@ export default function DrugInteractionChecker({
           <div className="space-y-4">
             {/* Counter Widgets Row */}
             <div className="grid grid-cols-3 gap-2">
-              <div className="bg-red-500/5 border border-red-500/15 p-2 rounded-xl text-center">
+              <div className="bg-red-500/5 border border-red-500/15 p-1.5 rounded-xl text-center flex flex-col justify-between min-w-0">
                 <div className="text-xl font-black text-red-500 leading-none">{counters.major}</div>
-                <div className="text-[9px] font-bold text-red-600 dark:text-red-400/80 uppercase tracking-wider mt-1">🔴 Bahaya Major</div>
+                <div className="text-[8px] sm:text-[9px] font-bold text-red-600 dark:text-red-400/80 uppercase tracking-wider mt-1 break-words">🔴 Major</div>
               </div>
-              <div className="bg-amber-500/5 border border-amber-500/15 p-2 rounded-xl text-center">
+              <div className="bg-amber-500/5 border border-amber-500/15 p-1.5 rounded-xl text-center flex flex-col justify-between min-w-0">
                 <div className="text-xl font-black text-amber-500 leading-none">{counters.moderate}</div>
-                <div className="text-[9px] font-bold text-amber-600 dark:text-amber-400/80 uppercase tracking-wider mt-1">🟡 Moderate (Monitor)</div>
+                <div className="text-[8px] sm:text-[9px] font-bold text-amber-600 dark:text-amber-400/80 uppercase tracking-wider mt-1 break-words">🟡 Moderate</div>
               </div>
-              <div className="bg-emerald-500/5 border border-emerald-500/15 p-2 rounded-xl text-center">
+              <div className="bg-emerald-500/5 border border-emerald-500/15 p-1.5 rounded-xl text-center flex flex-col justify-between min-w-0">
                 <div className="text-xl font-black text-emerald-500 leading-none">{counters.safe}</div>
-                <div className="text-[9px] font-bold text-emerald-600/80 uppercase tracking-wider mt-1">🟢 Pasangan Aman</div>
+                <div className="text-[8px] sm:text-[9px] font-bold text-emerald-600/80 uppercase tracking-wider mt-1 break-words">🟢 Aman</div>
               </div>
             </div>
 
@@ -388,7 +388,6 @@ export default function DrugInteractionChecker({
                             <td 
                               key={colKey} 
                               onClick={() => {
-                                if (result === 'diagonal') return;
                                 const nextPairId = isSelected ? null : pairId;
                                 setHighlightedPair(nextPairId);
                                 if (nextPairId) {

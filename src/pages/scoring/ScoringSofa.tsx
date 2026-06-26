@@ -62,7 +62,7 @@ export default function ScoringSofa() {
            {/* Respirasi */}
            <div className="space-y-2">
              <div className="text-sm font-bold flex items-center gap-2"><Wind className="w-4 h-4 text-blue-400"/> Respirasi (PaO₂/FiO₂)</div>
-             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
                <button onClick={() => setRespi(0)} className={getBtnClass(0, respi)}>≥ 400</button>
                <button onClick={() => setRespi(1)} className={getBtnClass(1, respi)}>&lt; 400</button>
                <button onClick={() => setRespi(2)} className={getBtnClass(2, respi)}>&lt; 300</button>
@@ -74,7 +74,7 @@ export default function ScoringSofa() {
            {/* Koagulasi */}
            <div className="space-y-2">
              <div className="text-sm font-bold flex items-center gap-2"><Droplets className="w-4 h-4 text-red-500"/> Koagulasi (Trombosit ×10³/µL)</div>
-             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
                <button onClick={() => setCoag(0)} className={getBtnClass(0, coag)}>≥ 150</button>
                <button onClick={() => setCoag(1)} className={getBtnClass(1, coag)}>&lt; 150</button>
                <button onClick={() => setCoag(2)} className={getBtnClass(2, coag)}>&lt; 100</button>
@@ -86,7 +86,7 @@ export default function ScoringSofa() {
            {/* Liver */}
            <div className="space-y-2">
              <div className="text-sm font-bold flex items-center gap-2"><Beaker className="w-4 h-4 text-yellow-500"/> Liver (Bilirubin mg/dL)</div>
-             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
                <button onClick={() => setLiver(0)} className={getBtnClass(0, liver)}>&lt; 1.2</button>
                <button onClick={() => setLiver(1)} className={getBtnClass(1, liver)}>1.2 – 1.9</button>
                <button onClick={() => setLiver(2)} className={getBtnClass(2, liver)}>2.0 – 5.9</button>
@@ -98,7 +98,7 @@ export default function ScoringSofa() {
            {/* KV */}
            <div className="space-y-2">
              <div className="text-sm font-bold flex items-center gap-2"><Heart className="w-4 h-4 text-rose-500"/> Kardiovaskular (Hipotensi)</div>
-             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
                <button onClick={() => setCardio(0)} className={getBtnClass(0, cardio)}>MAP ≥ 70 mmHg</button>
                <button onClick={() => setCardio(1)} className={getBtnClass(1, cardio)}>MAP &lt; 70 mmHg</button>
                <button onClick={() => setCardio(2)} className={getBtnClass(2, cardio)}>Dopamin &le; 5 atau Dobutamin</button>
@@ -110,7 +110,7 @@ export default function ScoringSofa() {
            {/* CNS */}
            <div className="space-y-2">
              <div className="text-sm font-bold flex items-center gap-2"><Brain className="w-4 h-4 text-purple-500"/> SSP (Glasgow Coma Scale)</div>
-             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
                <button onClick={() => setCns(0)} className={getBtnClass(0, cns)}>15</button>
                <button onClick={() => setCns(1)} className={getBtnClass(1, cns)}>13 – 14</button>
                <button onClick={() => setCns(2)} className={getBtnClass(2, cns)}>10 – 12</button>
@@ -122,7 +122,7 @@ export default function ScoringSofa() {
            {/* Ginjal */}
            <div className="space-y-2">
              <div className="text-sm font-bold flex items-center gap-2"><Droplets className="w-4 h-4 text-amber-500"/> Ginjal (Kreatinin mg/dL / Urine output)</div>
-             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
                <button onClick={() => setRenal(0)} className={getBtnClass(0, renal)}>&lt; 1.2</button>
                <button onClick={() => setRenal(1)} className={getBtnClass(1, renal)}>1.2 – 1.9</button>
                <button onClick={() => setRenal(2)} className={getBtnClass(2, renal)}>2.0 – 3.4</button>

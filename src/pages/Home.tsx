@@ -142,9 +142,9 @@ export default function Home() {
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Hero Header Section */}
-      <div className="pt-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 mb-3.5">
-          <span className="text-[11px] font-bold text-teal-600 dark:text-teal-400 tracking-wide uppercase">
+      <div className="pt-2 overflow-x-hidden">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-2xl sm:rounded-full bg-teal-500/10 border border-teal-500/20 mb-3.5 max-w-full">
+          <span className="text-[11px] font-bold text-teal-600 dark:text-teal-400 tracking-wide uppercase break-words leading-tight">
             ⚡ Your Daily Companion in ER & Intensive Care
           </span>
         </div>
@@ -163,10 +163,10 @@ export default function Home() {
             href="https://id.linkedin.com/in/rizqanfahlevvi/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20 text-[#0077b5] dark:text-[#00a0dc] transition-all duration-150 font-bold text-[11px] tracking-wider cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20 text-[#0077b5] dark:text-[#00a0dc] transition-all duration-150 font-bold text-[11px] tracking-wider cursor-pointer max-w-full"
           >
-            <Linkedin className="w-3.5 h-3.5 fill-current" />
-            <span>MADE BY RIZQANFAHLEVVI</span>
+            <Linkedin className="w-3.5 h-3.5 flex-shrink-0 fill-current" />
+            <span className="truncate">MADE BY RIZQANFAHLEVVI</span>
           </a>
         </div>
         <p className="text-muted-foreground text-[13px] md:text-sm max-w-md">

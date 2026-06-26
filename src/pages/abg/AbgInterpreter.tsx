@@ -16,7 +16,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
   const calcResult = useAbgCalculator(inputs);
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6">
       {/* Parameter Dasar Card */}
       <div className="flex flex-col gap-0 mt-2">
         <h2 className="mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
@@ -24,7 +24,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           Parameter Dasar ABG
         </h2>
         
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 max-w-lg mx-auto w-full shadow-sm">
+        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 w-full shadow-sm">
           
           <div className="flex items-center justify-between px-4 py-3 gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">pH</span>
@@ -33,7 +33,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 type="number" step="0.01" 
                 value={inputs.ph} 
                 onChange={e => updateInput('ph', e.target.value)}
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
                 placeholder="7.35–7.45" 
               />
             </div>
@@ -46,7 +46,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 type="number" 
                 value={inputs.pco2} 
                 onChange={e => updateInput('pco2', e.target.value)}
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
                 placeholder="35–45" 
               />
               <button 
@@ -65,7 +65,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 type="number" step="0.1" 
                 value={inputs.hco3} 
                 onChange={e => updateInput('hco3', e.target.value)}
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
                 placeholder="22–26" 
               />
               <span className="text-[11px] font-semibold text-slate-500 w-8 text-left">mmol</span>
@@ -79,7 +79,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 type="number" step="1" 
                 value={inputs.po2} 
                 onChange={e => updateInput('po2', e.target.value)}
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
                 placeholder="80–100" 
               />
               <span className="text-[11px] font-semibold text-slate-500 w-8 text-left">mmHg</span>
@@ -93,7 +93,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 type="number" step="0.1" 
                 value={inputs.be} 
                 onChange={e => updateInput('be', e.target.value)}
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
                 placeholder="-2 s/d +2" 
               />
               <span className="text-[11px] font-semibold text-slate-500 w-8 text-left">mEq</span>
@@ -109,7 +109,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           Oksigenasi, Elektrolit & Klinis
         </h2>
         
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 max-w-lg mx-auto w-full shadow-sm">
+        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 w-full shadow-sm">
           
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between">
@@ -119,7 +119,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                   type="number" step="1" 
                   value={inputs.spo2} 
                   onChange={e => updateInput('spo2', e.target.value)}
-                  className="w-full max-w-[100px] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                  className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
                   placeholder="95-100" 
                 />
                 <span className="text-[11px] font-semibold text-slate-500 w-4 text-left">%</span>
@@ -166,7 +166,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                   type="number" step="0.01" 
                   value={inputs.fio2Direct} 
                   onChange={e => updateInput('fio2Direct', e.target.value)}
-                  className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                  className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
                   placeholder="0.21 - 1.00" 
                 />
               </div>
@@ -216,12 +216,12 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           <div className="flex flex-col px-4 py-3 gap-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 block">Param Lainnya</span>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-               <input type="number" placeholder="Na⁺" value={inputs.na} onChange={e=>updateInput('na',e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <input type="number" placeholder="Cl⁻" value={inputs.cl} onChange={e=>updateInput('cl',e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <input type="number" placeholder="Alb" value={inputs.alb} onChange={e=>updateInput('alb',e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <input type="number" placeholder="Lakt" value={inputs.laktat} onChange={e=>updateInput('laktat',e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <input type="number" placeholder="RR" value={inputs.rr} onChange={e=>updateInput('rr',e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <input type="number" placeholder="MAP" value={inputs.mapV} onChange={e=>updateInput('mapV',e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
+               <input type="number" placeholder="Na⁺" value={inputs.na} onChange={e=>updateInput('na',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
+               <input type="number" placeholder="Cl⁻" value={inputs.cl} onChange={e=>updateInput('cl',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
+               <input type="number" placeholder="Alb" value={inputs.alb} onChange={e=>updateInput('alb',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
+               <input type="number" placeholder="Lakt" value={inputs.laktat} onChange={e=>updateInput('laktat',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
+               <input type="number" placeholder="RR" value={inputs.rr} onChange={e=>updateInput('rr',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
+               <input type="number" placeholder="MAP" value={inputs.mapV} onChange={e=>updateInput('mapV',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
             </div>
           </div>
         </div>

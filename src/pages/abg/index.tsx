@@ -35,7 +35,7 @@ export default function AbgPage() {
   }, [abgInputs]);
 
   return (
-    <div className="p-4 max-w-2xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="px-4 sm:px-6 lg:px-8 py-4 w-full max-w-4xl mx-auto space-y-6 pb-20 overflow-x-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="pt-2">
         <PageHeader 
           badgeIcon={Droplet}

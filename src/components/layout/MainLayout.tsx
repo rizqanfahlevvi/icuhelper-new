@@ -721,7 +721,7 @@ export default function MainLayout() {
         </AnimatePresence>
 
         {/* Scrollable Viewport */}
-        <div className={`flex-1 w-full pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
+        <div className={`flex-1 w-full px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
           {isLocked && (
             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto bg-white/45 dark:bg-black/45 backdrop-blur-md"
                  id="verification-restriction-overlay"

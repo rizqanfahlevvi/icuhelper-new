@@ -259,7 +259,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
   };
 
   return (
-    <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm max-w-2xl mx-auto mt-6">
+    <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm w-full mt-6">
       <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800">
         <h2 className="text-[15px] font-bold text-[var(--label-primary)] flex items-center gap-2">
           <Calculator className="w-4 h-4 text-primary" />
