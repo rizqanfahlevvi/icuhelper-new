@@ -29,6 +29,7 @@ import MonitoringIndex from './pages/monitoring';
 import WeaningIndex from './pages/weaning';
 import AbgPage from './pages/abg';
 import PharmacyIndex from './pages/pharmacy';
+import AdminPage from './pages/AdminPage';
 
 import KalkulatorIBW from './pages/calculator/KalkulatorIBW';
 import KalkulatorRenal from './pages/calculator/KalkulatorRenal';
@@ -268,6 +269,7 @@ export default function App() {
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
+            <Route path="/admin" element={<AdminPage />} />
             <Route element={<MainLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/patients" element={<PatientsPage />} />
