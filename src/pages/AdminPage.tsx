@@ -18,7 +18,7 @@ interface UserDoc {
 }
 
 export default function AdminPage() {
-  const { currentUser } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserDoc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ export default function AdminPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const isAdmin = currentUser?.email === 'driverizqanf@gmail.com';
+  const isAdmin = user?.email === 'driverizqanf@gmail.com';
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -58,6 +58,34 @@ export default function AdminPage() {
       setToastMessage(null);
     }, 3000);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
+        <RefreshCcw className="w-10 h-10 text-blue-500 animate-spin mb-4" />
+        <p className="text-gray-500 dark:text-gray-400 font-medium">Memeriksa sesi administrator...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
+        <ShieldAlert className="w-16 h-16 text-yellow-500 mb-4" />
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Akses Terbatas</h1>
+        <p className="text-gray-500 dark:text-gray-400 mb-6 text-center">
+          Silakan login terlebih dahulu.
+        </p>
+        <button
+          onClick={() => navigate('/login')}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Ke Halaman Login
+        </button>
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (
