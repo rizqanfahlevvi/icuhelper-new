@@ -64,7 +64,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
 
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">BBI (kg)</label>
             <input type="number" value={bb} onChange={e=>setBb(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" placeholder="e.g. 60" />
@@ -127,7 +127,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
 
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">BB (kg)</label>
             <input type="number" value={bb2} onChange={e=>setBb2(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" placeholder="e.g. 60" />
@@ -201,7 +201,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
 
     if (isNaN(n) || isNaN(c) || isNaN(h)) {
       return (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <input type="number" value={na4} onChange={e=>setNa4(e.target.value)} placeholder="Na+" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full" />
           <input type="number" value={cl4} onChange={e=>setCl4(e.target.value)} placeholder="Cl-" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full" />
           <input type="number" value={hco3act4} onChange={e=>setHco3act4(e.target.value)} placeholder="HCO3-" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full" />
@@ -231,7 +231,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
 
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Na⁺</label><input type="number" value={na4} onChange={e=>setNa4(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full" /></div>
           <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Cl⁻</label><input type="number" value={cl4} onChange={e=>setCl4(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full" /></div>
           <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">HCO₃⁻</label><input type="number" value={hco3act4} onChange={e=>setHco3act4(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full" /></div>
@@ -271,7 +271,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
       </div>
       <div className="p-0">
         
-        <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
+        <div className="flex w-full border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
           <button onClick={() => setActiveTab(1)} className={`flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 1 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>🧪 NaHCO₃</button>
           <button onClick={() => setActiveTab(2)} className={`flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 2 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>⚗️ KCl / HCl</button>
           <button onClick={() => setActiveTab(3)} className={`flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 3 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>📐 Kompensasi</button>

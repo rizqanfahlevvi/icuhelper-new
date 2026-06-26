@@ -6,7 +6,7 @@ export default function AbgTheory() {
       <h2 className="text-xl font-bold tracking-tight text-foreground mt-8">Teori & Referensi ABG</h2>
 
       <Accordion title="📖 Nilai Normal ABG Dewasa & Fisiologi Henderson-Hasselbalch">
-        <div className="overflow-x-auto -mx-3 sm:mx-0 mb-4">
+        <div className="overflow-x-auto mb-4 w-full">
           <div className="min-w-[500px] p-3 pt-0">
             <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Nilai Normal ABG Dewasa</h3>
             <table className="w-full text-left border-collapse text-[12px]">
@@ -43,7 +43,7 @@ export default function AbgTheory() {
       </Accordion>
 
       <Accordion title="📖 Kompensasi Respiratorik & Metabolik — Formula Lengkap">
-        <div className="overflow-x-auto -mx-3 sm:mx-0 mb-4">
+        <div className="overflow-x-auto mb-4 w-full">
           <div className="min-w-[500px] p-3 pt-0">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
@@ -74,7 +74,7 @@ export default function AbgTheory() {
 
       <Accordion title="📖 P/F Ratio, A-a Gradient, OI & ROX Index">
         <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">P/F Ratio (PaO₂/FiO₂)</h3>
-        <div className="overflow-x-auto -mx-3 sm:mx-0 mb-4">
+        <div className="overflow-x-auto mb-4 w-full">
           <div className="min-w-[400px] p-3 pt-0">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
@@ -98,7 +98,7 @@ export default function AbgTheory() {
         <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">A-a Gradient (Alveolar-arterial O₂ Difference)</h3>
         <p className="text-[12px] text-muted-foreground mb-1"><strong className="text-foreground">PAO₂ = FiO₂ × (Patm − PH₂O) − PaCO₂/RQ</strong></p>
         <p className="text-[12px] text-muted-foreground mb-2">Pada udara ruang: PAO₂ = 150 − PaCO₂/0.8<br/><strong>A-a gradient = PAO₂ − PaO₂</strong> · Normal: (Usia/4 + 4) atau ≤10 mmHg (muda)</p>
-        <div className="overflow-x-auto -mx-3 sm:mx-0 mb-4">
+        <div className="overflow-x-auto mb-4 w-full">
           <div className="min-w-[400px] p-3 pt-0">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
@@ -120,7 +120,7 @@ export default function AbgTheory() {
 
         <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">ROX Index (untuk HFNC)</h3>
         <p className="text-[12px] text-muted-foreground mb-2"><strong className="text-foreground">ROX = (SpO₂/FiO₂) / RR spontan</strong></p>
-        <div className="overflow-x-auto -mx-3 sm:mx-0 mb-3">
+        <div className="overflow-x-auto mb-3 w-full">
           <div className="min-w-[400px] p-3 pt-0">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
