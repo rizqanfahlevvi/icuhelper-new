@@ -193,41 +193,47 @@ export default function AboutSettings() {
                       
                       <AnimatePresence>
                         {isFontDropdownOpen && (
-                          <motion.div 
-                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                            transition={{ duration: 0.2 }}
-                            className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 max-h-[60vh] overflow-y-auto"
-                          >
-                            <div className="p-1 flex flex-col gap-1">
-                              {fontOptions.map((opt) => (
-                                <button
-                                  key={opt.id}
-                                  onClick={() => {
-                                    setFontFamily(opt.id);
-                                    setIsFontDropdownOpen(false);
-                                  }}
-                                  className={`w-full px-4 py-3 flex items-center justify-between text-left rounded-lg transition-all duration-150 ${
-                                    fontFamily === opt.id ? 'bg-primary/10' : 'hover:bg-muted'
-                                  }`}
-                                >
-                                  <div>
-                                    <p 
-                                      className={`text-sm ${fontFamily === opt.id ? 'font-bold text-primary' : 'font-medium text-foreground'}`}
-                                      style={{ fontFamily: getFontFamilyStyle(opt.id) }}
-                                    >
-                                      {opt.label}
-                                    </p>
-                                    <p className="text-[11px] text-muted-foreground">{opt.sub}</p>
-                                  </div>
-                                  {fontFamily === opt.id && (
-                                    <Check className="w-4 h-4 text-primary stroke-[2.5]" />
-                                  )}
-                                </button>
-                              ))}
-                            </div>
-                          </motion.div>
+                          <>
+                            <div 
+                              className="fixed inset-0 z-40" 
+                              onClick={() => setIsFontDropdownOpen(false)} 
+                            />
+                            <motion.div 
+                              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                              transition={{ duration: 0.2 }}
+                              className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 max-h-[60vh] overflow-y-auto"
+                            >
+                              <div className="p-1 flex flex-col gap-1 relative z-50">
+                                {fontOptions.map((opt) => (
+                                  <button
+                                    key={opt.id}
+                                    onClick={() => {
+                                      setFontFamily(opt.id);
+                                      setIsFontDropdownOpen(false);
+                                    }}
+                                    className={`w-full px-4 py-3 flex items-center justify-between text-left rounded-lg transition-all duration-150 ${
+                                      fontFamily === opt.id ? 'bg-primary/10' : 'hover:bg-muted'
+                                    }`}
+                                  >
+                                    <div>
+                                      <p 
+                                        className={`text-sm ${fontFamily === opt.id ? 'font-bold text-primary' : 'font-medium text-foreground'}`}
+                                        style={{ fontFamily: getFontFamilyStyle(opt.id) }}
+                                      >
+                                        {opt.label}
+                                      </p>
+                                      <p className="text-[11px] text-muted-foreground">{opt.sub}</p>
+                                    </div>
+                                    {fontFamily === opt.id && (
+                                      <Check className="w-4 h-4 text-primary stroke-[2.5]" />
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          </>
                         )}
                       </AnimatePresence>
                     </div>
