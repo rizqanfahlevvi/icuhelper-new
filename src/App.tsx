@@ -263,6 +263,14 @@ export default function App() {
     const timer = setTimeout(() => {
       document.documentElement.classList.add('theme-transition');
     }, 50);
+
+    // Clear chunk-reload key if app loaded successfully
+    try {
+      sessionStorage.removeItem('chunk-failed-reload');
+    } catch (e) {
+      console.warn("Failed to clear chunk reload storage:", e);
+    }
+
     return () => clearTimeout(timer);
   }, []);
 

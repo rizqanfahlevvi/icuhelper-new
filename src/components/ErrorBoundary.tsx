@@ -21,6 +21,27 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
+
+    // Auto-reload on dynamic import chunk loading failures
+    const errorMessage = error?.message || "";
+    const isChunkFailed = 
+      errorMessage.includes("Failed to fetch dynamically imported module") ||
+      errorMessage.includes("Loading chunk") ||
+      errorMessage.includes("dynamic import failed") ||
+      errorMessage.includes("Failed to fetch");
+
+    if (isChunkFailed) {
+      try {
+        const chunkReloadKey = "chunk-failed-reload";
+        const hasReloaded = sessionStorage.getItem(chunkReloadKey);
+        if (!hasReloaded) {
+          sessionStorage.setItem(chunkReloadKey, "true");
+          window.location.reload();
+        }
+      } catch (e) {
+        console.error("Failed to auto-reload:", e);
+      }
+    }
   }
 
   public render() {
