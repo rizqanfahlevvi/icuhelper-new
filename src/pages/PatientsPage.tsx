@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   User, Plus, Trash2, CheckCircle2, UserPlus, 
   Calendar, Scale, Ruler, Search, HeartPulse, ChevronRight, Save, RefreshCw, X,
-  Activity, Droplet, FileText, Thermometer, Stethoscope, Layers
+  Activity, Droplet, FileText, Thermometer, Stethoscope, Layers, Users
 } from 'lucide-react';
+import { PageHeader } from '../components/ui/PageHeader';
 import { usePatientStore, Patient } from '../store/usePatientStore';
 import { useClinicalStore } from '../store/useClinicalStore';
 
@@ -194,26 +195,20 @@ export default function PatientsPage() {
       
       {/* Page Header */}
       <div className="pt-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 mb-3.5">
-          <span className="text-[11px] font-bold text-teal-600 dark:text-teal-400 tracking-wide uppercase">
-            👥 SISTEM MULTI-PASIEN INTEGRAL
-          </span>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Data Pasien</h1>
-            <p className="text-muted-foreground text-[13px] md:text-sm mt-1 max-w-lg">
-              Kelola daftar rekam medis pasien aktif Anda. Parameter klinis (Lab, ABG, Vital Sign) akan tersinkronisasi otomatis per pasien.
-            </p>
-          </div>
-          <button 
-            onClick={handleOpenAdd}
-            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--accent)] text-white font-bold rounded-xl shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm cursor-pointer"
-          >
-            <UserPlus className="w-4 h-4" /> Pasien Baru
-          </button>
-        </div>
+        <PageHeader 
+          badgeIcon={Users}
+          badgeText="Sistem Multi-Pasien Integral"
+          title="Data Pasien"
+          description="Kelola daftar rekam medis pasien aktif Anda. Parameter klinis (Lab, ABG, Vital Sign) akan tersinkronisasi otomatis per pasien."
+          rightContent={
+            <button 
+              onClick={handleOpenAdd}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--accent)] text-white font-bold rounded-xl shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm cursor-pointer"
+            >
+              <UserPlus className="w-4 h-4" /> Pasien Baru
+            </button>
+          }
+        />
       </div>
 
       {/* active check */}

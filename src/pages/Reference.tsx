@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
-import { Search, BookText, Star } from 'lucide-react';
+import { Search, BookText, Star, BookOpen } from 'lucide-react';
 import { Accordion } from '../components/ui/Accordion';
 import { referenceData } from '../data/referenceData';
 import { useFavoritesStore } from '../store/useFavoritesStore';
+import { PageHeader } from '../components/ui/PageHeader';
 
 export default function Reference() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -34,21 +35,23 @@ export default function Reference() {
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20">
       <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-2">
-            <BookText className="w-6 h-6" />
-            Referensi & Studi Kunci
-            <button
-              onClick={() => toggleFavorite('/reference')}
-              className="p-1.5 rounded-full hover:bg-muted transition-colors ml-1"
-              title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
-            >
-              <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
-            </button>
-          </h1>
-          <p className="text-muted-foreground text-[13px]">
-            Kumpulan panduan klinis, trial utama, referensi lokal, dan sumber dosis obat yang menjadi landasan tata laksana di ICU.
-          </p>
+        <div className="pt-2">
+          <PageHeader 
+            badgeIcon={BookOpen}
+            badgeText="LITERATUR"
+            title="Referensi & Studi Kunci"
+            description="Kumpulan panduan klinis, trial utama, referensi lokal, dan sumber dosis obat yang menjadi landasan tata laksana di ICU."
+            rightContent={
+              <button
+                onClick={() => toggleFavorite('/reference')}
+                className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
+              >
+                <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
+                <span className="hidden sm:inline">{isFav ? 'Difavoritkan' : 'Favoritkan'}</span>
+              </button>
+            }
+          />
         </div>
 
         <div className="relative">
@@ -83,37 +86,27 @@ export default function Reference() {
                 title={section.title} 
                 defaultOpen={defaultOpen}
               >
-                <div className="overflow-x-auto -mx-3 sm:mx-0">
-                  <div className="min-w-[600px] p-3 pt-0">
-                    <table className="w-full text-left border-collapse text-[12px]">
-                      <thead>
-                        <tr>
-                          <th className="p-2 border-b border-border font-semibold text-muted-foreground w-[30%]">{section.headers[0]}</th>
-                          <th className="p-2 border-b border-border font-semibold text-muted-foreground w-[20%]">{section.headers[1]}</th>
-                          {section.headers[2] && (
-                            <th className="p-2 border-b border-border font-semibold text-muted-foreground w-[50%]">{section.headers[2]}</th>
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {section.items.map((item, i) => (
-                          <tr key={i} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                            <td className="p-2 text-foreground font-medium align-top">
-                              {item.col1}
-                            </td>
-                            <td className="p-2 text-muted-foreground align-top">
-                              {item.col2}
-                            </td>
-                            {section.headers[2] && (
-                              <td className="p-2 text-muted-foreground align-top">
-                                {item.col3}
-                              </td>
-                            )}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                <div className="flex flex-col gap-3 py-2 px-1">
+                  {section.items.map((item, i) => (
+                    <div key={i} className="bg-white dark:bg-slate-900 border border-border/80 rounded-xl p-3.5 shadow-sm flex flex-col gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      <div className="flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-4">
+                        <div className="flex-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{section.headers[0]}</span>
+                          <div className="text-[13px] font-semibold text-foreground mt-0.5 leading-snug">{item.col1}</div>
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{section.headers[1]}</span>
+                          <div className="text-[13px] text-foreground mt-0.5 leading-snug">{item.col2}</div>
+                        </div>
+                      </div>
+                      {section.headers[2] && item.col3 && (
+                        <div className="mt-1.5 pt-2.5 border-t border-border/50">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{section.headers[2]}</span>
+                          <div className="text-[13px] text-muted-foreground mt-0.5 leading-relaxed">{item.col3}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </Accordion>
             );

@@ -5,6 +5,7 @@ import { useClinicalStore } from '../../store/useClinicalStore';
 import { Accordion } from '../../components/ui/Accordion';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
+import { ClinicalReport } from '../../components/ui/ClinicalReport';
 import { 
   Activity, 
   Info, 
@@ -678,6 +679,38 @@ export default function KalkulatorRenal() {
                   </div>
                 </div>
               )}
+
+              <ClinicalReport 
+                title="LFG & Klirens Kreatinin"
+                patientInfo={{
+                  name: patient.nama || '',
+                  age: age || '-',
+                  gender: sex === 'm' ? 'L' : 'P',
+                  weight: weight || '-'
+                }}
+                sections={[
+                  {
+                    title: 'Input Klinis',
+                    items: [
+                      { label: 'Serum Kreatinin', value: `${scrVal} ${scrUnit === 'mg' ? 'mg/dL' : 'µmol/L'}` },
+                      { label: 'Tinggi Badan', value: height ? `${height} cm` : '-' }
+                    ]
+                  },
+                  {
+                    title: 'Hasil Perhitungan',
+                    items: crclResults.isPediatric ? [
+                      { label: 'eGFR Bedside Schwartz', value: `${crclResults.schwartz} mL/min/1.73m²` },
+                      { label: 'Klasifikasi KDIGO', value: `${crclResults.stage} (${crclResults.stageDesc})` }
+                    ] : [
+                      { label: 'eGFR CKD-EPI 2021', value: `${crclResults.ckdEpi} mL/min/1.73m²` },
+                      { label: 'eGFR MDRD', value: `${crclResults.mdrd} mL/min/1.73m²` },
+                      { label: 'Klasifikasi KDIGO', value: `${crclResults.stage} (${crclResults.stageDesc})` },
+                      { label: 'CrCl (Cockcroft-Gault)', value: `${crclResults.cgRecommended} mL/min` }
+                    ]
+                  }
+                ]}
+                notes={crclResults.isPediatric ? undefined : (parseFloat(crclResults.cgRecommended) < 30 ? "Pasien membutuhkan penyesuaian dosis obat ginjal yang signifikan (Critical/Severe Dose Reduction)." : parseFloat(crclResults.cgRecommended) < 50 ? "Pasien membutuhkan penyesuaian dosis obat ginjal ringan-sedang (Moderate Dose Adjustment)." : undefined)}
+              />
             </div>
           )}
 
@@ -919,6 +952,39 @@ export default function KalkulatorRenal() {
                   </div>
                 </div>
               )}
+
+              <ClinicalReport 
+                title="Diferensiasi AKI (FENa & FEUrea)"
+                patientInfo={{
+                  name: patient.nama || ''
+                }}
+                sections={[
+                  {
+                    title: 'Parameter Serum',
+                    items: [
+                      { label: 'Sodium (Na)', value: `${sna} mEq/L` },
+                      { label: 'Kreatinin (Cr)', value: `${scr} mg/dL` },
+                      ...(sureum ? [{ label: 'Ureum (BUN)', value: `${sureum} mg/dL` }] : [])
+                    ]
+                  },
+                  {
+                    title: 'Parameter Urin',
+                    items: [
+                      { label: 'Sodium (Na)', value: `${una} mEq/L` },
+                      { label: 'Kreatinin (Cr)', value: `${ucr} mg/dL` },
+                      ...(uureum ? [{ label: 'Ureum', value: `${uureum} mg/dL` }] : [])
+                    ]
+                  },
+                  {
+                    title: 'Hasil Evaluasi',
+                    items: [
+                      { label: 'FENa', value: `${fenaResults.fena}%` },
+                      ...(fenaResults.feurea ? [{ label: 'FEUrea', value: `${fenaResults.feurea}%` }] : [])
+                    ]
+                  }
+                ]}
+                notes={`Analisis FENa: ${fenaResults.fi}${fenaResults.feurea ? `\n\nAnalisis FEUrea: ${fenaResults.fui}` : ''}`}
+              />
             </div>
           )}
 

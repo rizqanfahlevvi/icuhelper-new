@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Activity, Wind, ListCheck, CheckCircle2, AlertTriangle, Star } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
+import { PageHeader } from '../../components/ui/PageHeader';
 
 export default function WeaningIndex() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -41,20 +42,23 @@ export default function WeaningIndex() {
     <div className="p-4 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       
       {/* Page Title & Bookmark */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2">
-          <Wind className="w-6 h-6 text-primary" /> Weaning Evaluator
-          <button
-            onClick={() => toggleFavorite('/weaning')}
-            className="p-1.5 rounded-full hover:bg-muted transition-colors ml-1"
-            title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
-          >
-            <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
-          </button>
-        </h1>
-        <p className="text-muted-foreground text-[13px] mt-1">
-          Evaluasi kesiapan ekstubasi & pelepasan ventilator (weaning), kalkulator RSBI spontan, serta checklist kesiapan klinis.
-        </p>
+      <div className="pt-2">
+        <PageHeader 
+          badgeIcon={Wind}
+          badgeText="VENTILASI MEKANIK"
+          title="Weaning Evaluator"
+          description="Evaluasi kesiapan ekstubasi & pelepasan ventilator (weaning), kalkulator RSBI spontan, serta checklist kesiapan klinis."
+          rightContent={
+            <button
+              onClick={() => toggleFavorite('/weaning')}
+              className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+              title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
+            >
+              <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
+              <span className="hidden sm:inline">{isFav ? 'Difavoritkan' : 'Favoritkan'}</span>
+            </button>
+          }
+        />
       </div>
 
       {/* SECTION 1: Kalkulator RSBI */}

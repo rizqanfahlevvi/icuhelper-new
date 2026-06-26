@@ -3,10 +3,11 @@ import AbgInterpreter from './AbgInterpreter';
 import AcidBaseCorrection from './AcidBaseCorrection';
 import AbgTheory from './AbgTheory';
 import { AbgInputs, defaultAbgInputs } from './types';
-import { Star } from 'lucide-react';
+import { Star, Droplet } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
+import { PageHeader } from '../../components/ui/PageHeader';
 
 export default function AbgPage() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -35,20 +36,23 @@ export default function AbgPage() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-2">
-          🩸 ABG & Asam-Basa
-          <button
-            onClick={() => toggleFavorite('/abg')}
-            className="p-1.5 rounded-full hover:bg-muted transition-colors opacity-90"
-            title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
-          >
-            <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
-          </button>
-        </h1>
-        <p className="text-muted-foreground text-[13px]">
-          Interpretasi gas darah 7 langkah (asam-basa, kompensasi, anion gap, oksigenasi), serta kalkulator koreksi.
-        </p>
+      <div className="pt-2">
+        <PageHeader 
+          badgeIcon={Droplet}
+          badgeText="GAS DARAH"
+          title="ABG & Asam-Basa"
+          description="Interpretasi gas darah 7 langkah (asam-basa, kompensasi, anion gap, oksigenasi), serta kalkulator koreksi."
+          rightContent={
+            <button
+              onClick={() => toggleFavorite('/abg')}
+              className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+              title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
+            >
+              <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
+              <span className="hidden sm:inline">{isFav ? 'Difavoritkan' : 'Favoritkan'}</span>
+            </button>
+          }
+        />
       </div>
 
       {/* Active Patient Widget & Sync Banner */}

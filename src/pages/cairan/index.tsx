@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { Search, Droplets, AlertTriangle, Filter, Star } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, Droplets, AlertTriangle, Filter, Star, BookOpen } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { CF_FLUIDS } from './data';
 import { FluidItem } from './types';
 import FluidModal from './FluidModal';
+import { PageHeader } from '../../components/ui/PageHeader';
 
 const CATEGORIES = [
   { id: 'semua', label: 'Semua' },
@@ -19,13 +20,18 @@ const CATEGORIES = [
 
 export interface CairanIndexProps {
   isEmbedded?: boolean;
+  globalSearch?: string;
 }
 
-export default function CairanIndex({ isEmbedded = false }: CairanIndexProps = {}) {
+export default function CairanIndex(props: CairanIndexProps) {
+  const { isEmbedded = false, globalSearch = '' } = props;
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [activeCategory, setActiveCategory] = useState('semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFluid, setSelectedFluid] = useState<FluidItem | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const isFav = isFavorite('/cairan');
 
@@ -34,18 +40,27 @@ export default function CairanIndex({ isEmbedded = false }: CairanIndexProps = {
     if (activeCategory !== 'semua') {
       result = result.filter(f => f.cat === activeCategory);
     }
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
+    const activeSearch = isEmbedded ? globalSearch : searchQuery;
+    if (activeSearch.trim() !== '') {
+      const q = activeSearch.toLowerCase();
       result = result.filter(f => 
         f.name.toLowerCase().includes(q) ||
         f.alias.toLowerCase().includes(q) ||
         f.badge.toLowerCase().includes(q) ||
         f.cat.toLowerCase().includes(q) ||
-        f.osm.toLowerCase().includes(q)
+        f.osm.toLowerCase().includes(q) ||
+        f.ind.some(i => i.t.toLowerCase().includes(q) || i.i.toLowerCase().includes(q))
       );
     }
     return result;
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, globalSearch, isEmbedded]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery, globalSearch, isEmbedded]);
+
+  const totalPages = Math.ceil(filteredFluids.length / itemsPerPage);
+  const currentFluids = filteredFluids.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const getCatColorClass = (cat: string) => {
     switch (cat) {
@@ -66,16 +81,24 @@ export default function CairanIndex({ isEmbedded = false }: CairanIndexProps = {
       
       <div className="flex flex-col gap-4">
         {!isEmbedded && (
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Droplets className="w-6 h-6 text-blue-500" /> Referensi Cairan IV
-            <button
-              onClick={() => toggleFavorite('/cairan')}
-              className="p-1.5 rounded-full hover:bg-muted transition-colors"
-              title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
-            >
-              <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
-            </button>
-          </h1>
+          <div className="pt-2">
+            <PageHeader 
+              badgeIcon={BookOpen}
+              badgeText="REFERENSI KLINIS"
+              title="Cairan Intravena"
+              description="Katalog cairan infus lengkap dengan komposisi, osmolaritas, dan indikasi klinis."
+              rightContent={
+                <button
+                  onClick={() => toggleFavorite('/cairan')}
+                  className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                  title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
+                >
+                  <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
+                  <span className="hidden sm:inline">{isFav ? 'Difavoritkan' : 'Favoritkan'}</span>
+                </button>
+              }
+            />
+          </div>
         )}
         
         {/* Info Banner & Feature Prompt */}
@@ -122,16 +145,18 @@ export default function CairanIndex({ isEmbedded = false }: CairanIndexProps = {
             ))}
           </div>
 
-          <div className="relative shrink-0 sm:w-64">
-             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-             <input 
-               type="text" 
-               placeholder="Cari cairan..."
-               value={searchQuery}
-               onChange={(e) => setSearchQuery(e.target.value)}
-               className="w-full bg-card border border-border rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-mono"
-             />
-          </div>
+          {!isEmbedded && (
+            <div className="relative shrink-0 sm:w-64">
+               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+               <input 
+                 type="text" 
+                 placeholder="Cari cairan..."
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="w-full bg-card border border-border rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-mono"
+               />
+            </div>
+          )}
         </div>
       </div>
 
@@ -142,7 +167,7 @@ export default function CairanIndex({ isEmbedded = false }: CairanIndexProps = {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredFluids.map(fluid => (
+          {currentFluids.map(fluid => (
              <div 
                key={fluid.id}
                onClick={() => setSelectedFluid(fluid)}
@@ -188,6 +213,28 @@ export default function CairanIndex({ isEmbedded = false }: CairanIndexProps = {
                </div>
              </div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
+          >
+            Sebelumnya
+          </button>
+          <span className="text-sm font-semibold text-muted-foreground px-4">
+            Hal. {currentPage} / {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
+          >
+            Berikutnya
+          </button>
         </div>
       )}
 

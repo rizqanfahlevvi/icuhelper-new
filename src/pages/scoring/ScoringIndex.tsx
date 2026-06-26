@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { FileText, ClipboardList, Activity, Star } from 'lucide-react';
+import { FileText, ClipboardList, Activity, Star, BarChart } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
+import { PageHeader } from '../../components/ui/PageHeader';
 
 const SCORING_TOOLS = [
   { path: 'apache', name: 'APACHE-II', desc: 'Acute Physiology and Chronic Health Evaluation II' },
@@ -18,12 +19,13 @@ export default function ScoringIndex() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-          <FileText className="w-6 h-6 text-primary" />
-          Sistem Skoring Klinis
-        </h1>
-        <p className="text-muted-foreground mt-1">Alat penilaian objektif untuk kondisi dan prognosis pasien.</p>
+      <div className="pt-2">
+        <PageHeader 
+          badgeIcon={BarChart}
+          badgeText="SISTEM SKORING"
+          title="Sistem Skoring Klinis"
+          description="Alat penilaian objektif untuk kondisi dan prognosis pasien di perawatan intensif."
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

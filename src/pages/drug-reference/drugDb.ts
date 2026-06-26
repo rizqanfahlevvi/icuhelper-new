@@ -5,6 +5,7 @@ import { ICU_DRUGS as DC } from './drugDbC';
 import { ICU_DRUGS as DD } from './drugDbD';
 import { ICU_DRUGS as DE } from './drugDbE';
 import { ICU_DRUGS as DF } from './drugDbF';
+import { ICU_DRUGS as DG_Z } from './drugDbG_Z';
 
 export const ICU_DRUGS: DrugDatabase = {
   ...DA,
@@ -12,5 +13,6 @@ export const ICU_DRUGS: DrugDatabase = {
   ...DC,
   ...DD,
   ...DE,
-  ...DF
+  ...DF,
+  ...DG_Z
 };

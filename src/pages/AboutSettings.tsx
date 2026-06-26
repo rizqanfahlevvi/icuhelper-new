@@ -32,6 +32,25 @@ export default function AboutSettings() {
   const [activeTab, setActiveTab] = useState<'settings' | 'about'>('settings');
   const [estimate, setEstimate] = useState<StorageEstimateInfo>({ used: '0 Bytes', quota: '0 Bytes', percentage: 0 });
   const [isOpenChangelog, setIsOpenChangelog] = useState<{ [key: string]: boolean }>({ v3: true, v2: false, v1: false });
+  const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
+
+  const getFontFamilyStyle = (fontId: string) => {
+    const fontsMap: Record<string, string> = {
+      lexend: '"Lexend", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      inter: '"Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      roboto: '"Roboto", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      jetbrains: '"JetBrains Mono", monospace',
+      system: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      poppins: '"Poppins", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      montserrat: '"Montserrat", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      'plus-jakarta': '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      outfit: '"Outfit", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      'space-grotesk': '"Space Grotesk", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      'fira-code': '"Fira Code", monospace',
+      quicksand: '"Quicksand", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+    };
+    return fontsMap[fontId] || fontsMap.system;
+  };
 
   // Get Store State
   const {
@@ -62,7 +81,14 @@ export default function AboutSettings() {
     { id: 'lexend', label: 'Lexend (Default)', sub: 'Clinically optimized spacing' },
     { id: 'inter', label: 'Inter', sub: 'Clean general-purpose sans' },
     { id: 'roboto', label: 'Roboto', sub: 'Familiar UI typeface' },
-    { id: 'jetbrains', label: 'JetBrains Mono', sub: 'High-contrast numbers 12.5mg' },
+    { id: 'jetbrains', label: 'JetBrains Mono', sub: 'High-contrast numbers' },
+    { id: 'poppins', label: 'Poppins', sub: 'Geometric & modern' },
+    { id: 'montserrat', label: 'Montserrat', sub: 'Elegant & structured' },
+    { id: 'plus-jakarta', label: 'Plus Jakarta Sans', sub: 'Versatile & legible' },
+    { id: 'outfit', label: 'Outfit', sub: 'Tech-forward & clean' },
+    { id: 'space-grotesk', label: 'Space Grotesk', sub: 'Bold & futuristic' },
+    { id: 'fira-code', label: 'Fira Code', sub: 'Developer & terminal style' },
+    { id: 'quicksand', label: 'Quicksand', sub: 'Rounded & friendly' },
     { id: 'system', label: 'System UI', sub: 'Default operating system layout' },
   ];
 
@@ -136,35 +162,76 @@ export default function AboutSettings() {
                 <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground pl-3">
                   PENGATURAN TAMPILAN
                 </h3>
-                <div className="bg-card rounded-2xl border border-border shadow-sm divide-y divide-border overflow-hidden p-1">
+                <div className="bg-card rounded-2xl border border-border shadow-sm divide-y divide-border p-1 z-10 relative">
                   <div className="p-4 bg-muted/20 border-b border-border">
                     <h4 className="font-bold text-foreground text-sm flex items-center gap-2">
                       <Type className="w-4 h-4 text-primary" />
                       Jenis Font (Readability)
                     </h4>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1 mb-3">
                       Pilih tipografi yang paling nyaman untuk dibaca dalam kondisi klinis berat atau pencahayaan malam ICU.
                     </p>
+                    
+                    <div className="relative">
+                      <button 
+                        onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}
+                        className="w-full flex items-center justify-between bg-background border border-border rounded-xl px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                      >
+                        <div>
+                          <p 
+                            className="text-sm font-bold text-foreground"
+                            style={{ fontFamily: getFontFamilyStyle(fontFamily) }}
+                          >
+                            {fontOptions.find(o => o.id === fontFamily)?.label || 'System UI'}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {fontOptions.find(o => o.id === fontFamily)?.sub}
+                          </p>
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform duration-200 ${isFontDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      <AnimatePresence>
+                        {isFontDropdownOpen && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 max-h-[60vh] overflow-y-auto"
+                          >
+                            <div className="p-1 flex flex-col gap-1">
+                              {fontOptions.map((opt) => (
+                                <button
+                                  key={opt.id}
+                                  onClick={() => {
+                                    setFontFamily(opt.id);
+                                    setIsFontDropdownOpen(false);
+                                  }}
+                                  className={`w-full px-4 py-3 flex items-center justify-between text-left rounded-lg transition-all duration-150 ${
+                                    fontFamily === opt.id ? 'bg-primary/10' : 'hover:bg-muted'
+                                  }`}
+                                >
+                                  <div>
+                                    <p 
+                                      className={`text-sm ${fontFamily === opt.id ? 'font-bold text-primary' : 'font-medium text-foreground'}`}
+                                      style={{ fontFamily: getFontFamilyStyle(opt.id) }}
+                                    >
+                                      {opt.label}
+                                    </p>
+                                    <p className="text-[11px] text-muted-foreground">{opt.sub}</p>
+                                  </div>
+                                  {fontFamily === opt.id && (
+                                    <Check className="w-4 h-4 text-primary stroke-[2.5]" />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
-                  {fontOptions.map((opt) => (
-                    <button
-                      key={opt.id}
-                      onClick={() => setFontFamily(opt.id)}
-                      className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-muted/30 transition-all duration-150 group"
-                    >
-                      <div>
-                        <p className={`text-sm ${fontFamily === opt.id ? 'font-bold text-primary' : 'font-medium text-foreground'}`}>
-                          {opt.label}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{opt.sub}</p>
-                      </div>
-                      {fontFamily === opt.id && (
-                        <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-primary">
-                          <Check className="w-5 h-5 stroke-[2.5]" />
-                        </motion.div>
-                      )}
-                    </button>
-                  ))}
                 </div>
               </div>
 
@@ -186,8 +253,8 @@ export default function AboutSettings() {
                   <span className="text-xs text-muted-foreground font-semibold">A</span>
                   <input
                     type="range"
-                    min="0.80"
-                    max="1.25"
+                    min="0.50"
+                    max="2.00"
                     step="0.05"
                     value={fontScale}
                     onChange={(e) => setFontScale(parseFloat(e.target.value))}
@@ -219,8 +286,8 @@ export default function AboutSettings() {
                       {fontWeight === 0 
                         ? 'Normal (Default)' 
                         : fontWeight < 0 
-                          ? `${fontWeight <= -75 ? 'Sangat Tipis' : 'Tipis'} (${fontWeight})` 
-                          : `${fontWeight >= 100 ? 'Sangat Tebal' : fontWeight >= 50 ? 'Tebal' : 'Medium'} (+${fontWeight})`
+                          ? `${fontWeight <= -150 ? 'Sangat Tipis' : 'Tipis'} (${fontWeight})` 
+                          : `${fontWeight >= 200 ? 'Sangat Tebal' : fontWeight >= 100 ? 'Tebal' : 'Medium'} (+${fontWeight})`
                       }
                     </span>
                   </h4>
@@ -230,17 +297,17 @@ export default function AboutSettings() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground font-light">Sangat Tipis (-100)</span>
+                  <span className="text-xs text-muted-foreground font-light">Sangat Tipis (-300)</span>
                   <input
                     type="range"
-                    min="-100"
-                    max="150"
-                    step="25"
+                    min="-300"
+                    max="400"
+                    step="50"
                     value={fontWeight}
                     onChange={(e) => setFontWeight(parseInt(e.target.value))}
                     className="flex-1 accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
                   />
-                  <span className="text-xs text-foreground font-black">Sangat Tebal (+150)</span>
+                  <span className="text-xs text-foreground font-black">Sangat Tebal (+400)</span>
                 </div>
               </div>
 

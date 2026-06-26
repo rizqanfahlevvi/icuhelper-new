@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, BookText, Star, Moon } from 'lucide-react';
+import { BookOpen, BookText, Star, Moon, FileText } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { PageHeader } from '../../components/ui/PageHeader';
 
 const THEORY_PAGES = [
   { path: 'agd', name: 'Interpretasi AGD', desc: 'Analisa gas darah dan asam-basa' },
@@ -28,27 +29,27 @@ export default function TheoryIndex() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-primary" />
-            Teori & Pedoman
-          </h1>
-          <p className="text-muted-foreground mt-1">Panduan klinis ringkas dan referensi cepat medis.</p>
-        </div>
-        
-        <button
-          onClick={() => setReadingMode(!readingMode)}
-          className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors border ${
-            readingMode 
-              ? 'bg-primary/10 text-primary border-primary/20' 
-              : 'bg-card text-muted-foreground border-border hover:bg-muted/50 hover:text-foreground'
-          }`}
-          title="Toggle Reading Mode"
-        >
-          <Moon className="w-4 h-4" />
-          Reading Mode {readingMode ? 'On' : 'Off'}
-        </button>
+      <div className="pt-2">
+        <PageHeader 
+          badgeIcon={FileText}
+          badgeText="REFERENSI TEORI"
+          title="Teori & Pedoman"
+          description="Panduan klinis ringkas dan referensi cepat medis untuk perawatan intensif."
+          rightContent={
+            <button
+              onClick={() => setReadingMode(!readingMode)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors border ${
+                readingMode 
+                  ? 'bg-primary/10 text-primary border-primary/20' 
+                  : 'bg-card text-muted-foreground border-border hover:bg-muted/50 hover:text-foreground'
+              }`}
+              title="Toggle Reading Mode"
+            >
+              <Moon className="w-4 h-4" />
+              Reading Mode {readingMode ? 'On' : 'Off'}
+            </button>
+          }
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

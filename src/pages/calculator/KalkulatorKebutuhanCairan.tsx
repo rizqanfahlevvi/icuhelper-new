@@ -3,6 +3,7 @@ import { Droplets, AlertTriangle, AlertCircle, Info, Wind } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { ClinicalReport } from '../../components/ui/ClinicalReport';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -307,6 +308,44 @@ export default function KalkulatorKebutuhanCairan() {
                   <div className="text-[13px] text-indigo-600/80 dark:text-indigo-400/80 font-medium mt-1">Rate infus tunggal: {(b2Res.total/24).toFixed(1)} mL/jam</div>
                 </div>
               </div>
+              
+              <ClinicalReport 
+                title="Kalkulator Kebutuhan Cairan"
+                patientInfo={{
+                  name: patient.nama || '',
+                  weight: bw || '-'
+                }}
+                sections={[
+                  {
+                    title: 'Input Kondisi & Kehilangan Cairan',
+                    items: [
+                      { label: 'Suhu Tubuh', value: `${temp} °C` },
+                      { label: 'Ventilator', value: vent.toUpperCase() },
+                      { label: 'Diaphoresis', value: sweat },
+                      { label: 'Output Urin Target', value: `${uoTgt} mL/kg/jam` },
+                      { label: 'Maint. Target', value: `${targetMaint} mL/kg/hari` }
+                    ]
+                  },
+                  {
+                    title: 'Rincian Kebutuhan Cairan',
+                    items: [
+                      { label: 'Maintenance Basal', value: `${b2Res.maint.toFixed(0)} mL` },
+                      { label: 'IWL Base', value: `${b2Res.iwlBase.toFixed(0)} mL` },
+                      ...(b2Res.tempCorr > 0 ? [{ label: 'Koreksi Suhu (Febris)', value: `+${b2Res.tempCorr.toFixed(0)} mL` }] : []),
+                      ...(b2Res.sweatCorr > 0 ? [{ label: 'Koreksi Diaphoresis', value: `+${b2Res.sweatCorr.toFixed(0)} mL` }] : []),
+                      { label: 'Target Output Urin', value: `${b2Res.uoDay.toFixed(0)} mL` },
+                      ...((b2Res.n > 0 || b2Res.d > 0 || b2Res.o > 0) ? [{ label: 'Output Ekstra (NGT/Drain/Lain)', value: `${(b2Res.n + b2Res.d + b2Res.o).toFixed(0)} mL` }] : [])
+                    ]
+                  },
+                  {
+                    title: 'Kesimpulan Total',
+                    items: [
+                      { label: 'Total Cairan Harian', value: `${b2Res.total.toFixed(0)} mL/hari` },
+                      { label: 'Laju Infus Kontinu', value: `${(b2Res.total/24).toFixed(1)} mL/jam` }
+                    ]
+                  }
+                ]}
+              />
             </div>
           )}
       </div>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Calculator, Dna, Droplets, HeartPulse, Option, Syringe, Activity, FileDigit, Star } from 'lucide-react';
+import { Calculator, Dna, Droplets, HeartPulse, Syringe, Activity, FileDigit, Star } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
+import { PageHeader } from '../../components/ui/PageHeader';
 
 const CALCULATORS = [
   { path: 'cairan', name: 'Kalkulator Cairan', icon: Droplets, desc: 'Kebutuhan cairan & resusitasi' },
@@ -11,7 +12,7 @@ const CALCULATORS = [
   { path: 'nlr', name: 'NLR', icon: FileDigit, desc: 'Neutrophil-to-Lymphocyte Ratio' },
   { path: 'nutrisi', name: 'Kalkulator Nutrisi', icon: HeartPulse, desc: 'Kebutuhan kalori & protein' },
   { path: 'pf', name: 'P/F Ratio', icon: Activity, desc: 'PaO2/FiO2 Ratio' },
-  { path: 'pulmo', name: 'Pulmonologi', icon: Option, desc: 'Perhitungan pulmonologi lain' },
+  { path: 'pulmo', name: 'Pulmonologi', icon: Activity, desc: 'Perhitungan pulmonologi lain' },
   { path: 'pump', name: 'Syringe Pump', icon: Syringe, desc: 'Perhitungan syringe pump umum' },
   { path: 'renal', name: 'Renal / CrCl', icon: Activity, desc: 'Creatinine Clearance & GFR' },
   { path: 'transfusi', name: 'Kebutuhan Transfusi', icon: Droplets, desc: 'Koreksi Hb & PRC/WB' },
@@ -24,12 +25,13 @@ export default function CalculatorIndex() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-          <Calculator className="w-6 h-6 text-primary" />
-          Kalkulator Klinis
-        </h1>
-        <p className="text-muted-foreground mt-1">Pilih alat perhitungan klinis untuk pengelolaan pasien intensif.</p>
+      <div className="pt-2">
+        <PageHeader 
+          badgeIcon={Calculator}
+          badgeText="ALAT PERHITUNGAN"
+          title="Kalkulator Klinis"
+          description="Pilih alat perhitungan klinis untuk pengelolaan pasien intensif secara cepat dan akurat."
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

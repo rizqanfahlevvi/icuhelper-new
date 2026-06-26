@@ -198,32 +198,48 @@ export default function Home() {
           </Link>
         ) : (
           <Link 
-            className="bg-card border border-border/80 w-full rounded-2xl shadow-sm hover:border-teal-500/50 transition-all duration-150 block overflow-hidden"
+            className="bg-card border border-border/80 w-full rounded-2xl shadow-sm hover:border-teal-500/50 hover:shadow-md transition-all duration-300 block overflow-hidden group"
             to="/patients"
           >
-            <div className="p-4 flex items-center gap-3 border-b border-[var(--separator)]">
-              <span className="w-9 h-9 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-[var(--accent)] flex-shrink-0">
-                <User size={18} />
+            <div className="p-3.5 flex items-start gap-3 border-b border-border/40">
+              <span className="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400 flex-shrink-0 border border-teal-500/20 group-hover:scale-105 transition-transform duration-300 shadow-sm">
+                <User size={20} />
               </span>
-              <div className="flex-1">
-                <p className="font-bold text-sm text-[var(--label-primary)]">{patient.nama || 'Pasien Anonim'}</p>
-                <p className="text-xs text-[var(--label-secondary)] mt-0.5">{patient.gender} · {patient.category}</p>
+              <div className="flex-1 mt-0.5">
+                <div className="flex items-center justify-between">
+                  <p className="font-bold text-sm text-foreground line-clamp-1 pr-2">{patient.nama || 'Pasien Anonim'}</p>
+                  <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-400 px-1.5 py-0.5 rounded-md border border-teal-500/20 shadow-sm">
+                    <Activity size={10} /> Aktif
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 font-medium">
+                  <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md"><User size={10} /> {patient.gender || '-'}</span>
+                  <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded-md border border-blue-100 dark:border-blue-800/30">{patient.category || '-'}</span>
+                </div>
               </div>
-              <span className="ios-badge ios-badge--accent text-xs font-black">Aktif</span>
             </div>
-            <div className="flex divide-x divide-[var(--separator)] font-mono">
-              <div className="flex-1 p-3 text-center md:text-left md:pl-5">
-                <div className="text-[10px] uppercase text-muted-foreground font-semibold font-sans tracking-wide">Usia</div>
-                <div className="text-sm font-bold text-[var(--label-primary)] mt-1">{patient.agePrecise || (patient.ageYears ? `${patient.ageYears} thn` : '') || '-'}</div>
+            
+            <div className="flex bg-slate-50/50 dark:bg-slate-900/20 divide-x divide-border/40 font-mono">
+              <div className="flex-1 p-2.5 text-center flex flex-col items-center justify-center">
+                <div className="text-[9px] uppercase text-slate-500 font-bold font-sans tracking-wider mb-0.5">Usia</div>
+                <div className="text-[13px] font-bold text-slate-700 dark:text-slate-200 flex items-baseline gap-0.5">
+                  {patient.agePrecise ? patient.agePrecise.replace(/ thn| bln/g, '') : (patient.ageYears || '-')}
+                  <span className="text-[9px] text-slate-400 font-sans font-semibold">{patient.agePrecise?.includes('bln') ? 'BLN' : 'THN'}</span>
+                </div>
               </div>
-              <div className="flex-1 p-3 text-center md:text-left md:pl-5">
-                <div className="text-[10px] uppercase text-muted-foreground font-semibold font-sans tracking-wide">Berat</div>
-                <div className="text-sm font-bold text-[var(--label-primary)] mt-1">{patient.weightKg ? patient.weightKg + ' kg' : '-'}</div>
+              <div className="flex-1 p-2.5 text-center flex flex-col items-center justify-center">
+                <div className="text-[9px] uppercase text-slate-500 font-bold font-sans tracking-wider mb-0.5">Berat</div>
+                <div className="text-[13px] font-bold text-slate-700 dark:text-slate-200 flex items-baseline gap-0.5">
+                  {patient.weightKg || '-'}
+                  <span className="text-[9px] text-slate-400 font-sans font-semibold">KG</span>
+                </div>
               </div>
-              <div className="flex-1 p-3 text-center md:text-left md:pl-5">
-                <div className="text-[10px] uppercase text-muted-foreground font-semibold font-sans tracking-wide">Hari Perawatan</div>
-                <div className="text-sm font-extrabold text-amber-600 dark:text-amber-400 mt-1">
-                  {patient.mrsDate ? (getHariPerawatan(patient.mrsDate) || "Hari Ke-1") : '-'}
+              <div className="flex-1 p-2.5 text-center flex flex-col items-center justify-center bg-blue-50/40 dark:bg-blue-900/10">
+                <div className="text-[9px] uppercase text-blue-600 dark:text-blue-400 font-bold font-sans tracking-wider mb-0.5 flex items-center gap-1">
+                  <Clock size={9} /> Rawat Inap
+                </div>
+                <div className="text-[13px] font-extrabold text-blue-700 dark:text-blue-400">
+                  {patient.mrsDate ? (getHariPerawatan(patient.mrsDate) || "Hari Ke-1").replace('Hari Ke-', 'H-') : '-'}
                 </div>
               </div>
             </div>

@@ -650,6 +650,62 @@ export const referenceData: RefSection[] = [
     ]
   },
   {
+    "id": "literatur-teori-kalkulator-tambahan",
+    "title": "Literatur Teori & Kalkulator (Tambahan)",
+    "headers": [
+      "Topik",
+      "Publikasi / Penulis",
+      "Relevansi / Konteks"
+    ],
+    "items": [
+      {
+        "col1": "Ventilator & Mekanik Paru",
+        "col2": "Tobin MJ (2013); Chatburn RL (2014); Hess DR (2011); Esteban A (2013); Gattinoni L (2016)",
+        "col3": "Principles and practice of mechanical ventilation. Mechanical power & driving pressure ARDS. Panduan Penggunaan Ventilator PERDATIN."
+      },
+      {
+        "col1": "Nutrisi ICU",
+        "col2": "Singer P (ESPEN 2023); McClave SA (ASPEN 2016); Friedli N (2018); NICE-SUGAR",
+        "col3": "Practical guidelines clinical nutrition in ICU, refeeding syndrome algorithm, glycemic control."
+      },
+      {
+        "col1": "Analisis Gas Darah (AGD)",
+        "col2": "Kaufman DA (ATS 2020); Larkin BG (2015); Seifter JL (NEJM 2014); Kraut JA",
+        "col3": "Interpretation of ABGs, integration of acid-base and electrolyte disorders, anion gap."
+      },
+      {
+        "col1": "Cedera Otak (TIK)",
+        "col2": "Stevens RD (2018); Mokri B (2001); Carney N (TBI Guidelines 2017); Hutchinson PJ (RESCUEicp)",
+        "col3": "Management of elevated ICP, Monro-Kellie hypothesis, decompressive craniectomy, PERDOSSI."
+      },
+      {
+        "col1": "PADIS & Mobilisasi",
+        "col2": "Devlin JW (PADIS 2018); Girard TD (ABC trial 2008); Schweickert WD (2009)",
+        "col3": "Clinical Practice Guidelines for Pain, Agitation, Delirium, Immobility, and Sleep. Paired SAT-SBT."
+      },
+      {
+        "col1": "Insulin & Diabetes",
+        "col2": "ADA Standards of Care 2024; PERKENI; Umpierrez GE (2024)",
+        "col3": "Hyperglycemic Crises (DKA/HHS), Basal-Bolus-Correction regimen, Hypoglycemia management."
+      },
+      {
+        "col1": "Manajemen Airway",
+        "col2": "Brown CA (Walls Manual 2023); Zhong M (2024); Araújo (2024)",
+        "col3": "Emergency airway management, prophylactic vasopressors pre-intubation, video laryngoscopy."
+      },
+      {
+        "col1": "Elektrolit Lanjutan",
+        "col2": "Palmer BF (NEJM 2020); UKKA Guideline (2023); Bilezikian JP (NEJM 2022); Weisberg LS (2008)",
+        "col3": "Management of severe hyperkalemia, hypocalcemia, magnesium physiology."
+      },
+      {
+        "col1": "Pulmonologi Klinis",
+        "col2": "Metlay JP (ATS/IDSA 2019); Lim WS (2003); Charles PG (2008)",
+        "col3": "CAP Guidelines, CURB-65, SMART-COP score untuk prediksi ICU/ventilasi."
+      }
+    ]
+  },
+  {
     "id": "referensi-transfusi-darah-hemostasis",
     "title": "Referensi — Transfusi Darah & Hemostasis",
     "headers": [

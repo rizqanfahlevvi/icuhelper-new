@@ -2,75 +2,76 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 import { useSettingsStore } from './store/settingsStore';
+import PageSkeleton from './components/ui/PageSkeleton';
 
-import Home from './pages/Home';
-import AboutSettings from './pages/AboutSettings';
-import PlaceholderPage from './pages/PlaceholderPage';
+const Home = lazy(() => import('./pages/Home'));
+const AboutSettings = lazy(() => import('./pages/AboutSettings'));
+const PlaceholderPage = lazy(() => import('./pages/PlaceholderPage'));
 
-import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignUpPage';
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignUpPage = lazy(() => import('./pages/SignUpPage'));
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import { ShieldAlert, ExternalLink, LogOut } from 'lucide-react';
 
-import PatientsPage from './pages/PatientsPage';
-import CalculatorIndex from './pages/calculator/CalculatorIndex';
-import ScoringIndex from './pages/scoring/ScoringIndex';
-import TheoryIndex from './pages/theory/TheoryIndex';
-import Reference from './pages/Reference';
-import Riwayat from './pages/Riwayat';
-import SettingIndex from './pages/setting';
-import MonitoringIndex from './pages/monitoring';
-import WeaningIndex from './pages/weaning';
-import AbgPage from './pages/abg';
-import PharmacyIndex from './pages/pharmacy';
-import AdminPage from './pages/AdminPage';
+const PatientsPage = lazy(() => import('./pages/PatientsPage'));
+const CalculatorIndex = lazy(() => import('./pages/calculator/CalculatorIndex'));
+const ScoringIndex = lazy(() => import('./pages/scoring/ScoringIndex'));
+const TheoryIndex = lazy(() => import('./pages/theory/TheoryIndex'));
+const Reference = lazy(() => import('./pages/Reference'));
+const Riwayat = lazy(() => import('./pages/Riwayat'));
+const SettingIndex = lazy(() => import('./pages/setting'));
+const MonitoringIndex = lazy(() => import('./pages/monitoring'));
+const WeaningIndex = lazy(() => import('./pages/weaning'));
+const AbgPage = lazy(() => import('./pages/abg'));
+const PharmacyIndex = lazy(() => import('./pages/pharmacy'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
 
-import KalkulatorIBW from './pages/calculator/KalkulatorIBW';
-import KalkulatorRenal from './pages/calculator/KalkulatorRenal';
-import KalkulatorPF from './pages/calculator/KalkulatorPF';
-import KalkulatorPulmo from './pages/calculator/KalkulatorPulmo';
-import KalkulatorKebutuhanCairan from './pages/calculator/KalkulatorKebutuhanCairan';
-import KalkulatorDrug from './pages/calculator/KalkulatorDrug';
-import KalkulatorElektro from './pages/calculator/KalkulatorElektro';
-import KalkulatorPump from './pages/calculator/KalkulatorPump';
-import KalkulatorNlr from './pages/calculator/KalkulatorNlr';
-import KalkulatorTransfusi from './pages/calculator/KalkulatorTransfusi';
-import KalkulatorInsulin from './pages/calculator/KalkulatorInsulin';
-import KalkulatorNutrisi from './pages/calculator/KalkulatorNutrisi';
-import KalkulatorVentilatorAdv from './pages/calculator/KalkulatorVentilatorAdv';
-import KalkulatorAnionGap from './pages/calculator/KalkulatorAnionGap';
+const KalkulatorIBW = lazy(() => import('./pages/calculator/KalkulatorIBW'));
+const KalkulatorRenal = lazy(() => import('./pages/calculator/KalkulatorRenal'));
+const KalkulatorPF = lazy(() => import('./pages/calculator/KalkulatorPF'));
+const KalkulatorPulmo = lazy(() => import('./pages/calculator/KalkulatorPulmo'));
+const KalkulatorKebutuhanCairan = lazy(() => import('./pages/calculator/KalkulatorKebutuhanCairan'));
+const KalkulatorDrug = lazy(() => import('./pages/calculator/KalkulatorDrug'));
+const KalkulatorElektro = lazy(() => import('./pages/calculator/KalkulatorElektro'));
+const KalkulatorPump = lazy(() => import('./pages/calculator/KalkulatorPump'));
+const KalkulatorNlr = lazy(() => import('./pages/calculator/KalkulatorNlr'));
+const KalkulatorTransfusi = lazy(() => import('./pages/calculator/KalkulatorTransfusi'));
+const KalkulatorInsulin = lazy(() => import('./pages/calculator/KalkulatorInsulin'));
+const KalkulatorNutrisi = lazy(() => import('./pages/calculator/KalkulatorNutrisi'));
+const KalkulatorVentilatorAdv = lazy(() => import('./pages/calculator/KalkulatorVentilatorAdv'));
+const KalkulatorAnionGap = lazy(() => import('./pages/calculator/KalkulatorAnionGap'));
 
-import TeoriImpending from './pages/theory/TeoriImpending';
-import TeoriGagalNapas from './pages/theory/TeoriGagalNapas';
-import TeoriAirway from './pages/theory/TeoriAirway';
-import TeoriSepsis from './pages/theory/TeoriSepsis';
-import TeoriDKAHHS from './pages/theory/TeoriDKAHHS';
-import TeoriFisiologi from './pages/theory/TeoriFisiologi';
-import TeoriSyok from './pages/theory/TeoriSyok';
-import TeoriB1B6 from './pages/theory/TeoriB1B6';
-import TeoriSATSBT from './pages/theory/TeoriSATSBT';
-import TeoriNutrisi from './pages/theory/TeoriNutrisi';
-import TeoriAKICRRT from './pages/theory/TeoriAKICRRT';
-import TeoriAGD from './pages/theory/TeoriAGD';
-import TeoriVentilatorDasar from './pages/theory/TeoriVentilatorDasar';
-import TeoriTIK from './pages/theory/TeoriTIK';
-import TeoriPADIS from './pages/theory/TeoriPADIS';
-import TeoriCardiacRhythm from './pages/theory/TeoriCardiacRhythm';
+const TeoriImpending = lazy(() => import('./pages/theory/TeoriImpending'));
+const TeoriGagalNapas = lazy(() => import('./pages/theory/TeoriGagalNapas'));
+const TeoriAirway = lazy(() => import('./pages/theory/TeoriAirway'));
+const TeoriSepsis = lazy(() => import('./pages/theory/TeoriSepsis'));
+const TeoriDKAHHS = lazy(() => import('./pages/theory/TeoriDKAHHS'));
+const TeoriFisiologi = lazy(() => import('./pages/theory/TeoriFisiologi'));
+const TeoriSyok = lazy(() => import('./pages/theory/TeoriSyok'));
+const TeoriB1B6 = lazy(() => import('./pages/theory/TeoriB1B6'));
+const TeoriSATSBT = lazy(() => import('./pages/theory/TeoriSATSBT'));
+const TeoriNutrisi = lazy(() => import('./pages/theory/TeoriNutrisi'));
+const TeoriAKICRRT = lazy(() => import('./pages/theory/TeoriAKICRRT'));
+const TeoriAGD = lazy(() => import('./pages/theory/TeoriAGD'));
+const TeoriVentilatorDasar = lazy(() => import('./pages/theory/TeoriVentilatorDasar'));
+const TeoriTIK = lazy(() => import('./pages/theory/TeoriTIK'));
+const TeoriPADIS = lazy(() => import('./pages/theory/TeoriPADIS'));
+const TeoriCardiacRhythm = lazy(() => import('./pages/theory/TeoriCardiacRhythm'));
 
-import ScoringApache from './pages/scoring/ScoringApache';
-import ScoringBfs from './pages/scoring/ScoringBfs';
-import ScoringCamicu from './pages/scoring/ScoringCamicu';
-import ScoringCandida from './pages/scoring/ScoringCandida';
-import ScoringCpis from './pages/scoring/ScoringCpis';
-import ScoringRass from './pages/scoring/ScoringRass';
-import ScoringSofa from './pages/scoring/ScoringSofa';
-import ScoringWells from './pages/scoring/ScoringWells';
+const ScoringApache = lazy(() => import('./pages/scoring/ScoringApache'));
+const ScoringBfs = lazy(() => import('./pages/scoring/ScoringBfs'));
+const ScoringCamicu = lazy(() => import('./pages/scoring/ScoringCamicu'));
+const ScoringCandida = lazy(() => import('./pages/scoring/ScoringCandida'));
+const ScoringCpis = lazy(() => import('./pages/scoring/ScoringCpis'));
+const ScoringRass = lazy(() => import('./pages/scoring/ScoringRass'));
+const ScoringSofa = lazy(() => import('./pages/scoring/ScoringSofa'));
+const ScoringWells = lazy(() => import('./pages/scoring/ScoringWells'));
 
 import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 
@@ -209,14 +210,21 @@ export default function App() {
     root.style.setProperty('--fw-black', blackWeight.toString());
 
     // Apply font families
-    const fontsMap = {
+    const fontsMap: Record<string, string> = {
       lexend: '"Lexend", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       inter: '"Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       roboto: '"Roboto", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
       jetbrains: '"JetBrains Mono", monospace',
-      system: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      system: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      poppins: '"Poppins", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      montserrat: '"Montserrat", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      'plus-jakarta': '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      outfit: '"Outfit", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      'space-grotesk': '"Space Grotesk", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
+      'fira-code': '"Fira Code", monospace',
+      quicksand: '"Quicksand", -apple-system, BlinkMacSystemFont, system-ui, sans-serif',
     };
-    root.style.setProperty('--font-sans', fontsMap[fontFamily]);
+    root.style.setProperty('--font-sans', fontsMap[fontFamily] || fontsMap.system);
 
     // Apply Black & White Mode
     if (bwMode) {
@@ -262,78 +270,80 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
+        <Suspense fallback={<PageSkeleton />}>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
 
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/admin" element={<AdminPage />} />
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/patients" element={<PatientsPage />} />
-              
-              {/* Kalkulator Routes */}
-              <Route path="/calculator" element={<CalculatorIndex />} />
-              <Route path="/calculator/cairan" element={<KalkulatorKebutuhanCairan />} />
-              <Route path="/calculator/drug" element={<KalkulatorDrug />} />
-              <Route path="/calculator/electro" element={<KalkulatorElektro />} />
-              <Route path="/calculator/ibw" element={<KalkulatorIBW />} />
-              <Route path="/calculator/insulin" element={<KalkulatorInsulin />} />
-              <Route path="/calculator/nlr" element={<KalkulatorNlr />} />
-              <Route path="/calculator/nutrisi" element={<KalkulatorNutrisi />} />
-              <Route path="/calculator/pf" element={<KalkulatorPF />} />
-              <Route path="/calculator/pulmo" element={<KalkulatorPulmo />} />
-              <Route path="/calculator/pump" element={<KalkulatorPump />} />
-              <Route path="/calculator/renal" element={<KalkulatorRenal />} />
-              <Route path="/calculator/transfusi" element={<KalkulatorTransfusi />} />
-              <Route path="/calculator/ventilator-adv" element={<KalkulatorVentilatorAdv />} />
-              <Route path="/calculator/anion-gap" element={<KalkulatorAnionGap />} />
-              
-              {/* Teori Routes */}
-              <Route path="/theory" element={<TheoryIndex />} />
-              <Route path="/theory/agd" element={<TeoriAGD />} />
-              <Route path="/theory/airway" element={<TeoriAirway />} />
-              <Route path="/theory/aki-crrt" element={<TeoriAKICRRT />} />
-              <Route path="/theory/b1b6" element={<TeoriB1B6 />} />
-              <Route path="/theory/dka-hhs" element={<TeoriDKAHHS />} />
-              <Route path="/theory/fisiologi" element={<TeoriFisiologi />} />
-              <Route path="/theory/gagalnapas" element={<TeoriGagalNapas />} />
-              <Route path="/theory/impending" element={<TeoriImpending />} />
-              <Route path="/theory/nutrisi" element={<TeoriNutrisi />} />
-              <Route path="/theory/padis" element={<TeoriPADIS />} />
-              <Route path="/theory/sat-sbt-vap" element={<TeoriSATSBT />} />
-              <Route path="/theory/sepsis" element={<TeoriSepsis />} />
-              <Route path="/theory/syok" element={<TeoriSyok />} />
-              <Route path="/theory/tik" element={<TeoriTIK />} />
-              <Route path="/theory/vent-dasar" element={<TeoriVentilatorDasar />} />
-              <Route path="/theory/cardiac-rhythm" element={<TeoriCardiacRhythm />} />
-              
-              {/* Skoring Routes */}
-              <Route path="/scoring" element={<ScoringIndex />} />
-              <Route path="/scoring/apache" element={<ScoringApache />} />
-              <Route path="/scoring/bfs" element={<ScoringBfs />} />
-              <Route path="/scoring/camicu" element={<ScoringCamicu />} />
-              <Route path="/scoring/candida" element={<ScoringCandida />} />
-              <Route path="/scoring/cpis" element={<ScoringCpis />} />
-              <Route path="/scoring/rass" element={<ScoringRass />} />
-              <Route path="/scoring/sofa" element={<ScoringSofa />} />
-              <Route path="/scoring/wells" element={<ScoringWells />} />
-              
-              {/* Other Tools / Root Routes */}
-              <Route path="/pharmacy" element={<PharmacyIndex />} />
-              <Route path="/abg" element={<AbgPage />} />
-              <Route path="/weaning" element={<WeaningIndex />} />
-              <Route path="/monitoring" element={<MonitoringIndex />} />
-              <Route path="/setting" element={<SettingIndex />} />
-              <Route path="/settings" element={<AboutSettings />} />
-              <Route path="/about" element={<AboutSettings />} />
-              <Route path="/riwayat" element={<Riwayat />} />
-              <Route path="/reference" element={<Reference />} />
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/admin" element={<AdminPage />} />
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/patients" element={<PatientsPage />} />
+                
+                {/* Kalkulator Routes */}
+                <Route path="/calculator" element={<CalculatorIndex />} />
+                <Route path="/calculator/cairan" element={<KalkulatorKebutuhanCairan />} />
+                <Route path="/calculator/drug" element={<KalkulatorDrug />} />
+                <Route path="/calculator/electro" element={<KalkulatorElektro />} />
+                <Route path="/calculator/ibw" element={<KalkulatorIBW />} />
+                <Route path="/calculator/insulin" element={<KalkulatorInsulin />} />
+                <Route path="/calculator/nlr" element={<KalkulatorNlr />} />
+                <Route path="/calculator/nutrisi" element={<KalkulatorNutrisi />} />
+                <Route path="/calculator/pf" element={<KalkulatorPF />} />
+                <Route path="/calculator/pulmo" element={<KalkulatorPulmo />} />
+                <Route path="/calculator/pump" element={<KalkulatorPump />} />
+                <Route path="/calculator/renal" element={<KalkulatorRenal />} />
+                <Route path="/calculator/transfusi" element={<KalkulatorTransfusi />} />
+                <Route path="/calculator/ventilator-adv" element={<KalkulatorVentilatorAdv />} />
+                <Route path="/calculator/anion-gap" element={<KalkulatorAnionGap />} />
+                
+                {/* Teori Routes */}
+                <Route path="/theory" element={<TheoryIndex />} />
+                <Route path="/theory/agd" element={<TeoriAGD />} />
+                <Route path="/theory/airway" element={<TeoriAirway />} />
+                <Route path="/theory/aki-crrt" element={<TeoriAKICRRT />} />
+                <Route path="/theory/b1b6" element={<TeoriB1B6 />} />
+                <Route path="/theory/dka-hhs" element={<TeoriDKAHHS />} />
+                <Route path="/theory/fisiologi" element={<TeoriFisiologi />} />
+                <Route path="/theory/gagalnapas" element={<TeoriGagalNapas />} />
+                <Route path="/theory/impending" element={<TeoriImpending />} />
+                <Route path="/theory/nutrisi" element={<TeoriNutrisi />} />
+                <Route path="/theory/padis" element={<TeoriPADIS />} />
+                <Route path="/theory/sat-sbt-vap" element={<TeoriSATSBT />} />
+                <Route path="/theory/sepsis" element={<TeoriSepsis />} />
+                <Route path="/theory/syok" element={<TeoriSyok />} />
+                <Route path="/theory/tik" element={<TeoriTIK />} />
+                <Route path="/theory/vent-dasar" element={<TeoriVentilatorDasar />} />
+                <Route path="/theory/cardiac-rhythm" element={<TeoriCardiacRhythm />} />
+                
+                {/* Skoring Routes */}
+                <Route path="/scoring" element={<ScoringIndex />} />
+                <Route path="/scoring/apache" element={<ScoringApache />} />
+                <Route path="/scoring/bfs" element={<ScoringBfs />} />
+                <Route path="/scoring/camicu" element={<ScoringCamicu />} />
+                <Route path="/scoring/candida" element={<ScoringCandida />} />
+                <Route path="/scoring/cpis" element={<ScoringCpis />} />
+                <Route path="/scoring/rass" element={<ScoringRass />} />
+                <Route path="/scoring/sofa" element={<ScoringSofa />} />
+                <Route path="/scoring/wells" element={<ScoringWells />} />
+                
+                {/* Other Tools / Root Routes */}
+                <Route path="/pharmacy" element={<PharmacyIndex />} />
+                <Route path="/abg" element={<AbgPage />} />
+                <Route path="/weaning" element={<WeaningIndex />} />
+                <Route path="/monitoring" element={<MonitoringIndex />} />
+                <Route path="/setting" element={<SettingIndex />} />
+                <Route path="/settings" element={<AboutSettings />} />
+                <Route path="/about" element={<AboutSettings />} />
+                <Route path="/riwayat" element={<Riwayat />} />
+                <Route path="/reference" element={<Reference />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
+          </Routes>
+        </Suspense>
         <PwaInstallPrompt />
       </BrowserRouter>
     </AuthProvider>

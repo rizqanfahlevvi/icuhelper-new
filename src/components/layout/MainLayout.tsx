@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, Calculator, Pill, Menu as MenuIcon, BookOpen, Activity, 
   ArrowDownCircle, Monitor, Settings, History, BookText, ChevronRight, ChevronLeft, X, Sun, Moon, User, Users, LogOut,
-  ShieldAlert, Lock, ExternalLink, Star, Search
+  ShieldAlert, Lock, ExternalLink, Star, Search, WifiOff
 } from 'lucide-react';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useRecentToolsStore } from '../../store/useRecentToolsStore';
@@ -50,6 +50,21 @@ export default function MainLayout() {
   const isCurrentFav = isFavorite(location.pathname);
   const favoritableItem = getFavoritableItemByPath(location.pathname);
   const isParentMenu = NAV_ITEMS.some(item => item.path === location.pathname);
+
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const getPageTitle = () => {
     if (location.pathname === '/') return 'ICU Helper';
@@ -483,6 +498,18 @@ export default function MainLayout() {
 
           {/* Right Navigation: profile dropdown, separator, and theme switcher */}
           <div className="flex items-center gap-2.5 z-10 relative">
+            {!isOnline ? (
+              <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400" title="Anda sedang dalam mode offline.">
+                <WifiOff size={12} />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Offline Mode</span>
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400" title="Aplikasi ini siap digunakan tanpa koneksi internet.">
+                <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Offline Ready</span>
+              </div>
+            )}
+            
             {user && (
               <div ref={profileDropdownRef} className="flex items-center relative">
                 <button
@@ -756,9 +783,8 @@ export default function MainLayout() {
             }`}
           >
             <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/' ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <Home className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/' ? 2.5 : 2} />
+              <Home className="w-[24px] h-[24px]" strokeWidth={location.pathname === '/' ? 2.5 : 2} />
             </div>
-            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Beranda</span>
           </Link>
 
           {/* Pasien Tab */}
@@ -771,9 +797,8 @@ export default function MainLayout() {
             }`}
           >
             <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/patients' || location.pathname.startsWith('/patients/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <Users className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/patients' || location.pathname.startsWith('/patients/') ? 2.5 : 2} />
+              <Users className="w-[24px] h-[24px]" strokeWidth={location.pathname === '/patients' || location.pathname.startsWith('/patients/') ? 2.5 : 2} />
             </div>
-            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Pasien</span>
           </Link>
 
           {/* Kalkulator Tab */}
@@ -786,9 +811,8 @@ export default function MainLayout() {
             }`}
           >
             <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/calculator' || location.pathname.startsWith('/calculator/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <Calculator className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/calculator' || location.pathname.startsWith('/calculator/') ? 2.5 : 2} />
+              <Calculator className="w-[24px] h-[24px]" strokeWidth={location.pathname === '/calculator' || location.pathname.startsWith('/calculator/') ? 2.5 : 2} />
             </div>
-            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Kalkulator</span>
           </Link>
 
           {/* Skoring Tab */}
@@ -801,9 +825,8 @@ export default function MainLayout() {
             }`}
           >
             <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/scoring' || location.pathname.startsWith('/scoring/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <Activity className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/scoring' || location.pathname.startsWith('/scoring/') ? 2.5 : 2} />
+              <Activity className="w-[24px] h-[24px]" strokeWidth={location.pathname === '/scoring' || location.pathname.startsWith('/scoring/') ? 2.5 : 2} />
             </div>
-            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Skoring</span>
           </Link>
 
           {/* Menu / Lainnya Tab */}
@@ -812,9 +835,8 @@ export default function MainLayout() {
             className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 text-[var(--label-tertiary)] hover:text-[var(--label-primary)]`}
           >
             <div className="p-1.5 rounded-xl transition-all">
-              <MenuIcon className="w-[20px] h-[20px]" strokeWidth={2} />
+              <MenuIcon className="w-[24px] h-[24px]" strokeWidth={2} />
             </div>
-            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Lainnya</span>
           </button>
         </div>
       </nav>

@@ -1,6 +1,7 @@
 import { useHistoryStore } from '../store/useHistoryStore';
-import { Trash2, ExternalLink } from 'lucide-react';
+import { Trash2, ExternalLink, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PageHeader } from '../components/ui/PageHeader';
 
 export default function Riwayat() {
   const history = useHistoryStore((state) => state.entries);
@@ -20,24 +21,26 @@ export default function Riwayat() {
 
   return (
     <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            🕓 Riwayat Perhitungan
-          </h1>
-          <p className="text-muted-foreground mt-1">Log otomatis riwayat perhitungan Anda</p>
-        </div>
-        {history.length > 0 && (
-          <button 
-            onClick={() => {
-              if(confirm('Hapus SEMUA riwayat perhitungan? Tindakan ini tidak dapat dibatalkan.')) clearHistory();
-            }}
-            className="flex items-center gap-2 px-3 py-1.5 text-[12px] font-semibold text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-md transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Hapus Semua</span>
-          </button>
-        )}
+      <div className="pt-2">
+        <PageHeader 
+          badgeIcon={Clock}
+          badgeText="ACTIVITY LOG"
+          title="Riwayat Perhitungan"
+          description="Log otomatis riwayat perhitungan alat medis dan skoring Anda."
+          rightContent={
+            history.length > 0 ? (
+              <button 
+                onClick={() => {
+                  if(confirm('Hapus SEMUA riwayat perhitungan? Tindakan ini tidak dapat dibatalkan.')) clearHistory();
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 text-[12px] font-semibold text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-md transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Hapus Semua</span>
+              </button>
+            ) : null
+          }
+        />
       </div>
 
       <div className="flex-1 overflow-y-auto">

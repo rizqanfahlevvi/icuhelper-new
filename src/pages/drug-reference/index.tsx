@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Search, Pill, ChevronDown, CheckCircle2, AlertTriangle, ArrowDown, XCircle, ChevronRight, Star } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Search, Pill, ChevronDown, CheckCircle2, AlertTriangle, ArrowDown, XCircle, ChevronRight, Star, Flame, BookOpen } from 'lucide-react';
 import { ICU_DRUGS } from './data';
 import { DrugItem } from './types';
 import DrugModal from './DrugModal';
@@ -7,6 +7,8 @@ import VasopressorFlowchart from './VasopressorFlowchart';
 import SedationLadder from './SedationLadder';
 import DrugInteractionChecker from './DrugInteractionChecker';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
+import { checkPairInteraction } from './interactionUtils';
+import { PageHeader } from '../../components/ui/PageHeader';
 
 const CATEGORIES = [
   { id: 'all', label: 'Semua Obat', color: 'bg-muted-foreground' },
@@ -22,6 +24,10 @@ const CATEGORIES = [
   { id: 'kardiovaskular', label: '❤️ Kardio', color: 'bg-rose-400' },
   { id: 'steroid', label: '💉 Steroid', color: 'bg-purple-500' },
   { id: 'gi', label: '🫙 GI', color: 'bg-orange-500' },
+  { id: 'neuro', label: '🧠 Neuro', color: 'bg-indigo-400' },
+  { id: 'hepato', label: '🩸 Hepato', color: 'bg-emerald-500' },
+  { id: 'simtomatik', label: '🩹 Simtomatik', color: 'bg-slate-400' },
+  { id: 'hemostatik', label: '🛑 Hemostatik', color: 'bg-red-500' },
   { id: 'pregnancy_safe', label: '🤰 Aman Hamil', color: 'bg-pink-400' }
 ];
 
@@ -37,9 +43,11 @@ const EGFR_BANDS = [
 
 export interface DrugReferenceProps {
   isEmbedded?: boolean;
+  globalSearch?: string;
 }
 
-export default function DrugReference({ isEmbedded = false }: DrugReferenceProps = {}) {
+export default function DrugReference(props: DrugReferenceProps) {
+  const { isEmbedded = false, globalSearch = '' } = props;
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [subTab, setSubTab] = useState<'obat' | 'interaksi'>('obat');
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,6 +55,9 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
   const [selectedEgfrBand, setSelectedEgfrBand] = useState('all');
   const [sortOrder, setSortOrder] = useState('name');
   
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const [showEgfrMenu, setShowEgfrMenu] = useState(false);
 
@@ -125,9 +136,10 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
   const drugsList = useMemo(() => {
     let list = Object.entries(ICU_DRUGS).map(([id, data]) => ({ id, ...data }));
 
-    // Apply search filter
-    if (searchTerm.trim()) {
-      const q = searchTerm.toLowerCase();
+    // Apply search filter (combine local searchTerm and globalSearch)
+    const activeSearchTerm = isEmbedded ? globalSearch : searchTerm;
+    if (activeSearchTerm.trim()) {
+      const q = activeSearchTerm.toLowerCase();
       list = list.filter(drug => {
         const text = [
           drug.name,
@@ -135,7 +147,10 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
           drug.class || '',
           drug.subclass || '',
           ...(drug.category || []),
-          ...(drug.indications?.icu_primary || [])
+          ...(drug.indications?.icu_primary || []),
+          ...(drug.indications?.icu_secondary || []),
+          drug.indications?.local_guideline || '',
+          drug.indications?.intl_guideline || '',
         ].join(' ').toLowerCase();
         return text.includes(q);
       });
@@ -171,7 +186,14 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
     }
 
     return list;
-  }, [searchTerm, selectedCategory, sortOrder]);
+  }, [searchTerm, globalSearch, isEmbedded, selectedCategory, sortOrder]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, globalSearch, isEmbedded, selectedCategory, selectedEgfrBand, sortOrder]);
+
+  const totalPages = Math.ceil(drugsList.length / itemsPerPage);
+  const currentDrugs = drugsList.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const activeCategory = CATEGORIES.find(c => c.id === selectedCategory) || CATEGORIES[0];
   const activeEgfr = EGFR_BANDS.find(c => c.id === selectedEgfrBand) || EGFR_BANDS[0];
@@ -180,20 +202,23 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
     <div className={isEmbedded ? "space-y-6 pb-6" : "p-4 max-w-4xl mx-auto space-y-6 pb-20"}>
       <div className="mb-2 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {!isEmbedded && (
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-1.5 flex-wrap">
-              💊 Drug Reference ICU
-              <button
-                onClick={() => toggleFavorite('/drug-reference')}
-                className="p-1.5 rounded-full hover:bg-muted transition-colors"
-                title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
-              >
-                <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
-              </button>
-            </h1>
-            <p className="text-muted-foreground text-[13px]">
-              Panduan dosis, penyesuaian ginjal, interaksi, dan protokol pemberian obat-obatan di ICU.
-            </p>
+          <div className="pt-2">
+            <PageHeader 
+              badgeIcon={Pill}
+              badgeText="REFERENSI OBAT"
+              title="Drug Reference ICU"
+              description="Panduan dosis, penyesuaian ginjal, interaksi, dan protokol pemberian obat-obatan di ICU."
+              rightContent={
+                <button
+                  onClick={() => toggleFavorite('/drug-reference')}
+                  className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                  title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
+                >
+                  <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
+                  <span className="hidden sm:inline">{isFav ? 'Difavoritkan' : 'Favoritkan'}</span>
+                </button>
+              }
+            />
           </div>
         )}
 
@@ -289,21 +314,23 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
             )}
           </div>
 
-          <div className="relative flex-1 sm:flex-[1.5]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Cari obat..." 
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
-            />
-            {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute left-[calc(100%-28px)] top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <XCircle className="w-4 h-4" />
-              </button>
-            )}
-          </div>
+          {!isEmbedded && (
+            <div className="relative flex-1 sm:flex-[1.5]">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input 
+                type="text" 
+                placeholder="Cari obat..." 
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
+              />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} className="absolute left-[calc(100%-28px)] top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                  <XCircle className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1">
@@ -335,7 +362,7 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {drugsList.map(drug => {
+          {currentDrugs.map(drug => {
             const isSelected = selectedDrugs.includes(drug.id);
             const isMaxAndNotSelected = selectedDrugs.length >= 8 && !isSelected;
             const displayCategory = getDisplayCategory(drug);
@@ -353,16 +380,34 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
             const namesList = [drug.name, ...(drug.brand_id || [])].slice(0, 3);
             const namesText = namesList.join(' · ');
 
+            let interactionSeverity: 'major' | 'moderate' | null = null;
+            let interactionCount = 0;
+            if (selectedDrugs.length > 0) {
+              for (const sKey of selectedDrugs) {
+                if (sKey === drug.id) continue;
+                const ix = checkPairInteraction(drug.id, sKey);
+                if (ix) {
+                  if (ix.severity === 'major') interactionSeverity = 'major';
+                  else if (!interactionSeverity) interactionSeverity = 'moderate';
+                  interactionCount++;
+                }
+              }
+            }
+
             return (
               <div 
                 key={drug.id}
                 onClick={() => setSelectedDrugId(drug.id)}
                 className={`flex items-center gap-3 p-3 bg-card border rounded-2xl cursor-pointer hover:-translate-y-px active:scale-[0.99] transition-all duration-200 shadow-sm w-full ${
-                  isSelected 
-                    ? 'border-blue-500/40 bg-blue-500/[0.01]' 
-                    : badgeKey && badgeKey !== 'safe' 
-                      ? 'border-amber-500/40 hover:border-amber-500/60' 
-                      : 'border-border/60 hover:border-primary/45'
+                  interactionSeverity === 'major'
+                    ? 'border-red-500/60 bg-red-50 dark:bg-red-900/10'
+                    : interactionSeverity === 'moderate'
+                      ? 'border-orange-500/50 bg-orange-50 dark:bg-orange-900/10'
+                      : isSelected 
+                        ? 'border-blue-500/40 bg-blue-500/[0.01]' 
+                        : badgeKey && badgeKey !== 'safe' 
+                          ? 'border-amber-500/40 hover:border-amber-500/60' 
+                          : 'border-border/60 hover:border-primary/45'
                 }`}
               >
                 {/* White circular selector choice on the left */}
@@ -401,6 +446,18 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
                       {displayCategory}
                     </span>
                     
+                    {/* Interaction Warnings */}
+                    {interactionSeverity === 'major' && (
+                      <span className="bg-red-500/10 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1" title={`${interactionCount} Interaksi Mayor dengan obat terpilih`}>
+                        <Flame className="w-3 h-3" /> Berbahaya
+                      </span>
+                    )}
+                    {interactionSeverity === 'moderate' && (
+                      <span className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1" title={`${interactionCount} Interaksi Moderat dengan obat terpilih`}>
+                        <AlertTriangle className="w-3 h-3" /> Hati-hati
+                      </span>
+                    )}
+
                     {/* Add eGFR adjust warning icon on the row when filtering is active */}
                     {badgeKey && selectedEgfrBand !== 'all' && badgeKey !== 'safe' && (
                       <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded text-[9px] font-bold" title="Butuh penyesuaian ginjal!">
@@ -423,6 +480,28 @@ export default function DrugReference({ isEmbedded = false }: DrugReferenceProps
               </div>
             );
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6 mb-4">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
+          >
+            Sebelumnya
+          </button>
+          <span className="text-sm font-semibold text-muted-foreground px-4">
+            Hal. {currentPage} / {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
+          >
+            Berikutnya
+          </button>
         </div>
       )}
 

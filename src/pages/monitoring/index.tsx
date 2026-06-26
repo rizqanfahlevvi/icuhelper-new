@@ -1,19 +1,21 @@
 import React from 'react';
 import { Activity, AlertTriangle, Monitor, HeartPulse, LineChart, Star } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
+import { PageHeader } from '../../components/ui/PageHeader';
 
 export default function MonitoringIndex() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const isFav = isFavorite('/monitoring');
 
   const Card = ({ title, icon, colorClass, children }: { title: string, icon: React.ReactNode, colorClass: string, children: React.ReactNode }) => (
-    <div className={`relative bg-card backdrop-blur-md rounded-2xl border border-border shadow-sm p-4 overflow-hidden group hover:shadow-md transition-all`}>
-      <div className={`absolute left-0 top-0 w-1 h-full ${colorClass}`} />
-      <h3 className="flex items-center gap-2 text-base font-bold text-card-foreground mb-3 border-b border-border pb-2">
-        {icon}
+    <div className="bg-white dark:bg-slate-900 border border-border/80 rounded-xl p-4 shadow-sm flex flex-col gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+      <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground">
+        <div className={`p-1.5 rounded-md bg-opacity-10 dark:bg-opacity-20 ${colorClass.replace('bg-', 'text-').replace('500', '600')} ${colorClass.replace('bg-', 'bg-').replace('500', '100')} dark:${colorClass.replace('bg-', 'bg-').replace('500', '500/20')}`}>
+          {icon}
+        </div>
         {title}
       </h3>
-      <div className="text-sm text-muted-foreground space-y-3 leading-relaxed">
+      <div className="text-[13px] text-muted-foreground leading-relaxed">
         {children}
       </div>
     </div>
@@ -23,20 +25,23 @@ export default function MonitoringIndex() {
     <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
       
       {/* Page Title & Bookmark */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2">
-          <Monitor className="w-6 h-6 text-primary" /> Monitor Bedside ICU
-          <button
-            onClick={() => toggleFavorite('/monitoring')}
-            className="p-1.5 rounded-full hover:bg-muted transition-colors ml-1"
-            title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
-          >
-            <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
-          </button>
-        </h1>
-        <p className="text-muted-foreground text-[13px] mt-1">
-          Visualisasi asuhan klinis harian, troubleshooting cepat (DOPE), asuhan target ventilator, hemodinamik, dan interpretasi kapnografi.
-        </p>
+      <div className="pt-2">
+        <PageHeader 
+          badgeIcon={Monitor}
+          badgeText="MONITORING"
+          title="Monitor Bedside ICU"
+          description="Visualisasi asuhan klinis harian, troubleshooting cepat (DOPE), asuhan target ventilator, hemodinamik, dan interpretasi kapnografi."
+          rightContent={
+            <button
+              onClick={() => toggleFavorite('/monitoring')}
+              className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+              title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
+            >
+              <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
+              <span className="hidden sm:inline">{isFav ? 'Difavoritkan' : 'Favoritkan'}</span>
+            </button>
+          }
+        />
       </div>
 
       {/* SECTION 1: DOPE */}
@@ -46,33 +51,45 @@ export default function MonitoringIndex() {
           Troubleshooting Cepat — DOPE Mnemonic
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="font-bold text-red-500 mb-2">D — Displacement</h3>
-            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+          <div className="bg-white dark:bg-slate-900 border border-border/80 rounded-xl p-4 shadow-sm flex flex-col gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground">
+              <div className="p-1.5 rounded-md bg-red-100 dark:bg-red-500/20 text-red-600 font-extrabold px-2 leading-none">D</div>
+              Displacement
+            </h3>
+            <ul className="text-[12px] sm:text-[13px] text-muted-foreground space-y-1.5 list-disc pl-4">
               <li>ETT keluar / masuk bronkus kanan</li>
               <li>Cek: suara napas bilateral</li>
               <li>Posisi CXR: ujung T2–T3</li>
             </ul>
           </div>
-          <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="font-bold text-amber-500 mb-2">O — Obstruction</h3>
-            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+          <div className="bg-white dark:bg-slate-900 border border-border/80 rounded-xl p-4 shadow-sm flex flex-col gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground">
+              <div className="p-1.5 rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-600 font-extrabold px-2 leading-none">O</div>
+              Obstruction
+            </h3>
+            <ul className="text-[12px] sm:text-[13px] text-muted-foreground space-y-1.5 list-disc pl-4">
               <li>Sekret, pipa tergigit, ETT kinking</li>
               <li>Tanda: PIP ↑, SpO₂ ↓</li>
               <li>Aksi: Suction in-line, cek sirkuit</li>
             </ul>
           </div>
-          <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="font-bold text-purple-500 mb-2">P — Pneumothorax</h3>
-            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+          <div className="bg-white dark:bg-slate-900 border border-border/80 rounded-xl p-4 shadow-sm flex flex-col gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground">
+              <div className="p-1.5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-600 font-extrabold px-2 leading-none">P</div>
+              Pneumothorax
+            </h3>
+            <ul className="text-[12px] sm:text-[13px] text-muted-foreground space-y-1.5 list-disc pl-4">
               <li>SpO₂ drop mendadak + TD drop</li>
               <li>Suara napas asimetris, PIP ↑↑</li>
               <li>Aksi: Needle decompression segera</li>
             </ul>
           </div>
-          <div className="bg-card border border-border rounded-xl p-4">
-            <h3 className="font-bold text-blue-500 mb-2">E — Equipment</h3>
-            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+          <div className="bg-white dark:bg-slate-900 border border-border/80 rounded-xl p-4 shadow-sm flex flex-col gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground">
+              <div className="p-1.5 rounded-md bg-blue-100 dark:bg-blue-500/20 text-blue-600 font-extrabold px-2 leading-none">E</div>
+              Equipment
+            </h3>
+            <ul className="text-[12px] sm:text-[13px] text-muted-foreground space-y-1.5 list-disc pl-4">
               <li>Sirkuit bocor, kegagalan kelistrikan</li>
               <li>Aksi: Selalu siapkan BVM di bed pasien. Lepas vent, ventilasi manual.</li>
             </ul>

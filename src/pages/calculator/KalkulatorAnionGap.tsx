@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Activity, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { usePatientStore } from '../../store/usePatientStore';
+import { ClinicalReport } from '../../components/ui/ClinicalReport';
 
 export default function KalkulatorAnionGap() {
+  const patient = usePatientStore();
   const [na, setNa] = useState<string>('');
   const [cl, setCl] = useState<string>('');
   const [hco3, setHco3] = useState<string>('');
@@ -138,6 +141,38 @@ export default function KalkulatorAnionGap() {
             </div>
           )}
         </div>
+      )}
+
+      {(ag !== null) && (
+        <ClinicalReport 
+          title="Kalkulator Anion Gap"
+          patientInfo={{ name: patient.nama || '' }}
+          sections={[
+            {
+              title: 'Input Laboratorium',
+              items: [
+                { label: 'Natrium (Na)', value: `${na} mEq/L` },
+                { label: 'Klorida (Cl)', value: `${cl} mEq/L` },
+                { label: 'Bikarbonat (HCO₃)', value: `${hco3} mEq/L` },
+                ...(albumin ? [{ label: 'Albumin', value: `${albumin} g/dL` }] : [])
+              ]
+            },
+            {
+              title: 'Hasil Evaluasi',
+              items: [
+                { label: 'Anion Gap', value: `${ag.toFixed(1)} mEq/L` },
+                ...(correctedAg !== null ? [{ label: 'Corrected AG', value: `${correctedAg.toFixed(1)} mEq/L` }] : []),
+                ...(deltaRatio !== null ? [{ label: 'Delta Ratio', value: deltaRatio.toFixed(2) }] : [])
+              ]
+            }
+          ]}
+          notes={deltaRatio !== null ? (
+            deltaRatio < 0.4 ? '< 0.4: Hyperchloremic normal AG acidosis' :
+            deltaRatio < 0.8 ? '0.4 - 0.8: Mixed normal & high AG acidosis' :
+            deltaRatio <= 2.0 ? '0.8 - 2.0: Pure high AG acidosis' :
+            '> 2.0: High AG acidosis + concurrent metabolic alkalosis'
+          ) : undefined}
+        />
       )}
 
       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 text-sm text-slate-600 dark:text-slate-400 space-y-2">

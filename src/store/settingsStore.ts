@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type FontFamily = 'lexend' | 'inter' | 'roboto' | 'jetbrains' | 'system';
+export type FontFamily = 'lexend' | 'inter' | 'roboto' | 'jetbrains' | 'system' | 'poppins' | 'montserrat' | 'plus-jakarta' | 'outfit' | 'space-grotesk' | 'fira-code' | 'quicksand';
 export type FontWeight = number; // -100 to 150 (offset from standard weights)
 export type ThemeMode = 'system' | 'light' | 'dark';
 
