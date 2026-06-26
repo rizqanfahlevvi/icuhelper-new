@@ -31,7 +31,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
 
   if (!hasPatientData) {
     return (
-      <div className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl select-none relative overflow-hidden mb-5">
+      <div className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl select-none relative overflow-hidden">
         <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
@@ -89,7 +89,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
   const clinicalVarsCount = activePatientData && activePatientData.clinicalData ? Object.keys(activePatientData.clinicalData).length : 0;
 
   return (
-    <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 rounded-2xl p-4 lg:p-5 relative overflow-hidden mb-5 space-y-4 shadow-sm">
+    <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 rounded-2xl p-4 lg:p-5 relative overflow-hidden space-y-4 shadow-sm">
       <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-8 -mt-8 pointer-events-none" />
       
       {/* Top Row: Pasien Aktif & ID */}

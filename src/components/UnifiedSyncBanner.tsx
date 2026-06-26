@@ -107,7 +107,7 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
         animate={{ opacity: 1, y: 0, height: 'auto' }}
         exit={{ opacity: 0, y: -20, height: 0 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="w-full mb-4 overflow-hidden"
+        className="w-full overflow-hidden"
       >
         <div className="bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm relative">
           <div className="flex items-start gap-2.5">

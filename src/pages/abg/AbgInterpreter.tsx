@@ -18,7 +18,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
   return (
     <div className="space-y-6">
       {/* Parameter Dasar Card */}
-      <div className="ios-card w-full">
+      <div className="ios-card">
         <div className="p-4 sm:p-5 border-b border-[var(--glass-border)] bg-[#f8f9fa] dark:bg-transparent">
           <h2 className="text-sm font-bold text-[var(--label-primary)] flex items-center gap-2">
             <Dna className="w-4 h-4 text-primary" />
@@ -112,7 +112,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
       </div>
 
       {/* Oksigenasi & Elektrolit Card */}
-      <div className="ios-card w-full mt-6">
+      <div className="ios-card mt-6">
         <div className="p-4 sm:p-5 border-b border-[var(--glass-border)] bg-[#f8f9fa] dark:bg-transparent">
           <h2 className="text-sm font-bold text-[var(--label-primary)] flex items-center gap-2">
             <Beaker className="w-4 h-4 text-primary" />
@@ -229,12 +229,12 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 pt-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0 mt-2">Param Lainnya</span>
              <div className="flex-[3] min-w-0 grid grid-cols-2 md:grid-cols-4 gap-2">
-                <input type="number" placeholder="Na⁺" value={inputs.na} onChange={e=>updateInput('na',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
-                <input type="number" placeholder="Cl⁻" value={inputs.cl} onChange={e=>updateInput('cl',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
-                <input type="number" placeholder="Alb" value={inputs.alb} onChange={e=>updateInput('alb',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
-                <input type="number" placeholder="Lakt" value={inputs.laktat} onChange={e=>updateInput('laktat',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
-                <input type="number" placeholder="RR" value={inputs.rr} onChange={e=>updateInput('rr',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
-                <input type="number" placeholder="MAP" value={inputs.mapV} onChange={e=>updateInput('mapV',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
+                <input type="number" placeholder="Na⁺" value={inputs.na} onChange={e=>updateInput('na',e.target.value)} className="w-full min-w-0 px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
+                <input type="number" placeholder="Cl⁻" value={inputs.cl} onChange={e=>updateInput('cl',e.target.value)} className="w-full min-w-0 px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
+                <input type="number" placeholder="Alb" value={inputs.alb} onChange={e=>updateInput('alb',e.target.value)} className="w-full min-w-0 px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
+                <input type="number" placeholder="Lakt" value={inputs.laktat} onChange={e=>updateInput('laktat',e.target.value)} className="w-full min-w-0 px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
+                <input type="number" placeholder="RR" value={inputs.rr} onChange={e=>updateInput('rr',e.target.value)} className="w-full min-w-0 px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
+                <input type="number" placeholder="MAP" value={inputs.mapV} onChange={e=>updateInput('mapV',e.target.value)} className="w-full min-w-0 px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
              </div>
           </div>
 

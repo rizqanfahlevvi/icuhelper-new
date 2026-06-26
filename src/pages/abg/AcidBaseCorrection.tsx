@@ -67,19 +67,19 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">BBI (kg)</label>
-            <input type="number" value={bb} onChange={e=>setBb(e.target.value)} className="ios-input w-full" placeholder="e.g. 60" />
+            <input type="number" value={bb} onChange={e=>setBb(e.target.value)} className="ios-input w-full min-w-0" placeholder="e.g. 60" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">HCO₃ Aktual</label>
-            <input type="number" value={hco3act} onChange={e=>setHco3act(e.target.value)} className="ios-input w-full" placeholder="e.g. 10" />
+            <input type="number" value={hco3act} onChange={e=>setHco3act(e.target.value)} className="ios-input w-full min-w-0" placeholder="e.g. 10" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Target HCO₃</label>
-            <input type="number" value={hco3tgt} onChange={e=>setHco3tgt(e.target.value)} disabled={type1 !== 'met'} className="ios-input w-full disabled:opacity-50" />
+            <input type="number" value={hco3tgt} onChange={e=>setHco3tgt(e.target.value)} disabled={type1 !== 'met'} className="ios-input w-full min-w-0 disabled:opacity-50" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Jenis Asidosis</label>
-            <select value={type1} onChange={e=>setType1(e.target.value)} className="ios-input w-full appearance-none">
+            <select value={type1} onChange={e=>setType1(e.target.value)} className="ios-input w-full min-w-0 appearance-none">
               <option value="met">Asidosis Metabolik</option>
               <option value="dka">DKA (target 15)</option>
               <option value="card">Cardiac Arrest (bolus)</option>
