@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, updateDoc, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
-import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X } from 'lucide-react';
 
 interface UserDoc {
   id: string;
@@ -25,6 +25,13 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<UserDoc | null>(null);
+  const [editForm, setEditForm] = useState({
+    namaLengkap: '',
+    email: '',
+    role: '',
+    googleFormSubmitted: false,
+  });
 
   const isAdmin = user?.email === 'driverizqanf@gmail.com';
 
@@ -141,6 +148,44 @@ export default function AdminPage() {
     }
   };
 
+  const handleEditClick = (user: UserDoc) => {
+    setEditingUser(user);
+    setEditForm({
+      namaLengkap: user.namaLengkap || '',
+      email: user.email || '',
+      role: user.role || 'doctor',
+      googleFormSubmitted: user.googleFormSubmitted || false,
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingUser) return;
+    setUpdatingId(editingUser.id);
+    try {
+      const userRef = doc(db, 'users', editingUser.id);
+      await updateDoc(userRef, {
+        namaLengkap: editForm.namaLengkap,
+        email: editForm.email,
+        role: editForm.role,
+        googleFormSubmitted: editForm.googleFormSubmitted,
+      });
+      setUsers(users.map(u => u.id === editingUser.id ? { 
+        ...u, 
+        namaLengkap: editForm.namaLengkap,
+        email: editForm.email,
+        role: editForm.role,
+        googleFormSubmitted: editForm.googleFormSubmitted,
+      } : u));
+      showToast('Data user berhasil diupdate');
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Gagal mengupdate data user.');
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const filteredUsers = users.filter(u => {
     const searchLower = searchQuery.toLowerCase();
     const nameLower = (u.namaLengkap || '').toLowerCase();
@@ -250,6 +295,18 @@ export default function AdminPage() {
                       <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
                         {getRoleLabel(user.role)}
                       </span>
+                      {user.googleFormSubmitted && (
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/50">
+                          Form Terverifikasi
+                        </span>
+                      )}
+                      <button 
+                        onClick={() => handleEditClick(user)}
+                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors ml-auto md:ml-2"
+                        title="Edit Data User"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
                     </div>
                     <div className="space-y-1">
                       <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">{user.email}</p>
@@ -322,6 +379,99 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-slide-up border border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Edit User</h2>
+              <button 
+                onClick={() => setEditingUser(null)}
+                className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nama Lengkap</label>
+                <input
+                  type="text"
+                  value={editForm.namaLengkap}
+                  onChange={e => setEditForm({ ...editForm, namaLengkap: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Nama Lengkap"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={e => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Email"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Role</label>
+                <select
+                  value={editForm.role}
+                  onChange={e => setEditForm({ ...editForm, role: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none"
+                >
+                  <option value="doctor">Dokter Umum</option>
+                  <option value="resident">Residen</option>
+                  <option value="specialist">Spesialis</option>
+                </select>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between">
+                <div>
+                  <label className="text-sm font-medium text-gray-900 dark:text-white">Status Verifikasi Form</label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Apakah user sudah mengisi form verifikasi?</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={editForm.googleFormSubmitted}
+                    onChange={e => setEditForm({ ...editForm, googleFormSubmitted: e.target.checked })}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+              <button
+                onClick={() => setEditingUser(null)}
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={updatingId === editingUser.id}
+                className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-xl transition-colors flex items-center gap-2"
+              >
+                {updatingId === editingUser.id ? (
+                  <>
+                    <RefreshCcw className="w-4 h-4 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  'Simpan Perubahan'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
