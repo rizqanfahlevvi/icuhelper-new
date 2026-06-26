@@ -301,8 +301,16 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
 
             {calcResult.step6Oksigenasi && (
               <div className={`p-4 rounded-xl border ${calcResult.step6Oksigenasi.cls}`}>
-                <div className="text-[11px] font-bold uppercase tracking-widest text-[#007AFF] dark:text-[#0A84FF] opacity-90 mb-1">Langkah 6 — Oksigenasi & Gagal Napas</div>
-                <div className="text-sm font-medium leading-relaxed text-[var(--label-primary)]" dangerouslySetInnerHTML={{__html: calcResult.step6Oksigenasi.html}} />
+                <div className="text-[11px] font-bold uppercase tracking-widest text-[#007AFF] dark:text-[#0A84FF] opacity-90 mb-2">Langkah 6 — Oksigenasi & Gagal Napas</div>
+                <div className="space-y-2">
+                  {calcResult.step6Oksigenasi.items.map((item, idx) => (
+                    <div key={idx} className="text-[13px] leading-relaxed">
+                      <span className="font-semibold">{item.label} = {item.value}</span>
+                      {' → '}
+                      <span className={`font-bold ${item.colorClass}`}>{item.interp}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

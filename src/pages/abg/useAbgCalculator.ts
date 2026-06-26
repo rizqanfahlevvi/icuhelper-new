@@ -1,6 +1,13 @@
 import { useMemo } from 'react';
 import { AbgInputs, getFio2Value } from './types';
 
+export interface OxResult {
+  label: string;
+  value: string;
+  interp: string;
+  colorClass: string;
+}
+
 export interface AbgResultData {
   step1: { status: string; color: string; detail: string; cls: string; } | null;
   step2Primer: { interp: string; color: string; detail: string; cls: string; } | null;
@@ -8,7 +15,7 @@ export interface AbgResultData {
   step3Kompensasi: { detail: string; color: string; cls: string; } | null;
   step4Ag: { high: boolean; interp: string; detail: string; ddNote?: string; color: string; cls: string; corr: boolean; } | null;
   step5Laktat: { interp: string; detail: string; color: string; cls: string; } | null;
-  step6Oksigenasi: { html: string; color: string; cls: string; } | null;
+  step6Oksigenasi: { items: OxResult[]; cls: string; } | null;
   saran: string[];
   mgmt: { judul: string; color: string; isi: string[]; ref: string; }[];
 }
@@ -207,29 +214,50 @@ export function useAbgCalculator(inputs: AbgInputs): AbgResultData | null {
 
     // LANGKAH 6: OKSIGENASI
     if (!isNaN(po2) || fio2 !== null || !isNaN(spo2)) {
-      let oxHtml = '';
+      const oxItems: OxResult[] = [];
       if (!isNaN(po2) && fio2 !== null) {
         const pf = po2 / fio2;
         const pfClass = pf >= 400 ? 'Normal' : pf >= 300 ? 'Hipoksemia ringan' : pf >= 200 ? 'ARDS Mild' : pf >= 100 ? 'ARDS Moderate' : 'ARDS Severe';
         const pfColor = pf >= 300 ? 'text-success' : pf >= 200 ? 'text-warning' : 'text-destructive';
-        oxHtml += `P/F Ratio = ${pf.toFixed(0)} → <strong class="${pfColor}">${pfClass}</strong> <br/>`;
+        oxItems.push({
+          label: 'P/F Ratio',
+          value: pf.toFixed(0),
+          interp: pfClass,
+          colorClass: pfColor
+        });
         
         const pao2calc = (fio2 * (760 - 47)) - (pco2 / 0.8);
         const aaGrad = pao2calc - po2;
-        oxHtml += `A-a Gradient = ${aaGrad.toFixed(0)} mmHg (normal &lt;20) → ${aaGrad > 20 ? 'MENINGKAT (V/Q mismatch/shunt)' : 'Normal (hipoventilasi murni jika hipoksemia ada)'} <br/>`;
+        oxItems.push({
+          label: 'A-a Gradient',
+          value: `${aaGrad.toFixed(0)} mmHg (normal <20)`,
+          interp: aaGrad > 20 ? 'MENINGKAT (V/Q mismatch/shunt)' : 'Normal (hipoventilasi murni jika hipoksemia ada)',
+          colorClass: 'text-foreground'
+        });
       }
       if (!isNaN(po2) && fio2 !== null && !isNaN(mapV)) {
         const oi = (mapV * fio2 * 100) / po2;
-        oxHtml += `OI = ${oi.toFixed(1)} (${oi < 5 ? 'Ringan' : oi < 25 ? 'Moderate' : oi < 40 ? 'Berat' : 'Sangat Berat — ECMO?'}) <br/>`;
+        oxItems.push({
+          label: 'OI',
+          value: oi.toFixed(1),
+          interp: oi < 5 ? 'Ringan' : oi < 25 ? 'Moderate' : oi < 40 ? 'Berat' : 'Sangat Berat — ECMO?',
+          colorClass: 'text-foreground'
+        });
       }
       if (!isNaN(spo2) && fio2 !== null && !isNaN(rr)) {
         const rox = (spo2 / fio2) / rr;
         const roxColor = rox >= 4.88 ? 'text-success' : rox >= 3.85 ? 'text-warning' : 'text-destructive';
-        oxHtml += `ROX Index = (${spo2}/FiO₂${fio2.toFixed(2)})/RR${rr} = <strong class="${roxColor}">${rox.toFixed(2)}</strong> [sumber: <em>${spo2Source}</em>] → ${rox >= 4.88 ? 'Risiko HFNC gagal RENDAH' : rox >= 3.85 ? 'Intermediate — evaluasi ketat' : 'Risiko HFNC gagal TINGGI → pertimbangkan intubasi'}`;
+        const roxInterp = rox >= 4.88 ? 'Risiko HFNC gagal RENDAH' : rox >= 3.85 ? 'Intermediate — evaluasi ketat' : 'Risiko HFNC gagal TINGGI → pertimbangkan intubasi';
+        oxItems.push({
+          label: 'ROX Index',
+          value: `(${spo2}/FiO₂${fio2.toFixed(2)})/RR${rr} = ${rox.toFixed(2)} [sumber: ${spo2Source}]`,
+          interp: roxInterp,
+          colorClass: roxColor
+        });
       }
-      if (oxHtml) {
+      if (oxItems.length > 0) {
         result.step6Oksigenasi = {
-          html: oxHtml, color: 'primary', cls: 'bg-primary/10 border-primary/20 text-foreground'
+          items: oxItems, cls: 'bg-primary/10 border-primary/20 text-foreground'
         };
       }
     }
