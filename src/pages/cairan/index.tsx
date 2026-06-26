@@ -17,7 +17,11 @@ const CATEGORIES = [
   { id: 'osmotik', label: 'Osmotik' }
 ];
 
-export default function CairanIndex() {
+export interface CairanIndexProps {
+  isEmbedded?: boolean;
+}
+
+export default function CairanIndex({ isEmbedded = false }: CairanIndexProps = {}) {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [activeCategory, setActiveCategory] = useState('semua');
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,19 +62,21 @@ export default function CairanIndex() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className={isEmbedded ? "space-y-6 pb-6" : "p-4 max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500"}>
       
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Droplets className="w-6 h-6 text-blue-500" /> Referensi Cairan IV
-          <button
-            onClick={() => toggleFavorite('/cairan')}
-            className="p-1.5 rounded-full hover:bg-muted transition-colors"
-            title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
-          >
-            <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
-          </button>
-        </h1>
+        {!isEmbedded && (
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Droplets className="w-6 h-6 text-blue-500" /> Referensi Cairan IV
+            <button
+              onClick={() => toggleFavorite('/cairan')}
+              className="p-1.5 rounded-full hover:bg-muted transition-colors"
+              title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
+            >
+              <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
+            </button>
+          </h1>
+        )}
         
         {/* Info Banner & Feature Prompt */}
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 flex flex-col sm:flex-row gap-3 items-center justify-between">
@@ -135,7 +141,7 @@ export default function CairanIndex() {
           Tidak ada cairan mekanik ditemukan untuk pencarian <strong className="text-foreground">"{searchQuery}"</strong>.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredFluids.map(fluid => (
              <div 
                key={fluid.id}

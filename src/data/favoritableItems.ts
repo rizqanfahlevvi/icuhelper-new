@@ -52,8 +52,7 @@ export const ALL_FAVORITABLE_ITEMS: FavoritableItem[] = [
   { path: '/scoring/cpis', name: 'CPIS Score', category: 'Skoring', desc: 'Clinical Pulmonary Infection Score deteksi VAP dini', icon: FileText },
 
   // FLUIDS & DRUGS DIRECT ROUTES
-  { path: '/drug-reference', name: 'iObat & Interaksi', category: 'Referensi', desc: 'Database 146 obat kritis, dosis induksi RSI & interaksi', icon: Pill },
-  { path: '/cairan', name: 'Cairan Klinis', category: 'Referensi', desc: 'Kandungan ionik & jenis kristaloid-koloid', icon: Droplets },
+  { path: '/pharmacy', name: 'Obat & Cairan', category: 'Referensi', desc: 'Database 146 obat kritis, dosis induksi RSI, interaksi & cairan IV', icon: Pill },
   { path: '/abg', name: 'AGD (Asam-Basa)', category: 'Kalkulator', desc: 'Interpretasi gas darah arteri komprehensif (Boston)', icon: Activity },
   { path: '/weaning', name: 'Weaning Evaluator', category: 'Kalkulator', desc: 'Evaluasi kesiapan ekstubasi & RSBI index', icon: Wind },
   { path: '/monitoring', name: 'Monitor Bedside', category: 'Referensi', desc: 'Visualisasi asuhan ventilasi mekanis harian', icon: Activity },
@@ -70,6 +69,10 @@ export const ALL_FAVORITABLE_ITEMS: FavoritableItem[] = [
   { path: '/theory/b1b6', name: 'Overview Asesmen B1-B6', category: 'Teori', desc: 'Sistem Brain, Breath, Blood, Bowel, Bladder, Bone bedside', icon: BookOpen },
   { path: '/theory/nutrisi', name: 'Target Nutrisi Kritis', category: 'Teori', desc: 'Kapan memulai nutrisi, kalkulasi kalori & protein harian', icon: BookOpen },
   { path: '/theory/impending', name: 'Teori Gagal Napas Mengintai', category: 'Teori', desc: 'Tanda fisik dini impending respiratory failure pada pasien', icon: BookOpen },
+  { path: '/theory/agd', name: 'Interpretasi AGD', category: 'Teori', desc: 'Analisa gas darah dan asam-basa', icon: BookOpen },
+  { path: '/theory/padis', name: 'Guideline PADIS', category: 'Teori', desc: 'Pain, Agitation, Delirium, Immobility, Sleep', icon: BookOpen },
+  { path: '/theory/tik', name: 'Manajemen TIK', category: 'Teori', desc: 'Tatalaksana Peningkatan Tekanan Intrakranial', icon: BookOpen },
+  { path: '/theory/vent-dasar', name: 'Mode Ventilator Dasar', category: 'Teori', desc: 'VC, PC, SIMV, dan PSV', icon: BookOpen },
 ];
 
 export function getFavoritableItemByPath(path: string): FavoritableItem | undefined {

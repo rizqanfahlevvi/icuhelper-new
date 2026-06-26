@@ -10,6 +10,7 @@ const SCORING_TOOLS = [
   { path: 'cpis', name: 'CPIS', desc: 'Clinical Pulmonary Infection Score' },
   { path: 'rass', name: 'RASS', desc: 'Richmond Agitation-Sedation Scale' },
   { path: 'sofa', name: 'SOFA', desc: 'Sequential Organ Failure Assessment' },
+  { path: 'wells', name: 'Wells Score', desc: 'Penilaian klinis risiko Emboli Paru (PE/DVT)' },
 ];
 
 export default function ScoringIndex() {

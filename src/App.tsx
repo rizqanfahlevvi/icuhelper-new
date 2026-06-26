@@ -28,8 +28,7 @@ import SettingIndex from './pages/setting';
 import MonitoringIndex from './pages/monitoring';
 import WeaningIndex from './pages/weaning';
 import AbgPage from './pages/abg';
-import CairanIndex from './pages/cairan';
-import DrugReference from './pages/drug-reference';
+import PharmacyIndex from './pages/pharmacy';
 
 import KalkulatorIBW from './pages/calculator/KalkulatorIBW';
 import KalkulatorRenal from './pages/calculator/KalkulatorRenal';
@@ -44,6 +43,7 @@ import KalkulatorTransfusi from './pages/calculator/KalkulatorTransfusi';
 import KalkulatorInsulin from './pages/calculator/KalkulatorInsulin';
 import KalkulatorNutrisi from './pages/calculator/KalkulatorNutrisi';
 import KalkulatorVentilatorAdv from './pages/calculator/KalkulatorVentilatorAdv';
+import KalkulatorAnionGap from './pages/calculator/KalkulatorAnionGap';
 
 import TeoriImpending from './pages/theory/TeoriImpending';
 import TeoriGagalNapas from './pages/theory/TeoriGagalNapas';
@@ -56,6 +56,11 @@ import TeoriB1B6 from './pages/theory/TeoriB1B6';
 import TeoriSATSBT from './pages/theory/TeoriSATSBT';
 import TeoriNutrisi from './pages/theory/TeoriNutrisi';
 import TeoriAKICRRT from './pages/theory/TeoriAKICRRT';
+import TeoriAGD from './pages/theory/TeoriAGD';
+import TeoriVentilatorDasar from './pages/theory/TeoriVentilatorDasar';
+import TeoriTIK from './pages/theory/TeoriTIK';
+import TeoriPADIS from './pages/theory/TeoriPADIS';
+import TeoriCardiacRhythm from './pages/theory/TeoriCardiacRhythm';
 
 import ScoringApache from './pages/scoring/ScoringApache';
 import ScoringBfs from './pages/scoring/ScoringBfs';
@@ -64,6 +69,7 @@ import ScoringCandida from './pages/scoring/ScoringCandida';
 import ScoringCpis from './pages/scoring/ScoringCpis';
 import ScoringRass from './pages/scoring/ScoringRass';
 import ScoringSofa from './pages/scoring/ScoringSofa';
+import ScoringWells from './pages/scoring/ScoringWells';
 
 import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 
@@ -281,9 +287,11 @@ export default function App() {
               <Route path="/calculator/renal" element={<KalkulatorRenal />} />
               <Route path="/calculator/transfusi" element={<KalkulatorTransfusi />} />
               <Route path="/calculator/ventilator-adv" element={<KalkulatorVentilatorAdv />} />
+              <Route path="/calculator/anion-gap" element={<KalkulatorAnionGap />} />
               
               {/* Teori Routes */}
               <Route path="/theory" element={<TheoryIndex />} />
+              <Route path="/theory/agd" element={<TeoriAGD />} />
               <Route path="/theory/airway" element={<TeoriAirway />} />
               <Route path="/theory/aki-crrt" element={<TeoriAKICRRT />} />
               <Route path="/theory/b1b6" element={<TeoriB1B6 />} />
@@ -292,9 +300,13 @@ export default function App() {
               <Route path="/theory/gagalnapas" element={<TeoriGagalNapas />} />
               <Route path="/theory/impending" element={<TeoriImpending />} />
               <Route path="/theory/nutrisi" element={<TeoriNutrisi />} />
+              <Route path="/theory/padis" element={<TeoriPADIS />} />
               <Route path="/theory/sat-sbt-vap" element={<TeoriSATSBT />} />
               <Route path="/theory/sepsis" element={<TeoriSepsis />} />
               <Route path="/theory/syok" element={<TeoriSyok />} />
+              <Route path="/theory/tik" element={<TeoriTIK />} />
+              <Route path="/theory/vent-dasar" element={<TeoriVentilatorDasar />} />
+              <Route path="/theory/cardiac-rhythm" element={<TeoriCardiacRhythm />} />
               
               {/* Skoring Routes */}
               <Route path="/scoring" element={<ScoringIndex />} />
@@ -305,10 +317,10 @@ export default function App() {
               <Route path="/scoring/cpis" element={<ScoringCpis />} />
               <Route path="/scoring/rass" element={<ScoringRass />} />
               <Route path="/scoring/sofa" element={<ScoringSofa />} />
+              <Route path="/scoring/wells" element={<ScoringWells />} />
               
               {/* Other Tools / Root Routes */}
-              <Route path="/drug-reference" element={<DrugReference />} />
-              <Route path="/cairan" element={<CairanIndex />} />
+              <Route path="/pharmacy" element={<PharmacyIndex />} />
               <Route path="/abg" element={<AbgPage />} />
               <Route path="/weaning" element={<WeaningIndex />} />
               <Route path="/monitoring" element={<MonitoringIndex />} />

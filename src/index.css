@@ -158,3 +158,41 @@ html.bw-mode,
 .bw-mode {
   filter: grayscale(100%) !important;
 }
+
+/* ---------------------------------------------------------------------------
+   Reading Mode Overrides (for Theory pages in low-light ICU environments)
+   --------------------------------------------------------------------------- */
+.reading-mode {
+  --font-sans: "Charter", "Georgia", "Merriweather", ui-serif, serif;
+  --font-scale: 1.08;
+}
+
+.reading-mode .text-foreground {
+  line-height: 1.7;
+  font-family: var(--font-sans);
+}
+
+.reading-mode p, .reading-mode li, .reading-mode .text-muted-foreground {
+  line-height: 1.7;
+  font-family: var(--font-sans);
+}
+
+.reading-mode h1, .reading-mode h2, .reading-mode h3, .reading-mode h4, .reading-mode .font-bold {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.dark .reading-mode, .reading-mode {
+  /* High contrast colors for reading mode */
+  --bg-secondary: #000000;
+  --bg-tertiary: #0a0a0a;
+  --bg-elevated: #111111;
+  
+  --foreground: 240 10% 98%;
+  --muted-foreground: 225 10% 85%;
+  --card: 210 10% 4%;
+  --border: 210 8% 20%;
+  
+  --label-primary: #ffffff;
+  --label-secondary: #d1d5db;
+}

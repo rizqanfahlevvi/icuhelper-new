@@ -22,7 +22,8 @@ import {
   Phone,
   Settings,
   Info,
-  Linkedin
+  Linkedin,
+  BookOpen
 } from 'lucide-react';
 import { useSettingsStore, FontFamily, FontWeight, ThemeMode } from '../store/settingsStore';
 import { getStorageEstimate, refreshCacheAndReload, performHardReset, StorageEstimateInfo } from '../utils/cacheUtils';
@@ -39,6 +40,7 @@ export default function AboutSettings() {
     fontWeight,
     themeMode,
     bwMode,
+    readingMode,
     soundEnabled,
     vibrationEnabled,
     setFontFamily,
@@ -46,6 +48,7 @@ export default function AboutSettings() {
     setFontWeight,
     setThemeMode,
     setBwMode,
+    setReadingMode,
     setSoundEnabled,
     setVibrationEnabled,
     resetSettings
@@ -239,6 +242,28 @@ export default function AboutSettings() {
                   />
                   <span className="text-xs text-foreground font-black">Sangat Tebal (+150)</span>
                 </div>
+              </div>
+
+              {/* Mode Membaca (Reading Mode) */}
+              <div className="bg-card rounded-2xl border border-border shadow-sm p-4 flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-primary" />
+                    Reading Mode
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-[260px]">
+                    Mode kontras tinggi dengan tipografi khusus serif dan spasi longgar untuk membaca teori di lingkungan ICU yang gelap.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer ml-3 shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={readingMode}
+                    onChange={(e) => setReadingMode(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary border border-border"></div>
+                </label>
               </div>
 
               {/* Theme Mode & Color Scheme */}

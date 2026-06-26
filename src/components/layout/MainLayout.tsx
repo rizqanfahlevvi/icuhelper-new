@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, Calculator, Pill, Menu as MenuIcon, BookOpen, Activity, 
-  ArrowDownCircle, Monitor, Settings, History, BookText, ChevronRight, ChevronLeft, X, Sun, Moon, User, LogOut,
-  ShieldAlert, Lock, ExternalLink, Star
+  ArrowDownCircle, Monitor, Settings, History, BookText, ChevronRight, ChevronLeft, X, Sun, Moon, User, Users, LogOut,
+  ShieldAlert, Lock, ExternalLink, Star, Search
 } from 'lucide-react';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useRecentToolsStore } from '../../store/useRecentToolsStore';
@@ -15,6 +15,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProfilePopup } from '../ProfilePopup';
+import GlobalSearch from './GlobalSearch';
 
 type NavItem = {
   name: string;
@@ -27,10 +28,9 @@ const NAV_ITEMS: NavItem[] = [
   { name: 'Home', path: '/', icon: Home, showInMobileTab: true },
   { name: 'Pasien', path: '/patients', icon: User, showInMobileTab: true },
   { name: 'Kalkulator', path: '/calculator', icon: Calculator, showInMobileTab: true },
-  { name: 'Drugs', path: '/drug-reference', icon: Pill },
+  { name: 'Obat & Cairan', path: '/pharmacy', icon: Pill },
   { name: 'Skoring', path: '/scoring', icon: Activity },
   { name: 'Teori', path: '/theory', icon: BookOpen },
-  { name: 'Cairan', path: '/cairan', icon: Activity },
   { name: 'ABG', path: '/abg', icon: Activity },
   { name: 'Weaning', path: '/weaning', icon: ArrowDownCircle },
   { name: 'Monitoring', path: '/monitoring', icon: Monitor },
@@ -43,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
 export default function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { toggleFavorite, isFavorite } = useFavoritesStore();
@@ -73,6 +74,17 @@ export default function MainLayout() {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Swipe gesture states
@@ -219,6 +231,7 @@ export default function MainLayout() {
     fontWeight,
     themeMode,
     bwMode,
+    readingMode,
     setThemeMode
   } = useSettingsStore();
 
@@ -526,6 +539,9 @@ export default function MainLayout() {
                 </AnimatePresence>
               </div>
             )}
+            <button onClick={() => setIsSearchOpen(true)} className="ios-nav-btn mr-1" aria-label="Search">
+              <Search size={18} />
+            </button>
             <div className="w-[1px] h-4 bg-[var(--separator)]"></div>
             <button onClick={toggleTheme} className="ios-nav-btn ml-1" aria-label="Toggle theme">
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
@@ -718,7 +734,7 @@ export default function MainLayout() {
               </div>
             </div>
           )}
-          <div key={location.pathname} className={`w-full flex-grow flex flex-col ${isLocked ? 'pointer-events-none select-none' : 'animate-page-route'}`}>
+          <div key={location.pathname} className={`w-full flex-grow flex flex-col ${isLocked ? 'pointer-events-none select-none' : 'animate-page-route'} ${location.pathname.startsWith('/theory/') && location.pathname !== '/theory' && readingMode ? 'reading-mode' : ''}`}>
             <Outlet />
           </div>
           <footer className="w-full text-center py-6 px-4 mt-auto border-t border-[var(--separator)] text-[11px] text-[var(--label-secondary)] font-medium">
@@ -743,6 +759,21 @@ export default function MainLayout() {
               <Home className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/' ? 2.5 : 2} />
             </div>
             <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Beranda</span>
+          </Link>
+
+          {/* Pasien Tab */}
+          <Link
+            to="/patients"
+            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
+              location.pathname === '/patients' || location.pathname.startsWith('/patients/')
+                ? 'text-[var(--accent)] font-semibold' 
+                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
+            }`}
+          >
+            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/patients' || location.pathname.startsWith('/patients/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
+              <Users className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/patients' || location.pathname.startsWith('/patients/') ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Pasien</span>
           </Link>
 
           {/* Kalkulator Tab */}
@@ -775,21 +806,6 @@ export default function MainLayout() {
             <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Skoring</span>
           </Link>
 
-          {/* Teori Tab */}
-          <Link
-            to="/theory"
-            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
-              location.pathname === '/theory' || location.pathname.startsWith('/theory/')
-                ? 'text-[var(--accent)] font-semibold' 
-                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
-            }`}
-          >
-            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/theory' || location.pathname.startsWith('/theory/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <BookOpen className="w-[20px] h-[20px]" strokeWidth={location.pathname === '/theory' || location.pathname.startsWith('/theory/') ? 2.5 : 2} />
-            </div>
-            <span className="text-[10px] tracking-tight font-medium block whitespace-nowrap">Teori</span>
-          </Link>
-
           {/* Menu / Lainnya Tab */}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
@@ -806,6 +822,10 @@ export default function MainLayout() {
         isOpen={isProfilePopupOpen} 
         onClose={() => setIsProfilePopupOpen(false)} 
         onLogout={handleLogout} 
+      />
+      <GlobalSearch 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
       />
     </div>
   );

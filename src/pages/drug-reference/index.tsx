@@ -35,7 +35,11 @@ const EGFR_BANDS = [
   { id: 'crrt', label: 'CRRT · Continuous RRT', shortLabel: 'CRRT' }
 ];
 
-export default function DrugReference() {
+export interface DrugReferenceProps {
+  isEmbedded?: boolean;
+}
+
+export default function DrugReference({ isEmbedded = false }: DrugReferenceProps = {}) {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [subTab, setSubTab] = useState<'obat' | 'interaksi'>('obat');
   const [searchTerm, setSearchTerm] = useState('');
@@ -173,26 +177,28 @@ export default function DrugReference() {
   const activeEgfr = EGFR_BANDS.find(c => c.id === selectedEgfrBand) || EGFR_BANDS[0];
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20">
+    <div className={isEmbedded ? "space-y-6 pb-6" : "p-4 max-w-4xl mx-auto space-y-6 pb-20"}>
       <div className="mb-2 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-1.5 flex-wrap">
-            💊 Drug Reference ICU
-            <button
-              onClick={() => toggleFavorite('/drug-reference')}
-              className="p-1.5 rounded-full hover:bg-muted transition-colors"
-              title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
-            >
-              <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
-            </button>
-          </h1>
-          <p className="text-muted-foreground text-[13px]">
-            Panduan dosis, penyesuaian ginjal, interaksi, dan protokol pemberian obat-obatan di ICU.
-          </p>
-        </div>
+        {!isEmbedded && (
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-1.5 flex-wrap">
+              💊 Drug Reference ICU
+              <button
+                onClick={() => toggleFavorite('/drug-reference')}
+                className="p-1.5 rounded-full hover:bg-muted transition-colors"
+                title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
+              >
+                <Star className={`w-5 h-5 ${isFav ? 'text-amber-500 fill-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`} />
+              </button>
+            </h1>
+            <p className="text-muted-foreground text-[13px]">
+              Panduan dosis, penyesuaian ginjal, interaksi, dan protokol pemberian obat-obatan di ICU.
+            </p>
+          </div>
+        )}
 
         {/* Tab Selection Bar */}
-        <div className="flex w-full md:w-auto bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm">
+        <div className={`flex w-full ${isEmbedded ? '' : 'md:w-auto'} bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm`}>
           <button
             onClick={() => setSubTab('obat')}
             className={`flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -328,7 +334,7 @@ export default function DrugReference() {
           <p className="text-sm text-muted-foreground">Silakan masukkan data array `ICU_DRUGS` pada file `data.ts`.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {drugsList.map(drug => {
             const isSelected = selectedDrugs.includes(drug.id);
             const isMaxAndNotSelected = selectedDrugs.length >= 8 && !isSelected;

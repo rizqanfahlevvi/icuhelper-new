@@ -11,6 +11,7 @@ interface SettingsState {
   fontWeight: FontWeight;
   themeMode: ThemeMode;
   bwMode: boolean; // Black & White Mode
+  readingMode: boolean; // High Contrast Reading Mode
   soundEnabled: boolean;
   vibrationEnabled: boolean;
   
@@ -19,6 +20,7 @@ interface SettingsState {
   setFontWeight: (weight: FontWeight) => void;
   setThemeMode: (mode: ThemeMode) => void;
   setBwMode: (enabled: boolean) => void;
+  setReadingMode: (enabled: boolean) => void;
   setSoundEnabled: (enabled: boolean) => void;
   setVibrationEnabled: (enabled: boolean) => void;
   
@@ -31,6 +33,7 @@ const defaultSettings = {
   fontWeight: 0 as FontWeight,
   themeMode: 'system' as ThemeMode,
   bwMode: false,
+  readingMode: false,
   soundEnabled: true,
   vibrationEnabled: true,
 };
@@ -45,6 +48,7 @@ export const useSettingsStore = create<SettingsState>()(
       setFontWeight: (fontWeight) => set({ fontWeight }),
       setThemeMode: (themeMode) => set({ themeMode }),
       setBwMode: (bwMode) => set({ bwMode }),
+      setReadingMode: (readingMode) => set({ readingMode }),
       setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
       setVibrationEnabled: (vibrationEnabled) => set({ vibrationEnabled }),
       

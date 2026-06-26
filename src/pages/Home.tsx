@@ -411,7 +411,7 @@ export default function Home() {
 
           {/* Card 3: iObat & Cairan */}
           <div 
-            onClick={() => navigate('/drug-reference')}
+            onClick={() => navigate('/pharmacy')}
             className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-indigo-500/50 hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">

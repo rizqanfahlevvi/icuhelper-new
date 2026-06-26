@@ -59,56 +59,62 @@ export default function TeoriSepsis() {
           </div>
         </Accordion>
 
-        <Accordion title="📖 Sepsis Bundle — SSC 2021 & Update 2024 (1-Hour Bundle)">
-          <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg text-foreground mb-4">
-            <div className="font-bold text-[14px] text-warning mb-1">⏱️ 1-Hour Bundle Sepsis (SSC 2021) — LAKUKAN DALAM 1 JAM PERTAMA</div>
-            <p className="text-[12px] text-muted-foreground">Studi menunjukkan setiap jam keterlambatan → mortalitas ↑ 7%. Bundle ini harus dimulai segera setelah diagnosis dicurigai.</p>
+        <Accordion title="⏱️ Sepsis Bundle — SSC 2021 & Update 2024 (1-Hour Bundle)">
+          <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-foreground mb-4">
+            <div className="font-bold text-[14px] text-destructive mb-2 flex items-center gap-2">
+              <span className="text-xl">⏳</span> 1-Hour Bundle Sepsis (SSC 2021) — LAKUKAN DALAM 1 JAM PERTAMA
+            </div>
+            <p className="text-[12px] text-muted-foreground">Setiap jam keterlambatan antibiotik dan resusitasi meningkatkan mortalitas hingga 7%. Bundle ini harus diinisiasi segera setelah sepsis dicurigai di IGD atau ICU.</p>
           </div>
           
-          <div className="overflow-x-auto mb-4">
-            <table className="w-full text-left border-collapse text-[12px]">
-              <thead>
-                <tr className="bg-muted text-muted-foreground border-b border-border">
-                  <th className="p-2 w-8 text-center">#</th><th className="p-2 w-1/4">Aksi</th><th className="p-2">Detail</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-border text-foreground">
-                  <td className="p-2 font-bold text-center">1</td>
-                  <td className="p-2 font-bold">🩸 Ukur Laktat</td>
-                  <td className="p-2 text-muted-foreground">Laktat serum/darah vena. Re-ukur dalam 2 jam jika laktat awal &gt;2 mmol/L. Target laktat &lt;2 mmol/L sebagai tanda resusitasi adekuat.</td>
-                </tr>
-                <tr className="border-b border-border text-foreground">
-                  <td className="p-2 font-bold text-center">2</td>
-                  <td className="p-2 font-bold">🏺 Kultur Darah</td>
-                  <td className="p-2 text-muted-foreground">Ambil 2 set kultur darah (aerob + anaerob) SEBELUM antibiotik. Kultur lain sesuai sumber. Jangan tunda AB lebih dari 45 menit.</td>
-                </tr>
-                <tr className="border-b border-border text-foreground">
-                  <td className="p-2 font-bold text-center text-destructive">3</td>
-                  <td className="p-2 font-bold text-destructive">💊 Antibiotik Broad-Spectrum</td>
-                  <td className="p-2 text-muted-foreground">Berikan antibiotik empiris SEBELUM 1 jam (lebih cepat lebih baik). Pilih sesuai sumber dugaan, pola lokal, dan faktor risiko resistensi.</td>
-                </tr>
-                <tr className="border-b border-border text-foreground">
-                  <td className="p-2 font-bold text-center">4</td>
-                  <td className="p-2 font-bold">💧 Resusitasi Cairan</td>
-                  <td className="p-2 text-muted-foreground">Kristaloid 30 mL/kg IV dalam 3 jam pertama jika hipotensi atau laktat ≥4 mmol/L. Nilai respons cairan sebelum bolus lanjutan.</td>
-                </tr>
-                <tr className="text-foreground">
-                  <td className="p-2 font-bold text-center text-destructive">5</td>
-                  <td className="p-2 font-bold text-destructive">💉 Vasopressor</td>
-                  <td className="p-2 text-muted-foreground">Jika MAP &lt;65 selama/setelah resusitasi → mulai norepinefrin. Target MAP ≥65 mmHg (individualisasi: MAP ≥80 pada hipertensi kronik).</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="space-y-3 mb-6">
+            <div className="flex gap-3 items-start p-3 bg-muted/30 border border-border rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold">1</div>
+              <div>
+                <h4 className="font-bold text-[13px] text-foreground mb-1">Ukur Laktat</h4>
+                <p className="text-[12px] text-muted-foreground">Ukur laktat serum awal. <strong>Target &lt; 2 mmol/L</strong>. Jika &gt; 2 mmol/L, wajib re-ukur dalam 2-4 jam untuk memantau respons resusitasi (lactate clearance).</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-start p-3 bg-muted/30 border border-border rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 font-bold">2</div>
+              <div>
+                <h4 className="font-bold text-[13px] text-foreground mb-1">Ambil Kultur Darah</h4>
+                <p className="text-[12px] text-muted-foreground">Ambil minimal 2 set (aerob & anaerob) <strong>SEBELUM</strong> pemberian antibiotik. Jangan menunda antibiotik &gt; 45 menit hanya untuk menunggu kultur.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-start p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-destructive/20 text-destructive flex items-center justify-center shrink-0 font-bold">3</div>
+              <div>
+                <h4 className="font-bold text-[13px] text-destructive mb-1">Berikan Antibiotik Broad-Spectrum</h4>
+                <p className="text-[12px] text-muted-foreground">Intervensi paling krusial! Berikan secara intravena dalam 1 jam pertama. Pilih spektrum luas (mis. Pip-tazo, Meropenem) lalu de-eskalasi dalam 48-72 jam sesuai kultur.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-start p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 font-bold">4</div>
+              <div>
+                <h4 className="font-bold text-[13px] text-blue-600 dark:text-blue-400 mb-1">Resusitasi Cairan 30 mL/kgBB</h4>
+                <p className="text-[12px] text-muted-foreground">Berikan kristaloid (RL/RA/NaCl 0.9%) 30 mL/kgBB dalam 3 jam pertama <strong>HANYA JIKA</strong> pasien hipotensi atau laktat ≥ 4 mmol/L. Jangan berikan membabi buta pada pasien stabil.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 items-start p-3 bg-warning/10 border border-warning/20 rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-warning/20 text-warning flex items-center justify-center shrink-0 font-bold">5</div>
+              <div>
+                <h4 className="font-bold text-[13px] text-warning mb-1">Mulai Vasopressor</h4>
+                <p className="text-[12px] text-muted-foreground">Jika MAP tetap &lt; 65 mmHg selama atau setelah resusitasi cairan, segera mulai <strong>Norepinefrin</strong>. Jangan tunggu cairan 30cc/kg habis jika syok sangat berat.</p>
+              </div>
+            </div>
           </div>
 
-          <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Update SSC 2024 — Perubahan Penting</h3>
-          <ul className="list-disc pl-5 mb-3 space-y-1 text-muted-foreground text-[12px]">
-            <li><strong className="text-foreground">Cairan lebih restriktif:</strong> CLASSIC trial 2022: Resusitasi restriktif vs liberal → mortalitas tidak berbeda; liberal lebih banyak efek samping. Pertimbangkan guided resuscitation setelah stabilisasi awal [3, 4].</li>
-            <li><strong className="text-foreground">Penekanan guided resuscitation:</strong> Gunakan dynamic predictor (PLR, VTI) — bukan CVP statik — untuk panduan pemberian cairan lanjutan [5].</li>
-            <li><strong className="text-foreground">Laktat-guided therapy:</strong> Target normalisasi laktat (&lt;2 mmol/L) dalam 6 jam lebih baik daripada target ScvO₂ [6].</li>
-            <li><strong className="text-foreground">Antibiotik de-eskalasi 48–72 jam:</strong> Setelah kultur tersedia → narrowing spectrum. Procalcitonin (PCT) membantu panduan durasi.</li>
-            <li><strong className="text-foreground">Rekomendasi steroid diperketat:</strong> Hidrokortison hanya jika NE ≥0.25 μg/kg/mnt setelah resusitasi adekuat [3].</li>
+          <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Update SSC & Panduan Resusitasi Terkini</h3>
+          <ul className="list-disc pl-5 mb-3 space-y-2 text-muted-foreground text-[12px]">
+            <li><strong className="text-foreground">Dari Liberal ke Restriktif:</strong> CLASSIC trial 2022 menunjukkan resusitasi restriktif vs liberal tidak berbeda dalam mortalitas, namun liberal meningkatkan risiko edema paru dan AKI. Hindari overload cairan.</li>
+            <li><strong className="text-foreground">Dynamic Fluid Responsiveness:</strong> Gunakan parameter dinamis (PLR - <em>Passive Leg Raise</em>, VTI di Ekokardiografi, Pulse Pressure Variation) — <strong>jangan gunakan CVP statik</strong> — untuk memandu pemberian cairan lanjutan setelah dosis inisial.</li>
+            <li><strong className="text-foreground">Capillary Refill Time (CRT):</strong> ANDROMEDA-SHOCK trial (2019) membuktikan resusitasi yang dipandu oleh perbaikan CRT (&lt; 3 detik) sama efektifnya dengan pemantauan laktat, dan lebih mudah di bed-side.</li>
+            <li><strong className="text-foreground">Kortikosteroid:</strong> Hidrokortison (200 mg/hari IV) diberikan <strong>HANYA</strong> bila syok septik refrakter (kebutuhan Norepinefrin ≥ 0.25 μg/kg/mnt) meskipun resusitasi cairan adekuat.</li>
           </ul>
         </Accordion>
 
@@ -230,6 +236,15 @@ export default function TeoriSepsis() {
               <li><strong className="text-foreground">Vasopresor perifer:</strong> Pada IGD tanpa CVC, penggunaan Norepinefrin perifer short-term (&lt;6 jam) sering dipraktekkan (didukung SSC 2021 as bridging).</li>
             </ul>
           </div>
+          
+          <div className="p-3 bg-muted/30 border border-border rounded-lg text-foreground text-[12px] mt-4">
+            <strong className="text-foreground block mb-1">Konteks Historis: Mengapa SIRS dan Bundle 3-Jam/6-Jam Ditinggalkan?</strong>
+            <p className="text-muted-foreground mb-2">Sebelum 2018, SSC menggunakan bundle 3-jam dan 6-jam, dan Sepsis didefinisikan dengan kriteria SIRS (Systemic Inflammatory Response Syndrome).</p>
+            <ul className="list-disc pl-5 text-muted-foreground space-y-1">
+              <li><strong className="text-foreground">SIRS Terlalu Sensitif:</strong> Hampir semua pasien infeksi memenuhi kriteria SIRS, namun banyak yang tidak mengalami syok atau kematian. SOFA lebih baik dalam memprediksi mortalitas.</li>
+              <li><strong className="text-foreground">Bundle 1-Jam:</strong> Penggabungan bundle 3 dan 6 jam menjadi 1 jam didorong oleh bukti bahwa penundaan antibiotik dan resusitasi (bahkan hanya 2 jam) berkorelasi linear dengan kematian.</li>
+            </ul>
+          </div>
         </Accordion>
 
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
@@ -242,8 +257,9 @@ export default function TeoriSepsis() {
             <li>Evans L, et al. Surviving sepsis campaign: international guidelines for management of sepsis and septic shock 2021. <em>Intensive Care Med</em>. 2021.</li>
             <li>Hjortrup PB, et al. Restricting volumes of resuscitation fluid in adults with septic shock after initial management: the CLASSIC randomised, parallel-group, multicentre feasibility trial. <em>Intensive Care Med</em>. 2016.</li>
             <li>Hernández G, et al. Effect of a Resuscitation Strategy Targeting Peripheral Perfusion Status vs Serum Lactate Levels on 28-Day Mortality Among Patients With Septic Shock: The ANDROMEDA-SHOCK Randomized Clinical Trial. <em>JAMA</em>. 2019.</li>
-            <li>Timsit JF, et al. Update on blood infection diagnosis and management. <em>Intensive Care Med</em>. 2020.</li>
+            <li>Levy MM, et al. The Surviving Sepsis Campaign Bundle: 2018 update. <em>Intensive Care Med</em>. 2018.</li>
             <li>Seymour CW, et al. Assessment of Clinical Criteria for Sepsis: For the Third International Consensus Definitions for Sepsis and Septic Shock (Sepsis-3). <em>JAMA</em>. 2016.</li>
+            <li>Meyhoff CS, et al. Restriction of Intravenous Fluid in ICU Patients with Septic Shock (CLASSIC). <em>N Engl J Med</em>. 2022.</li>
           </ul>
         </div>
       </div>
