@@ -37,7 +37,7 @@ export default function DrugModal({ drug, onClose, activeEgfr }: Props) {
           </button>
         </div>
 
-        <div className="flex px-4 border-b border-border overflow-x-auto hide-scrollbar flex-shrink-0 bg-muted/10">
+        <div className="flex px-4 border-b border-border overflow-x-auto no-scrollbar flex-shrink-0 bg-muted/10">
           {[
             { id: 'umum', label: '📋 Umum' },
             { id: 'dosis', label: '💉 Dosis' },

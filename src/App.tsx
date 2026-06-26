@@ -7,6 +7,11 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import MainLayout from './components/layout/MainLayout';
 import { useSettingsStore } from './store/settingsStore';
 import PageSkeleton from './components/ui/PageSkeleton';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from './lib/firebase';
+import { ShieldAlert, ExternalLink, LogOut } from 'lucide-react';
+import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 
 const Home = lazy(() => import('./pages/Home'));
 const AboutSettings = lazy(() => import('./pages/AboutSettings'));
@@ -14,10 +19,6 @@ const PlaceholderPage = lazy(() => import('./pages/PlaceholderPage'));
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignUpPage = lazy(() => import('./pages/SignUpPage'));
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { signOut } from 'firebase/auth';
-import { auth } from './lib/firebase';
-import { ShieldAlert, ExternalLink, LogOut } from 'lucide-react';
 
 const PatientsPage = lazy(() => import('./pages/PatientsPage'));
 const CalculatorIndex = lazy(() => import('./pages/calculator/CalculatorIndex'));
@@ -72,8 +73,6 @@ const ScoringCpis = lazy(() => import('./pages/scoring/ScoringCpis'));
 const ScoringRass = lazy(() => import('./pages/scoring/ScoringRass'));
 const ScoringSofa = lazy(() => import('./pages/scoring/ScoringSofa'));
 const ScoringWells = lazy(() => import('./pages/scoring/ScoringWells'));
-
-import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 
 function VerificationPage() {
   const handleLogout = async () => {

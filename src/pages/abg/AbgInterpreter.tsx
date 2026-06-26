@@ -18,7 +18,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
   return (
     <div className="space-y-6">
       {/* Parameter Dasar Card */}
-      <div className="ios-card !mx-0">
+      <div className="ios-card w-full">
         <div className="p-4 sm:p-5 border-b border-[var(--glass-border)] bg-[#f8f9fa] dark:bg-transparent">
           <h2 className="text-sm font-bold text-[var(--label-primary)] flex items-center gap-2">
             <Dna className="w-4 h-4 text-primary" />
@@ -29,7 +29,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0">pH</span>
-            <div className="flex-1 relative">
+            <div className="flex-1 min-w-0 relative">
               <input 
                 type="number" step="0.01" 
                 value={inputs.ph} 
@@ -42,7 +42,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0">PaCO₂</span>
-            <div className="flex-1 flex gap-2">
+            <div className="flex-1 min-w-0 flex gap-2">
               <div className="flex-1 relative">
                 <input 
                   type="number" 
@@ -63,7 +63,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0">HCO₃⁻</span>
-            <div className="flex-1 relative">
+            <div className="flex-1 min-w-0 relative">
               <input 
                 type="number" step="0.1" 
                 value={inputs.hco3} 
@@ -79,7 +79,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0">PaO₂</span>
-            <div className="flex-1 relative">
+            <div className="flex-1 min-w-0 relative">
               <input 
                 type="number" step="1" 
                 value={inputs.po2} 
@@ -95,7 +95,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0">BE</span>
-            <div className="flex-1 relative">
+            <div className="flex-1 min-w-0 relative">
               <input 
                 type="number" step="0.1" 
                 value={inputs.be} 
@@ -112,7 +112,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
       </div>
 
       {/* Oksigenasi & Elektrolit Card */}
-      <div className="ios-card !mx-0">
+      <div className="ios-card w-full mt-6">
         <div className="p-4 sm:p-5 border-b border-[var(--glass-border)] bg-[#f8f9fa] dark:bg-transparent">
           <h2 className="text-sm font-bold text-[var(--label-primary)] flex items-center gap-2">
             <Beaker className="w-4 h-4 text-primary" />
@@ -123,7 +123,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0 sm:mt-3">SpO₂ / SaO₂</span>
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 min-w-0 space-y-3">
               <div className="flex p-1 bg-slate-100 dark:bg-[#1C1C1E] rounded-lg border border-slate-200 dark:border-[#38383A]">
                 <button 
                   className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'pulse' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
@@ -155,7 +155,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0 sm:mt-3">FiO₂</span>
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 min-w-0 space-y-3">
               <div className="flex p-1 bg-slate-100 dark:bg-[#1C1C1E] rounded-lg border border-slate-200 dark:border-[#38383A]">
                 <button 
                   className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'direct' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
@@ -183,7 +183,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                   <select 
                     value={inputs.fio2Device} 
                     onChange={e => updateInput('fio2Device', e.target.value)}
-                    className="flex-1 px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none"
+                    className="flex-1 min-w-0 px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none"
                   >
                     <option value="nasal">Nasal Cannula</option>
                     <option value="simple">Simple Mask</option>
@@ -209,7 +209,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0">Kondisi Utama</span>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <select 
                 value={inputs.kondisi} 
                 onChange={e => updateInput('kondisi', e.target.value)}
@@ -228,7 +228,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 pt-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 w-32 flex-shrink-0 mt-2">Param Lainnya</span>
-             <div className="flex-[3] grid grid-cols-2 md:grid-cols-4 gap-2">
+             <div className="flex-[3] min-w-0 grid grid-cols-2 md:grid-cols-4 gap-2">
                 <input type="number" placeholder="Na⁺" value={inputs.na} onChange={e=>updateInput('na',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
                 <input type="number" placeholder="Cl⁻" value={inputs.cl} onChange={e=>updateInput('cl',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
                 <input type="number" placeholder="Alb" value={inputs.alb} onChange={e=>updateInput('alb',e.target.value)} className="w-full px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70"/>
