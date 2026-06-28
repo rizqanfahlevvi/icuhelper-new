@@ -196,3 +196,27 @@ html.bw-mode,
   --label-primary: #ffffff;
   --label-secondary: #d1d5db;
 }
+
+/* ---------------------------------------------------------------------------
+   Global Mobile Padding/Margin Optimizations
+   --------------------------------------------------------------------------- */
+@media (max-w: 640px) {
+  /* Reduce horizontal padding of top header for a snugger mobile look */
+  header.ios-nav {
+    padding-left: 0.625rem !important; /* 10px instead of 16px */
+    padding-right: 0.625rem !important;
+  }
+
+  /* Reduce edge margins of all main page containers inside the viewport */
+  .animate-page-route .max-w-4xl.mx-auto,
+  div[class*="max-w-4xl"][class*="mx-auto"] {
+    padding-left: 0.625rem !important; /* 10px instead of 16px (p-4) */
+    padding-right: 0.625rem !important;
+  }
+
+  /* Make lists and sections a bit tighter on mobile screen edges */
+  .ios-section {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+}

@@ -578,7 +578,7 @@ export default function MainLayout() {
 
         {/* iOS-Style Sub Navigation Bar */}
         {!isParentMenu && (
-          <div className="h-[46px] flex items-center justify-between px-4 bg-[var(--bg-secondary)] sticky top-[60px] z-20 w-full relative">
+          <div className="h-[46px] flex items-center justify-between px-2.5 sm:px-4 bg-[var(--bg-secondary)] sticky top-[60px] z-20 w-full relative">
             {/* Left: Back button with standard iOS blue Chevron and text */}
             <div className="flex items-center min-w-[80px]">
               {location.pathname !== '/' && (
@@ -721,7 +721,7 @@ export default function MainLayout() {
         </AnimatePresence>
 
         {/* Scrollable Viewport */}
-        <div className={`flex-1 w-full px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
+        <div className={`flex-1 w-full px-2.5 sm:px-3 md:px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
           {isLocked && (
             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto bg-white/45 dark:bg-black/45 backdrop-blur-md"
                  id="verification-restriction-overlay"
