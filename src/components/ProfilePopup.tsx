@@ -118,13 +118,8 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
               <div className="bg-[var(--fill-secondary)] rounded-xl p-4">
                 <p className="text-xs text-[var(--label-tertiary)] uppercase tracking-wider font-bold mb-2">Status Langganan</p>
                 <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium uppercase tracking-wider
-                    ${userProfile.subscriptionStatus === 'active' ? 'bg-[var(--sys-green)]/10 text-[var(--sys-green)]' : 
-                      userProfile.subscriptionStatus === 'trial' ? 'bg-[var(--accent)]/10 text-[var(--accent)]' : 
-                      userProfile.subscriptionStatus === 'expired' ? 'bg-[var(--sys-red)]/10 text-[var(--sys-red)]' : 
-                      'bg-[var(--fill-tertiary)] text-[var(--label-secondary)]'}
-                  `}>
-                    {userProfile.subscriptionStatus}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium uppercase tracking-wider bg-[var(--sys-green)]/10 text-[var(--sys-green)]">
+                    ACTIVE (PROMO SEMENTARA)
                   </span>
                 </div>
               </div>

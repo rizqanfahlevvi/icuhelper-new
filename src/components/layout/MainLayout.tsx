@@ -110,10 +110,15 @@ export default function MainLayout() {
 
   const normalizedSubscriptionStatus = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
   
+  // SEMENTARA: Semua yang mendaftar langsung bisa membuka aplikasi tanpa verifikasi/subscription
+  // Untuk mengaktifkan kembali pembatasan, kembalikan isLocked ke pengecekan semula.
+  const isLocked = false;
+  /*
   const isLocked = !!user && (
     !isAuthorized || 
     (normalizedSubscriptionStatus !== "active" && normalizedSubscriptionStatus !== "trial")
   );
+  */
 
   const getInitialFromProfile = () => {
     const name = userProfile?.namaLengkap || userProfile?.username || user?.email || 'U';
@@ -156,28 +161,10 @@ export default function MainLayout() {
 
   const getSubscriptionBadge = () => {
     if (!userProfile) return null;
-    const status = (userProfile.subscriptionStatus || "inactive").trim().toLowerCase();
-    let dotColor = "var(--sys-red, #ff3b30)";
-    let text = "Belum Berlangganan";
-
-    switch (status) {
-      case "active":
-        dotColor = "var(--sys-green, #34c759)";
-        text = "Subscription Aktif";
-        break;
-      case "trial":
-        dotColor = "var(--sys-orange, #ff9500)";
-        text = "Masa Trial";
-        break;
-      case "inactive":
-        dotColor = "var(--sys-red, #ff3b30)";
-        text = "Belum Berlangganan";
-        break;
-      case "expired":
-        dotColor = "var(--sys-red, #ff3b30)";
-        text = "Subscription Habis";
-        break;
-    }
+    
+    // SEMENTARA: Karena verifikasi/subscription dinonaktifkan, tampilkan Akses Penuh
+    const dotColor = "var(--sys-green, #34c759)";
+    const text = "Akses Penuh";
 
     return (
       <div className="flex items-center gap-1.5 mt-1 select-none">

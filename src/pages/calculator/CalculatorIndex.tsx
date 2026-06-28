@@ -17,6 +17,7 @@ const CALCULATORS = [
   { path: 'renal', name: 'Renal / CrCl', icon: Activity, desc: 'Creatinine Clearance & GFR' },
   { path: 'transfusi', name: 'Kebutuhan Transfusi', icon: Droplets, desc: 'Koreksi Hb & PRC/WB' },
   { path: 'ventilator-adv', name: 'Ventilator Advanced', icon: Activity, desc: 'Mekanik & setting ventilator' },
+  { path: 'burn', name: 'Luka Bakar / Burn', icon: Activity, desc: 'TBSA Rule of Nines & Parkland' },
   { path: 'anion-gap', name: 'Anion Gap', icon: Activity, desc: 'Koreksi Anion & Osmolar Gap' },
 ];
 
