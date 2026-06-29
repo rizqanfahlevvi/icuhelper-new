@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { 
   User, Plus, Trash2, CheckCircle2, UserPlus, 
   Calendar, Scale, Ruler, Search, HeartPulse, ChevronRight, Save, RefreshCw, X,
@@ -303,26 +302,18 @@ export default function PatientsPage() {
         </div>
 
         {/* Modal Pop-up Rekam Medis (Klinis & Lab) dengan Auto-Save */}
-        <AnimatePresence>
+        <>
           {isLabFormOpen && (
             <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
               {/* Backdrop */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="absolute inset-0 bg-black/65 backdrop-blur-xs" 
+              <div 
+                className="absolute inset-0 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200" 
                 onClick={() => setIsLabFormOpen(false)} 
               />
               
               {/* Modal Container */}
-              <motion.div 
-                initial={{ opacity: 0, y: 50, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 50, scale: 0.95 }}
-                transition={{ type: "spring", damping: 25, stiffness: 350 }}
-                className="relative bg-card border border-[#c2c6d4] dark:border-[#3a3d44] w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl flex flex-col z-10"
+              <div 
+                className="relative bg-card border border-[#c2c6d4] dark:border-[#3a3d44] w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl flex flex-col z-10 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
               >
               
               {/* Modal Header */}
@@ -1098,10 +1089,10 @@ export default function PatientsPage() {
                 </button>
               </div>
 
-            </motion.div>
+            </div>
           </div>
         )}
-      </AnimatePresence>
+      </>
         </>
       ) : (
         <div className="bg-[var(--bg-tertiary)] hover:bg-[var(--bg-tertiary)]/80 transition-all border border-[#c2c6d4] dark:border-[#3a3d44] rounded-2xl p-6 text-center">
