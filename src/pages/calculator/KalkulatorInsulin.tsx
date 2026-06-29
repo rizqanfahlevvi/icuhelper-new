@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Syringe, AlertTriangle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -153,7 +154,7 @@ export default function KalkulatorInsulin() {
   const hipoRes = mode === 'hipo' ? calcHipo() : null;
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Active Patient Profile & Unified Sync Banner */}
       <ActivePatientBriefCard onAutofill={handleAutofill} />
@@ -166,13 +167,13 @@ export default function KalkulatorInsulin() {
       </div>
 
       <div className="flex flex-col gap-0 mt-2">
-         <h2 className="mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+         <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
            {mode === 'bbc' ? 'Basal-Bolus-Koreksi' : mode === 'ss' ? 'Sliding Scale Insulin' : 'Koreksi Hipoglikemia'}
          </h2>
 
          {(mode === 'bbc' || mode === 'ss') && (
            <>
-             <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+             <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
@@ -227,7 +228,7 @@ export default function KalkulatorInsulin() {
              </div>
 
              {mode === 'bbc' && bbcRes && (
-               <div className="px-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+               <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
                  {bbcRes.error ? (
                    <div className="bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/30 p-4 rounded-xl font-bold flex gap-3 text-[14px] shadow-sm">
                      <AlertTriangle className="w-5 h-5 shrink-0" /> {bbcRes.msg}
@@ -266,19 +267,29 @@ export default function KalkulatorInsulin() {
                       </div>
 
                       {bbcRes.warnings && bbcRes.warnings.length > 0 && (
-                        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl p-3 text-sm text-amber-700 dark:text-amber-500 font-medium leading-snug">
+                        <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-xl p-3 text-sm text-amber-700 dark:text-amber-500 font-medium leading-snug mb-4">
                           <ul className="list-disc pl-5 space-y-1">
                             {bbcRes.warnings.map((w,i) => <li key={i}>{w}</li>)}
                           </ul>
                         </div>
                       )}
+
+                      <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+                        <SaveToHistoryButton 
+                          module="insulin" 
+                          label={`Insulin BBC — BB ${bbcRes.w}kg, GDS ${gds}`}
+                          inputs={{ bb: bbcRes.w, gds, target, tddPrev: bbcRes.tPrev, kondisi, makan }}
+                          summary={`TDD ${bbcRes.tdd}u · Basal ${bbcRes.basal}u · Koreksi skrg ${bbcRes.correction}u${bbcRes.mealCount > 0 ? ` · Bolus/mkn ${bbcRes.bolusPerMeal}u` : ''}`}
+                          className="w-full"
+                        />
+                      </div>
                    </div>
                  )}
                </div>
              )}
 
              {mode === 'ss' && ssArr && ssArr.length > 0 && (
-               <div className="px-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+               <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
                  <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
                    <div className="p-3 bg-slate-50 dark:bg-[#2C2C2E] border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-[12px]">
                      <span className="font-bold text-slate-500 uppercase">Rentang GDS</span>
@@ -298,6 +309,15 @@ export default function KalkulatorInsulin() {
                    <div className="p-4 bg-slate-50 dark:bg-[#2C2C2E] border-t border-slate-200 dark:border-slate-700 text-[12px] text-slate-500 leading-relaxed italic">
                      *Pemberian secara Subkutan (SC) Rapid Acting Insulin. Pemantauan ketat setiap 4 jam direkomendasikan pada pasien dengan risiko hipoglikemia.
                    </div>
+                   <div className="p-4 bg-slate-50 dark:bg-[#2C2C2E] border-t border-slate-200 dark:border-slate-700">
+                     <SaveToHistoryButton 
+                       module="insulin" 
+                       label={`Insulin SS — GDS ${gds}`}
+                       inputs={{ mode: 'ss', gds }}
+                       summary={`GDS ${gds} mg/dL -> ${ssArr.find(r => parseInt(gds || '0') >= r.min && parseInt(gds || '0') <= r.max)?.d || '0 Unit'}`}
+                       className="w-full"
+                     />
+                   </div>
                  </div>
                </div>
              )}
@@ -306,7 +326,7 @@ export default function KalkulatorInsulin() {
 
          {mode === 'hipo' && (
            <>
-             <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+             <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
@@ -346,7 +366,7 @@ export default function KalkulatorInsulin() {
                 </div>
              </div>
              
-             <div className="px-4 mt-4">
+             <div className="mt-4">
                {hipoRes ? (
                  <div className="animate-in fade-in slide-in-from-bottom-3 duration-300 space-y-4">
                    <div className={`px-5 py-3 border rounded-xl text-center text-sm font-bold shadow-sm ${hipoRes.lvlCls}`}>{hipoRes.lvlLbl}</div>
@@ -401,6 +421,16 @@ export default function KalkulatorInsulin() {
                         </div>
                      </div>
                    )}
+                   
+                   <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+                      <SaveToHistoryButton 
+                        module="insulin" 
+                        label={`Hipo Koreksi — GDS ${hipoGds} mg/dL, BB ${hipoBb} kg`}
+                        inputs={{ mode: 'hipo', gds: hipoGds, bb: hipoBb, kesadaran, route }}
+                        summary={`${hipoRes.lvlLbl} · butuh ${hipoRes.glucG.toFixed(1)}g glukosa · D40% ${hipoRes.volD40.toFixed(0)} mL`}
+                        className="w-full"
+                      />
+                   </div>
                  </div>
                ) : (
                  <div className="flex items-center justify-center p-6 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 text-sm bg-slate-50/50 dark:bg-[#1C1C1E]">

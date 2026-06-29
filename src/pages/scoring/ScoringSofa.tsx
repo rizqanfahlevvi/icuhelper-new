@@ -3,6 +3,7 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { Accordion } from '../../components/ui/Accordion';
 import { Activity, Beaker, Brain, HeartPulse, Wind, Droplets, AlertTriangle, Calculator, Info } from 'lucide-react';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { useHistoryStore } from '../../store/useHistoryStore';
 
 interface OrganScore {
   organ: string;
@@ -323,6 +324,13 @@ export default function ScoringSofa() {
       pfRatio: currPf,
       sfRatio: currSf,
     });
+    
+    useHistoryStore.getState().addEntry(
+      'scoring_sofa',
+      `SOFA: ${total}`,
+      { pao2, fio2Mode, fio2Oksigen, fio2Persen, spo2, respiMode, trombosit, bilirubin, cvType, cvVal, gcs, kreatinin, urineOutput, sofaBaseline },
+      `Skor Total: ${total} - ${mortalityText}`
+    );
   };
 
   const getScoreColor = (score: number | null) => {
@@ -349,7 +357,7 @@ export default function ScoringSofa() {
   const cardClass = "bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm";
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       <ActivePatientBriefCard />
 
       <div className={cardClass}>

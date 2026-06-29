@@ -3,8 +3,10 @@ import { Syringe, AlertTriangle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { useHistoryStore } from '../../store/useHistoryStore';
 
 const PUMP_CATEGORIES = {
   sedasi:      [['fentanyl','Fentanyl'],['morphin','Morfin'],['midazolam','Midazolam'],['propofol','Propofol 1%'],['dexmed','Dexmedetomidine'],['thiopental','Thiopental (Tiopol)']],
@@ -95,24 +97,24 @@ export default function KalkulatorPump() {
     const duration = (v / rateMlH).toFixed(1);
     const isFlatDose = (unit === 'mg/jam' || unit === 'mg/mnt' || unit === 'mcg/mnt' || unit === 'units/mnt');
 
-    setResult({ rate: rateMlH.toFixed(2), duration, unit, isFlatDose, info: info.info, b, d, v });
+    setResult({ rate: rateMlH.toFixed(2), duration, unit, isFlatDose, info: info.info, b, d, v, drug });
   };
 
   const info = PUMP_INFO[drug];
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Active Patient Widget & Sync Banner */}
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
       <div className="flex flex-col gap-0 mt-2">
-        <h2 className="mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+        <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           Parameter Syringe Pump
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex items-center justify-between px-4 py-3 gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
             <div className="flex-1 flex items-center justify-end gap-2">
@@ -174,7 +176,7 @@ export default function KalkulatorPump() {
       </div>
 
       {result && (
-        <div className="px-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <div className="p-5 text-center bg-blue-50 dark:bg-blue-900/10">
               <div className="text-[12px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">Rate Laju Syringe Pump</div>
@@ -192,7 +194,33 @@ export default function KalkulatorPump() {
                 <div className="font-bold text-[14px] text-slate-800 dark:text-slate-200">{result.d} <span className="text-xs font-normal text-slate-500">{result.unit}</span></div>
               </div>
             </div>
+            
+            <div className="p-4 pt-0">
+               <SaveToHistoryButton 
+                 module="pump" 
+                 label={`Syringe Pump: ${result.drug.toUpperCase()}`}
+                 inputs={{ bb: result.b, drug: result.drug, dose: result.d, volume: result.v }}
+                 summary={`Kecepatan: ${result.rate} mL/jam (Durasi ${result.duration} jam)`}
+                 className="w-full"
+               />
+            </div>
           </div>
+          
+          {result.drug === 'furosemide' && (
+            <div className="mt-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 p-4 rounded-xl text-[13px] text-amber-800 dark:text-amber-400 font-medium">
+              <strong className="text-amber-900 dark:text-amber-300">⚠ Monitoring Furosemide Drip:</strong> Cek K⁺ dan kreatinin tiap 6–8 jam · Target UO 0.5–1 mL/kg/jam · Kurangi dosis jika oliguria persisten atau K &lt; 3.5 mEq/L
+            </div>
+          )}
+          {result.drug === 'vasopressin' && (
+            <div className="mt-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/30 p-4 rounded-xl text-[13px] text-blue-800 dark:text-blue-400 font-medium">
+              <strong className="text-blue-900 dark:text-blue-300">Vasopressin pada Septic Shock:</strong> Dosis tetap 0.03 units/mnt — tidak dititrasi seperti NE. Tambahkan ke NE, bukan gantikan. SSC 2024.
+            </div>
+          )}
+          {result.drug === 'phenylephrine' && (
+            <div className="mt-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/30 p-4 rounded-xl text-[13px] text-blue-800 dark:text-blue-400 font-medium leading-relaxed">
+              <strong className="text-blue-900 dark:text-blue-300">Phenylephrine — Pure α1-agonis:</strong> Tidak ada efek β → tidak meningkatkan HR. Dapat menyebabkan refleks bradikardia. Keunggulan vs norepinefrin pada pasien dengan takikardia (AF rapid ventricular response, HOCM). Hindari pada disfungsi miokard atau curah jantung rendah karena meningkatkan afterload tanpa kompensasi inotrop. Referensi: SCCM Vasopressor Guidelines 2023.
+            </div>
+          )}
         </div>
       )}
 

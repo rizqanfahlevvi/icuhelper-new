@@ -11,7 +11,28 @@ export default function Riwayat() {
   const MODULE_META: Record<string, { label: string; icon: string; path: string }> = {
     ibw: { label: 'IBW & Parameter', icon: '⚖️', path: '/calculator/ibw' },
     renal: { label: 'Renal / FENa', icon: '🫘', path: '/calculator/renal' },
-    // we can add more specific mappings when migrating other modules
+    weaning: { label: 'Weaning', icon: '🔽', path: '/weaning' },
+    aniongap: { label: 'Anion Gap & Osmolaritas', icon: '🧮', path: '/calculator/aniongap' },
+    burn: { label: 'Luka Bakar', icon: '🔥', path: '/calculator/burn' },
+    drug: { label: 'Dosis Obat', icon: '💊', path: '/calculator/drug' },
+    elektro: { label: 'Koreksi Elektrolit', icon: '⚡', path: '/calculator/elektro' },
+    insulin: { label: 'Protokol Insulin', icon: '💉', path: '/calculator/insulin' },
+    cairan: { label: 'Kebutuhan Cairan', icon: '💧', path: '/calculator/cairan' },
+    nlr: { label: 'NLR (Neutrophil-to-Lymphocyte)', icon: '🩸', path: '/calculator/nlr' },
+    nutrisi: { label: 'Kebutuhan Nutrisi', icon: '🍽️', path: '/calculator/nutrisi' },
+    pf: { label: 'P/F Ratio', icon: '🫁', path: '/calculator/pf' },
+    pulmo: { label: 'Fisiologi Pulmo', icon: '🫁', path: '/calculator/pulmo' },
+    pump: { label: 'Syringe Pump', icon: '💉', path: '/calculator/pump' },
+    transfusi: { label: 'Kebutuhan Transfusi', icon: '🩸', path: '/calculator/transfusi' },
+    ventadv: { label: 'Ventilator Lanjut', icon: '🎛️', path: '/calculator/ventadv' },
+    scoring_apache: { label: 'APACHE II Score', icon: '📈', path: '/scoring/apache' },
+    scoring_bfs: { label: 'Bowel Function Score', icon: '💩', path: '/scoring/bfs' },
+    scoring_camicu: { label: 'CAM-ICU', icon: '🧠', path: '/scoring/camicu' },
+    scoring_candida: { label: 'Candida Score', icon: '🍄', path: '/scoring/candida' },
+    scoring_cpis: { label: 'CPIS', icon: '🫁', path: '/scoring/cpis' },
+    scoring_rass: { label: 'RASS', icon: '🧠', path: '/scoring/rass' },
+    scoring_sofa: { label: 'SOFA Score', icon: '📈', path: '/scoring/sofa' },
+    scoring_wells: { label: 'Wells Score', icon: '🩸', path: '/scoring/wells' },
   };
 
   const formatTime = (ts: number) => {
@@ -20,7 +41,7 @@ export default function Riwayat() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
       <div className="pt-2">
         <PageHeader 
           badgeIcon={Clock}

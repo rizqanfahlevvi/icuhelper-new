@@ -3,6 +3,8 @@ import { Activity, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePatientStore } from '../../store/usePatientStore';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { Accordion } from '../../components/ui/Accordion';
 
 export default function KalkulatorAnionGap() {
   const patient = usePatientStore();
@@ -39,7 +41,7 @@ export default function KalkulatorAnionGap() {
   const deltaRatio = ag !== null ? calculateDeltaRatio(ag) : null;
 
   return (
-    <div className="p-4 max-w-md mx-auto space-y-6 pb-20">
+    <div className="w-full max-w-md mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
       <div className="flex items-center gap-3 mb-6">
         <Link to="/calculator" className="p-2 -ml-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
           <ArrowLeft className="w-5 h-5" />
@@ -175,11 +177,26 @@ export default function KalkulatorAnionGap() {
         />
       )}
 
-      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 text-sm text-slate-600 dark:text-slate-400 space-y-2">
-        <p><strong>Rumus Anion Gap:</strong> Na - (Cl + HCO₃)</p>
-        <p><strong>Corrected AG:</strong> AG + 2.5 × (4.4 - Albumin)</p>
-        <p>Corrected AG digunakan bila pasien mengalami hipoalbuminemia, karena albumin adalah anion tak terukur utama. Penurunan 1 g/dL albumin menurunkan AG sekitar 2.5 mEq/L.</p>
-      </div>
+      {(ag !== null) && (
+        <SaveToHistoryButton 
+          module="anion_gap" 
+          label={`Anion Gap: ${ag.toFixed(1)}`}
+          inputs={{ na, cl, hco3, albumin }}
+          summary={`AG ${ag.toFixed(1)} mEq/L${correctedAg !== null ? ` (Corr: ${correctedAg.toFixed(1)})` : ''}${deltaRatio !== null ? ` · Delta Ratio: ${deltaRatio.toFixed(2)}` : ''}`}
+          className="w-full"
+        />
+      )}
+
+      <Accordion title="📖 Teori & Referensi: Anion Gap & Delta Ratio">
+        <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
+          <li><strong>Anion Gap (AG):</strong> Na - (Cl + HCO₃). Normalnya 8-12 mEq/L. High AG acidosis menunjukkan asidosis akibat penumpukan asam tak terukur (Ketoasidosis, Laktat, Uremia, Intoksikasi).</li>
+          <li><strong>Corrected AG:</strong> AG + 2.5 × (4.4 - Albumin). Albumin adalah anion dominan; pada hipoalbuminemia, AG normal terlihat lebih rendah dari yang sebenarnya. Koreksi wajib untuk akurasi.</li>
+          <li><strong>Delta Ratio (ΔAG / ΔHCO₃):</strong> Mengukur apakah asidosis AG tinggi berdiri sendiri atau campuran. (AG pasien - 12) / (24 - HCO₃ pasien).</li>
+        </ul>
+        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+          📚 Kraut JA, Madias NE. Serum anion gap: its uses and limitations in clinical medicine. Clin J Am Soc Nephrol. 2007;2(1):162-174.
+        </div>
+      </Accordion>
     </div>
   );
 }

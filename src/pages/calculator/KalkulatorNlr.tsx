@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, TestTube, AlertTriangle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { useHistoryStore } from '../../store/useHistoryStore';
 
 export default function KalkulatorNlr() {
   const patient = usePatientStore();
@@ -122,11 +124,11 @@ export default function KalkulatorNlr() {
     else if (nlr <= 9) { ni='NLR tinggi — inflamasi berat. Berkorelasi dengan sepsis, pneumonia berat, AMI.'; nc='text-amber-500 border-amber-500 bg-amber-500/10'; }
     else { ni='NLR sangat tinggi (>9) — prediktor mortalitas ICU. Indikator respons inflamasi masif.'; nc='text-red-500 border-red-500 bg-red-500/10'; }
 
-    setRes({ nlr, plr, sii, mlr, n, p, s, m, ni, nc, wbcNote });
+    setRes({ nlr, plr, sii, mlr, n, p, s, m, ni, nc, wbcNote, wbc, neut, lymph, mono, plt, mode });
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Active Patient & Sync Banner */}
       <ActivePatientBriefCard onAutofill={handleAutofill} />
@@ -138,11 +140,11 @@ export default function KalkulatorNlr() {
       </div>
 
       <div className="flex flex-col gap-0 mt-2">
-         <h2 className="mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+         <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
            Indeks Inflamasi
          </h2>
          
-         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             {mode === 'abs' ? (
               <>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
@@ -222,14 +224,14 @@ export default function KalkulatorNlr() {
             )}
          </div>
          
-         <div className="px-4 mt-4">
+         <div className="mt-4">
             <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
                Hitung Indeks
             </button>
          </div>
 
          {res && (
-           <div className="px-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+           <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
              <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-4">
                {res.wbcNote && (
                  <div className="flex gap-2.5 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 p-3 rounded-lg border border-red-200 dark:border-red-800/30 text-[13px] mb-4">
@@ -267,23 +269,95 @@ export default function KalkulatorNlr() {
                  )}
                </div>
 
-               <div className={`p-3 rounded-xl text-[13px] font-medium leading-relaxed ${res.nc} border`}>
+               <div className={`p-3 rounded-xl text-[13px] font-medium leading-relaxed ${res.nc} border mb-4`}>
                  <div className="font-bold text-[11px] uppercase tracking-wider mb-1 opacity-80">Interpretasi Klinis NLR</div>
                  {res.ni}
+               </div>
+               
+               <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <SaveToHistoryButton 
+                    module="nlr" 
+                    label={`NLR: ${res.nlr.toFixed(2)}`}
+                    inputs={{ wbc: res.wbc, neut: res.neut, lymph: res.lymph, mono: res.mono, plt: res.plt, mode: res.mode }}
+                    summary={`NLR ${res.nlr.toFixed(2)} - ${res.ni}`}
+                    className="w-full"
+                  />
                </div>
              </div>
            </div>
          )}
       </div>
 
-      <Accordion title="📖 Teori & Referensi: NLR, PLR, MLR, dan SII">
+      <Accordion title="📖 NLR di ICU & IGD — Patofisiologi & Cut-off Klinis">
+        <div className="mb-2 font-semibold text-slate-800 dark:text-slate-200 text-[13px]">Mengapa NLR Penting?</div>
         <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
-          <li><strong className="text-slate-800 dark:text-slate-200">Neutrophil-to-Lymphocyte Ratio (NLR):</strong> Indikator keseimbangan antara respon inflamasi sistemik (Neutrofil) dan tingkat regulasi adaptif serta imunitas (Limfosit). Secara klasik, NLR &gt; 3.0 mengindikasikan inflamasi patologis, dan NLR &gt; 5.0 atau 6.0 sering digunakan sebagai threshold risiko tinggi (terutama masa Pandemi COVID-19 maupun Sepsis berat).</li>
-          <li><strong className="text-slate-800 dark:text-slate-200">Platelet-to-Lymphocyte Ratio (PLR):</strong> Trombosit sebagai penanda respon imun prothrombotic. Peningkatan dramatis PLR (sering ditandai di atas 150 - 200) konsisten dengan keadaan inflamasi aktif kronis/keganasan atau preeklampsia.</li>
-          <li><strong className="text-slate-800 dark:text-slate-200">Systemic Immune-inflammation Index (SII):</strong> Formula: (Neutrofil &times; Trombosit) / Limfosit. Marker terpadu yang kuat untuk prognosis sepsis dan evaluasi keganasan solid. SII yang terlampau tinggi menandakan perburukan agresif sistem imun.</li>
+          <li><strong>Patofisiologi:</strong> Pada respons stres/infeksi, kortisol dan katekolamin memobilisasi neutrofil dari sumsum tulang (neutrofilia) dan menekan fungsi limfosit (limfopenia). Rasio keduanya mencerminkan beratnya respons inflamasi sistemik.</li>
+          <li><strong>NLR 1–3:</strong> Normal. Tidak ada inflamasi signifikan.</li>
+          <li><strong>NLR 3–5:</strong> Inflamasi ringan-sedang. Waspada pada konteks infeksi.</li>
+          <li><strong>NLR 5–9:</strong> Inflamasi berat. Berkorelasi dengan sepsis, pneumonia berat, infark miokard akut.</li>
+          <li><strong>NLR &gt;9:</strong> Prediktor mortalitas ICU. Cut-off 7.5–9 dikaitkan dengan outcome buruk pada berbagai studi.</li>
+          <li><strong>Keterbatasan:</strong> NLR tinggi palsu pada: steroid eksogen, post-splenektomi, granulositosis, kemoterapi. Rendah palsu pada: imunosupresan, HIV, bone marrow failure.</li>
+        </ul>
+      </Accordion>
+
+      <Accordion title="📖 SII vs NLR — Mana yang Lebih Superior?">
+        <div className="mb-2 font-semibold text-slate-800 dark:text-slate-200 text-[13px]">Perbandingan Prediktif</div>
+        <div className="overflow-x-auto mb-4">
+          <table className="w-full text-[12px] text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-100 dark:bg-[#2C2C2E] text-slate-700 dark:text-slate-300">
+                <th className="p-2 border border-slate-200 dark:border-slate-700 font-bold rounded-tl-lg">Indeks</th>
+                <th className="p-2 border border-slate-200 dark:border-slate-700 font-bold">Komponen</th>
+                <th className="p-2 border border-slate-200 dark:border-slate-700 font-bold">Keunggulan</th>
+                <th className="p-2 border border-slate-200 dark:border-slate-700 font-bold rounded-tr-lg">Keterbatasan</th>
+              </tr>
+            </thead>
+            <tbody className="text-slate-600 dark:text-slate-400">
+              <tr>
+                <td className="p-2 border border-slate-200 dark:border-slate-700"><strong>NLR</strong></td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">N/L</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">Paling banyak diteliti, mudah dihitung, tersedia luas</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">Tidak memperhitungkan trombosit (inflamasi + koagulasi)</td>
+              </tr>
+              <tr>
+                <td className="p-2 border border-slate-200 dark:border-slate-700"><strong>PLR</strong></td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">P/L</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">Mencerminkan komponen trombotik + inflamasi</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">Kurang prediktif untuk mortalitas akut vs NLR</td>
+              </tr>
+              <tr>
+                <td className="p-2 border border-slate-200 dark:border-slate-700"><strong>SII</strong></td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">N×P/L</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">Lebih komprehensif. Lebih superior dari NLR pada sepsis, COVID-19, keganasan (AUC lebih tinggi di beberapa meta-analisis)</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">Nilai normal lebih bervariasi antar studi</td>
+              </tr>
+              <tr>
+                <td className="p-2 border border-slate-200 dark:border-slate-700"><strong>MLR</strong></td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">M/L</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">Berguna pada infeksi kronik (TB, HIV), keganasan hematologi</td>
+                <td className="p-2 border border-slate-200 dark:border-slate-700">Data terbatas di ICU akut</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
+          <li><strong>Huang Y (EClinicalMedicine 2022):</strong> SII lebih superior dari NLR dalam memprediksi mortalitas sepsis (AUC 0.79 vs 0.73).</li>
+          <li><strong>COVID-19:</strong> NLR &gt;3.13 pada admission berkorelasi dengan ICU admission (sensitivity 77%, specificity 79%). SII &gt;1000 dikaitkan dengan mortalitas 30-hari.</li>
+          <li><strong>Rekomendasi praktis:</strong> Gunakan NLR sebagai skrining cepat; SII untuk konfirmasi pada pasien kritis. Kedua indeks melengkapi, bukan menggantikan, penilaian klinis.</li>
+        </ul>
+      </Accordion>
+
+      <Accordion title="📖 Limitasi Indeks Inflamasi — Kapan Tidak Dapat Diandalkan?">
+        <div className="mb-2 font-semibold text-slate-800 dark:text-slate-200 text-[13px]">Faktor yang Mempengaruhi NLR Secara Independen</div>
+        <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
+          <li><strong>Falsely elevated NLR:</strong> Steroid eksogen (neutrofilia + limfopenia farmakologis) · Stres operasi/trauma (bukan infeksi) · Post-splenektomi · G-CSF · Merokok · Leukemia mieloid</li>
+          <li><strong>Falsely low NLR:</strong> Imunosupresi (sitostatika, biologis) · HIV/AIDS (limfopenia kronik) · Bone marrow failure · Viral infection akut (neutropenia relatif)</li>
+          <li><strong>NLR pada pediatri:</strong> Nilai normal berbeda — neonatus dan bayi memiliki nilai limfosit dominan; NLR dewasa tidak berlaku langsung.</li>
+          <li><strong>Variabilitas diurnal:</strong> NLR sedikit lebih tinggi di pagi hari (cortisol surge). Idealnya diambil konsisten.</li>
+          <li><strong>Interpretasi serial:</strong> Tren NLR lebih informatif dari nilai tunggal. NLR yang menurun setelah terapi → respons positif.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Zahorec R. (2001) Ratio of neutrophil to lymphocyte. Bratisl Lek Listy; Hu B et al. (2014) SII Index. Clin Cancer Res.
+          📚 Zahorec R. (2001) Ratio of neutrophil to lymphocyte. Bratisl Lek Listy; Hu B et al. (2014) SII Index. Clin Cancer Res. Forget P (2017) What is the normal value of the neutrophil-to-lymphocyte ratio?
         </div>
       </Accordion>
     </div>

@@ -208,7 +208,7 @@ export default function Home() {
     .slice(0, 3);
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden w-full">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden w-full overflow-x-hidden">
       {/* Hero Header Section */}
       <div className="pt-2 overflow-x-hidden">
         <div className="inline-flex items-start sm:items-center gap-1.5 px-3 py-2 sm:py-1 rounded-xl sm:rounded-full bg-teal-500/10 border border-teal-500/20 mb-3.5 w-full sm:w-auto overflow-hidden">

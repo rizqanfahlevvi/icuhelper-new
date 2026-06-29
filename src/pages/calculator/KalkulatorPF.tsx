@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, Wind, Info, ChevronDown } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -186,18 +187,18 @@ export default function KalkulatorPF() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden">
       
       {/* Active Patient Widget & Sync Banner */}
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
       <div className="flex flex-col gap-0 mt-2">
-        <h2 className="mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+        <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           Parameter Oksigenasi
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex items-center justify-between px-4 py-3 gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaO₂ ABG</span>
             <div className="flex-1 flex items-center justify-end gap-2">
@@ -301,11 +302,11 @@ export default function KalkulatorPF() {
       </div>
 
       <div className="flex flex-col gap-0">
-        <h2 className="mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+        <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           Parameter Mekanik Ventilasi & SpO₂
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-col px-4 py-3">
             <div className="flex justify-between items-center mb-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">SpO₂ / SaO₂ (%)</span>
@@ -353,7 +354,7 @@ export default function KalkulatorPF() {
       </div>
 
       {result && (
-        <div className="px-4 mt-4 space-y-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div className="mt-4 space-y-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
             <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.pfColor}`}>P/F Ratio — Klasifikasi Oksigenasi</div>
             <div className="text-2xl font-black text-slate-900 dark:text-white mb-1">{result.pf} mmHg — {result.pfClass}</div>
@@ -398,6 +399,16 @@ export default function KalkulatorPF() {
               <div className="text-[13px] font-medium opacity-80">{result.failType.d} (PaCO₂ = {paco2} mmHg)</div>
             </div>
           )}
+
+          <div className="mt-4">
+            <SaveToHistoryButton 
+              module="pf_ratio" 
+              label={`P/F Ratio: ${result.pf} (${result.pfClass})`}
+              inputs={{ pao2, fio2Mode, fio2, device, flow, map, spo2Source, spo2, pplat, peep, paco2 }}
+              summary={`P/F: ${result.pf} (${result.pfClass}) · PaO₂: ${result.o2.toFixed(1)} · FiO₂: ${result.f.toFixed(2)}${result.dpRes ? ` · DP: ${result.dpRes.val}` : ''}`}
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            />
+          </div>
         </div>
       )}
 

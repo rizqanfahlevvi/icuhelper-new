@@ -3,6 +3,7 @@ import { useHistoryStore } from '../../store/useHistoryStore';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { Accordion } from '../../components/ui/Accordion';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
@@ -15,16 +16,20 @@ import {
   Scale, 
   User, 
   ShieldAlert,
-  Dna
+  Dna,
+  Droplets,
+  ActivitySquare
 } from 'lucide-react';
+import { RenalAkiStaging } from './components/RenalAkiStaging';
+import { RenalHdIndikasi } from './components/RenalHdIndikasi';
+import { RenalOsmolBun } from './components/RenalOsmolBun';
 
 export default function KalkulatorRenal() {
   const patient = usePatientStore();
   const clinicalStore = useClinicalStore();
-  const addHistory = useHistoryStore((state) => state.addEntry);
 
-  // Main active tab: 'gfr_crcl' or 'fena_feurea'
-  const [activeTab, setActiveTab] = useState<'gfr_crcl' | 'fena_feurea'>('gfr_crcl');
+  // Main active tab
+  const [activeTab, setActiveTab] = useState<'gfr_crcl' | 'fena_feurea' | 'aki_stage' | 'hd_indikasi' | 'osmol_bun'>('gfr_crcl');
 
   // --- TAB 1: GFR & CrCl STATE ---
   const [age, setAge] = useState('');
@@ -163,13 +168,6 @@ export default function KalkulatorRenal() {
         scrMgDl: scrNum.toFixed(2),
         height: heightNum
       });
-
-      addHistory(
-        'renal',
-        `Pediatric eGFR (Schwartz) ${schwartzGfr.toFixed(1)} mL/min/1.73m²`,
-        { age, sex, height, scrVal, scrUnit },
-        `LFG Anak (Schwartz): ${schwartzGfr.toFixed(1)} mL/min/1.73m² (Kategori ${stage}: ${stageDesc})`
-      );
       return;
     }
 
@@ -300,13 +298,6 @@ export default function KalkulatorRenal() {
       stageBg,
       scrMgDl: scrNum.toFixed(2),
     });
-
-    addHistory(
-      'renal',
-      `eGFR ${ckdEpiGfr.toFixed(1)} mL/min (CKD-EPI 2021)`,
-      { age, sex, weight, height, scrVal, scrUnit },
-      `Adult LFG eGFR (CKD-EPI): ${ckdEpiGfr.toFixed(1)} mL/min, CrCl (Cockcroft-Gault): ${cgRecommended.toFixed(1)} mL/min (${stageDesc})`
-    );
   };
 
   // --- CALCULATOR LOGIC FOR FENA & FEUREA ---
@@ -364,13 +355,6 @@ export default function KalkulatorRenal() {
       fena: fena.toFixed(2), fi, fc, fcls,
       feurea: feurea ? feurea.toFixed(2) : null, fui, fuc, fucls
     });
-
-    addHistory(
-      'renal',
-      `FENa ${fena.toFixed(2)}%`,
-      { sna, scr, una, ucr, sureum, uureum },
-      `FENa: ${fena.toFixed(2)}% (${fi})`
-    );
   };
 
   // Convert SCr in input fields if user changes unit mid-entry
@@ -406,7 +390,7 @@ export default function KalkulatorRenal() {
   }, [activeTab, age, sex, weight, height, scrVal, sna, scr, sureum]);
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       <div className="mb-2 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-1.5 flex-wrap">
@@ -418,21 +402,32 @@ export default function KalkulatorRenal() {
         </div>
 
         {/* Tab Selection Bar */}
-        <div className="flex w-full md:w-auto bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm shrink-0">
+        <div className="flex w-full overflow-x-auto bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm shrink-0 hide-scrollbar gap-1">
           <button
             onClick={() => setActiveTab('gfr_crcl')}
-            className={`flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'gfr_crcl'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Dna className="w-3.5 h-3.5" />
-            <span>LFG, CrCl & Dosis</span>
+            <span>LFG & Dosis</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('aki_stage')}
+            className={`flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'aki_stage'
+                ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <ActivitySquare className="w-3.5 h-3.5" />
+            <span>Staging AKI</span>
           </button>
           <button
             onClick={() => setActiveTab('fena_feurea')}
-            className={`flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'fena_feurea'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -440,6 +435,28 @@ export default function KalkulatorRenal() {
           >
             <Scale className="w-3.5 h-3.5" />
             <span>FENa & FEUrea</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('osmol_bun')}
+            className={`flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'osmol_bun'
+                ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Droplets className="w-3.5 h-3.5" />
+            <span>Osmol & Rasio</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('hd_indikasi')}
+            className={`flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'hd_indikasi'
+                ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Indikasi HD</span>
           </button>
         </div>
       </div>
@@ -565,7 +582,7 @@ export default function KalkulatorRenal() {
               </div>
             </div>
 
-            <div className="px-4 mt-4 mb-2">
+            <div className="mt-4 mb-2">
               <button 
                 className="w-full flex items-center justify-center gap-2 py-3 bg-[var(--accent)] text-[var(--accent-fg)] font-bold rounded-2xl shadow-md cursor-pointer hover:opacity-95 transition-all text-sm active:scale-[0.99]"
                 onClick={calculateCrCl}
@@ -711,6 +728,18 @@ export default function KalkulatorRenal() {
                 ]}
                 notes={crclResults.isPediatric ? undefined : (parseFloat(crclResults.cgRecommended) < 30 ? "Pasien membutuhkan penyesuaian dosis obat ginjal yang signifikan (Critical/Severe Dose Reduction)." : parseFloat(crclResults.cgRecommended) < 50 ? "Pasien membutuhkan penyesuaian dosis obat ginjal ringan-sedang (Moderate Dose Adjustment)." : undefined)}
               />
+
+              <div className="mt-4">
+                <SaveToHistoryButton 
+                  module="renal" 
+                  label={`LFG: ${crclResults.isPediatric ? crclResults.schwartz : crclResults.ckdEpi} mL/min`}
+                  inputs={{ age, sex, weight, height, scrVal, scrUnit }}
+                  summary={crclResults.isPediatric 
+                    ? `LFG Anak (Schwartz): ${crclResults.schwartz} mL/min/1.73m² (Kategori ${crclResults.stage}: ${crclResults.stageDesc})`
+                    : `Adult LFG eGFR (CKD-EPI): ${crclResults.ckdEpi} mL/min, CrCl (Cockcroft-Gault): ${crclResults.cgRecommended} mL/min (${crclResults.stageDesc})`}
+                  className="w-full"
+                />
+              </div>
             </div>
           )}
 
@@ -773,7 +802,7 @@ export default function KalkulatorRenal() {
       {/* TAB 2: FENA & FEUREA PANEL */}
       {activeTab === 'fena_feurea' && (
         <div className="flex flex-col gap-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 animate-in fade-in duration-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-200">
               {/* Serum Row */}
               <div>
                 <div className="text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">
@@ -884,7 +913,7 @@ export default function KalkulatorRenal() {
               </div>
             </div>
 
-            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 flex gap-3 items-start mt-4 mx-4">
+            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-4 flex gap-3 items-start mt-4">
               <Info className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
               <div className="text-[13px] font-medium leading-relaxed text-slate-700 dark:text-slate-300">
                 <strong>Pemberian Diuretik:</strong> Gunakan <strong>FEUrea</strong> jika pasien telah mendapat terapi diuretik (seperti Furosemid/Lasis). Diuretik menginduksi natriuresis sehingga hasil FENa menjadi tinggi palsu, sedangkan penyerapan urea kurang terpengaruh.
@@ -985,6 +1014,16 @@ export default function KalkulatorRenal() {
                 ]}
                 notes={`Analisis FENa: ${fenaResults.fi}${fenaResults.feurea ? `\n\nAnalisis FEUrea: ${fenaResults.fui}` : ''}`}
               />
+
+              <div className="mt-4">
+                <SaveToHistoryButton 
+                  module="renal" 
+                  label={`FENa: ${fenaResults.fena}%`}
+                  inputs={{ sna, scr, una, ucr, sureum, uureum }}
+                  summary={`FENa: ${fenaResults.fena}% (${fenaResults.fi})`}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                />
+              </div>
             </div>
           )}
 
@@ -1006,6 +1045,11 @@ export default function KalkulatorRenal() {
           </Accordion>
         </div>
       )}
+
+      {activeTab === 'aki_stage' && <RenalAkiStaging />}
+      {activeTab === 'osmol_bun' && <RenalOsmolBun />}
+      {activeTab === 'hd_indikasi' && <RenalHdIndikasi />}
+
     </div>
   );
 }

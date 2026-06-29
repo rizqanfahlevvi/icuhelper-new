@@ -19,7 +19,7 @@ export default function SettingIndex() {
   );
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 md:pb-8">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-24 md:pb-8 overflow-x-hidden">
       
       {/* Header Alert */}
       <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex gap-3 shadow-sm">

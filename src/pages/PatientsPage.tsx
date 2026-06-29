@@ -191,7 +191,7 @@ export default function PatientsPage() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden">
       
       {/* Page Header */}
       <div className="pt-2">

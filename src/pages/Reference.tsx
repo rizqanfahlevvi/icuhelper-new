@@ -33,7 +33,7 @@ export default function Reference() {
   }, [searchTerm]);
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
       <div className="flex flex-col gap-4">
         <div className="pt-2">
           <PageHeader 

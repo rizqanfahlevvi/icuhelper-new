@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { Accordion } from '../../components/ui/Accordion';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -18,7 +19,6 @@ export default function KalkulatorIBW() {
   const [hb, setHb] = useState<string>('');
   
   const [results, setResults] = useState<any>(null);
-  const addHistory = useHistoryStore((state) => state.addEntry);
 
   // Auto-load on mount
   useEffect(() => {
@@ -146,28 +146,21 @@ export default function KalkulatorIBW() {
       ibwR, vtLow, vtHigh, vtLowML, vtHighML, vtNote, mv,
       aBW, adjBW, bmiValue, extraParams
     });
-
-    addHistory(
-      'ibw',
-      `IBW ${ibwR.toFixed(1)} kg`,
-      { sex, height, actualBW, age, condition, hb },
-      `IBW ${ibwR.toFixed(1)} kg · VT ${vtLowML}–${vtHighML} mL (${vtLow}–${vtHigh} mL/kg) — ${vtNote}`
-    );
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Active Patient & Sync Banner */}
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
       <div className="flex flex-col gap-0 mt-2">
-         <h2 className="mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+         <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
            Kalkulator IBW & Parameter Awal
          </h2>
 
-         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex justify-between px-4 py-3 items-center gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32">Jenis Kelamin</span>
               <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={sex} onChange={e=>setSex(e.target.value as 'm'|'f')}>
@@ -220,7 +213,7 @@ export default function KalkulatorIBW() {
             </div>
          </div>
 
-         <div className="px-4 mt-3">
+         <div className="mt-3">
             <div className="p-3 bg-slate-50 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl text-[12px] text-slate-700 dark:text-slate-300 leading-relaxed italic">
               <strong>Formula Devine (IBW):</strong> <br/>
               L: 50 + 0.91 × (TB − 152.4) <br/>
@@ -229,14 +222,14 @@ export default function KalkulatorIBW() {
          </div>
       </div>
       
-      <div className="px-4 mt-4">
+      <div className="mt-4">
         <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
           Hitung IBW & Parameter
         </button>
       </div>
 
         {results && (
-          <div className="px-4 animate-in fade-in slide-in-from-bottom-2 duration-300 mt-6">
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 mt-6">
             <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
               <div className="p-4 bg-slate-50 dark:bg-slate-900/20">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -343,7 +336,7 @@ export default function KalkulatorIBW() {
             </div>
 
             {results.adjBW !== null && (
-              <div className="p-4 mx-4 mb-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-2xl">
+              <div className="p-4 mb-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-2xl">
                 <div className="text-[12px] font-bold text-amber-700 dark:text-amber-500 uppercase tracking-wide mb-2">⚠ BMI {results.bmiValue.toFixed(1)} — Obesitas</div>
                 <div className="text-[13px] text-amber-900 dark:text-amber-400 font-mono mb-3">AdjBW = IBW + 0.4 × (ABW − IBW) = {results.adjBW.toFixed(1)} kg</div>
                 <div className="overflow-x-auto bg-white/50 dark:bg-black/20 rounded-xl border border-amber-100 dark:border-amber-800/30">
@@ -428,8 +421,38 @@ export default function KalkulatorIBW() {
                     )}
                   </div>
                 )}
+                
+                <div className="mt-6">
+                  <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Panduan Pilihan BB untuk Dosis Obat</h3>
+                  <div className="overflow-x-auto bg-white/50 dark:bg-black/20 rounded-xl border border-slate-200 dark:border-slate-800/50">
+                    <table className="w-full text-[12px] text-left">
+                      <thead className="bg-slate-100/50 dark:bg-[#2C2C2E]/50 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider font-semibold">
+                        <tr><th className="px-3 py-2">Kategori Obat</th><th className="px-3 py-2">Gunakan Berat</th><th className="px-3 py-2">Nilai</th><th className="px-3 py-2">Alasan Klinis</th></tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100/50 dark:divide-slate-800/20 text-slate-700 dark:text-slate-300">
+                        <tr><td className="px-3 py-2 font-medium">VT Ventilator</td><td className="px-3 py-2 font-bold">IBW</td><td className="px-3 py-2 font-mono text-blue-600 dark:text-blue-400">{results.ibwR.toFixed(1)} kg</td><td className="px-3 py-2 text-slate-500">Volume paru bergantung TB, bukan massa lemak</td></tr>
+                        <tr><td className="px-3 py-2 font-medium">Aminoglikosida ({parseFloat(results.extraParams.bmi) >= 30 ? 'Obesitas' : 'BMI Normal'})</td><td className="px-3 py-2 font-bold">{parseFloat(results.extraParams.bmi) >= 30 ? 'AdjBW' : 'IBW / Actual'}</td><td className="px-3 py-2 font-mono">{parseFloat(results.extraParams.bmi) >= 30 ? (results.adjBW ? results.adjBW.toFixed(1) + ' kg' : '-') : results.ibwR.toFixed(1) + ' kg'}</td><td className="px-3 py-2 text-slate-500">{parseFloat(results.extraParams.bmi) >= 30 ? 'AdjBW mencerminkan Vd pada jaringan lemak' : 'Gunakan IBW atau aktual untuk Vd normal'}</td></tr>
+                        <tr><td className="px-3 py-2 font-medium">Propofol (Induksi) / Rocuronium</td><td className="px-3 py-2 font-bold">LBW</td><td className="px-3 py-2 font-mono text-teal-600 dark:text-teal-400">{results.extraParams.lbw} kg</td><td className="px-3 py-2 text-slate-500">Distribusi obat dominan ke lean tissue</td></tr>
+                        <tr><td className="px-3 py-2 font-medium">Heparin (APTT-guided)</td><td className="px-3 py-2 font-bold">{parseFloat(results.extraParams.bmi) >= 30 ? 'AdjBW' : 'Actual BW'}</td><td className="px-3 py-2 font-mono">{parseFloat(results.extraParams.bmi) >= 30 && results.adjBW ? results.adjBW.toFixed(1) + ' kg' : results.aBW + ' kg'}</td><td className="px-3 py-2 text-slate-500">Dosis max biasanya ada (misal: max 100 U/kg)</td></tr>
+                        <tr><td className="px-3 py-2 font-medium">Obat umum (Parasetamol, dll)</td><td className="px-3 py-2 font-bold">Actual BW</td><td className="px-3 py-2 font-mono">{results.aBW} kg</td><td className="px-3 py-2 text-slate-500">Standar dosis umum</td></tr>
+                        <tr><td className="px-3 py-2 font-medium">Kemoterapi</td><td className="px-3 py-2 font-bold">BSA</td><td className="px-3 py-2 font-mono">{results.extraParams.bsa} m²</td><td className="px-3 py-2 text-slate-500">Metabolisme obat linear dengan LPT</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-2 text-[10px] italic text-slate-500 dark:text-slate-500">📚 Referensi: Janmahasatian S. Clin Pharmacokinet 2005;44:1051 · Mosteller RD. NEJM 1987;317:1098 · ASPEN Critical Care Guidelines</div>
+                </div>
               </div>
             )}
+            
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/20">
+              <SaveToHistoryButton 
+                module="ibw" 
+                label={`IBW ${results.ibwR.toFixed(1)} kg`}
+                inputs={{ sex, height, actualBW, age, condition, hb }}
+                summary={`IBW ${results.ibwR.toFixed(1)} kg · VT ${results.vtLowML}–${results.vtHighML} mL (${results.vtLow}–${results.vtHigh} mL/kg) — ${results.vtNote}`}
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
       )}

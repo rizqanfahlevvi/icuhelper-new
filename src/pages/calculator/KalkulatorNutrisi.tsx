@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Utensils, AlertTriangle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -119,18 +120,18 @@ export default function KalkulatorNutrisi() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Active Patient Widget & Sync Banner */}
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
       <div className="flex flex-col gap-0 mt-2">
-         <h2 className="mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+         <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
            Kalkulator Nutrisi ICU
          </h2>
          
-         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex justify-between px-4 py-3 items-center gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Fase Rawat</span>
               <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={fase} onChange={e=>setFase(e.target.value)}>
@@ -192,14 +193,14 @@ export default function KalkulatorNutrisi() {
          </div>
       </div>
 
-      <div className="px-4 mt-4">
+      <div className="mt-4">
         <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
           Hitung Target Nutrisi
         </button>
       </div>
 
       {res && (
-        <div className="px-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             {res.rfNote && (
               <div className="p-4 bg-red-50 dark:bg-red-900/10">
@@ -265,6 +266,16 @@ export default function KalkulatorNutrisi() {
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1C1C1E]">
+              <SaveToHistoryButton 
+                module="nutrisi" 
+                label={`Kebutuhan Nutrisi: ${res.kMin}-${res.kMax} kkal`}
+                inputs={{ fase, kondisi, route, refeeding, bb, ibwIn, tb }}
+                summary={`Kalori: ${res.kMin}-${res.kMax} kkal · Protein: ${res.pMin}-${res.pMax} g · Dosing Wt: ${res.dosingWt} kg${res.enVol ? ` · Target Volume EN: ${res.enVol} mL/hari` : ''}`}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              />
             </div>
           </div>
         </div>

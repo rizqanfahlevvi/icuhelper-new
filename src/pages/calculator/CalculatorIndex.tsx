@@ -5,7 +5,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 
 const CALCULATORS = [
   { path: 'cairan', name: 'Kalkulator Cairan', icon: Droplets, desc: 'Kebutuhan cairan & resusitasi' },
-  { path: 'drug', name: 'Drip Obat / Vasopresor', icon: Syringe, desc: 'Dosis & kecepatan infus' },
+  { path: 'drug', name: 'Intubasi & Sedasi ICU', icon: Syringe, desc: 'Obat RSI & Maintenance ICU' },
   { path: 'electro', name: 'Koreksi Elektrolit', icon: Activity, desc: 'Natrium, Kalium, dll' },
   { path: 'ibw', name: 'IBW & Tidal Volume', icon: Dna, desc: 'Berat badan ideal & TV' },
   { path: 'insulin', name: 'Kalkulator Insulin', icon: Syringe, desc: 'Drip insulin intravena' },
@@ -25,7 +25,7 @@ export default function CalculatorIndex() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       <div className="pt-2">
         <PageHeader 
           badgeIcon={Calculator}

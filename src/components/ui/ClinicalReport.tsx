@@ -21,10 +21,12 @@ export interface ClinicalReportProps {
   } | null;
   sections: ReportSection[];
   notes?: string;
+  onSave?: () => void;
 }
 
-export function ClinicalReport({ title, patientInfo, sections, notes }: ClinicalReportProps) {
+export function ClinicalReport({ title, patientInfo, sections, notes, onSave }: ClinicalReportProps) {
   const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const generatePlainText = () => {
     let text = `======================================\n`;
@@ -76,17 +78,36 @@ export function ClinicalReport({ title, patientInfo, sections, notes }: Clinical
           <FileText className="w-5 h-5 text-[var(--accent)]" />
           <h3 className="font-bold text-sm tracking-wide uppercase">Laporan & Dokumentasi</h3>
         </div>
-        <button
-          onClick={handleCopy}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-            copied 
-              ? 'bg-emerald-500 text-white' 
-              : 'bg-white dark:bg-slate-800 text-[var(--label-secondary)] border border-border/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-[var(--label-primary)]'
-          }`}
-        >
-          {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-          {copied ? 'Tersalin' : 'Salin Laporan'}
-        </button>
+        <div className="flex items-center gap-2">
+          {onSave && (
+            <button
+              onClick={() => {
+                onSave();
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                saved 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-white dark:bg-slate-800 text-[var(--label-secondary)] border border-border/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-[var(--label-primary)]'
+              }`}
+            >
+              {saved ? <Check className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+              {saved ? 'Tersimpan' : 'Simpan Log'}
+            </button>
+          )}
+          <button
+            onClick={handleCopy}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              copied 
+                ? 'bg-emerald-500 text-white' 
+                : 'bg-white dark:bg-slate-800 text-[var(--label-secondary)] border border-border/80 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-[var(--label-primary)]'
+            }`}
+          >
+            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? 'Tersalin' : 'Salin Laporan'}
+          </button>
+        </div>
       </div>
 
       <div className="p-5 space-y-5">

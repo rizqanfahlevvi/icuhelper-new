@@ -22,7 +22,7 @@ export default function MonitoringIndex() {
   );
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Page Title & Bookmark */}
       <div className="pt-2">
@@ -156,8 +156,63 @@ export default function MonitoringIndex() {
                 <td className="p-3 text-center">94–98%</td>
                 <td className="p-3 text-center">&lt;30</td>
               </tr>
+              <tr>
+                <td className="p-3 font-medium">Sepsis/Pneumonia</td>
+                <td className="p-3 text-center">7.30–7.45</td>
+                <td className="p-3 text-center">60–100</td>
+                <td className="p-3 text-center">35–50</td>
+                <td className="p-3 text-center">92–96%</td>
+                <td className="p-3 text-center">&lt;30</td>
+              </tr>
+              <tr>
+                <td className="p-3 font-medium">GBS/MG</td>
+                <td className="p-3 text-center">7.35–7.45</td>
+                <td className="p-3 text-center">80–100</td>
+                <td className="p-3 text-center">35–45</td>
+                <td className="p-3 text-center">≥95%</td>
+                <td className="p-3 text-center">&lt;28</td>
+              </tr>
+              <tr>
+                <td className="p-3 font-medium">Edema Paru Kardiogenik</td>
+                <td className="p-3 text-center">7.35–7.45</td>
+                <td className="p-3 text-center">70–100</td>
+                <td className="p-3 text-center">35–45</td>
+                <td className="p-3 text-center">92–96%</td>
+                <td className="p-3 text-center">&lt;25</td>
+              </tr>
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* SECTION 2.5: Komplikasi */}
+      <section>
+        <h2 className="text-xl font-bold flex items-center gap-2 mt-8 mb-4">
+          <AlertTriangle className="w-5 h-5 text-red-500" />
+          Komplikasi Ventilasi Mekanik
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+            <h3 className="font-bold text-red-700 dark:text-red-400">VILI (Ventilator Induced Lung Injury)</h3>
+            <div className="text-[13px] text-red-900/80 dark:text-red-300/80 space-y-2">
+              <p><strong>Mekanisme:</strong> Volutrauma, barotrauma, atelectrauma, biotrauma.</p>
+              <p><strong>Pencegahan:</strong> VT 6 mL/kg IBW, Pplat ≤30, driving pressure ≤15, PEEP titrasi optimal.</p>
+            </div>
+          </div>
+          <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+            <h3 className="font-bold text-amber-700 dark:text-amber-400">VAP (Ventilator-Associated Pneumonia)</h3>
+            <div className="text-[13px] text-amber-900/80 dark:text-amber-300/80 space-y-2">
+              <p><strong>Definisi:</strong> Pneumonia &gt;48 jam setelah intubasi.</p>
+              <p><strong>Pencegahan:</strong> Bundle VAP (HOB 30°, oral hygiene CHX, SAT/SBT daily, cuff pressure 20–30).</p>
+            </div>
+          </div>
+          <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900/30 rounded-xl p-4 shadow-sm flex flex-col gap-3">
+            <h3 className="font-bold text-purple-700 dark:text-purple-400">VIDD (Diaphragm Dysfunction)</h3>
+            <div className="text-[13px] text-purple-900/80 dark:text-purple-300/80 space-y-2">
+              <p><strong>Mekanisme:</strong> Controlled ventilation → disuse atrophy diafragma dalam 18–69 jam.</p>
+              <p><strong>Pencegahan:</strong> Preserve spontaneous breathing effort; hindari deep sedation lama; gunakan PSV mode.</p>
+            </div>
+          </div>
         </div>
       </section>
 

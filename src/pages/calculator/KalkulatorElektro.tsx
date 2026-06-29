@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, Thermometer, Wind, Beaker, ChevronsRight, AlertTriangle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -236,7 +237,7 @@ export default function KalkulatorElektro() {
   }, [tab, bw, na, glu, k, ph, gdsK, ca, alb, caPh, mg]);
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Active Patient Widget */}
       <ActivePatientBriefCard onAutofill={handleAutofill} />
@@ -252,11 +253,11 @@ export default function KalkulatorElektro() {
       </div>
 
       <div className="flex flex-col gap-0">
-         <h2 className="mt-2 mb-2 px-4 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+         <h2 className="mt-2 mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
            Parameter Koreksi Elektrolit
          </h2>
          
-         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mx-4">
+         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex items-center justify-between px-4 py-3 gap-4">
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
                <div className="flex-1 flex items-center justify-end gap-2">
@@ -381,7 +382,7 @@ export default function KalkulatorElektro() {
             )}
          </div>
 
-         <div className="px-4 mt-4">
+         <div className="mt-4">
             <button onClick={calculate} className={`w-full py-3.5 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px] ${tab === 'na' ? 'bg-cyan-600 hover:bg-cyan-700' : tab === 'k' ? 'bg-red-600 hover:bg-red-700' : tab === 'ca' ? 'bg-stone-500 hover:bg-stone-600' : 'bg-green-600 hover:bg-green-700'}`}>
                Hitung Koreksi
             </button>
@@ -399,61 +400,112 @@ export default function KalkulatorElektro() {
                  )}
 
                  {tab === 'na' && res.type === 'hipo' && (
-                   <>
+                   <div className="space-y-4">
                      {res.isEmergensi && (
                        <div className="w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 flex flex-col text-left">
                          <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold mb-2">
                            <AlertTriangle className="w-5 h-5" />
-                           PROTOKOL EMERGENSI
+                           PROTOKOL EMERGENSI (HIPONATREMIA BERAT)
                          </div>
                          <div className="text-[13px] text-red-800 dark:text-red-300 space-y-1">
-                           <p>Jika ada gejala berat (Kejang / Penurunan Kesadaran):</p>
-                           <ul className="list-disc pl-4 space-y-1 font-medium mt-1">
-                             <li><strong>BOLUS NaCl 3%:</strong> 150 mL IV dalam 20 menit</li>
-                             <li>Dapat diulang hingga 2&times; jika kejang belum berhenti</li>
-                             <li>Target: Na naik 5 mEq/L (cukup untuk hentikan kejang)</li>
-                             <li>Setelah gejala terkontrol: lanjut infus lambat.</li>
+                           <p>Jika ada gejala berat (Kejang, Penurunan Kesadaran, Koma):</p>
+                           <ul className="list-disc pl-4 space-y-1 font-medium mt-2 bg-red-100/50 dark:bg-red-900/40 p-3 rounded-lg border border-red-200 dark:border-red-800/60">
+                             <li><strong>BOLUS NaCl 3%:</strong> 100-150 mL IV dalam 10-20 menit.</li>
+                             <li>Periksa Na serum ulang. Jika gejala menetap, bolus dapat diulang hingga 2-3 kali (maksimal naik 4-6 mEq/L).</li>
+                             <li>Target awal: Menghentikan kejang/gejala krisis, bukan menormalkan Na.</li>
                            </ul>
-                           <p className="mt-2 text-[11px] italic opacity-80">📚 Spasovski G (ERBP/ESE). Nephrol Dial Transplant 2014;29 Suppl 2:i1</p>
+                           <p className="mt-3 text-[11px] italic opacity-80 border-t border-red-200 dark:border-red-800/50 pt-2">📚 Spasovski G. ERBP/ESE Guidelines. Nephrol Dial Transplant 2014;29 Suppl 2:i1</p>
                          </div>
                        </div>
                      )}
 
-                     <div className="w-full bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 flex flex-col items-center text-center">
-                       <div className="text-[12px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-2">Hiponatremia (Target ↑ {parseFloat(res.calcN) + parseFloat(res.d)})</div>
-                       <div className="font-mono text-3xl font-bold mb-1 text-blue-700 dark:text-blue-300">
-                         NaCl 3% : {res.v} <span className="text-[16px] text-blue-500 font-sans font-medium">mL</span>
+                     <div className="w-full bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 flex flex-col items-start text-left">
+                       <div className="text-[13px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-3 w-full border-b border-blue-200 dark:border-blue-800/50 pb-2">
+                         Koreksi Hiponatremia {res.onset === 'akut' ? 'Akut' : 'Kronik'}
                        </div>
-                       <div className="text-[13px] text-blue-700/80 dark:text-blue-300/80 mt-1">Laju: <strong>{res.rate} mL/jam</strong> (habis dlm 24 jam)</div>
-                       <div className="text-[11px] text-blue-500 max-w-[80%] uppercase font-semibold mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
-                         Batas maks induksi {res.onset}: {res.limLo} - {res.limHi} mEq/L / 24j
+                       
+                       <div className="text-[13px] text-blue-900 dark:text-blue-200 space-y-4 w-full">
+                         <div>
+                           <strong className="text-[14px] text-blue-700 dark:text-blue-400 block mb-1">Target Koreksi Aman (Batas 24 Jam)</strong>
+                           <p>Peningkatan maksimal yang direkomendasikan untuk mencegah <em>Osmotic Demyelination Syndrome (ODS)</em>:</p>
+                           <ul className="list-disc pl-4 mt-1 font-semibold">
+                             <li>Target Kenaikan Maksimal: <strong>{res.limLo} - {res.limHi} mEq/L dalam 24 jam</strong>.</li>
+                             <li>Target Na Sementara: <strong>~{parseFloat(res.calcN) + parseFloat(res.d)} mEq/L</strong>.</li>
+                           </ul>
+                         </div>
+                         
+                         <div>
+                           <strong className="text-[14px] text-blue-700 dark:text-blue-400 block mb-1">Resep NaCl 3% (Hipertonis)</strong>
+                           <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-1 border border-blue-200 dark:border-blue-900/50">
+                             <div className="font-mono text-2xl font-bold mb-1 text-blue-700 dark:text-blue-300">
+                               Kebutuhan: {res.v} <span className="text-[16px] text-blue-500 font-sans font-medium">mL</span>
+                             </div>
+                             <p className="mt-1">Laju Infus: <strong>{res.rate} mL/jam</strong> (agar habis dalam 24 jam).</p>
+                             <p className="text-[11px] mt-1 italic text-blue-700/80">Catatan: Gunakan vena sentral jika memungkinkan. Periksa Na tiap 4-6 jam.</p>
+                           </div>
+                         </div>
                        </div>
-                       <p className="mt-3 text-[11px] italic text-blue-700/70 dark:text-blue-300/70">📚 Sterns RH. NEJM 2015;372:55 &middot; Hoorn EJ. NEJM 2023;388:2340</p>
+                       
+                       <p className="mt-4 text-[11px] italic text-blue-700/70 dark:text-blue-300/70 w-full text-center border-t border-blue-200 dark:border-blue-800/50 pt-3">
+                         📚 Sterns RH. NEJM 2015;372:55 &middot; Hoorn EJ. NEJM 2023;388:2340
+                       </p>
                      </div>
 
                      <Accordion title="⚠ Rescue Protocol (Overcorrection)">
                        <div className="text-[12px] text-slate-700 dark:text-slate-300 space-y-2">
-                         <p>Jika Na naik &gt;10 mEq/L dalam 24 jam (risiko ODS tinggi):</p>
+                         <p>Jika Na naik &gt; 8-10 mEq/L dalam 24 jam (risiko ODS tinggi):</p>
                          <ol className="list-decimal pl-4 space-y-1">
-                           <li>STOP semua cairan hipotonik dan koreksi aktif</li>
-                           <li><strong>DDAVP (Desmopressin)</strong> 2–4 &mu;g SC/IV tiap 6–8 jam (mencegah Na naik lebih lanjut)</li>
-                           <li><strong>D5W</strong> infus lambat untuk re-lower Na jika perlu</li>
-                           <li>Target: total kenaikan Na tidak melebihi 10 mEq/L dalam 24 jam pertama</li>
+                           <li><strong>STOP</strong> semua cairan saline hiperaktif (NaCl 3%).</li>
+                           <li><strong>Konsul ICU/Nefrologi segera.</strong></li>
+                           <li><strong>DDAVP (Desmopressin):</strong> 2–4 &mu;g SC/IV tiap 6–8 jam (menghentikan water loss ginjal).</li>
+                           <li><strong>D5W (Dekstrosa 5%):</strong> infus lambat (3 mL/kg/jam) untuk "re-lower" Na.</li>
+                           <li>Target: Na absolut tidak melebihi (Na Awal + 8) mEq/L dalam 24 jam pertama.</li>
                          </ol>
-                         <p className="pt-2 text-[11px] italic opacity-80 border-t border-slate-200 dark:border-slate-700 mt-2">📚 Verbalis JG. Am J Med 2013;126:S1</p>
+                         <p className="pt-2 text-[11px] italic opacity-80 border-t border-slate-200 dark:border-slate-700 mt-2">📚 Verbalis JG et al. Am J Med 2013;126:S1-42</p>
                        </div>
                      </Accordion>
-                   </>
+                   </div>
                  )}
 
                  {tab === 'na' && res.type === 'hiper' && (
-                   <div className="w-full bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex flex-col items-center text-center">
-                     <div className="text-[12px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-2">Hipernatremia</div>
-                     <div className="font-mono text-3xl font-bold mb-1 text-red-700 dark:text-red-300">
-                       Defisit Air : {res.v} <span className="text-[16px] text-red-500 font-sans font-medium">L</span>
+                   <div className="space-y-4">
+                     <div className="w-full bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex flex-col items-start text-left">
+                       <div className="text-[13px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-3 w-full border-b border-red-200 dark:border-red-800/50 pb-2">
+                         Koreksi Hipernatremia
+                       </div>
+                       
+                       <div className="font-mono text-3xl font-bold mb-1 text-red-700 dark:text-red-300">
+                         Defisit Air (Free Water) : {res.v} <span className="text-[16px] text-red-500 font-sans font-medium">L</span>
+                       </div>
+                       
+                       <div className="text-[13px] text-red-900 dark:text-red-200 space-y-4 w-full mt-4">
+                         <div>
+                           <strong className="text-[14px] text-red-700 dark:text-red-400 block mb-1">Pilihan Cairan & Cara Pemberian</strong>
+                           <ul className="list-disc pl-4 space-y-1">
+                             <li>Pilihan utama: <strong>D5W</strong> (Dekstrosa 5%) atau <strong>Enteral Water</strong> (via NGT jika memungkinkan).</li>
+                             <li>Jika ada hipovolemia berat (syok): Atasi syok dulu dengan <strong>NaCl 0.9%</strong> (Isotonis) hingga hemodinamik stabil.</li>
+                             <li>Setelah stabil, baru berikan defisit air bebas.</li>
+                           </ul>
+                         </div>
+                         
+                         <div>
+                           <strong className="text-[14px] text-red-700 dark:text-red-400 block mb-1">Kecepatan Koreksi (Batas Aman)</strong>
+                           <ul className="list-disc pl-4 space-y-1">
+                             <li>Target penurunan Na maksimal: <strong>10 mEq/L dalam 24 jam</strong> (menghindari edema serebri).</li>
+                             <li>Secara praktis, defisit air {res.v} L diberikan bertahap selama <strong>48-72 jam</strong>.</li>
+                             <li>Laju infus estimasi: <strong>{res.rate} mL/jam</strong> (berdasarkan asumsi 48 jam). <br/><span className="text-[11px] font-bold italic opacity-80">Catatan: Tambahkan IWL (Insensible Water Loss ~30-40 mL/jam) pada laju infus.</span></li>
+                           </ul>
+                         </div>
+                         
+                         <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-2 border border-red-200 dark:border-red-900/50">
+                           <div className="font-bold mb-1 text-red-800 dark:text-red-300">Monitoring Ketat</div>
+                           <p>Cek Na serum setiap 4-6 jam selama 24 jam pertama. Sesuaikan laju infus cairan jika penurunan &gt; 0.5 mEq/L/jam.</p>
+                         </div>
+                       </div>
+                       <p className="mt-4 text-[11px] italic text-red-700/70 dark:text-red-400/70 w-full text-center border-t border-red-200 dark:border-red-800/50 pt-3">
+                         📚 Adrogue HJ. NEJM 2000;342:1581 &middot; Hoorn EJ. NEJM 2023;388:2340
+                       </p>
                      </div>
-                     <div className="text-[13px] text-red-700/80 dark:text-red-300/80 mt-1">Laju infus: <strong>{res.rate} mL/jam</strong> (selama 48 jam)</div>
-                     <p className="mt-3 text-[11px] italic text-red-700/70 dark:text-red-300/70">📚 Adrogue HJ. NEJM 2000;342:1581 &middot; Hoorn EJ. NEJM 2023;388:2340</p>
                    </div>
                  )}
 
@@ -677,6 +729,23 @@ export default function KalkulatorElektro() {
                      )}
                    </div>
                  )}
+
+                 <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#2C2C2E]">
+                    <SaveToHistoryButton 
+                      module="elektrolit" 
+                      label={`Koreksi Elektrolit — ${tab.toUpperCase()}`}
+                      inputs={{ 
+                        tab, bw, na, glu, onset, k, ph, gdsK, ca, alb, caPh, mg, egfr, mgSymp
+                      }}
+                      summary={
+                        tab === 'na' ? `Na: ${na} mEq/L, ${res.type === 'hipo' ? `Defisit -> ${res.v}mL NaCl 3%` : res.type === 'hiper' ? `Defisit -> ${res.v}L Cairan` : 'Normal'}` :
+                        tab === 'k' ? `K: ${k} mEq/L, ${res.type === 'hipo' ? `Defisit ${res.d1}-${res.d2}mEq` : res.type === 'hiper' ? `HiperK ${res.sev}` : 'Normal'}` :
+                        tab === 'ca' ? `Ca Terkoreksi: ${res.corr} mg/dL (${res.type})` :
+                        `Mg: ${mg} mg/dL, ${res.type === 'hipo' ? `Butuh ${res.d}g MgSO4` : 'Normal'}`
+                      }
+                      className="w-full"
+                    />
+                  </div>
                </div>
             )}
          </div>

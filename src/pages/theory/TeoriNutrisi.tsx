@@ -2,7 +2,7 @@ import { Accordion } from '../../components/ui/Accordion';
 
 export default function TeoriNutrisi() {
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
         <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-2">
           Nutrisi ICU — Strategi, Target & Monitoring

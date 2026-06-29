@@ -3,6 +3,7 @@ import { Activity, Stethoscope } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 
 export default function ScoringApache() {
   const [age, setAge] = useState('');
@@ -235,7 +236,7 @@ export default function ScoringApache() {
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Unified Clinical Synchronization Banner */}
       <ActivePatientBriefCard onAutofill={handleAutofill} />
@@ -397,6 +398,16 @@ export default function ScoringApache() {
                  <div className="flex justify-between gap-8">
                    <span className="text-muted-foreground">Skor Komorbiditas:</span>
                    <span className="font-bold">{result.chronScore}</span>
+                 </div>
+                 
+                 <div className="pt-2 mt-2 border-t border-slate-200 dark:border-slate-700">
+                    <SaveToHistoryButton 
+                      module="scoring_apache" 
+                      label={`APACHE-II: ${result.total}`}
+                      inputs={{ age, chronicType, hasChronic, temp, map, hr, rr, gcs, fio2, pao2, paco2, ph, na, k, cr, aki, hct, wbc }}
+                      summary={`Skor Total: ${result.total} (Mortalitas ICU: ${result.mort})`}
+                      className="w-full"
+                    />
                  </div>
               </div>
             </div>

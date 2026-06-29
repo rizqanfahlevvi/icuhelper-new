@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Flame, RotateCcw, Info, Droplets } from 'lucide-react';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { Accordion } from '../../components/ui/Accordion';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { usePatientStore } from '../../store/usePatientStore';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 
@@ -141,7 +143,7 @@ export default function KalkulatorBurn() {
   };
 
   return (
-    <div className="p-4 max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+    <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       <PageHeader 
         badgeIcon={Flame}
         badgeText="LUKA BAKAR"
@@ -275,11 +277,39 @@ export default function KalkulatorBurn() {
                     <span className="font-bold text-foreground">{(fluidVolume / 2).toLocaleString(undefined, {maximumFractionDigits:0})} mL</span>
                   </div>
                 </div>
+                
+                <div className="mt-4 pt-4 border-t border-[#3A7CA5]/20">
+                  <SaveToHistoryButton 
+                    module="burn" 
+                    label={`Resusitasi Luka Bakar — ${tbsa.toFixed(1)}% TBSA`}
+                    inputs={{ age: localAge, weight: localWeight, factor, tbsa, selectedFront: Array.from(selectedPartsFront), selectedBack: Array.from(selectedPartsBack) }}
+                    summary={`TBSA: ${tbsa.toFixed(1)}% · Total: ${fluidVolume.toLocaleString(undefined, {maximumFractionDigits:0})} mL/24j · 8j Pertama: ${(fluidVolume / 2).toLocaleString(undefined, {maximumFractionDigits:0})} mL`}
+                    className="w-full bg-[#3A7CA5] hover:bg-[#2c6182]"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      
+      <Accordion title="📖 Teori & Referensi: Lund-Browder & Resusitasi Cairan">
+        <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
+          <li><strong>Lund-Browder Chart:</strong> Merupakan metode paling akurat untuk mengestimasi luas luka bakar (%TBSA) karena memperhitungkan proporsi anatomi yang berubah seiring bertambahnya usia, terutama kepala dan kaki pada anak.</li>
+          <li><strong>Resusitasi Cairan (Parkland / Modified Brooke):</strong> Ringer Laktat adalah cairan pilihan.
+            <ul className="list-[circle] pl-4 mt-1 space-y-1">
+              <li>Dewasa (Luka bakar termal/kimia): <strong>2 mL</strong> × BB × %TBSA</li>
+              <li>Anak &lt; 14 tahun: <strong>3 mL</strong> × BB × %TBSA</li>
+              <li>Luka bakar listrik (Semua umur): <strong>4 mL</strong> × BB × %TBSA</li>
+            </ul>
+          </li>
+          <li><strong>Pemberian:</strong> 50% dari total cairan diberikan dalam 8 jam pertama (dihitung dari waktu kejadian luka bakar, BUKAN waktu kedatangan di RS). Sisa 50% diberikan dalam 16 jam berikutnya.</li>
+          <li><strong>Target Monitor:</strong> Resusitasi dititrasi berdasarkan Urine Output (UO). Dewasa: 0.5 mL/kg/jam. Anak &lt; 30 kg: 1 mL/kg/jam. Luka bakar listrik: 1-1.5 mL/kg/jam.</li>
+        </ul>
+        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+          📚 American Burn Association (ABA). Advanced Burn Life Support (ABLS) Provider Manual. 2018.
+        </div>
+      </Accordion>
     </div>
   );
 }
