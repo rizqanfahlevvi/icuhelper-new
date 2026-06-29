@@ -1,22 +1,46 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Calculator, Pill, Activity, BookOpen, Droplets, 
-  Wind, ListChecks, ChevronRight, Zap, FlaskConical, Scale, HeartPulse, TestTube2, Brain, Baby, BarChart2, BookMarked, User, Plus, X, Star, Linkedin, Clock
-} from 'lucide-react';
-import { usePatientStore, PatientData } from '../store/usePatientStore';
-import { useFavoritesStore } from '../store/useFavoritesStore';
-import { useRecentToolsStore } from '../store/useRecentToolsStore';
-import { ALL_FAVORITABLE_ITEMS, getFavoritableItemByPath } from '../data/favoritableItems';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Calculator,
+  Pill,
+  Activity,
+  BookOpen,
+  Droplets,
+  Wind,
+  ListChecks,
+  ChevronRight,
+  Zap,
+  FlaskConical,
+  Scale,
+  HeartPulse,
+  TestTube2,
+  Brain,
+  Baby,
+  BarChart2,
+  BookMarked,
+  User,
+  Plus,
+  X,
+  Star,
+  Linkedin,
+  Clock,
+} from "lucide-react";
+import { usePatientStore, PatientData } from "../store/usePatientStore";
+import { useFavoritesStore } from "../store/useFavoritesStore";
+import { useRecentToolsStore } from "../store/useRecentToolsStore";
+import {
+  ALL_FAVORITABLE_ITEMS,
+  getFavoritableItemByPath,
+} from "../data/favoritableItems";
 
 function PatientEditorSheet({ onClose }: { onClose: () => void }) {
   const patient = usePatientStore();
-  
+
   const [formData, setFormData] = useState<Partial<PatientData>>({
     nama: patient.nama,
     ageYears: patient.ageYears,
     weightKg: patient.weightKg,
-    mrsDate: patient.mrsDate || new Date().toISOString().split('T')[0],
+    mrsDate: patient.mrsDate || new Date().toISOString().split("T")[0],
     gender: patient.gender,
   });
 
@@ -32,35 +56,54 @@ function PatientEditorSheet({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
-      <div 
-        className="absolute inset-0 bg-[var(--bg-overlay)] backdrop-blur-sm transition-opacity" 
-        onClick={onClose} 
+      <div
+        className="absolute inset-0 bg-[var(--bg-overlay)] backdrop-blur-sm transition-opacity"
+        onClick={onClose}
       />
       <div className="bg-[var(--bg-elevated)] w-full rounded-t-[16px] relative z-40 animate-in slide-in-from-bottom-full duration-200 border-t border-[var(--glass-border)] shadow-[var(--shadow-2)] flex flex-col max-h-[85vh]">
         <div className="flex justify-between items-center p-4 border-b border-[var(--separator)]">
-          <button onClick={onClose} className="text-[var(--accent)] text-[17px]">Batal</button>
-          <h2 className="font-semibold text-[17px] tracking-tight text-[var(--label-primary)]">Data Pasien</h2>
-          <button onClick={handleSave} className="font-semibold text-[var(--accent)] text-[17px]">Simpan</button>
+          <button
+            onClick={onClose}
+            className="text-[var(--accent)] text-[17px]"
+          >
+            Batal
+          </button>
+          <h2 className="font-semibold text-[17px] tracking-tight text-[var(--label-primary)]">
+            Data Pasien
+          </h2>
+          <button
+            onClick={handleSave}
+            className="font-semibold text-[var(--accent)] text-[17px]"
+          >
+            Simpan
+          </button>
         </div>
         <div className="flex flex-col p-4 gap-4 overflow-y-auto pb-10 no-scrollbar">
-          
           <div className="ios-list" style={{ margin: 0 }}>
             <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 80 }}>Nama</span>
-              <input 
-                type="text" 
-                placeholder="Nama Pasien" 
+              <span className="ios-row-label" style={{ width: 80 }}>
+                Nama
+              </span>
+              <input
+                type="text"
+                placeholder="Nama Pasien"
                 value={formData.nama}
-                onChange={e => setFormData({ ...formData, nama: e.target.value })}
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]" 
+                onChange={(e) =>
+                  setFormData({ ...formData, nama: e.target.value })
+                }
+                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]"
               />
             </div>
             <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 80 }}>Gender</span>
-              <select 
+              <span className="ios-row-label" style={{ width: 80 }}>
+                Gender
+              </span>
+              <select
                 value={formData.gender}
-                onChange={e => setFormData({ ...formData, gender: e.target.value as any })}
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)] appearance-none" 
+                onChange={(e) =>
+                  setFormData({ ...formData, gender: e.target.value as any })
+                }
+                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)] appearance-none"
               >
                 <option value="">Pilih</option>
                 <option value="L">Laki-laki (L)</option>
@@ -69,45 +112,64 @@ function PatientEditorSheet({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          <div className="ios-section" style={{ padding: '0 4px 6px' }}>
+          <div className="ios-section" style={{ padding: "0 4px 6px" }}>
             <span className="label">Antropometri & Perawatan</span>
           </div>
 
           <div className="ios-list" style={{ margin: 0 }}>
             <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 120 }}>Usia (Tahun)</span>
-              <input 
-                type="number" 
+              <span className="ios-row-label" style={{ width: 120 }}>
+                Usia (Tahun)
+              </span>
+              <input
+                type="number"
                 inputMode="decimal"
-                placeholder="0" 
+                placeholder="0"
                 value={formData.ageYears}
-                onChange={e => setFormData({ ...formData, ageYears: e.target.value, agePrecise: e.target.value + ' thn' })}
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]" 
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    ageYears: e.target.value,
+                    agePrecise: e.target.value + " thn",
+                  })
+                }
+                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]"
               />
             </div>
             <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 120 }}>Berat (kg)</span>
-              <input 
-                type="number" 
+              <span className="ios-row-label" style={{ width: 120 }}>
+                Berat (kg)
+              </span>
+              <input
+                type="number"
                 inputMode="decimal"
-                placeholder="0" 
+                placeholder="0"
                 value={formData.weightKg}
-                onChange={e => setFormData({ ...formData, weightKg: e.target.value })}
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]" 
+                onChange={(e) =>
+                  setFormData({ ...formData, weightKg: e.target.value })
+                }
+                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]"
               />
             </div>
             <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 120 }}>Tanggal MRS</span>
-              <input 
-                type="date" 
+              <span className="ios-row-label" style={{ width: 120 }}>
+                Tanggal MRS
+              </span>
+              <input
+                type="date"
                 value={formData.mrsDate}
-                onChange={e => setFormData({ ...formData, mrsDate: e.target.value })}
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)] cursor-pointer" 
+                onChange={(e) =>
+                  setFormData({ ...formData, mrsDate: e.target.value })
+                }
+                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)] cursor-pointer"
               />
             </div>
           </div>
 
-          <button onClick={handleReset} className="mt-4 p-3 bg-[var(--bg-tertiary)] border border-[var(--separator)] rounded-[12px] text-[var(--danger)] font-medium">
+          <button
+            onClick={handleReset}
+            className="mt-4 p-3 bg-[var(--bg-tertiary)] border border-[var(--separator)] rounded-[12px] text-[var(--danger)] font-medium"
+          >
             Reset Data
           </button>
         </div>
@@ -121,7 +183,7 @@ export default function Home() {
   const patient = usePatientStore();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const { favorites, toggleFavorite } = useFavoritesStore();
-  const recentPaths = useRecentToolsStore(state => state.recentPaths);
+  const recentPaths = useRecentToolsStore((state) => state.recentPaths);
 
   const getHariPerawatan = (mrsDateString?: string) => {
     if (!mrsDateString) return null;
@@ -135,29 +197,36 @@ export default function Home() {
     return `Hari Ke-${diffDays}`;
   };
 
-  const hasPatientData = patient.weightKg || patient.ageYears || patient.heightCm || patient.mrsDate;
-  const favoriteItems = ALL_FAVORITABLE_ITEMS.filter(it => favorites.includes(it.path));
-  const recentItems = recentPaths.map(p => getFavoritableItemByPath(p)).filter(Boolean).slice(0, 3);
+  const hasPatientData =
+    patient.weightKg || patient.ageYears || patient.heightCm || patient.mrsDate;
+  const favoriteItems = ALL_FAVORITABLE_ITEMS.filter((it) =>
+    favorites.includes(it.path),
+  );
+  const recentItems = recentPaths
+    .map((p) => getFavoritableItemByPath(p))
+    .filter(Boolean)
+    .slice(0, 3);
 
   return (
-    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="p-4 max-w-4xl mx-auto space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden w-full">
       {/* Hero Header Section */}
       <div className="pt-2 overflow-x-hidden">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-2xl sm:rounded-full bg-teal-500/10 border border-teal-500/20 mb-3.5 max-w-full">
-          <span className="text-[11px] font-bold text-teal-600 dark:text-teal-400 tracking-wide uppercase break-words leading-tight">
+        <div className="inline-flex items-start sm:items-center gap-1.5 px-3 py-2 sm:py-1 rounded-xl sm:rounded-full bg-teal-500/10 border border-teal-500/20 mb-3.5 w-full sm:w-auto overflow-hidden">
+          <span className="text-[11px] font-bold text-teal-600 dark:text-teal-400 tracking-wide uppercase leading-snug whitespace-normal break-words flex-1">
             ⚡ Your Daily Companion in ER & Intensive Care
           </span>
         </div>
-        
+
         <div className="mb-2 leading-tight">
           <span className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
             ICU/ER
           </span>
           <span className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
-            {" "}Helper
+            {" "}
+            Helper
           </span>
         </div>
-        
+
         <div className="mb-3">
           <a
             href="https://id.linkedin.com/in/rizqanfahlevvi/"
@@ -170,7 +239,8 @@ export default function Home() {
           </a>
         </div>
         <p className="text-muted-foreground text-[13px] md:text-sm max-w-md">
-          Akses cepat kalkulator klinis, skoring kritis, manajemen infus dosis obat, dan referensi literatur berbasis bukti.
+          Akses cepat kalkulator klinis, skoring kritis, manajemen infus dosis
+          obat, dan referensi literatur berbasis bukti.
         </p>
       </div>
 
@@ -181,9 +251,9 @@ export default function Home() {
             Status Pasien Aktif
           </span>
         </div>
-        
+
         {!hasPatientData ? (
-          <Link 
+          <Link
             className="bg-card border border-border/80 w-full flex items-center gap-4 p-4 rounded-2xl shadow-sm hover:border-slate-400 transition-colors block"
             to="/patients"
           >
@@ -191,13 +261,17 @@ export default function Home() {
               <User size={18} />
             </span>
             <div className="flex-1">
-              <p className="font-semibold text-sm text-[var(--label-primary)]">Data Pasien</p>
-              <p className="text-xs text-[var(--label-secondary)] mt-0.5">Belum diisi — ketuk untuk mengelola database pasien</p>
+              <p className="font-semibold text-sm text-[var(--label-primary)]">
+                Data Pasien
+              </p>
+              <p className="text-xs text-[var(--label-secondary)] mt-0.5">
+                Belum diisi — ketuk untuk mengelola database pasien
+              </p>
             </div>
             <Plus size={18} className="text-[var(--accent)]" />
           </Link>
         ) : (
-          <Link 
+          <Link
             className="bg-card border border-border/80 w-full rounded-2xl shadow-sm hover:border-teal-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out block overflow-hidden group"
             to="/patients"
           >
@@ -207,31 +281,47 @@ export default function Home() {
               </span>
               <div className="flex-1 mt-0.5">
                 <div className="flex items-center justify-between">
-                  <p className="font-bold text-sm text-foreground line-clamp-1 pr-2">{patient.nama || 'Pasien Anonim'}</p>
+                  <p className="font-bold text-sm text-foreground line-clamp-1 pr-2">
+                    {patient.nama || "Pasien Anonim"}
+                  </p>
                   <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider bg-teal-500/10 text-teal-700 dark:text-teal-400 px-1.5 py-0.5 rounded-md border border-teal-500/20 shadow-sm">
                     <Activity size={10} /> Aktif
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 font-medium">
-                  <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md"><User size={10} /> {patient.gender || '-'}</span>
-                  <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded-md border border-blue-100 dark:border-blue-800/30">{patient.category || '-'}</span>
+                  <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">
+                    <User size={10} /> {patient.gender || "-"}
+                  </span>
+                  <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded-md border border-blue-100 dark:border-blue-800/30">
+                    {patient.category || "-"}
+                  </span>
                 </div>
               </div>
             </div>
-            
+
             <div className="flex bg-slate-50/50 dark:bg-slate-900/20 divide-x divide-border/40 font-mono">
               <div className="flex-1 p-2.5 text-center flex flex-col items-center justify-center">
-                <div className="text-[9px] uppercase text-slate-500 font-bold font-sans tracking-wider mb-0.5">Usia</div>
+                <div className="text-[9px] uppercase text-slate-500 font-bold font-sans tracking-wider mb-0.5">
+                  Usia
+                </div>
                 <div className="text-[13px] font-bold text-slate-700 dark:text-slate-200 flex items-baseline gap-0.5">
-                  {patient.agePrecise ? patient.agePrecise.replace(/ thn| bln/g, '') : (patient.ageYears || '-')}
-                  <span className="text-[9px] text-slate-400 font-sans font-semibold">{patient.agePrecise?.includes('bln') ? 'BLN' : 'THN'}</span>
+                  {patient.agePrecise
+                    ? patient.agePrecise.replace(/ thn| bln/g, "")
+                    : patient.ageYears || "-"}
+                  <span className="text-[9px] text-slate-400 font-sans font-semibold">
+                    {patient.agePrecise?.includes("bln") ? "BLN" : "THN"}
+                  </span>
                 </div>
               </div>
               <div className="flex-1 p-2.5 text-center flex flex-col items-center justify-center">
-                <div className="text-[9px] uppercase text-slate-500 font-bold font-sans tracking-wider mb-0.5">Berat</div>
+                <div className="text-[9px] uppercase text-slate-500 font-bold font-sans tracking-wider mb-0.5">
+                  Berat
+                </div>
                 <div className="text-[13px] font-bold text-slate-700 dark:text-slate-200 flex items-baseline gap-0.5">
-                  {patient.weightKg || '-'}
-                  <span className="text-[9px] text-slate-400 font-sans font-semibold">KG</span>
+                  {patient.weightKg || "-"}
+                  <span className="text-[9px] text-slate-400 font-sans font-semibold">
+                    KG
+                  </span>
                 </div>
               </div>
               <div className="flex-1 p-2.5 text-center flex flex-col items-center justify-center bg-blue-50/40 dark:bg-blue-900/10">
@@ -239,7 +329,11 @@ export default function Home() {
                   <Clock size={9} /> Rawat Inap
                 </div>
                 <div className="text-[13px] font-extrabold text-blue-700 dark:text-blue-400">
-                  {patient.mrsDate ? (getHariPerawatan(patient.mrsDate) || "Hari Ke-1").replace('Hari Ke-', 'H-') : '-'}
+                  {patient.mrsDate
+                    ? (
+                        getHariPerawatan(patient.mrsDate) || "Hari Ke-1"
+                      ).replace("Hari Ke-", "H-")
+                    : "-"}
                 </div>
               </div>
             </div>
@@ -258,13 +352,13 @@ export default function Home() {
               </span>
             </div>
           </div>
-          
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 snap-x">
+
+          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 pt-1 snap-x">
             {recentItems.map((item, index) => {
               if (!item) return null;
               const Icon = item.icon || Activity;
               return (
-                <div 
+                <div
                   key={item.path + index}
                   onClick={() => navigate(item.path)}
                   className="flex-shrink-0 w-[140px] snap-start bg-card border border-border/80 rounded-xl p-3 shadow-sm hover:border-blue-500/40 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer"
@@ -308,9 +402,14 @@ export default function Home() {
         {favoriteItems.length === 0 ? (
           <div className="border border-dashed border-border rounded-2xl p-5 text-center space-y-2 bg-muted/10">
             <Star className="w-7 h-7 text-muted-foreground/30 mx-auto" />
-            <p className="text-xs font-semibold text-foreground/90">Belum Ada Menu Favorit</p>
+            <p className="text-xs font-semibold text-foreground/90">
+              Belum Ada Menu Favorit
+            </p>
             <p className="text-[11px] text-muted-foreground leading-relaxed max-w-md mx-auto">
-              Sematkan kalkulator, skoring klinis, atau referensi obat yang sering digunakan dengan mengetuk bintang <span className="text-amber-500 font-bold">★</span> di halaman detail atau daftar sub-menu.
+              Sematkan kalkulator, skoring klinis, atau referensi obat yang
+              sering digunakan dengan mengetuk bintang{" "}
+              <span className="text-amber-500 font-bold">★</span> di halaman
+              detail atau daftar sub-menu.
             </p>
           </div>
         ) : (
@@ -318,13 +417,13 @@ export default function Home() {
             {favoriteItems.map((item) => {
               const Icon = item.icon || Activity;
               return (
-                <div 
+                <div
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className="group relative bg-card border border-border/80 rounded-xl p-3 shadow-sm hover:border-amber-500/40 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[95px] cursor-pointer"
                 >
                   <div className="absolute top-2.5 right-2.5">
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleFavorite(item.path);
@@ -358,14 +457,14 @@ export default function Home() {
 
       {/* 4 Pilar Utama Grid */}
       <div className="space-y-3">
-        <div className="ios-section" style={{ padding: '0 4px' }}>
+        <div className="ios-section" style={{ padding: "0 4px" }}>
           <span className="label">Pilar Modul Klinis</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Card 1: Kalkulator Medis */}
-          <div 
-            onClick={() => navigate('/calculator')}
+          <div
+            onClick={() => navigate("/calculator")}
             className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-teal-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">
@@ -382,21 +481,31 @@ export default function Home() {
                   Kalkulator Medis
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Estimasi eGFR, parameter ventilator awal (ARDSNet), koreksi defisit elektrolit, sliding scale insulin, kebutuhan cairan basal, dan indeks NLR.
+                  Estimasi eGFR, parameter ventilator awal (ARDSNet), koreksi
+                  defisit elektrolit, sliding scale insulin, kebutuhan cairan
+                  basal, dan indeks NLR.
                 </p>
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">eGFR</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">ARDSNet VT</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Elektrolit</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Insulin</span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                eGFR
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                ARDSNet VT
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                Elektrolit
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                Insulin
+              </span>
             </div>
           </div>
 
           {/* Card 2: Skoring Klinis */}
-          <div 
-            onClick={() => navigate('/scoring')}
+          <div
+            onClick={() => navigate("/scoring")}
             className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-orange-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">
@@ -413,21 +522,31 @@ export default function Home() {
                   Skoring Klinis
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Sistem klasifikasi tingkat keparahan penyakit dan stratifikasi risiko mortalitas intensif: APACHE II, SOFA, CAM-ICU (Delirium), RASS, CPIS, dan BFS.
+                  Sistem klasifikasi tingkat keparahan penyakit dan stratifikasi
+                  risiko mortalitas intensif: APACHE II, SOFA, CAM-ICU
+                  (Delirium), RASS, CPIS, dan BFS.
                 </p>
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">APACHE II</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">SOFA</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">CAM-ICU</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">RASS</span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                APACHE II
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                SOFA
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                CAM-ICU
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                RASS
+              </span>
             </div>
           </div>
 
           {/* Card 3: iObat & Cairan */}
-          <div 
-            onClick={() => navigate('/pharmacy')}
+          <div
+            onClick={() => navigate("/pharmacy")}
             className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-indigo-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">
@@ -444,21 +563,31 @@ export default function Home() {
                   Drip Obat & Cairan (iObat)
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Infusi syringe pump (vasopressor/sedative), protokol intubasi cepat RSI (induction doses), panduan tipe cairan, dan checker interaksi obat kritis.
+                  Infusi syringe pump (vasopressor/sedative), protokol intubasi
+                  cepat RSI (induction doses), panduan tipe cairan, dan checker
+                  interaksi obat kritis.
                 </p>
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Laju Infus</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Intubasi RSI</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Cairan</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Interaksi</span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                Laju Infus
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                Intubasi RSI
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                Cairan
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                Interaksi
+              </span>
             </div>
           </div>
 
           {/* Card 4: Referensi & Teori */}
-          <div 
-            onClick={() => navigate('/reference')}
+          <div
+            onClick={() => navigate("/reference")}
             className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-emerald-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">
@@ -475,22 +604,33 @@ export default function Home() {
                   Referensi & Teori Klinis
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Panduan tatalaksana Sepsis-3, resusitasi syok, pendekatan gagal napas, strategi SAT/SBT pembebasan ventilator, asuhan B1-B6, dan 54+ literatur rujukan.
+                  Panduan tatalaksana Sepsis-3, resusitasi syok, pendekatan
+                  gagal napas, strategi SAT/SBT pembebasan ventilator, asuhan
+                  B1-B6, dan 54+ literatur rujukan.
                 </p>
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Sepsis-3</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">Resusitasi Syok</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">SAT & SBT</span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">B1-B6</span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                Sepsis-3
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                Resusitasi Syok
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                SAT & SBT
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
+                B1-B6
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {isEditorOpen && <PatientEditorSheet onClose={() => setIsEditorOpen(false)} />}
+      {isEditorOpen && (
+        <PatientEditorSheet onClose={() => setIsEditorOpen(false)} />
+      )}
     </div>
   );
 }
-

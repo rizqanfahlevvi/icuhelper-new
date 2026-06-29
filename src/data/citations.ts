@@ -659,5 +659,12 @@ export const ICU_REFS: Record<string, any> = {
     issue: '6',
     pages: '769–781',
     doi: '10.1111/crj.12618'
+  },
+  pandharipande2023: {
+    authors: 'Pandharipande PP, Shintani AK, Hagerman HE, et al.',
+    title: 'Derivation and validation of SpO2/FiO2 ratio cutoffs to estimate PaO2/FiO2-defined acute lung injury severity categories',
+    journal: 'Crit Care Med',
+    year: 2023,
+    doi: '10.1097/CCM.0000000000005908'
   }
 };

@@ -24,7 +24,7 @@ export function Accordion({ title, children, defaultOpen = false, className = ''
           <ChevronDown className={`w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
         {isOpen && (
-          <div className="border-t border-slate-100 dark:border-slate-800 p-4 bg-white dark:bg-[#1C1C1E] text-[13px] leading-relaxed text-slate-600 dark:text-slate-400 animate-in fade-in slide-in-from-top-1 duration-300">
+          <div className="border-t border-slate-100 dark:border-slate-800 p-4 bg-white dark:bg-[#1C1C1E] text-[13px] leading-relaxed text-slate-600 dark:text-slate-400 animate-in fade-in slide-in-from-top-1 duration-300 w-full max-w-full overflow-hidden min-w-0">
             {children}
           </div>
         )}

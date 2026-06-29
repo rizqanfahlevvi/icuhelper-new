@@ -708,7 +708,7 @@ export default function MainLayout() {
         </AnimatePresence>
 
         {/* Scrollable Viewport */}
-        <div className={`flex-1 px-2.5 sm:px-3 md:px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
+        <div className={`flex-1 min-w-0 max-w-full px-2.5 sm:px-3 md:px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
           {isLocked && (
             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto bg-white/45 dark:bg-black/45 backdrop-blur-md"
                  id="verification-restriction-overlay"
@@ -748,7 +748,7 @@ export default function MainLayout() {
               </div>
             </div>
           )}
-          <div key={location.pathname} className={`w-full flex-grow flex flex-col ${isLocked ? 'pointer-events-none select-none' : 'animate-page-route'} ${location.pathname.startsWith('/theory/') && location.pathname !== '/theory' && readingMode ? 'reading-mode' : ''}`}>
+          <div key={location.pathname} className={`w-full min-w-0 max-w-full flex-grow flex flex-col ${isLocked ? 'pointer-events-none select-none' : 'animate-page-route'} ${location.pathname.startsWith('/theory/') && location.pathname !== '/theory' && readingMode ? 'reading-mode' : ''}`}>
             <Outlet />
           </div>
           <footer className="w-full text-center py-6 px-4 mt-auto border-t border-[var(--separator)] text-[11px] text-[var(--label-secondary)] font-medium">
