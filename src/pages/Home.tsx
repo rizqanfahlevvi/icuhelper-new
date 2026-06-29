@@ -198,7 +198,7 @@ export default function Home() {
           </Link>
         ) : (
           <Link 
-            className="bg-card border border-border/80 w-full rounded-2xl shadow-sm hover:border-teal-500/50 hover:shadow-md transition-all duration-300 block overflow-hidden group"
+            className="bg-card border border-border/80 w-full rounded-2xl shadow-sm hover:border-teal-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out block overflow-hidden group"
             to="/patients"
           >
             <div className="p-3.5 flex items-start gap-3 border-b border-border/40">
@@ -267,7 +267,7 @@ export default function Home() {
                 <div 
                   key={item.path + index}
                   onClick={() => navigate(item.path)}
-                  className="flex-shrink-0 w-[140px] snap-start bg-card border border-border/80 rounded-xl p-3 shadow-sm hover:border-blue-500/40 hover:shadow-md transition-all duration-300 cursor-pointer"
+                  className="flex-shrink-0 w-[140px] snap-start bg-card border border-border/80 rounded-xl p-3 shadow-sm hover:border-blue-500/40 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer"
                 >
                   <div className="space-y-2">
                     <span className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -321,7 +321,7 @@ export default function Home() {
                 <div 
                   key={item.path}
                   onClick={() => navigate(item.path)}
-                  className="group relative bg-card border border-border/80 rounded-xl p-3 shadow-sm hover:border-amber-500/40 hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[95px] cursor-pointer"
+                  className="group relative bg-card border border-border/80 rounded-xl p-3 shadow-sm hover:border-amber-500/40 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[95px] cursor-pointer"
                 >
                   <div className="absolute top-2.5 right-2.5">
                     <button 
@@ -366,7 +366,7 @@ export default function Home() {
           {/* Card 1: Kalkulator Medis */}
           <div 
             onClick={() => navigate('/calculator')}
-            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-teal-500/50 hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[175px]"
+            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-teal-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -397,7 +397,7 @@ export default function Home() {
           {/* Card 2: Skoring Klinis */}
           <div 
             onClick={() => navigate('/scoring')}
-            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-orange-500/50 hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[175px]"
+            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-orange-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -428,7 +428,7 @@ export default function Home() {
           {/* Card 3: iObat & Cairan */}
           <div 
             onClick={() => navigate('/pharmacy')}
-            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-indigo-500/50 hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[175px]"
+            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-indigo-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
@@ -459,7 +459,7 @@ export default function Home() {
           {/* Card 4: Referensi & Teori */}
           <div 
             onClick={() => navigate('/reference')}
-            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-emerald-500/50 hover:shadow-md transition-all duration-300 flex flex-col justify-between min-h-[175px]"
+            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-emerald-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
           >
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">

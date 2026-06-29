@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { ALL_FAVORITABLE_ITEMS, FavoritableItem } from '../../data/favoritableItems';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface GlobalSearchProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelect: (path: string) => void;
 }
 
-export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
+export default function GlobalSearch({ isOpen, onClose, onSelect }: GlobalSearchProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<FavoritableItem[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (isOpen) {
@@ -48,7 +47,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
   }, [query]);
 
   const handleSelect = (path: string) => {
-    navigate(path);
+    onSelect(path);
     onClose();
   };
 

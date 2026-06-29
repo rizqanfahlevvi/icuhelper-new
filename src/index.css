@@ -104,13 +104,14 @@
 .bento-card:hover {
   border-color: color-mix(in srgb, var(--accent) 50%, var(--glass-border));
   box-shadow: var(--shadow-2, 0 4px 16px rgba(0,0,0,0.08));
+  transform: translateY(-2px);
 }
 
 /* ── Base ────────────────────────────────────────────────────────────────── */
 html {
   font-size: calc(16px * var(--font-scale)) !important;
 }
-html, body, #root { height: 100%; overscroll-behavior-y: none; overflow-x: hidden; width: 100%; }
+html, body, #root { height: 100%; overscroll-behavior-y: none; overflow-x: hidden; }
 body { 
   margin: 0; 
   -webkit-tap-highlight-color: transparent; 

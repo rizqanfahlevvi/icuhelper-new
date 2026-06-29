@@ -459,7 +459,7 @@ export default function MainLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 relative w-full flex flex-col h-screen overflow-hidden transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'md:ml-[240px] md:w-[calc(100%-240px)]' : 'md:ml-[80px] md:w-[calc(100%-80px)]'}`}>
+      <main className={`flex-1 min-w-0 relative flex flex-col h-screen overflow-hidden transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[80px]'}`}>
         {/* Unified Top Bar */}
         <header className="ios-nav justify-between relative">
           {/* Left Brand and Menu Toggles */}
@@ -708,7 +708,7 @@ export default function MainLayout() {
         </AnimatePresence>
 
         {/* Scrollable Viewport */}
-        <div className={`flex-1 w-full px-2.5 sm:px-3 md:px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
+        <div className={`flex-1 px-2.5 sm:px-3 md:px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
           {isLocked && (
             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto bg-white/45 dark:bg-black/45 backdrop-blur-md"
                  id="verification-restriction-overlay"
@@ -835,6 +835,7 @@ export default function MainLayout() {
       <GlobalSearch 
         isOpen={isSearchOpen} 
         onClose={() => setIsSearchOpen(false)} 
+        onSelect={(path) => navigate(path)}
       />
     </div>
   );
