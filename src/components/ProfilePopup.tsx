@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Key, CheckCircle, AlertCircle, LogOut } from 'lucide-react';
+import { X, Key, CheckCircle, AlertCircle, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfilePopupProps {
   isOpen: boolean;
@@ -15,8 +16,11 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   if (!isOpen || !user || !userProfile) return null;
+
+  const isAdmin = userProfile.role === 'admin' || user.email === 'driverizqanf@gmail.com';
 
   const handleResetPassword = async () => {
     setIsLoading(true);
@@ -113,6 +117,23 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
                   )}
                 </div>
               </div>
+
+              {/* Admin Panel Button */}
+              {isAdmin && (
+                <div className="bg-[var(--fill-secondary)] rounded-xl p-4">
+                  <p className="text-xs text-[var(--label-tertiary)] uppercase tracking-wider font-bold mb-2">Administrator</p>
+                  <button
+                    onClick={() => {
+                      onClose();
+                      navigate('/admin');
+                    }}
+                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <Shield size={16} />
+                    Buka Admin Panel
+                  </button>
+                </div>
+              )}
 
               {/* Subscription Status */}
               <div className="bg-[var(--fill-secondary)] rounded-xl p-4">

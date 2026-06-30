@@ -11,6 +11,7 @@ export interface UserProfile {
   role: "pending" | "doctor" | "resident" | "specialist" | "admin";
   subscriptionStatus: "inactive" | "trial" | "active" | "expired";
   profileCompleted: boolean;
+  subscriptionExpiredAt?: Timestamp | null;
   createdAt: Timestamp;
   lastLogin: Timestamp;
 }
@@ -80,7 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated &&
     userProfile !== null &&
     userProfile.role !== "pending" &&
-    userProfile.profileCompleted === true;
+    userProfile.profileCompleted === true &&
+    (!userProfile.subscriptionExpiredAt || userProfile.subscriptionExpiredAt.toDate() > new Date());
 
   const value: AuthContextType = {
     user,

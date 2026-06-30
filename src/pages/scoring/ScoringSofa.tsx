@@ -328,7 +328,7 @@ export default function ScoringSofa() {
     useHistoryStore.getState().addEntry(
       'scoring_sofa',
       `SOFA: ${total}`,
-      { pao2, fio2Mode, fio2Oksigen, fio2Persen, spo2, respiMode, trombosit, bilirubin, cvType, cvVal, gcs, kreatinin, urineOutput, sofaBaseline },
+      { pao2, fio2Mode, fio2Desimal, fio2Persen, spo2, ventMekanik, trombosit, bilirubin, cvVal, gcs, kreatinin, urineOutput, sofaBaseline },
       `Skor Total: ${total} - ${mortalityText}`
     );
   };

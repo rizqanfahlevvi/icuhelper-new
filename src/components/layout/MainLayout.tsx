@@ -110,15 +110,11 @@ export default function MainLayout() {
 
   const normalizedSubscriptionStatus = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
   
-  // SEMENTARA: Semua yang mendaftar langsung bisa membuka aplikasi tanpa verifikasi/subscription
-  // Untuk mengaktifkan kembali pembatasan, kembalikan isLocked ke pengecekan semula.
-  const isLocked = false;
-  /*
+  // Active lock checking based on user profile
   const isLocked = !!user && (
     !isAuthorized || 
     (normalizedSubscriptionStatus !== "active" && normalizedSubscriptionStatus !== "trial")
   );
-  */
 
   const getInitialFromProfile = () => {
     const name = userProfile?.namaLengkap || userProfile?.username || user?.email || 'U';
@@ -152,10 +148,12 @@ export default function MainLayout() {
         return "Residen / PPDS";
       case "specialist":
         return "Dokter Spesialis";
+      case "admin":
+        return "Administrator";
       case "pending":
         return "Menunggu Verifikasi";
       default:
-        return userProfile.role ? userProfile.role.toUpperCase() : "Menunggu Verifikasi";
+        return userProfile.role ? String(userProfile.role).toUpperCase() : "Menunggu Verifikasi";
     }
   };
 
@@ -535,7 +533,20 @@ export default function MainLayout() {
                           {getSubscriptionBadge()}
                         </div>
                       </div>
-                      <div className="border-t border-[var(--separator)] pt-2.5">
+                      <div className="border-t border-[var(--separator)] pt-2.5 flex flex-col gap-1">
+                        {userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com' ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsProfileDropdownOpen(false);
+                              navigate('/admin');
+                            }}
+                            className="w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-blue-600 hover:bg-blue-600/10 transition-colors cursor-pointer"
+                          >
+                            <ShieldAlert size={14} />
+                            <span>Admin Panel</span>
+                          </button>
+                        ) : null}
                         <button
                           type="button"
                           onClick={() => {

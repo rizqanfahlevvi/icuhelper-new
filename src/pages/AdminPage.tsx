@@ -14,11 +14,13 @@ interface UserDoc {
   subscriptionPlan: string | null;
   subscriptionStatus: string;
   googleFormSubmitted: boolean;
+  profileCompleted: boolean;
+  subscriptionExpiredAt?: Timestamp | null;
   createdAt: Timestamp | null;
 }
 
 export default function AdminPage() {
-  const { user, isLoading } = useAuth();
+  const { user, userProfile, isLoading } = useAuth();
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserDoc[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,10 +32,13 @@ export default function AdminPage() {
     namaLengkap: '',
     email: '',
     role: '',
+    subscriptionStatus: '',
     googleFormSubmitted: false,
+    profileCompleted: false,
+    subscriptionExpiredAt: '',
   });
 
-  const isAdmin = user?.email === 'driverizqanf@gmail.com';
+  const isAdmin = userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com';
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -150,11 +155,20 @@ export default function AdminPage() {
 
   const handleEditClick = (user: UserDoc) => {
     setEditingUser(user);
+    let expDateStr = '';
+    if (user.subscriptionExpiredAt) {
+      const d = user.subscriptionExpiredAt.toDate();
+      const localD = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      expDateStr = localD.toISOString().split('T')[0];
+    }
     setEditForm({
       namaLengkap: user.namaLengkap || '',
       email: user.email || '',
       role: user.role || 'doctor',
+      subscriptionStatus: user.subscriptionStatus || 'inactive',
       googleFormSubmitted: user.googleFormSubmitted || false,
+      profileCompleted: user.profileCompleted || false,
+      subscriptionExpiredAt: expDateStr,
     });
   };
 
@@ -162,19 +176,32 @@ export default function AdminPage() {
     if (!editingUser) return;
     setUpdatingId(editingUser.id);
     try {
+      let expiredAt: Timestamp | null = null;
+      if (editForm.subscriptionExpiredAt) {
+        // Create date at noon to avoid timezone shift issues
+        const d = new Date(editForm.subscriptionExpiredAt + 'T12:00:00');
+        expiredAt = Timestamp.fromDate(d);
+      }
+
       const userRef = doc(db, 'users', editingUser.id);
       await updateDoc(userRef, {
         namaLengkap: editForm.namaLengkap,
         email: editForm.email,
         role: editForm.role,
+        subscriptionStatus: editForm.subscriptionStatus,
         googleFormSubmitted: editForm.googleFormSubmitted,
+        profileCompleted: editForm.profileCompleted,
+        subscriptionExpiredAt: expiredAt,
       });
       setUsers(users.map(u => u.id === editingUser.id ? { 
         ...u, 
         namaLengkap: editForm.namaLengkap,
         email: editForm.email,
         role: editForm.role,
+        subscriptionStatus: editForm.subscriptionStatus,
         googleFormSubmitted: editForm.googleFormSubmitted,
+        profileCompleted: editForm.profileCompleted,
+        subscriptionExpiredAt: expiredAt,
       } : u));
       showToast('Data user berhasil diupdate');
       setEditingUser(null);
@@ -198,6 +225,8 @@ export default function AdminPage() {
       case 'doctor': return 'Dokter Umum';
       case 'resident': return 'Residen';
       case 'specialist': return 'Spesialis';
+      case 'admin': return 'Administrator';
+      case 'pending': return 'Menunggu Verifikasi';
       default: return role || 'Tidak diketahui';
     }
   };
@@ -310,7 +339,12 @@ export default function AdminPage() {
                     </div>
                     <div className="space-y-1">
                       <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">{user.email}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">Terdaftar: {formatDate(user.createdAt)}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
+                        Terdaftar: {formatDate(user.createdAt)} 
+                        {user.subscriptionExpiredAt && (
+                          <> | Expired: <span className="font-semibold text-orange-500">{formatDate(user.subscriptionExpiredAt)}</span></>
+                        )}
+                      </p>
                     </div>
                   </div>
 
@@ -424,26 +458,71 @@ export default function AdminPage() {
                   onChange={e => setEditForm({ ...editForm, role: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none"
                 >
+                  <option value="pending">Menunggu Verifikasi (Pending)</option>
                   <option value="doctor">Dokter Umum</option>
                   <option value="resident">Residen</option>
                   <option value="specialist">Spesialis</option>
+                  <option value="admin">Administrator</option>
                 </select>
               </div>
 
-              <div className="pt-2 flex items-center justify-between">
-                <div>
-                  <label className="text-sm font-medium text-gray-900 dark:text-white">Status Verifikasi Form</label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Apakah user sudah mengisi form verifikasi?</p>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Subscription Status</label>
+                <select
+                  value={editForm.subscriptionStatus}
+                  onChange={e => setEditForm({ ...editForm, subscriptionStatus: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none"
+                >
+                  <option value="inactive">Inactive</option>
+                  <option value="trial">Trial</option>
+                  <option value="active">Active</option>
+                  <option value="expired">Expired</option>
+                </select>
+              </div>
+
+              <div className="pt-2 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-sm font-medium text-gray-900 dark:text-white">Akses Fitur (Profile Completed)</label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Izinkan user menggunakan fitur aplikasi (membuka kunci)?</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={editForm.profileCompleted}
+                      onChange={e => setEditForm({ ...editForm, profileCompleted: e.target.checked })}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  </label>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-sm font-medium text-gray-900 dark:text-white">Status Verifikasi Form</label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Apakah user sudah mengisi form verifikasi?</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={editForm.googleFormSubmitted}
+                      onChange={e => setEditForm({ ...editForm, googleFormSubmitted: e.target.checked })}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Tanggal Berakhir (Expired At)</label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Kosongkan jika akses selamanya (lifetime).</p>
                   <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={editForm.googleFormSubmitted}
-                    onChange={e => setEditForm({ ...editForm, googleFormSubmitted: e.target.checked })}
+                    type="date"
+                    value={editForm.subscriptionExpiredAt}
+                    onChange={e => setEditForm({ ...editForm, subscriptionExpiredAt: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                </label>
+                </div>
               </div>
             </div>
 
