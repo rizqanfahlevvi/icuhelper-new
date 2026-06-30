@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, doc, updateDoc, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, setDoc, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
-import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download } from 'lucide-react';
+import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download, Upload } from 'lucide-react';
 
 interface UserDoc {
   id: string;
@@ -38,6 +38,12 @@ export default function AdminPage() {
     subscriptionExpiredAt: '',
   });
   const [isExporting, setIsExporting] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importDataPreview, setImportDataPreview] = useState<any[] | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importResults, setImportResults] = useState<{ success: number; failed: number; failedIds: string[] } | null>(null);
 
   const isAdmin = userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com';
 
@@ -76,6 +82,77 @@ export default function AdminPage() {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setImportError(null);
+    setImportDataPreview(null);
+    setImportResults(null);
+    setImportFile(file || null);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const content = event.target?.result as string;
+          const parsed = JSON.parse(content);
+          if (!Array.isArray(parsed)) {
+            setImportError('Format file tidak valid: Harus berupa JSON array.');
+            return;
+          }
+          const hasInvalidObjects = parsed.some(obj => !obj || typeof obj !== 'object' || !obj.id);
+          if (hasInvalidObjects) {
+            setImportError('Format file tidak valid: Setiap objek harus memiliki field "id".');
+            return;
+          }
+          setImportDataPreview(parsed);
+        } catch (err) {
+          setImportError('Gagal membaca file JSON. Pastikan format file benar.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleExecuteImport = async () => {
+    if (!importDataPreview) return;
+    setIsImporting(true);
+    setImportResults(null);
+    
+    let successCount = 0;
+    let failedCount = 0;
+    const failedIds: string[] = [];
+
+    for (const userObj of importDataPreview) {
+      try {
+        const docRef = doc(db, 'users', userObj.id);
+        const { id, ...dataToSave } = userObj;
+        await setDoc(docRef, dataToSave, { merge: false });
+        successCount++;
+      } catch (err) {
+        console.error('Error importing user', userObj.id, err);
+        failedCount++;
+        failedIds.push(userObj.id);
+      }
+    }
+
+    setImportResults({
+      success: successCount,
+      failed: failedCount,
+      failedIds
+    });
+    setIsImporting(false);
+    fetchUsers();
+  };
+
+  const closeImportModal = () => {
+    if (isImporting) return;
+    setShowImportModal(false);
+    setImportFile(null);
+    setImportDataPreview(null);
+    setImportError(null);
+    setImportResults(null);
   };
 
   const fetchUsers = async () => {
@@ -344,6 +421,13 @@ export default function AdminPage() {
                 </>
               )}
             </button>
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="flex items-center justify-center gap-2 px-5 py-3.5 bg-amber-600 text-white rounded-2xl shadow-sm hover:bg-amber-700 transition-colors text-sm font-medium"
+            >
+              <Upload className="w-5 h-5" />
+              Import Data User
+            </button>
           </div>
 
           <div className="relative w-full">
@@ -605,6 +689,120 @@ export default function AdminPage() {
                   'Simpan Perubahan'
                 )}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Import Data User</h3>
+              <button 
+                onClick={closeImportModal}
+                disabled={isImporting}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto">
+              {!importResults && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pilih File JSON</label>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileChange}
+                    disabled={isImporting}
+                    className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400 transition-colors cursor-pointer border border-gray-300 dark:border-gray-600 rounded-xl"
+                  />
+                  {importError && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/20 p-3 rounded-xl border border-red-100 dark:border-red-800">
+                      {importError}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {importDataPreview && !importResults && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-2xl border border-amber-200 dark:border-amber-800 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <ShieldAlert className="w-6 h-6 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-amber-800 dark:text-amber-400">
+                        {importDataPreview.length} User siap diimpor
+                      </h4>
+                      <p className="text-sm text-amber-700 dark:text-amber-300 mt-1 leading-relaxed">
+                        <strong>PERHATIAN:</strong> Data user yang ada saat ini di Firestore akan <strong>DITIMPA</strong> dengan data dari file ini untuk setiap user dengan id yang sama. Tindakan ini tidak bisa dibatalkan.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {importResults && (
+                <div className="space-y-4">
+                  <div className={`p-4 rounded-2xl border ${importResults.failed > 0 ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800' : 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800'}`}>
+                    <h4 className={`font-bold ${importResults.failed > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-emerald-800 dark:text-emerald-400'}`}>
+                      Import Selesai
+                    </h4>
+                    <ul className={`mt-2 text-sm space-y-1 ${importResults.failed > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-300'}`}>
+                      <li>• <strong>{importResults.success}</strong> dokumen berhasil diimpor/ditimpa.</li>
+                      {importResults.failed > 0 && (
+                        <li>• <strong>{importResults.failed}</strong> dokumen gagal diimpor.</li>
+                      )}
+                    </ul>
+                  </div>
+                  {importResults.failedIds.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID yang gagal:</p>
+                      <div className="max-h-32 overflow-y-auto bg-gray-50 dark:bg-gray-800 p-3 rounded-xl border border-gray-200 dark:border-gray-700 text-xs text-red-600 dark:text-red-400 font-mono break-all">
+                        {importResults.failedIds.join(', ')}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+              {importResults ? (
+                <button
+                  onClick={closeImportModal}
+                  className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors"
+                >
+                  Tutup
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={closeImportModal}
+                    disabled={isImporting}
+                    className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    Batal
+                  </button>
+                  {importDataPreview && (
+                    <button
+                      onClick={handleExecuteImport}
+                      disabled={isImporting}
+                      className="px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition-colors flex items-center gap-2"
+                    >
+                      {isImporting ? (
+                        <>
+                          <RefreshCcw className="w-4 h-4 animate-spin" />
+                          Memproses...
+                        </>
+                      ) : (
+                        'Ya, Timpa Data Sekarang'
+                      )}
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
