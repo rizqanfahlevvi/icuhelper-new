@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, updateDoc, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
-import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X } from 'lucide-react';
+import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download } from 'lucide-react';
 
 interface UserDoc {
   id: string;
@@ -37,8 +37,46 @@ export default function AdminPage() {
     profileCompleted: false,
     subscriptionExpiredAt: '',
   });
+  const [isExporting, setIsExporting] = useState(false);
 
   const isAdmin = userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com';
+
+  const handleExportUsers = async () => {
+    setIsExporting(true);
+    try {
+      const q = query(collection(db, 'users'));
+      const querySnapshot = await getDocs(q);
+      const allUsersData: any[] = [];
+      querySnapshot.forEach((docSnap) => {
+        allUsersData.push({ id: docSnap.id, ...docSnap.data() });
+      });
+
+      const jsonString = JSON.stringify(allUsersData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mdkit-users-backup-${year}-${month}-${day}.json`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast('Berhasil mengekspor data user');
+    } catch (error) {
+      console.error('Error exporting users:', error);
+      alert('Gagal mengekspor data user. Silakan coba lagi.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -281,11 +319,31 @@ export default function AdminPage() {
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Stats & Search */}
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="bg-white dark:bg-gray-800 px-5 py-3.5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex-shrink-0 w-full sm:w-auto flex items-center justify-between sm:justify-start gap-3">
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pengguna</span>
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-xl">
-              {users.length}
-            </span>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto flex-shrink-0">
+            <div className="bg-white dark:bg-gray-800 px-5 py-3.5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between sm:justify-start gap-3">
+              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pengguna</span>
+              <span className="text-lg font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-xl">
+                {users.length}
+              </span>
+            </div>
+            
+            <button
+              onClick={handleExportUsers}
+              disabled={isExporting}
+              className="flex items-center justify-center gap-2 px-5 py-3.5 bg-emerald-600 text-white rounded-2xl shadow-sm hover:bg-emerald-700 disabled:opacity-70 transition-colors text-sm font-medium"
+            >
+              {isExporting ? (
+                <>
+                  <RefreshCcw className="w-5 h-5 animate-spin" />
+                  Mengekspor...
+                </>
+              ) : (
+                <>
+                  <Download className="w-5 h-5" />
+                  Export Data User
+                </>
+              )}
+            </button>
           </div>
 
           <div className="relative w-full">
