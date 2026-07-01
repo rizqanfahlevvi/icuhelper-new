@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, doc, updateDoc, setDoc, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, setDoc, deleteDoc, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
-import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download, Upload } from 'lucide-react';
+import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download, Upload, Trash2 } from 'lucide-react';
 
 interface UserDoc {
   id: string;
@@ -48,6 +48,10 @@ export default function AdminPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [importResults, setImportResults] = useState<{ success: number; failed: number; failedIds: string[] } | null>(null);
   
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [userToDelete, setUserToDelete] = useState<UserDoc | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const isAdmin = userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com';
 
   const handleExportUsers = async () => {
@@ -338,11 +342,31 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteDoc(doc(db, 'users', userToDelete.id));
+      setUsers(users.filter(u => u.id !== userToDelete.id));
+      showToast('User berhasil dihapus');
+      setUserToDelete(null);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Gagal menghapus user. Periksa kembali koneksi dan izin Anda.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const filteredUsers = users.filter(u => {
     const searchLower = searchQuery.toLowerCase();
     const nameLower = (u.namaLengkap || '').toLowerCase();
     const emailLower = (u.email || '').toLowerCase();
-    return nameLower.includes(searchLower) || emailLower.includes(searchLower);
+    const matchesSearch = nameLower.includes(searchLower) || emailLower.includes(searchLower);
+    
+    const matchesStatus = filterStatus === 'all' || (u.subscriptionStatus || 'inactive') === filterStatus;
+    
+    return matchesSearch && matchesStatus;
   });
 
   const getRoleLabel = (role: string) => {
@@ -444,17 +468,38 @@ export default function AdminPage() {
             )}
           </div>
 
-          <div className="relative w-full max-w-sm">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            <div className="relative">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="block w-full sm:w-48 pl-4 pr-10 py-3.5 border border-gray-200 dark:border-gray-700 rounded-2xl leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm shadow-sm transition-all appearance-none"
+              >
+                <option value="all">Semua Status</option>
+                <option value="active">Active</option>
+                <option value="trial">Trial</option>
+                <option value="inactive">Inactive</option>
+                <option value="expired">Expired</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                <svg className="h-4 w-4 fill-current text-gray-400" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd" />
+                </svg>
+              </div>
             </div>
-            <input
-              type="text"
-              placeholder="Cari nama atau email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 dark:border-gray-700 rounded-2xl leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm shadow-sm transition-all"
-            />
+
+            <div className="relative w-full sm:max-w-sm">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Cari nama atau email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 dark:border-gray-700 rounded-2xl leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm shadow-sm transition-all"
+              />
+            </div>
           </div>
         </div>
 
@@ -492,6 +537,15 @@ export default function AdminPage() {
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
+                      {!user.isAdmin && user.role !== 'admin' && (
+                        <button 
+                          onClick={() => setUserToDelete(user)}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                          title="Hapus User"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                     <div className="space-y-1">
                       <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">{user.email}</p>
@@ -569,6 +623,61 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl w-full max-w-md overflow-hidden animate-slide-up border border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Hapus User</h2>
+              <button 
+                onClick={() => setUserToDelete(null)}
+                disabled={isDeleting}
+                className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full flex-shrink-0">
+                  <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+                </div>
+                <div>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    Apakah Anda yakin ingin menghapus user <strong>{userToDelete.namaLengkap || 'Tanpa Nama'}</strong> ({userToDelete.email})? Tindakan ini tidak bisa dibatalkan.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+              <button
+                onClick={() => setUserToDelete(null)}
+                disabled={isDeleting}
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                disabled={isDeleting}
+                className="px-5 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-xl transition-colors flex items-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCcw className="w-4 h-4 animate-spin" />
+                    Menghapus...
+                  </>
+                ) : (
+                  'Ya, Hapus User'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {editingUser && (

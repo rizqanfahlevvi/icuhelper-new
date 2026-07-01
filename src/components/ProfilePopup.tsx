@@ -139,12 +139,34 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
               <div className="bg-[var(--fill-secondary)] rounded-xl p-4">
                 <p className="text-xs text-[var(--label-tertiary)] uppercase tracking-wider font-bold mb-2">Status Langganan</p>
                 <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center gap-2">
-                    {(() => {
-                      const normalizedSubscriptionStatus = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
-                      let label = "Tidak Aktif";
-                      let badgeClass = "bg-gray-500/10 text-gray-500 dark:text-gray-400 border border-gray-500/20";
-                      
+                  {(() => {
+                    let expiredAt: Date | null = null;
+                    if (userProfile?.subscriptionExpiredAt) {
+                      if (typeof userProfile.subscriptionExpiredAt.toDate === 'function') {
+                        expiredAt = userProfile.subscriptionExpiredAt.toDate();
+                      } else if (typeof userProfile.subscriptionExpiredAt === 'string' || typeof userProfile.subscriptionExpiredAt === 'number') {
+                        expiredAt = new Date(userProfile.subscriptionExpiredAt);
+                      } else if (userProfile.subscriptionExpiredAt instanceof Date) {
+                        expiredAt = userProfile.subscriptionExpiredAt;
+                      } else {
+                        // Handle case where Timestamp was serialized as plain object
+                        const anyVal = userProfile.subscriptionExpiredAt as any;
+                        if (anyVal.seconds) {
+                          expiredAt = new Date(anyVal.seconds * 1000);
+                        }
+                      }
+                    }
+
+                    const normalizedSubscriptionStatus = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
+                    let label = "Tidak Aktif";
+                    let badgeClass = "bg-gray-500/10 text-gray-500 dark:text-gray-400 border border-gray-500/20";
+                    let isActuallyExpired = false;
+
+                    if (expiredAt && expiredAt < new Date()) {
+                      isActuallyExpired = true;
+                      label = "Kedaluwarsa";
+                      badgeClass = "bg-red-500/10 text-red-500 border border-red-500/20";
+                    } else {
                       if (normalizedSubscriptionStatus === "active") {
                         label = "Aktif";
                         badgeClass = "bg-[var(--sys-green)]/10 text-[var(--sys-green)] border border-[var(--sys-green)]/20";
@@ -155,27 +177,26 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
                         label = "Kedaluwarsa";
                         badgeClass = "bg-red-500/10 text-red-500 border border-red-500/20";
                       }
-
-                      return (
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium uppercase tracking-wider ${badgeClass}`}>
-                          {label}
-                        </span>
-                      );
-                    })()}
-                  </div>
-                  {(() => {
-                    const status = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
-                    if (status === "active" || status === "trial") {
-                      const expiredAt = userProfile?.subscriptionExpiredAt?.toDate ? userProfile.subscriptionExpiredAt.toDate() : (userProfile?.subscriptionExpiredAt ? new Date(userProfile.subscriptionExpiredAt) : null);
-                      if (expiredAt) {
-                        const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-                        const dateText = expiredAt.toLocaleDateString('id-ID', options);
-                        return <p className="text-xs text-[var(--label-secondary)] mt-1">Berlaku hingga: <span className="font-medium text-[var(--label-primary)]">{dateText}</span></p>;
-                      } else {
-                        return <p className="text-xs text-[var(--label-secondary)] mt-1">Berlaku: <span className="font-medium text-[var(--label-primary)]">Seumur hidup</span></p>;
-                      }
                     }
-                    return null;
+
+                    return (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium uppercase tracking-wider ${badgeClass}`}>
+                            {label}
+                          </span>
+                        </div>
+                        {isActuallyExpired ? (
+                          <p className="text-xs text-[var(--label-secondary)] mt-1">Akses berakhir: <span className="font-medium text-[var(--label-primary)]">{expiredAt!.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span></p>
+                        ) : (normalizedSubscriptionStatus === "active" || normalizedSubscriptionStatus === "trial") ? (
+                          expiredAt ? (
+                            <p className="text-xs text-[var(--label-secondary)] mt-1">Berlaku hingga: <span className="font-medium text-[var(--label-primary)]">{expiredAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span></p>
+                          ) : (
+                            <p className="text-xs text-[var(--label-secondary)] mt-1">Berlaku: <span className="font-medium text-[var(--label-primary)]">Seumur hidup</span></p>
+                          )
+                        ) : null}
+                      </>
+                    );
                   })()}
                 </div>
               </div>
