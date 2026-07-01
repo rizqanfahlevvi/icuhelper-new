@@ -173,10 +173,19 @@ export default function MainLayout() {
   const normalizedSubscriptionStatus = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
   
   // Active lock checking based on user profile
-  const isLocked = !!user && (
+  const isProfileLocked = !!user && (
     !isAuthorized || 
     (normalizedSubscriptionStatus !== "active" && normalizedSubscriptionStatus !== "trial")
   );
+
+  // The lock only applies to clinical/specific features, not home, settings, or about pages
+  const isPathLockedFeature = 
+    location.pathname !== '/' && 
+    location.pathname !== '/settings' && 
+    location.pathname !== '/about' &&
+    !location.pathname.startsWith('/admin');
+
+  const isLocked = isProfileLocked && isPathLockedFeature;
 
   const getInitialFromProfile = () => {
     const name = userProfile?.namaLengkap || userProfile?.username || user?.email || 'U';
