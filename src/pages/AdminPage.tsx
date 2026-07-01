@@ -37,6 +37,7 @@ export default function AdminPage() {
     subscriptionStatus: '',
     googleFormSubmitted: false,
     profileCompleted: false,
+    verificationStatus: 'unverified',
     subscriptionExpiredAt: '',
   });
   const [isExporting, setIsExporting] = useState(false);
@@ -289,6 +290,7 @@ export default function AdminPage() {
       subscriptionStatus: user.subscriptionStatus || 'inactive',
       googleFormSubmitted: user.googleFormSubmitted || false,
       profileCompleted: user.profileCompleted || false,
+      verificationStatus: user.verificationStatus || 'unverified',
       subscriptionExpiredAt: expDateStr,
     });
   };
@@ -312,6 +314,7 @@ export default function AdminPage() {
         subscriptionStatus: editForm.subscriptionStatus,
         googleFormSubmitted: editForm.googleFormSubmitted,
         profileCompleted: editForm.profileCompleted,
+        verificationStatus: editForm.verificationStatus,
         subscriptionExpiredAt: expiredAt,
       });
       setUsers(users.map(u => u.id === editingUser.id ? { 
@@ -322,6 +325,7 @@ export default function AdminPage() {
         subscriptionStatus: editForm.subscriptionStatus,
         googleFormSubmitted: editForm.googleFormSubmitted,
         profileCompleted: editForm.profileCompleted,
+        verificationStatus: editForm.verificationStatus,
         subscriptionExpiredAt: expiredAt,
       } : u));
       showToast('Data user berhasil diupdate');
@@ -632,39 +636,19 @@ export default function AdminPage() {
                 </select>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Status Verifikasi Dokter</label>
+                <select
+                  value={editForm.verificationStatus}
+                  onChange={e => setEditForm({ ...editForm, verificationStatus: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none"
+                >
+                  <option value="unverified">Belum Terverifikasi</option>
+                  <option value="verified">Terverifikasi ✓</option>
+                </select>
+              </div>
+
               <div className="pt-2 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-sm font-medium text-gray-900 dark:text-white">Akses Fitur (Profile Completed)</label>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Izinkan user menggunakan fitur aplikasi (membuka kunci)?</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={editForm.profileCompleted}
-                      onChange={e => setEditForm({ ...editForm, profileCompleted: e.target.checked })}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-sm font-medium text-gray-900 dark:text-white">Status Verifikasi Form</label>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Apakah user sudah mengisi form verifikasi?</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      checked={editForm.googleFormSubmitted}
-                      onChange={e => setEditForm({ ...editForm, googleFormSubmitted: e.target.checked })}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
                 <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Tanggal Berakhir (Expired At)</label>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Kosongkan jika akses selamanya (lifetime).</p>
