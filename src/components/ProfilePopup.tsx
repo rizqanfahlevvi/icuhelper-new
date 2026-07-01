@@ -138,28 +138,44 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
               {/* Subscription Status */}
               <div className="bg-[var(--fill-secondary)] rounded-xl p-4">
                 <p className="text-xs text-[var(--label-tertiary)] uppercase tracking-wider font-bold mb-2">Status Langganan</p>
-                <div className="flex items-center gap-2">
-                  {(() => {
-                    const normalizedSubscriptionStatus = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
-                    let label = "Tidak Aktif";
-                    let badgeClass = "bg-gray-500/10 text-gray-500 dark:text-gray-400 border border-gray-500/20";
-                    
-                    if (normalizedSubscriptionStatus === "active") {
-                      label = "Active (Promo Sementara)";
-                      badgeClass = "bg-[var(--sys-green)]/10 text-[var(--sys-green)] border border-[var(--sys-green)]/20";
-                    } else if (normalizedSubscriptionStatus === "trial") {
-                      label = "Masa Trial";
-                      badgeClass = "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
-                    } else if (normalizedSubscriptionStatus === "expired") {
-                      label = "Expired";
-                      badgeClass = "bg-red-500/10 text-red-500 border border-red-500/20";
-                    }
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const normalizedSubscriptionStatus = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
+                      let label = "Tidak Aktif";
+                      let badgeClass = "bg-gray-500/10 text-gray-500 dark:text-gray-400 border border-gray-500/20";
+                      
+                      if (normalizedSubscriptionStatus === "active") {
+                        label = "Aktif";
+                        badgeClass = "bg-[var(--sys-green)]/10 text-[var(--sys-green)] border border-[var(--sys-green)]/20";
+                      } else if (normalizedSubscriptionStatus === "trial") {
+                        label = "Masa Trial";
+                        badgeClass = "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
+                      } else if (normalizedSubscriptionStatus === "expired") {
+                        label = "Kedaluwarsa";
+                        badgeClass = "bg-red-500/10 text-red-500 border border-red-500/20";
+                      }
 
-                    return (
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium uppercase tracking-wider ${badgeClass}`}>
-                        {label}
-                      </span>
-                    );
+                      return (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium uppercase tracking-wider ${badgeClass}`}>
+                          {label}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  {(() => {
+                    const status = (userProfile?.subscriptionStatus || "inactive").trim().toLowerCase();
+                    if (status === "active" || status === "trial") {
+                      const expiredAt = userProfile?.subscriptionExpiredAt?.toDate ? userProfile.subscriptionExpiredAt.toDate() : (userProfile?.subscriptionExpiredAt ? new Date(userProfile.subscriptionExpiredAt) : null);
+                      if (expiredAt) {
+                        const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                        const dateText = expiredAt.toLocaleDateString('id-ID', options);
+                        return <p className="text-xs text-[var(--label-secondary)] mt-1">Berlaku hingga: <span className="font-medium text-[var(--label-primary)]">{dateText}</span></p>;
+                      } else {
+                        return <p className="text-xs text-[var(--label-secondary)] mt-1">Berlaku: <span className="font-medium text-[var(--label-primary)]">Seumur hidup</span></p>;
+                      }
+                    }
+                    return null;
                   })()}
                 </div>
               </div>
