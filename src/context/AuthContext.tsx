@@ -80,8 +80,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthorized =
     isAuthenticated &&
     userProfile !== null &&
-    userProfile.role !== "pending" &&
-    userProfile.profileCompleted === true &&
     (!userProfile.subscriptionExpiredAt || userProfile.subscriptionExpiredAt.toDate() > new Date());
 
   const value: AuthContextType = {

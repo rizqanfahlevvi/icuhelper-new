@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, Calculator, Pill, Menu as MenuIcon, BookOpen, Activity, 
   ArrowDownCircle, Monitor, Settings, History, BookText, ChevronRight, ChevronLeft, X, Sun, Moon, User, Users, LogOut,
-  ShieldAlert, Lock, ExternalLink, Star, Search, WifiOff
+  ShieldAlert, Lock, ExternalLink, Star, Search, WifiOff, Clock, CheckCircle
 } from 'lucide-react';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useRecentToolsStore } from '../../store/useRecentToolsStore';
@@ -23,6 +23,68 @@ type NavItem = {
   icon: any;
   showInMobileTab?: boolean;
 };
+
+function SubscriptionBanner({ normalizedSubscriptionStatus, userProfile, isAuthorized }: { normalizedSubscriptionStatus: string, userProfile: any, isAuthorized: boolean }) {
+  const [isVisible, setIsVisible] = useState(true);
+
+  if (!isVisible || !isAuthorized) return null;
+  if (normalizedSubscriptionStatus !== 'trial' && normalizedSubscriptionStatus !== 'active') return null;
+
+  const expiredAt = userProfile?.subscriptionExpiredAt?.toDate();
+  let dateText = "batas waktu belum ditentukan";
+  if (expiredAt) {
+    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+    dateText = expiredAt.toLocaleDateString('id-ID', options);
+  }
+
+  const handleClose = () => setIsVisible(false);
+
+  if (normalizedSubscriptionStatus === 'trial') {
+    return (
+      <div className="relative w-full bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 shadow-sm">
+        <div className="p-2 bg-amber-100 dark:bg-amber-800/50 rounded-full text-amber-600 dark:text-amber-400 shrink-0">
+          <Clock size={20} />
+        </div>
+        <div className="flex-1 pr-6">
+          <h4 className="text-sm font-bold text-amber-800 dark:text-amber-400 mb-0.5">Anda sedang dalam masa Trial</h4>
+          <p className="text-xs text-amber-700 dark:text-amber-300">Akses Anda dibatasi hingga {dateText}. Hubungi kami untuk berlangganan penuh.</p>
+        </div>
+        <div className="shrink-0 mt-2 sm:mt-0">
+          <a
+            href={`https://wa.me/6287749076019?text=${encodeURIComponent(`Hai dok, saya ingin berlangganan MD Kit penuh, username saya ${userProfile?.username || ''}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg transition-colors"
+          >
+            Hubungi WA
+          </a>
+        </div>
+        <button onClick={handleClose} className="absolute top-3 right-3 p-1 text-amber-600/60 hover:text-amber-600 dark:text-amber-400/60 dark:hover:text-amber-400 rounded-full hover:bg-amber-200/50 dark:hover:bg-amber-800/50 transition-colors">
+          <X size={16} />
+        </button>
+      </div>
+    );
+  }
+
+  if (normalizedSubscriptionStatus === 'active') {
+    return (
+      <div className="relative w-full bg-emerald-50 dark:bg-emerald-900/20 border-b border-emerald-200 dark:border-emerald-800 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 shadow-sm">
+        <div className="p-2 bg-emerald-100 dark:bg-emerald-800/50 rounded-full text-emerald-600 dark:text-emerald-400 shrink-0">
+          <CheckCircle size={20} />
+        </div>
+        <div className="flex-1 pr-6">
+          <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-400 mb-0.5">Terima kasih telah berlangganan!</h4>
+          <p className="text-xs text-emerald-700 dark:text-emerald-300">Status langganan Anda aktif hingga {dateText}.</p>
+        </div>
+        <button onClick={handleClose} className="absolute top-3 right-3 p-1 text-emerald-600/60 hover:text-emerald-600 dark:text-emerald-400/60 dark:hover:text-emerald-400 rounded-full hover:bg-emerald-200/50 dark:hover:bg-emerald-800/50 transition-colors">
+          <X size={16} />
+        </button>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 const NAV_ITEMS: NavItem[] = [
   { name: 'Home', path: '/', icon: Home, showInMobileTab: true },
@@ -718,6 +780,8 @@ export default function MainLayout() {
           )}
         </AnimatePresence>
 
+        <SubscriptionBanner normalizedSubscriptionStatus={normalizedSubscriptionStatus} userProfile={userProfile} isAuthorized={isAuthorized} />
+
         {/* Scrollable Viewport */}
         <div className={`flex-1 min-w-0 max-w-full px-2.5 sm:px-3 md:px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
           {isLocked && (
@@ -740,10 +804,12 @@ export default function MainLayout() {
                   Fitur Terkunci
                 </h3>
                 <p className="text-xs text-[var(--label-secondary)] leading-relaxed mb-6 font-medium">
-                  Anda belum melakukan verifikasi profil anda, Klik tombol verifikasi untuk mendapat akses penuh
+                  {normalizedSubscriptionStatus === "expired" 
+                    ? "Masa langganan Anda telah berakhir. Silakan hubungi kami via WhatsApp untuk perpanjangan akses."
+                    : "Anda belum mengaktifkan langganan. Silakan hubungi kami via WhatsApp untuk verifikasi akun dan aktivasi akses trial atau berlangganan."}
                 </p>
                 <a 
-                  href="https://tally.so/r/44EOGr"
+                  href={`https://wa.me/6287749076019?text=${encodeURIComponent(`Hai dok, saya sudah daftar MD Kit, username saya ${userProfile?.username || user?.email || ''}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full font-bold px-5 py-3 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 text-xs cursor-pointer hover:opacity-90"
@@ -753,7 +819,7 @@ export default function MainLayout() {
                     minHeight: "44px" 
                   }}
                 >
-                  <span>Verifikasi Sekarang</span>
+                  <span>Hubungi via WhatsApp</span>
                   <ExternalLink size={14} />
                 </a>
               </div>

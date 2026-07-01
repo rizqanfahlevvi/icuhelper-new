@@ -42,7 +42,9 @@ export default function LoginPage() {
                 uid: user.uid,
                 email: user.email || "",
                 username: user.displayName || user.email?.split("@")[0] || "User",
-                role: "pending",
+                role: "dokter_umum",
+                verificationStatus: "unverified",
+                isAdmin: false,
                 subscriptionStatus: "inactive",
                 subscriptionPlan: null,
                 profileCompleted: false,
@@ -129,7 +131,9 @@ export default function LoginPage() {
             uid: user.uid,
             email: user.email || "",
             username: user.displayName || user.email?.split("@")[0] || "User",
-            role: "pending",
+            role: "dokter_umum",
+            verificationStatus: "unverified",
+            isAdmin: false,
             subscriptionStatus: "inactive",
             subscriptionPlan: null,
             profileCompleted: false,
@@ -149,11 +153,12 @@ export default function LoginPage() {
 
       navigate("/");
     } catch (err: any) {
-      console.error("Google auth error:", err);
       setShowRedirectOption(true);
       if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request" || err.code === "auth/popup-blocked") {
+        console.warn("Google auth popup closed or blocked by user.");
         setError("Popup masuk Google ditutup/terblokir. Khusus browser HP (Chrome Android, Safari iOS) atau PWA, silakan gunakan tombol 'Masuk dengan Google (Redirect)' di bawah.");
       } else {
+        console.error("Google auth error:", err);
         setError(`Gagal masuk menggunakan Google. Silakan coba menggunakan metode Redirect atau masuk dengan Email. (${err.message || ""})`);
       }
     } finally {

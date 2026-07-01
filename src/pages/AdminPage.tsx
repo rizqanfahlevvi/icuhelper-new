@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, updateDoc, setDoc, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
-import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download, Upload, AlertTriangle } from 'lucide-react';
+import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download, Upload } from 'lucide-react';
 
 interface UserDoc {
   id: string;
@@ -17,6 +17,8 @@ interface UserDoc {
   profileCompleted: boolean;
   subscriptionExpiredAt?: Timestamp | null;
   createdAt: Timestamp | null;
+  verificationStatus?: string;
+  isAdmin?: boolean;
 }
 
 export default function AdminPage() {
@@ -44,12 +46,7 @@ export default function AdminPage() {
   const [importError, setImportError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [importResults, setImportResults] = useState<{ success: number; failed: number; failedIds: string[] } | null>(null);
-
-  const [showMigrationModal, setShowMigrationModal] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
-  const [migrationPreview, setMigrationPreview] = useState<{ total: number; verified: number; unverified: number; users: any[] } | null>(null);
-  const [migrationResults, setMigrationResults] = useState<{ success: number; failed: number; failedIds: string[] } | null>(null);
-
+  
   const isAdmin = userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com';
 
   const handleExportUsers = async () => {
@@ -160,90 +157,6 @@ export default function AdminPage() {
     setImportResults(null);
   };
 
-  const handleOpenMigrationModal = async () => {
-    setShowMigrationModal(true);
-    setMigrationPreview(null);
-    setMigrationResults(null);
-    try {
-      const q = query(collection(db, 'users'));
-      const querySnapshot = await getDocs(q);
-      const allUsersData: any[] = [];
-      let verified = 0;
-      let unverified = 0;
-      querySnapshot.forEach((docSnap) => {
-        const docData = docSnap.data();
-        const data = { id: docSnap.id, ...docData };
-        allUsersData.push(data);
-        if (docData.role === 'doctor') {
-          verified++;
-        } else {
-          unverified++;
-        }
-      });
-      setMigrationPreview({
-        total: allUsersData.length,
-        verified,
-        unverified,
-        users: allUsersData
-      });
-    } catch (err) {
-      console.error('Error fetching users for migration:', err);
-      alert('Gagal mengambil data user untuk migrasi.');
-      setShowMigrationModal(false);
-    }
-  };
-
-  const handleExecuteMigration = async () => {
-    if (!migrationPreview) return;
-    setIsMigrating(true);
-    setMigrationResults(null);
-    
-    let successCount = 0;
-    let failedCount = 0;
-    const failedIds: string[] = [];
-
-    for (const userObj of migrationPreview.users) {
-      try {
-        const docRef = doc(db, 'users', userObj.id);
-        
-        let verificationStatus = 'unverified';
-        if (userObj.role === 'doctor') {
-          verificationStatus = 'verified';
-        } else if (userObj.role === 'pending') {
-          verificationStatus = 'unverified';
-        }
-        
-        const isAdminValue = userObj.email === 'driverizqanf@gmail.com';
-
-        await updateDoc(docRef, {
-          role: 'dokter_umum',
-          verificationStatus: verificationStatus,
-          isAdmin: isAdminValue
-        });
-        successCount++;
-      } catch (err) {
-        console.error('Error migrating user', userObj.id, err);
-        failedCount++;
-        failedIds.push(userObj.id);
-      }
-    }
-
-    setMigrationResults({
-      success: successCount,
-      failed: failedCount,
-      failedIds
-    });
-    setIsMigrating(false);
-    fetchUsers();
-  };
-
-  const closeMigrationModal = () => {
-    if (isMigrating) return;
-    setShowMigrationModal(false);
-    setMigrationPreview(null);
-    setMigrationResults(null);
-  };
-
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -254,9 +167,13 @@ export default function AdminPage() {
         fetchedUsers.push({ id: docSnap.id, ...docSnap.data() } as UserDoc);
       });
       setUsers(fetchedUsers);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      alert('Gagal mengambil data user.');
+    } catch (error: any) {
+      if (error.code === 'permission-denied') {
+        console.warn('Permission denied fetching users (Missing or insufficient permissions). Verify Firestore rules or admin status.');
+      } else {
+        console.error('Error fetching users:', error);
+        alert('Gagal mengambil data user.');
+      }
     } finally {
       setLoading(false);
     }
@@ -484,8 +401,8 @@ export default function AdminPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Stats & Search */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto flex-shrink-0">
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          <div className="flex flex-wrap gap-3 w-full lg:w-auto flex-shrink-0">
             <div className="bg-white dark:bg-gray-800 px-5 py-3.5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between sm:justify-start gap-3">
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pengguna</span>
               <span className="text-lg font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-xl">
@@ -493,50 +410,37 @@ export default function AdminPage() {
               </span>
             </div>
             
-            <button
-              onClick={handleExportUsers}
-              disabled={isExporting}
-              className="flex items-center justify-center gap-2 px-5 py-3.5 bg-emerald-600 text-white rounded-2xl shadow-sm hover:bg-emerald-700 disabled:opacity-70 transition-colors text-sm font-medium"
-            >
-              {isExporting ? (
-                <>
-                  <RefreshCcw className="w-5 h-5 animate-spin" />
-                  Mengekspor...
-                </>
-              ) : (
-                <>
-                  <Download className="w-5 h-5" />
-                  Export Data User
-                </>
-              )}
-            </button>
-            <button
-              onClick={() => setShowImportModal(true)}
-              className="flex items-center justify-center gap-2 px-5 py-3.5 bg-amber-600 text-white rounded-2xl shadow-sm hover:bg-amber-700 transition-colors text-sm font-medium"
-            >
-              <Upload className="w-5 h-5" />
-              Import Data User
-            </button>
-            <button
-              onClick={handleOpenMigrationModal}
-              disabled={isMigrating}
-              className="flex items-center justify-center gap-2 px-5 py-3.5 bg-orange-600 text-white rounded-2xl shadow-sm hover:bg-orange-700 disabled:opacity-70 transition-colors text-sm font-medium"
-            >
-              {isMigrating ? (
-                <>
-                  <RefreshCcw className="w-5 h-5 animate-spin" />
-                  Memproses...
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="w-5 h-5" />
-                  Jalankan Migrasi Data
-                </>
-              )}
-            </button>
+            {isAdmin && (
+              <>
+                <button
+                  onClick={handleExportUsers}
+                  disabled={isExporting}
+                  className="flex items-center justify-center gap-2 px-5 py-3.5 bg-emerald-600 text-white rounded-2xl shadow-sm hover:bg-emerald-700 disabled:opacity-70 transition-colors text-sm font-medium"
+                >
+                  {isExporting ? (
+                    <>
+                      <RefreshCcw className="w-5 h-5 animate-spin" />
+                      Mengekspor...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-5 h-5" />
+                      Export
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowImportModal(true)}
+                  className="flex items-center justify-center gap-2 px-5 py-3.5 bg-amber-600 text-white rounded-2xl shadow-sm hover:bg-amber-700 transition-colors text-sm font-medium"
+                >
+                  <Upload className="w-5 h-5" />
+                  Import
+                </button>
+              </>
+            )}
           </div>
 
-          <div className="relative w-full">
+          <div className="relative w-full max-w-sm">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
@@ -914,107 +818,6 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Migration Modal */}
-      {showMigrationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Jalankan Migrasi Data</h3>
-              <button 
-                onClick={closeMigrationModal}
-                disabled={isMigrating}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4 overflow-y-auto">
-              {!migrationResults && migrationPreview && (
-                <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-2xl border border-orange-200 dark:border-orange-800 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-6 h-6 text-orange-600 dark:text-orange-500 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-bold text-orange-800 dark:text-orange-400">
-                        {migrationPreview.total} User siap dimigrasi
-                      </h4>
-                      <ul className="mt-2 space-y-1 text-sm text-orange-700 dark:text-orange-300">
-                        <li>• <strong>{migrationPreview.verified}</strong> user akan diset menjadi "verified"</li>
-                        <li>• <strong>{migrationPreview.unverified}</strong> user akan diset menjadi "unverified"</li>
-                        <li>• Semua user akan diset role = "dokter_umum"</li>
-                      </ul>
-                      <p className="text-sm text-orange-700 dark:text-orange-300 mt-3 leading-relaxed border-t border-orange-200/50 dark:border-orange-800/50 pt-2">
-                        <strong>PERHATIAN:</strong> Field role dan verificationStatus akan diperbarui untuk semua user. Field lain TIDAK akan berubah. Disarankan sudah melakukan Export Data sebagai backup sebelum melanjutkan.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {migrationResults && (
-                <div className="space-y-4">
-                  <div className={`p-4 rounded-2xl border ${migrationResults.failed > 0 ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800' : 'bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800'}`}>
-                    <h4 className={`font-bold ${migrationResults.failed > 0 ? 'text-amber-800 dark:text-amber-400' : 'text-emerald-800 dark:text-emerald-400'}`}>
-                      Migrasi Selesai
-                    </h4>
-                    <ul className={`mt-2 text-sm space-y-1 ${migrationResults.failed > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-300'}`}>
-                      <li>• <strong>{migrationResults.success}</strong> dokumen berhasil diperbarui.</li>
-                      {migrationResults.failed > 0 && (
-                        <li>• <strong>{migrationResults.failed}</strong> dokumen gagal diperbarui.</li>
-                      )}
-                    </ul>
-                  </div>
-                  {migrationResults.failedIds.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID yang gagal:</p>
-                      <div className="max-h-32 overflow-y-auto bg-gray-50 dark:bg-gray-800 p-3 rounded-xl border border-gray-200 dark:border-gray-700 text-xs text-red-600 dark:text-red-400 font-mono break-all">
-                        {migrationResults.failedIds.join(', ')}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
-              {migrationResults ? (
-                <button
-                  onClick={closeMigrationModal}
-                  className="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors"
-                >
-                  Tutup
-                </button>
-              ) : (
-                <>
-                  <button
-                    onClick={closeMigrationModal}
-                    disabled={isMigrating}
-                    className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors disabled:opacity-50"
-                  >
-                    Batal
-                  </button>
-                  {migrationPreview && (
-                    <button
-                      onClick={handleExecuteMigration}
-                      disabled={isMigrating}
-                      className="px-5 py-2.5 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50 rounded-xl transition-colors flex items-center gap-2"
-                    >
-                      {isMigrating ? (
-                        <>
-                          <RefreshCcw className="w-4 h-4 animate-spin" />
-                          Memproses...
-                        </>
-                      ) : (
-                        'Ya, Jalankan Migrasi Sekarang'
-                      )}
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
