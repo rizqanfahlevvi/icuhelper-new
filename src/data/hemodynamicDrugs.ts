@@ -11,6 +11,12 @@ export interface DoseDependentReceptorProfile {
   dominantEffect: string;
 }
 
+export interface StandardConcentration {
+  value: number;
+  unit: 'mcg/mL' | 'U/mL';
+  syringeLabel: string;
+}
+
 export interface HemodynamicDrug {
   id: string;
   nameId: string;
@@ -27,6 +33,7 @@ export interface HemodynamicDrug {
   };
   receptorProfiles: DoseDependentReceptorProfile[];
   citationIds: string[];
+  standardConcentration: StandardConcentration;
 }
 
 export const RECEPTOR_ACTIVITY_SCALE: Record<ReceptorActivity, number> = {
@@ -82,6 +89,7 @@ export const HEMODYNAMIC_DRUGS: HemodynamicDrug[] = [
       },
     ],
     citationIds: ['ssc2026', 'debacker2010', 'goradia2021', 'statpearls_inotropes'],
+    standardConcentration: { value: 80, unit: 'mcg/mL', syringeLabel: '4 mg dalam 50 mL D5% = 80 mcg/mL' },
   },
   {
     id: 'epinephrine',
@@ -127,6 +135,7 @@ export const HEMODYNAMIC_DRUGS: HemodynamicDrug[] = [
       },
     ],
     citationIds: ['ssc2026', 'statpearls_inotropes'],
+    standardConcentration: { value: 80, unit: 'mcg/mL', syringeLabel: '4 mg dalam 50 mL D5% = 80 mcg/mL' },
   },
   {
     id: 'phenylephrine',
@@ -152,6 +161,7 @@ export const HEMODYNAMIC_DRUGS: HemodynamicDrug[] = [
       },
     ],
     citationIds: ['statpearls_inotropes'],
+    standardConcentration: { value: 100, unit: 'mcg/mL', syringeLabel: '10 mg dalam 100 mL NaCl = 100 mcg/mL' },
   },
   {
     id: 'vasopressin',
@@ -177,6 +187,7 @@ export const HEMODYNAMIC_DRUGS: HemodynamicDrug[] = [
       },
     ],
     citationIds: ['russell2008vasst', 'gordon2016vanish', 'ssc2026'],
+    standardConcentration: { value: 0.2, unit: 'U/mL', syringeLabel: '20 unit dalam 100 mL NaCl = 0.2 unit/mL' },
   },
   {
     id: 'dobutamine',
@@ -212,6 +223,7 @@ export const HEMODYNAMIC_DRUGS: HemodynamicDrug[] = [
       },
     ],
     citationIds: ['statpearls_inotropes', 'kapur2019'],
+    standardConcentration: { value: 5000, unit: 'mcg/mL', syringeLabel: '250 mg dalam 50 mL NaCl = 5000 mcg/mL' },
   },
   {
     id: 'dopamine',
@@ -257,6 +269,7 @@ export const HEMODYNAMIC_DRUGS: HemodynamicDrug[] = [
       },
     ],
     citationIds: ['debacker2010', 'ssc2026', 'statpearls_inotropes'],
+    standardConcentration: { value: 4000, unit: 'mcg/mL', syringeLabel: '200 mg dalam 50 mL NaCl = 4000 mcg/mL' },
   },
 ];
 
@@ -267,4 +280,14 @@ export function getDrugById(id: string): HemodynamicDrug | undefined {
 export function getReceptorProfileForDose(drug: HemodynamicDrug, dose: number): DoseDependentReceptorProfile {
   const band = drug.receptorProfiles.find((p) => dose >= p.doseBandMin && dose <= p.doseBandMax);
   return band || drug.receptorProfiles[drug.receptorProfiles.length - 1];
+}
+
+/** Rate (mL/jam) syringe pump berdasarkan konsentrasi standar, mengikuti formula yang sama dengan KalkulatorPump. */
+export function calculatePumpRateMlPerHour(drug: HemodynamicDrug, dose: number, weightKg: number | null): number | null {
+  const concValue = drug.standardConcentration.value;
+  if (drug.isWeightBased) {
+    if (!weightKg || weightKg <= 0) return null;
+    return (dose * weightKg * 60) / concValue;
+  }
+  return (dose * 60) / concValue;
 }

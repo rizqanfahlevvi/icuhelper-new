@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { HeartPulse, Plus, X, Info, AlertTriangle, ShieldAlert, ExternalLink } from 'lucide-react';
+import { HeartPulse, Plus, X, Info, AlertTriangle, ShieldAlert, ExternalLink, Activity } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
@@ -15,6 +15,7 @@ import {
   RECEPTOR_ACTIVITY_LABEL,
   getDrugById,
   getReceptorProfileForDose,
+  calculatePumpRateMlPerHour,
 } from '../../data/hemodynamicDrugs';
 
 interface ActiveDrug {
@@ -116,7 +117,7 @@ function getNeeStatus(score: number): { level: 'normal' | 'warning' | 'danger'; 
   };
 }
 
-function evaluateHemodynamicFlags(activeDrugs: ActiveDrug[]): ClinicalFlag[] {
+function evaluateHemodynamicFlags(activeDrugs: ActiveDrug[], currentMap: number | null): ClinicalFlag[] {
   const flags: ClinicalFlag[] = [];
   const find = (id: string) => activeDrugs.find((d) => d.id === id);
 
@@ -190,6 +191,14 @@ function evaluateHemodynamicFlags(activeDrugs: ActiveDrug[]): ClinicalFlag[] {
     });
   }
 
+  if (currentMap !== null && currentMap < 65 && activeDrugs.length > 0) {
+    flags.push({
+      level: 'perhatian',
+      text: `MAP saat ini ${currentMap.toFixed(0)} mmHg (<65 mmHg) meski vasopresor/inotropik sudah aktif — pertimbangkan reevaluasi status volume, fungsi jantung (echocardiography bedside), dan etiologi syok non-septik sebelum menaikkan dosis lebih lanjut.`,
+      citationIds: ['ssc2026', 'vincent2013'],
+    });
+  }
+
   return flags;
 }
 
@@ -253,7 +262,19 @@ export default function KalkulatorHemodinamik() {
     [activeDrugs, neeFormula]
   );
   const neeStatus = useMemo(() => getNeeStatus(neeScore), [neeScore]);
-  const flags = useMemo(() => evaluateHemodynamicFlags(activeDrugs), [activeDrugs]);
+
+  const mapValue = useMemo(() => {
+    const rawMap = parseFloat(clinicalStore.data.map || '');
+    if (!isNaN(rawMap) && rawMap > 0) return rawMap;
+    const sbp = parseFloat(clinicalStore.data.systolic || '');
+    const dbp = parseFloat(clinicalStore.data.diastolic || '');
+    if (!isNaN(sbp) && !isNaN(dbp) && sbp > 0 && dbp > 0) {
+      return dbp + (sbp - dbp) / 3;
+    }
+    return null;
+  }, [clinicalStore.data.map, clinicalStore.data.systolic, clinicalStore.data.diastolic]);
+
+  const flags = useMemo(() => evaluateHemodynamicFlags(activeDrugs, mapValue), [activeDrugs, mapValue]);
 
   const weightNum = parseFloat(bw);
   const historySummary = activeDrugs.length
@@ -294,6 +315,40 @@ export default function KalkulatorHemodinamik() {
         </div>
       </div>
 
+      {/* MAP Target Status */}
+      {mapValue !== null ? (
+        <div
+          className={`rounded-2xl border p-4 flex items-center justify-between gap-3 ${
+            mapValue >= 65
+              ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+              : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <Activity className={`w-5 h-5 ${mapValue >= 65 ? 'text-emerald-500' : 'text-red-500'}`} />
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">MAP Saat Ini</span>
+              <div className={`font-mono text-2xl font-extrabold ${mapValue >= 65 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
+                {mapValue.toFixed(0)} <span className="text-[13px] font-sans font-medium text-slate-500">mmHg</span>
+              </div>
+            </div>
+          </div>
+          <span
+            className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full whitespace-nowrap ${
+              mapValue >= 65
+                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+                : 'bg-red-500/15 text-red-700 dark:text-red-400'
+            }`}
+          >
+            {mapValue >= 65 ? 'Target Tercapai (≥65)' : 'Di Bawah Target (<65)'}
+          </span>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-4 text-center text-[12px] text-slate-500 dark:text-slate-400">
+          Data MAP / tekanan darah belum tersedia. Isi di modul Klinis atau Pasien untuk melihat status target MAP (≥65 mmHg) di sini.
+        </div>
+      )}
+
       {/* Add Drug Panel */}
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
         <h4 className="text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Tambah Obat</h4>
@@ -328,6 +383,7 @@ export default function KalkulatorHemodinamik() {
             const badge = CATEGORY_BADGE[drug.category];
             const isHighDose = ad.dose > drug.highDoseThreshold;
             const absoluteDose = drug.isWeightBased && weightNum ? ad.dose * weightNum : null;
+            const pumpRate = calculatePumpRateMlPerHour(drug, ad.dose, drug.isWeightBased ? weightNum || null : null);
 
             return (
               <div key={ad.id} className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
@@ -352,13 +408,31 @@ export default function KalkulatorHemodinamik() {
                   </button>
                 </div>
 
-                {/* Dose Slider */}
+                {/* Dose Slider + Direct Input */}
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">Dosis</span>
-                    <span className="font-mono text-[15px] font-bold text-slate-900 dark:text-white">
-                      {ad.dose.toFixed(drug.doseStep < 1 ? 2 : 0)} <span className="text-[11px] font-sans font-medium text-slate-500">{drug.unit}</span>
-                    </span>
+                  <div className="flex items-center justify-between mb-1.5 gap-2">
+                    <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">Dosis</span>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        min={drug.doseMin}
+                        max={drug.doseMax}
+                        step={drug.doseStep}
+                        value={ad.dose}
+                        onChange={(e) => {
+                          const raw = parseFloat(e.target.value);
+                          if (isNaN(raw)) return;
+                          updateDose(ad.id, raw);
+                        }}
+                        onBlur={(e) => {
+                          const raw = parseFloat(e.target.value);
+                          const clamped = isNaN(raw) ? drug.doseMin : Math.min(drug.doseMax, Math.max(drug.doseMin, raw));
+                          updateDose(ad.id, clamped);
+                        }}
+                        className="w-20 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1 text-right font-mono font-bold text-slate-900 dark:text-white text-[14px] focus:ring-2 focus:ring-blue-500/50"
+                      />
+                      <span className="text-[11px] font-sans font-medium text-slate-500">{drug.unit}</span>
+                    </div>
                   </div>
                   <input
                     type="range"
@@ -383,6 +457,18 @@ export default function KalkulatorHemodinamik() {
                       Fixed-dose (bukan per kgBB) — umumnya tidak dititrasi berkelanjutan seperti katekolamin.
                     </p>
                   )}
+                  <div className="mt-2 bg-slate-50 dark:bg-[#2C2C2E]/40 rounded-lg p-2.5 border border-slate-100 dark:border-slate-800">
+                    {pumpRate !== null ? (
+                      <p className="text-[12px] text-slate-700 dark:text-slate-300">
+                        Rate Syringe Pump: <strong className="font-mono text-[13px]">{pumpRate.toFixed(1)} mL/jam</strong>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">{drug.standardConcentration.syringeLabel}</span>
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                        Isi Berat Badan Pasien untuk melihat rate syringe pump (mL/jam) berdasarkan konsentrasi standar {drug.standardConcentration.syringeLabel}.
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Receptor Profile */}
