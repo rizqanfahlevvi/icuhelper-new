@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { getSubscriptionState } from '../utils/subscription';
+import { isAdminUser } from '../utils/auth';
 
 interface ProfilePopupProps {
   isOpen: boolean;
@@ -19,9 +20,9 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  if (!isOpen || !user || !userProfile) return null;
+  if (!user || !userProfile) return null;
 
-  const isAdmin = userProfile.role === 'admin' || user.email === 'driverizqanf@gmail.com';
+  const isAdmin = isAdminUser(user, userProfile);
 
   const handleResetPassword = async () => {
     setIsLoading(true);
@@ -57,7 +58,7 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+      {isOpen && <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -203,7 +204,7 @@ export function ProfilePopup({ isOpen, onClose, onLogout }: ProfilePopupProps) {
             </button>
           </div>
         </motion.div>
-      </div>
+      </div>}
     </AnimatePresence>
   );
 }

@@ -13,6 +13,7 @@ import LogoIcon from '../ui/LogoIcon';
 import { useAuth } from '../../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
+import { isAdminUser } from '../../utils/auth';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProfilePopup } from '../ProfilePopup';
 import GlobalSearch from './GlobalSearch';
@@ -605,7 +606,7 @@ export default function MainLayout() {
                         </div>
                       </div>
                       <div className="border-t border-[var(--separator)] pt-2.5 flex flex-col gap-1">
-                        {userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com' ? (
+                        {isAdminUser(user, userProfile) ? (
                           <button
                             type="button"
                             onClick={() => {

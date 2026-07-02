@@ -4,6 +4,7 @@ import { collection, getDocs, doc, updateDoc, setDoc, deleteDoc, query, orderBy,
 import { db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download, Upload, Trash2 } from 'lucide-react';
+import { isAdminUser } from '../utils/auth';
 
 interface UserDoc {
   id: string;
@@ -52,7 +53,7 @@ export default function AdminPage() {
   const [userToDelete, setUserToDelete] = useState<UserDoc | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const isAdmin = userProfile?.role === 'admin' || user?.email === 'driverizqanf@gmail.com';
+  const isAdmin = isAdminUser(user, userProfile);
 
   const handleExportUsers = async () => {
     setIsExporting(true);
