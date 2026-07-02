@@ -58,22 +58,37 @@ const CITATION_TEXT: Record<string, string> = {
   ssc2021: 'Evans L et al. SSC Guidelines 2021. ICM 2021;47:1181.',
 };
 
-function calculateNEE(activeDrugs: ActiveDrug[], formula: NeeFormula): { score: number; excludedDrugs: string[] } {
+function calculateNEE(
+  activeDrugs: ActiveDrug[],
+  formula: NeeFormula
+): { score: number; formulaGapDrugs: string[]; structuralExclusions: string[] } {
   let score = 0;
-  const excludedDrugs: string[] = [];
+  // Drugs missing from only ONE of the two formulas (e.g. dopamine under Kotani 2023) —
+  // a genuine gap in that specific formula's coverage.
+  const formulaGapDrugs: string[] = [];
+  // Drugs with no NEE factor in EITHER formula (pure inotropes like dobutamine) —
+  // excluded by design, not a formula limitation.
+  const structuralExclusions: string[] = [];
 
   activeDrugs.forEach((ad) => {
     const drug = getDrugById(ad.id);
     if (!drug) return;
-    const factor = formula === 'goradia' ? drug.neeConversionFactor.goradia2021 : drug.neeConversionFactor.kotani2023;
+    const { goradia2021, kotani2023 } = drug.neeConversionFactor;
+    const isStructurallyExcluded = goradia2021 === null && kotani2023 === null;
+    const factor = formula === 'goradia' ? goradia2021 : kotani2023;
+
+    if (isStructurallyExcluded) {
+      structuralExclusions.push(drug.nameId);
+      return;
+    }
     if (factor === null || factor === undefined) {
-      excludedDrugs.push(drug.nameId);
+      formulaGapDrugs.push(drug.nameId);
       return;
     }
     score += ad.dose * factor;
   });
 
-  return { score, excludedDrugs };
+  return { score, formulaGapDrugs, structuralExclusions };
 }
 
 function getNeeStatus(score: number): { level: 'normal' | 'warning' | 'danger'; label: string; desc: string; className: string } {
@@ -88,7 +103,7 @@ function getNeeStatus(score: number): { level: 'normal' | 'warning' | 'danger'; 
   if (score >= 0.25) {
     return {
       level: 'warning',
-      label: 'Dosis Tinggi',
+      label: 'Beban Vasopresor Tinggi',
       desc: 'Pertimbangkan evaluasi ulang sumber syok, adekuasi volume, dan indikasi penambahan agen kedua sesuai kelas obat yang sudah dipakai.',
       className: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400',
     };
@@ -113,12 +128,17 @@ function evaluateHemodynamicFlags(activeDrugs: ActiveDrug[]): ClinicalFlag[] {
   const dopa = find('dopamine');
 
   const neHighDose = !!ne && ne.dose > 0.5;
+  // SSC menyarankan mempertimbangkan penambahan vasopresin begitu NE mencapai
+  // rentang 0.25–0.5 mcg/kgBB/menit, bukan menunggu sampai melewati 0.5.
+  const neAtVasopressinConsiderationDose = !!ne && ne.dose >= 0.25;
 
-  if (neHighDose && activeDrugs.length === 1) {
+  if (neAtVasopressinConsiderationDose && activeDrugs.length === 1) {
     flags.push({
-      level: 'peringatan',
-      text: 'NE dosis tinggi (>0.5 mcg/kgBB/menit) tanpa agen kedua. Pertimbangkan menambah vasopresin dibanding terus menaikkan dosis NE.',
-      citationIds: ['ssc2026'],
+      level: neHighDose ? 'peringatan' : 'perhatian',
+      text: neHighDose
+        ? 'NE dosis tinggi (>0.5 mcg/kgBB/menit) tanpa agen kedua. Pertimbangkan menambah vasopresin dibanding terus menaikkan dosis NE.'
+        : 'NE sudah mencapai rentang 0.25–0.5 mcg/kgBB/menit tanpa agen kedua. SSC menyarankan mempertimbangkan penambahan vasopresin pada rentang dosis ini, bukan menunggu hingga NE melebihi 0.5 mcg/kgBB/menit.',
+      citationIds: ['ssc2026', 'russell2008vasst'],
     });
   }
 
@@ -228,7 +248,7 @@ export default function KalkulatorHemodinamik() {
     setActiveDrugs((prev) => prev.map((ad) => (ad.id === id ? { ...ad, dose } : ad)));
   };
 
-  const { score: neeScore, excludedDrugs } = useMemo(
+  const { score: neeScore, formulaGapDrugs, structuralExclusions } = useMemo(
     () => calculateNEE(activeDrugs, neeFormula),
     [activeDrugs, neeFormula]
   );
@@ -316,7 +336,12 @@ export default function KalkulatorHemodinamik() {
                     <h4 className="text-[14px] font-bold text-slate-900 dark:text-slate-100">{drug.nameId}</h4>
                     <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${badge.className}`}>{badge.label}</span>
                     {isHighDose && (
-                      <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400">DOSIS TINGGI</span>
+                      <span
+                        className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                        title="Melewati ambang dosis tinggi khusus obat ini — berbeda dari status beban NEE gabungan di bawah"
+                      >
+                        DOSIS TINGGI (OBAT INI)
+                      </span>
                     )}
                   </div>
                   <button
@@ -417,10 +442,16 @@ export default function KalkulatorHemodinamik() {
           <div className="text-[13px] font-bold">{neeStatus.label}</div>
           <p className="text-[12px] opacity-90">{neeStatus.desc}</p>
 
-          {excludedDrugs.length > 0 && (
+          {structuralExclusions.length > 0 && (
             <p className="text-[11px] italic opacity-80 border-t border-current/20 pt-2">
-              Catatan: {excludedDrugs.join(', ')} tidak masuk formula {neeFormula === 'kotani' ? 'Kotani 2023' : 'Goradia 2021'}
-              {neeFormula === 'kotani' ? ', gunakan Goradia 2021 jika dopamin digunakan.' : '.'}
+              Catatan: {structuralExclusions.join(', ')} adalah inotrop murni — tidak dihitung dalam skor NEE pada formula manapun. Ini bukan kekurangan formula; inotrop memang di luar cakupan NEE by design.
+            </p>
+          )}
+
+          {formulaGapDrugs.length > 0 && (
+            <p className="text-[11px] italic opacity-80 border-t border-current/20 pt-2">
+              ⚠ {formulaGapDrugs.join(', ')} tidak dicakup formula {neeFormula === 'kotani' ? 'Kotani 2023' : 'Goradia 2021'} — kontribusinya TIDAK termasuk dalam skor NEE yang ditampilkan saat ini.
+              {neeFormula === 'kotani' ? ' Gunakan Goradia 2021 jika dopamin digunakan.' : ''}
             </p>
           )}
 
