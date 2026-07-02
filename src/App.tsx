@@ -12,6 +12,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import { ShieldAlert, ExternalLink, LogOut } from 'lucide-react';
 import { PwaInstallPrompt } from './components/PwaInstallPrompt';
+import { loadFont } from './utils/fontLoader';
 
 const Home = lazy(() => import('./pages/Home'));
 const AboutSettings = lazy(() => import('./pages/AboutSettings'));
@@ -208,6 +209,9 @@ export default function App() {
     root.style.setProperty('--fw-bold', boldWeight.toString());
     root.style.setProperty('--fw-extrabold', extraboldWeight.toString());
     root.style.setProperty('--fw-black', blackWeight.toString());
+
+    // Inject the chosen font's stylesheet on demand (no-op for lexend/system)
+    loadFont(fontFamily);
 
     // Apply font families
     const fontsMap: Record<string, string> = {
