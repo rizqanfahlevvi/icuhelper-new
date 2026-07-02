@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, onSnapshot, Timestamp } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
+import { parseExpiryDate } from "../utils/subscription";
 
 export interface UserProfile {
   uid: string;
@@ -80,7 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthorized =
     isAuthenticated &&
     userProfile !== null &&
-    (!userProfile.subscriptionExpiredAt || userProfile.subscriptionExpiredAt.toDate() > new Date());
+    (() => {
+      const expiry = parseExpiryDate(userProfile.subscriptionExpiredAt);
+      return !expiry || expiry > new Date();
+    })();
 
   const value: AuthContextType = {
     user,
