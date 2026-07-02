@@ -666,5 +666,54 @@ export const ICU_REFS: Record<string, any> = {
     journal: 'Crit Care Med',
     year: 2023,
     doi: '10.1097/CCM.0000000000005908'
+  },
+  ssc2026: {
+    authors: 'Prescott HC, Antonelli M, Alhazzani W, et al.',
+    title: 'Surviving Sepsis Campaign: International Guidelines for Management of Sepsis and Septic Shock 2026',
+    journal: 'Intensive Care Med',
+    year: 2026,
+    doi: '10.1007/s00134-026-08361-1'
+  },
+  goradia2021: {
+    authors: 'Goradia S, Sardaneh AA, Narayan SW, Penm J, Patanwala AE',
+    title: 'Vasopressor dose equivalence: A scoping review and suggested formula',
+    journal: 'J Crit Care',
+    year: 2021,
+    vol: '61',
+    pages: '233–240',
+    doi: '10.1016/j.jcrc.2020.10.026'
+  },
+  kotani2023: {
+    authors: 'Kotani Y, Di Gioia A, Landoni G, et al.',
+    title: 'An updated "norepinephrine equivalent" score in intensive care as a marker of shock severity',
+    journal: 'Crit Care',
+    year: 2023,
+    vol: '27',
+    pages: '29',
+    doi: '10.1186/s13054-023-04322-y'
+  },
+  russell2008vasst: {
+    authors: 'Russell JA, Walley KR, Singer J, et al.',
+    title: 'Vasopressin versus norepinephrine infusion in patients with septic shock',
+    journal: 'N Engl J Med',
+    year: 2008,
+    vol: '358',
+    pages: '877–887',
+    doi: '10.1056/NEJMoa067373'
+  },
+  gordon2016vanish: {
+    authors: 'Gordon AC, Mason AJ, Thirunavukkarasu N, et al.',
+    title: 'Effect of early vasopressin vs norepinephrine on kidney failure in patients with septic shock',
+    journal: 'JAMA',
+    year: 2016,
+    vol: '316',
+    pages: '509–518',
+    doi: '10.1001/jama.2016.10485'
+  },
+  statpearls_inotropes: {
+    authors: 'Jain A, Kumar A, Simoni A',
+    title: 'Inotropes and Vasopressors',
+    journal: 'StatPearls [Internet]. Treasure Island (FL): StatPearls Publishing',
+    year: 2024
   }
 };

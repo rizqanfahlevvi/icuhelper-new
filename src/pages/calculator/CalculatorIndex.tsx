@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Calculator, Dna, Droplets, HeartPulse, Syringe, Activity, FileDigit, Star } from 'lucide-react';
+import { Calculator, Dna, Droplets, HeartPulse, Syringe, Activity, FileDigit, Star, Zap } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { PageHeader } from '../../components/ui/PageHeader';
 
@@ -9,6 +9,7 @@ const CALCULATORS = [
   { path: 'electro', name: 'Koreksi Elektrolit', icon: Activity, desc: 'Natrium, Kalium, dll' },
   { path: 'ibw', name: 'IBW & Tidal Volume', icon: Dna, desc: 'Berat badan ideal & TV' },
   { path: 'insulin', name: 'Kalkulator Insulin', icon: Syringe, desc: 'Drip insulin intravena' },
+  { path: 'hemodinamik', name: 'Hemodynamic Support', icon: Zap, desc: 'Vasopresor/inotropik, profil reseptor & skor NEE' },
   { path: 'nlr', name: 'NLR', icon: FileDigit, desc: 'Neutrophil-to-Lymphocyte Ratio' },
   { path: 'nutrisi', name: 'Kalkulator Nutrisi', icon: HeartPulse, desc: 'Kebutuhan kalori & protein' },
   { path: 'pf', name: 'P/F Ratio', icon: Activity, desc: 'PaO2/FiO2 Ratio' },

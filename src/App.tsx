@@ -49,6 +49,7 @@ const KalkulatorNutrisi = lazy(() => import('./pages/calculator/KalkulatorNutris
 const KalkulatorVentilatorAdv = lazy(() => import('./pages/calculator/KalkulatorVentilatorAdv'));
 const KalkulatorBurn = lazy(() => import('./pages/calculator/KalkulatorBurn'));
 const KalkulatorAnionGap = lazy(() => import('./pages/calculator/KalkulatorAnionGap'));
+const KalkulatorHemodinamik = lazy(() => import('./pages/calculator/KalkulatorHemodinamik'));
 
 const TeoriImpending = lazy(() => import('./pages/theory/TeoriImpending'));
 const TeoriGagalNapas = lazy(() => import('./pages/theory/TeoriGagalNapas'));
@@ -312,6 +313,7 @@ export default function App() {
                 <Route path="/calculator/ventilator-adv" element={<KalkulatorVentilatorAdv />} />
                 <Route path="/calculator/burn" element={<KalkulatorBurn />} />
                 <Route path="/calculator/anion-gap" element={<KalkulatorAnionGap />} />
+                <Route path="/calculator/hemodinamik" element={<KalkulatorHemodinamik />} />
                 
                 {/* Teori Routes */}
                 <Route path="/theory" element={<TheoryIndex />} />
