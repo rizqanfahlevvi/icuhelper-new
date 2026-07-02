@@ -201,7 +201,7 @@ html.bw-mode,
 /* ---------------------------------------------------------------------------
    Global Mobile Padding/Margin Optimizations
    --------------------------------------------------------------------------- */
-@media (max-w: 640px) {
+@media (max-width: 640px) {
   /* Reduce horizontal padding of top header for a snugger mobile look */
   header.ios-nav {
     padding-left: 0.625rem !important; /* 10px instead of 16px */
