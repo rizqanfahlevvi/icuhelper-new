@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Newspaper, RefreshCw, ChevronRight, ExternalLink } from 'lucide-react';
+import { auth } from '../lib/firebase';
 
 interface NewsItem {
   title: string;
@@ -18,7 +19,10 @@ export function DailyNewsWidget() {
     setError(null);
     try {
       const url = forceRefresh ? `/api/daily-news?refresh=true&t=${Date.now()}` : `/api/daily-news?t=${Date.now()}`;
-      const res = await fetch(url);
+      const idToken = await auth.currentUser?.getIdToken();
+      const res = await fetch(url, {
+        headers: idToken ? { Authorization: `Bearer ${idToken}` } : undefined,
+      });
       if (!res.ok) throw new Error('Failed to fetch news');
       const data = await res.json();
       if (Array.isArray(data)) {

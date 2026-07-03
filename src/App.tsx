@@ -8,8 +8,7 @@ import MainLayout from './components/layout/MainLayout';
 import { useSettingsStore } from './store/settingsStore';
 import PageSkeleton from './components/ui/PageSkeleton';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { signOut } from 'firebase/auth';
-import { auth } from './lib/firebase';
+import { logoutAndClearPatientData } from './utils/logout';
 import { ShieldAlert, ExternalLink, LogOut } from 'lucide-react';
 import { PwaInstallPrompt } from './components/PwaInstallPrompt';
 import { loadFont } from './utils/fontLoader';
@@ -80,7 +79,7 @@ const ScoringWells = lazy(() => import('./pages/scoring/ScoringWells'));
 function VerificationPage() {
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await logoutAndClearPatientData();
     } catch (err) {
       console.error("Gagal keluar:", err);
     }

@@ -2,7 +2,8 @@ import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
-import { fetchDailyNews, getFallback } from "./api/_lib/dailyNews";
+import { getDailyNews } from "./api/_lib/dailyNews";
+import { verifyIdToken, extractBearerToken } from "./api/_lib/verifyToken";
 
 dotenv.config();
 
@@ -18,8 +19,13 @@ async function startServer() {
   });
 
   app.get("/api/daily-news", async (req, res) => {
+    const idToken = extractBearerToken(req.headers.authorization);
+    if (!(await verifyIdToken(idToken))) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
     const isRefresh = req.query.refresh === 'true';
-    const data = await fetchDailyNews(process.env.GEMINI_API_KEY, isRefresh);
+    const data = await getDailyNews(process.env.GEMINI_API_KEY, isRefresh);
     res.json(data);
   });
 

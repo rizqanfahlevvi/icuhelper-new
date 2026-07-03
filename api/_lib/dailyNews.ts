@@ -96,6 +96,35 @@ export function parseGeminiText(text: string): NewsItem[] {
   return JSON.parse(clean);
 }
 
+// In-memory cache: serves repeat requests without re-calling Gemini.
+// Serverless instances are ephemeral, so this resets on cold start — that's fine;
+// the goal is protecting quota/cost against request floods, not perfect persistence.
+let newsCache: { items: NewsItem[]; fetchedAt: number } | null = null;
+let lastGeminiCallAt = 0;
+const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+const REFRESH_COOLDOWN_MS = 5 * 60 * 1000;
+
+/**
+ * Cached entry point for handlers. Calls Gemini at most once per TTL window,
+ * and at most once per cooldown window for explicit refreshes.
+ */
+export async function getDailyNews(apiKey: string | undefined, isRefresh: boolean): Promise<NewsItem[]> {
+  const now = Date.now();
+
+  if (newsCache) {
+    const fresh = now - newsCache.fetchedAt < CACHE_TTL_MS;
+    const refreshTooSoon = now - lastGeminiCallAt < REFRESH_COOLDOWN_MS;
+    if ((!isRefresh && fresh) || (isRefresh && refreshTooSoon)) {
+      return newsCache.items;
+    }
+  }
+
+  lastGeminiCallAt = now;
+  const items = await fetchDailyNews(apiKey, isRefresh);
+  newsCache = { items, fetchedAt: now };
+  return items;
+}
+
 /**
  * Calls the Gemini API and returns 3 daily news items for ER/ICU doctors.
  * Falls back to the static database on any error or if no API key is provided.

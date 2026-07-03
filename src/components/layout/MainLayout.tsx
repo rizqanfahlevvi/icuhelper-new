@@ -11,9 +11,8 @@ import { getFavoritableItemByPath } from '../../data/favoritableItems';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import LogoIcon from '../ui/LogoIcon';
 import { useAuth } from '../../context/AuthContext';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
 import { isAdminUser } from '../../utils/auth';
+import { logoutAndClearPatientData } from '../../utils/logout';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProfilePopup } from '../ProfilePopup';
 import GlobalSearch from './GlobalSearch';
@@ -248,7 +247,7 @@ export default function MainLayout() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await logoutAndClearPatientData();
     } catch (err) {
       console.error("Gagal keluar:", err);
     }
