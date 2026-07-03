@@ -108,12 +108,12 @@ export default function KalkulatorIBW() {
       const ebv = aBW * (sex === 'm' ? 70 : 65);
       
       let bmiLabel = '', bmiColor = '';
-      if (bmiValue! < 18.5) { bmiLabel = 'Underweight'; bmiColor = 'var(--blue)'; }
-      else if (bmiValue! < 25) { bmiLabel = 'Normal'; bmiColor = 'var(--green)'; }
-      else if (bmiValue! < 30) { bmiLabel = 'Overweight'; bmiColor = 'var(--amber)'; }
-      else if (bmiValue! < 35) { bmiLabel = 'Obesitas I'; bmiColor = 'var(--red)'; }
-      else if (bmiValue! < 40) { bmiLabel = 'Obesitas II'; bmiColor = 'var(--red)'; }
-      else { bmiLabel = 'Obesitas III'; bmiColor = 'var(--red)'; }
+      if (bmiValue! < 18.5) { bmiLabel = 'Underweight'; bmiColor = 'var(--sys-blue)'; }
+      else if (bmiValue! < 25) { bmiLabel = 'Normal'; bmiColor = 'var(--sys-green)'; }
+      else if (bmiValue! < 30) { bmiLabel = 'Overweight'; bmiColor = 'var(--sys-orange)'; }
+      else if (bmiValue! < 35) { bmiLabel = 'Obesitas I'; bmiColor = 'var(--sys-red)'; }
+      else if (bmiValue! < 40) { bmiLabel = 'Obesitas II'; bmiColor = 'var(--sys-red)'; }
+      else { bmiLabel = 'Obesitas III'; bmiColor = 'var(--sys-red)'; }
 
       let ree = null, calMin = null, calMax = null, protMin = null, protMax = null;
       if (ageNum && !isNaN(ageNum)) {

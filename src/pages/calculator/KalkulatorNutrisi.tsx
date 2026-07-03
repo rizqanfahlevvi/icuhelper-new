@@ -50,7 +50,13 @@ export default function KalkulatorNutrisi() {
     const bmi = (!isNaN(t) && t > 0) ? Math.round(w / ((t / 100) * (t / 100)) * 10) / 10 : null;
     const isObese = (bmi !== null && bmi >= 30) || kondisi === 'obese';
 
-    const ibw = (!isNaN(i) && i > 0) ? i : w;
+    // When IBW not entered but height available, derive via Devine formula
+    let derivedIbw: number | null = null;
+    if (!(!isNaN(i) && i > 0) && !isNaN(t) && t > 152.4) {
+      const isFemale = patient.gender === 'P';
+      derivedIbw = Math.round((isFemale ? 45.5 : 50) + 0.91 * (t - 152.4));
+    }
+    const ibw = (!isNaN(i) && i > 0) ? i : (derivedIbw ?? w);
     const adjBW = isObese ? Math.round((ibw + 0.25 * (w - ibw)) * 10) / 10 : null;
     const dosingWt = isObese ? (adjBW || w) : w;
 

@@ -1,17 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Activity, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { usePatientStore } from '../../store/usePatientStore';
+import { useClinicalStore } from '../../store/useClinicalStore';
+import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
+import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { Accordion } from '../../components/ui/Accordion';
 
 export default function KalkulatorAnionGap() {
   const patient = usePatientStore();
+  const clinicalStore = useClinicalStore();
+
   const [na, setNa] = useState<string>('');
   const [cl, setCl] = useState<string>('');
   const [hco3, setHco3] = useState<string>('');
   const [albumin, setAlbumin] = useState<string>('');
+
+  // Auto-load clinical data on mount
+  useEffect(() => {
+    if (clinicalStore.data.na) setNa(clinicalStore.data.na);
+    if (clinicalStore.data.cl) setCl(clinicalStore.data.cl);
+    if (clinicalStore.data.hco3) setHco3(clinicalStore.data.hco3);
+    if (clinicalStore.data.albumin) setAlbumin(clinicalStore.data.albumin);
+  }, []);
+
+  const syncFields = useMemo(() => [
+    { key: 'na' as const, label: 'Natrium', value: na, setter: setNa, unit: 'mEq/L' },
+    { key: 'cl' as const, label: 'Klorida', value: cl, setter: setCl, unit: 'mEq/L' },
+    { key: 'hco3' as const, label: 'HCO₃', value: hco3, setter: setHco3, unit: 'mEq/L' },
+    { key: 'albumin' as const, label: 'Albumin', value: albumin, setter: setAlbumin, unit: 'g/dL' },
+  ], [na, cl, hco3, albumin]);
 
   const naVal = parseFloat(na);
   const clVal = parseFloat(cl);
@@ -28,20 +48,22 @@ export default function KalkulatorAnionGap() {
     return ag + 2.5 * (4.4 - albVal);
   };
 
-  const calculateDeltaRatio = (ag: number) => {
+  const calculateDeltaRatio = (effectiveAG: number) => {
     if (isNaN(hco3Val)) return null;
-    const deltaAG = ag - 12;
+    const deltaAG = effectiveAG - 12;
     const deltaHCO3 = 24 - hco3Val;
-    if (deltaHCO3 === 0) return null; // Avoid division by zero
+    if (deltaHCO3 === 0) return null;
     return deltaAG / deltaHCO3;
   };
 
   const ag = calculateAG();
   const correctedAg = ag !== null ? calculateCorrectedAG(ag) : null;
-  const deltaRatio = ag !== null ? calculateDeltaRatio(ag) : null;
+  // Use correctedAg for delta ratio when albumin is available for accuracy
+  const effectiveAGForDelta = correctedAg !== null ? correctedAg : ag;
+  const deltaRatio = effectiveAGForDelta !== null ? calculateDeltaRatio(effectiveAGForDelta) : null;
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
       <div className="flex items-center gap-3 mb-6">
         <Link to="/calculator" className="p-2 -ml-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
           <ArrowLeft className="w-5 h-5" />
@@ -51,6 +73,9 @@ export default function KalkulatorAnionGap() {
           Anion Gap
         </h1>
       </div>
+
+      <ActivePatientBriefCard />
+      <UnifiedSyncBanner fields={syncFields} />
 
       <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
         <div>
@@ -125,6 +150,9 @@ export default function KalkulatorAnionGap() {
               <div className="text-xl font-bold text-primary">
                 {correctedAg.toFixed(1)} <span className="text-sm font-normal">mEq/L</span>
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Delta Ratio menggunakan Corrected AG untuk akurasi
+              </div>
             </div>
           )}
 
@@ -136,7 +164,7 @@ export default function KalkulatorAnionGap() {
               </div>
               <div className="text-xs text-muted-foreground mt-1 space-y-1">
                 {deltaRatio < 0.4 && <div className="font-semibold text-destructive">{'< 0.4: Hyperchloremic normal AG acidosis'}</div>}
-                {deltaRatio >= 0.4 && deltaRatio < 0.8 && <div className="font-semibold text-warning">{'0.4 - 0.8: Mixed normal & high AG acidosis'}</div>}
+                {deltaRatio >= 0.4 && deltaRatio < 0.8 && <div className="font-semibold text-amber-600 dark:text-amber-400">{'0.4 - 0.8: Mixed normal & high AG acidosis'}</div>}
                 {deltaRatio >= 0.8 && deltaRatio <= 2.0 && <div className="font-semibold text-emerald-600 dark:text-emerald-400">{'0.8 - 2.0: Pure high AG acidosis'}</div>}
                 {deltaRatio > 2.0 && <div className="font-semibold text-destructive">{'> 2.0: High AG acidosis + concurrent metabolic alkalosis'}</div>}
               </div>
@@ -146,7 +174,7 @@ export default function KalkulatorAnionGap() {
       )}
 
       {(ag !== null) && (
-        <ClinicalReport 
+        <ClinicalReport
           title="Kalkulator Anion Gap"
           patientInfo={{ name: patient.nama || '' }}
           sections={[
@@ -178,8 +206,8 @@ export default function KalkulatorAnionGap() {
       )}
 
       {(ag !== null) && (
-        <SaveToHistoryButton 
-          module="anion_gap" 
+        <SaveToHistoryButton
+          module="anion_gap"
           label={`Anion Gap: ${ag.toFixed(1)}`}
           inputs={{ na, cl, hco3, albumin }}
           summary={`AG ${ag.toFixed(1)} mEq/L${correctedAg !== null ? ` (Corr: ${correctedAg.toFixed(1)})` : ''}${deltaRatio !== null ? ` · Delta Ratio: ${deltaRatio.toFixed(2)}` : ''}`}
@@ -191,7 +219,7 @@ export default function KalkulatorAnionGap() {
         <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
           <li><strong>Anion Gap (AG):</strong> Na - (Cl + HCO₃). Normalnya 8-12 mEq/L. High AG acidosis menunjukkan asidosis akibat penumpukan asam tak terukur (Ketoasidosis, Laktat, Uremia, Intoksikasi).</li>
           <li><strong>Corrected AG:</strong> AG + 2.5 × (4.4 - Albumin). Albumin adalah anion dominan; pada hipoalbuminemia, AG normal terlihat lebih rendah dari yang sebenarnya. Koreksi wajib untuk akurasi.</li>
-          <li><strong>Delta Ratio (ΔAG / ΔHCO₃):</strong> Mengukur apakah asidosis AG tinggi berdiri sendiri atau campuran. (AG pasien - 12) / (24 - HCO₃ pasien).</li>
+          <li><strong>Delta Ratio (ΔAG / ΔHCO₃):</strong> Menggunakan Corrected AG jika albumin tersedia. (AG efektif - 12) / (24 - HCO₃ pasien). Nilai 0.8–2.0 = pure high AG acidosis.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Kraut JA, Madias NE. Serum anion gap: its uses and limitations in clinical medicine. Clin J Am Soc Nephrol. 2007;2(1):162-174.
