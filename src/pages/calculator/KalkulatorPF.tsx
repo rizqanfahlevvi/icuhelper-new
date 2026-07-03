@@ -123,7 +123,11 @@ export default function KalkulatorPF() {
   };
 
   const calculate = () => {
-    const o2 = parseFloat(pao2) || (parseFloat(spo2) ? spo2ToPao2(parseFloat(spo2)) : null);
+    const directPao2 = parseFloat(pao2);
+    const spo2Val = parseFloat(spo2);
+    const estimatedPao2 = !directPao2 && spo2Val ? spo2ToPao2(spo2Val) : null;
+    const o2 = directPao2 || estimatedPao2;
+    const isPao2Estimated = !directPao2 && !!estimatedPao2;
     const f = getFio2Value();
     const m = parseFloat(map);
     const s = parseFloat(spo2);
@@ -144,11 +148,13 @@ export default function KalkulatorPF() {
 
     const pf = o2 / f;
     let pfClass, pfColor;
+    const peepVal = parseFloat(peep);
+    const meetsBeepCriteria = !isNaN(peepVal) && peepVal >= 5;
     if (pf >= 400) { pfClass = 'Normal'; pfColor = 'text-green-500'; }
     else if (pf >= 300) { pfClass = 'Hipoksemia Ringan'; pfColor = 'text-teal-500'; }
-    else if (pf >= 200) { pfClass = 'ARDS Mild (Berlin)'; pfColor = 'text-amber-500'; }
-    else if (pf >= 100) { pfClass = 'ARDS Moderate (Berlin)'; pfColor = 'text-orange-500'; }
-    else { pfClass = 'ARDS Severe (Berlin)'; pfColor = 'text-red-500'; }
+    else if (pf >= 200) { pfClass = meetsBeepCriteria ? 'ARDS Mild (Berlin)' : 'P/F ≤300 (ARDS Mild — butuh PEEP ≥5)'; pfColor = 'text-amber-500'; }
+    else if (pf >= 100) { pfClass = meetsBeepCriteria ? 'ARDS Moderate (Berlin)' : 'P/F ≤200 (ARDS Moderate — butuh PEEP ≥5)'; pfColor = 'text-orange-500'; }
+    else { pfClass = meetsBeepCriteria ? 'ARDS Severe (Berlin)' : 'P/F ≤100 (ARDS Severe — butuh PEEP ≥5)'; pfColor = 'text-red-500'; }
 
     let oiRes = null;
     if (m && o2 && f) {
@@ -183,7 +189,7 @@ export default function KalkulatorPF() {
       }
     }
 
-    setResult({ pf: pf.toFixed(1), pfClass, pfColor, o2, f, oiRes, dpRes, osiRes, failType });
+    setResult({ pf: pf.toFixed(1), pfClass, pfColor, o2, isPao2Estimated, meetsBeepCriteria, f, oiRes, dpRes, osiRes, failType });
   };
 
   return (
@@ -358,7 +364,12 @@ export default function KalkulatorPF() {
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
             <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.pfColor}`}>P/F Ratio — Klasifikasi Oksigenasi</div>
             <div className="text-2xl font-black text-slate-900 dark:text-white mb-1">{result.pf} mmHg — {result.pfClass}</div>
-            <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">PaO₂ {result.o2.toFixed(1)} ÷ FiO₂ {result.f.toFixed(2)}</div>
+            <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">
+              PaO₂ {result.o2.toFixed(1)}{result.isPao2Estimated && <span className="text-[11px] text-amber-500 ml-1">(estimasi dari SpO₂)</span>} ÷ FiO₂ {result.f.toFixed(2)}
+            </div>
+            {!result.meetsBeepCriteria && result.pf < 300 && (
+              <div className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">⚠ Kriteria Berlin memerlukan PEEP ≥5 cmH₂O untuk konfirmasi ARDS</div>
+            )}
             <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 italic text-center">
               ARDS Definition Task Force. <em>JAMA</em> 2012;307:2526–2533 ·
               Matthay MA et al. <em>AJRCCM</em> 2023;207(4):374–393

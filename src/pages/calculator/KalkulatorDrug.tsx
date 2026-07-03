@@ -504,6 +504,10 @@ export default function KalkulatorDrug() {
         <br />Sorensen MK et al. Cochrane Database Syst Rev (2022)
         <br />STRIVE Hi Trial, Anaesthesia (2021)
       </div>
+
+      <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 text-center">
+        Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis, keputusan DPJP/intensivist, atau kondisi aktual pasien. Konfirmasi dosis ke apoteker sebelum pemberian.
+      </div>
     </div>
   );
 }

@@ -452,6 +452,10 @@ export default function KalkulatorInsulin() {
           📚 American Diabetes Association (ADA) Standards of Medical Care in Diabetes; PERKENI KONSENSUS PENGELOLAAN DIABETES MELITUS.
         </div>
       </Accordion>
+
+      <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 text-center">
+        Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis atau keputusan DPJP. Selalu verifikasi target glukosa dan dosis dengan dokter/apoteker.
+      </div>
     </div>
   );
 }

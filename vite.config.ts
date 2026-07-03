@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+/// <reference types="vitest" />
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
@@ -69,6 +70,9 @@ export default defineConfig(() => {
     build: {
       rollupOptions: {
       },
+    },
+    test: {
+      environment: 'node',
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

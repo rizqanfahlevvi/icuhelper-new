@@ -66,8 +66,9 @@ export default function KalkulatorBurn() {
   const [selectedPartsBack, setSelectedPartsBack] = useState<Set<PartKey>>(new Set());
   
   const [localWeight, setLocalWeight] = useState<string>('70');
-  const [localAge, setLocalAge] = useState<number>(30); // Default adult age
-  const [factor, setFactor] = useState<string>('4');
+  const [localAge, setLocalAge] = useState<number>(30);
+  const [factor, setFactor] = useState<string>('2');
+  const [hoursElapsed, setHoursElapsed] = useState<string>('');
 
   const handleAutofill = (data: { weightKg: string; heightCm?: string; age?: string; gender?: string }) => {
     if (data.weightKg) setLocalWeight(data.weightKg);
@@ -198,7 +199,7 @@ export default function KalkulatorBurn() {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
             <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
-              <Droplets className="w-5 h-5 text-[#3A7CA5]" />
+              <Droplets className="w-5 h-5 text-[var(--accent)]" />
               Resusitasi Cairan
             </h3>
             
@@ -210,7 +211,7 @@ export default function KalkulatorBurn() {
                     type="number"
                     value={localAge}
                     onChange={(e) => setLocalAge(parseInt(e.target.value) || 0)}
-                    className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[#3A7CA5]/40 transition-all"
+                    className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
                   />
                 </div>
                 <div>
@@ -220,7 +221,7 @@ export default function KalkulatorBurn() {
                       type="number"
                       value={localWeight}
                       onChange={(e) => setLocalWeight(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[#3A7CA5]/40 transition-all"
+                      className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">kg</span>
                   </div>
@@ -236,7 +237,7 @@ export default function KalkulatorBurn() {
                       onClick={() => setFactor(val.toString())}
                       className={`py-3 rounded-xl text-sm font-semibold transition-all ${
                         factor === val.toString()
-                          ? 'bg-[#3A7CA5] text-white shadow-md'
+                          ? 'bg-[var(--accent)] text-white shadow-md'
                           : 'bg-slate-100 dark:bg-[#2C2C2E] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                       }`}
                     >
@@ -249,42 +250,77 @@ export default function KalkulatorBurn() {
                   <p>Pedoman ATLS: Dewasa termal = 2 mL, Anak = 3 mL, Luka bakar listrik = 4 mL.</p>
                 </div>
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wider">Jam Sejak Luka Bakar <span className="normal-case font-normal">(opsional)</span></label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={hoursElapsed}
+                    onChange={(e) => setHoursElapsed(e.target.value)}
+                    min="0"
+                    max="8"
+                    step="0.5"
+                    className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+                    placeholder="mis. 2"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">jam</span>
+                </div>
+                <div className="mt-1.5 text-[11px] text-muted-foreground">8 jam dihitung dari waktu kejadian, bukan kedatangan RS</div>
+              </div>
             </div>
 
             <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-              <div className="bg-gradient-to-br from-[#3A7CA5]/10 to-[#3A7CA5]/5 rounded-2xl p-5 border border-[#3A7CA5]/20">
+              <div className="bg-gradient-to-br from-[var(--accent)]/10 to-[var(--accent)]/5 rounded-2xl p-5 border border-[var(--accent)]/20">
                 <div className="flex flex-col mb-5">
-                  <span className="text-sm font-semibold text-[#3A7CA5]">Total Cairan 24 Jam</span>
+                  <span className="text-sm font-semibold text-[var(--accent)]">Total Cairan 24 Jam</span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-3xl font-black text-[#3A7CA5]">{fluidVolume.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
-                    <span className="text-sm font-bold text-[#3A7CA5]/70">mL / 24j</span>
+                    <span className="text-3xl font-black text-[var(--accent)]">{fluidVolume.toLocaleString(undefined, {maximumFractionDigits:0})}</span>
+                    <span className="text-sm font-bold text-[var(--accent)]/70">mL / 24j</span>
                   </div>
                 </div>
                 
-                <div className="space-y-3 pt-4 border-t border-[#3A7CA5]/20">
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#3A7CA5]"></div>
-                      <span className="text-slate-600 dark:text-slate-300 font-medium">8 Jam Pertama</span>
-                    </div>
-                    <span className="font-bold text-foreground">{(fluidVolume / 2).toLocaleString(undefined, {maximumFractionDigits:0})} mL</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#3A7CA5]/40"></div>
-                      <span className="text-slate-600 dark:text-slate-300 font-medium">16 Jam Berikutnya</span>
-                    </div>
-                    <span className="font-bold text-foreground">{(fluidVolume / 2).toLocaleString(undefined, {maximumFractionDigits:0})} mL</span>
-                  </div>
+                <div className="space-y-3 pt-4 border-t border-[var(--accent)]/20">
+                  {(() => {
+                    const firstHalf = fluidVolume / 2;
+                    const secondHalf = fluidVolume / 2;
+                    const hrs = parseFloat(hoursElapsed);
+                    const hoursRemaining = (!isNaN(hrs) && hrs >= 0 && hrs < 8) ? (8 - hrs) : null;
+                    const rateFirst = hoursRemaining !== null ? Math.round(firstHalf / hoursRemaining) : null;
+                    return (
+                      <>
+                        <div className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]"></div>
+                            <span className="text-slate-600 dark:text-slate-300 font-medium">8 Jam Pertama</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-bold text-foreground">{firstHalf.toLocaleString(undefined, {maximumFractionDigits:0})} mL</span>
+                            {rateFirst !== null && <div className="text-[11px] text-[var(--accent)] font-semibold">≈ {rateFirst} mL/jam sisa ({hoursRemaining!.toFixed(1)}j)</div>}
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]/40"></div>
+                            <span className="text-slate-600 dark:text-slate-300 font-medium">16 Jam Berikutnya</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-bold text-foreground">{secondHalf.toLocaleString(undefined, {maximumFractionDigits:0})} mL</span>
+                            <div className="text-[11px] text-muted-foreground">≈ {Math.round(secondHalf / 16)} mL/jam</div>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
                 
-                <div className="mt-4 pt-4 border-t border-[#3A7CA5]/20">
+                <div className="mt-4 pt-4 border-t border-[var(--accent)]/20">
                   <SaveToHistoryButton 
                     module="burn" 
                     label={`Resusitasi Luka Bakar — ${tbsa.toFixed(1)}% TBSA`}
                     inputs={{ age: localAge, weight: localWeight, factor, tbsa, selectedFront: Array.from(selectedPartsFront), selectedBack: Array.from(selectedPartsBack) }}
                     summary={`TBSA: ${tbsa.toFixed(1)}% · Total: ${fluidVolume.toLocaleString(undefined, {maximumFractionDigits:0})} mL/24j · 8j Pertama: ${(fluidVolume / 2).toLocaleString(undefined, {maximumFractionDigits:0})} mL`}
-                    className="w-full bg-[#3A7CA5] hover:bg-[#2c6182]"
+                    className="w-full bg-[var(--accent)] hover:bg-[var(--accent)]"
                   />
                 </div>
               </div>
@@ -310,6 +346,10 @@ export default function KalkulatorBurn() {
           📚 American Burn Association (ABA). Advanced Burn Life Support (ABLS) Provider Manual. 2018.
         </div>
       </Accordion>
+
+      <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 text-center">
+        Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis. Titrasi resusitasi berdasarkan respons klinis (urine output, MAP) dan keputusan DPJP.
+      </div>
     </div>
   );
 }
