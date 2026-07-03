@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { calcIbw, calcBmi, calcBsa, calcLbw, calcAdjBw } from '../../utils/anthropometry';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
@@ -19,6 +20,7 @@ export default function KalkulatorIBW() {
   const [hb, setHb] = useState<string>('');
   
   const [results, setResults] = useState<any>(null);
+  const [calcError, setCalcError] = useState<string>('');
 
   // Auto-load on mount
   useEffect(() => {
@@ -66,12 +68,11 @@ export default function KalkulatorIBW() {
     const hbVal = parseFloat(hb);
 
     if (!h || isNaN(h)) {
-      alert('Masukkan tinggi badan');
+      setCalcError('Masukkan tinggi badan');
       return;
     }
 
-    const ibw = sex === 'm' ? 50 + 0.91 * (h - 152.4) : 45.5 + 0.91 * (h - 152.4);
-    const ibwR = Math.max(ibw, 30);
+    const ibwR = calcIbw(h, sex === 'f');
 
     let vtLow, vtHigh, vtNote;
     if (condition === 'ards') {
@@ -93,18 +94,16 @@ export default function KalkulatorIBW() {
     let adjBW = null;
     let bmiValue = null;
     if (aBW && !isNaN(aBW)) {
-      bmiValue = aBW / ((h / 100) * (h / 100));
+      bmiValue = calcBmi(aBW, h);
       if (bmiValue > 30 && aBW > ibwR) {
-        adjBW = ibwR + 0.4 * (aBW - ibwR);
+        adjBW = calcAdjBw(ibwR, aBW);
       }
     }
 
     let extraParams: any = null;
     if (aBW && !isNaN(aBW)) {
-      const bsa = Math.sqrt((h * aBW) / 3600);
-      const lbw = sex === 'm' 
-        ? (9270 * aBW) / (6680 + 216 * bmiValue!) 
-        : (9270 * aBW) / (8780 + 244 * bmiValue!);
+      const bsa = calcBsa(aBW, h);
+      const lbw = calcLbw(aBW, bmiValue!, sex === 'f');
       const ebv = aBW * (sex === 'm' ? 70 : 65);
       
       let bmiLabel = '', bmiColor = '';
@@ -142,6 +141,7 @@ export default function KalkulatorIBW() {
       };
     }
 
+    setCalcError('');
     setResults({
       ibwR, vtLow, vtHigh, vtLowML, vtHighML, vtNote, mv,
       aBW, adjBW, bmiValue, extraParams
@@ -226,6 +226,7 @@ export default function KalkulatorIBW() {
         <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
           Hitung IBW & Parameter
         </button>
+        {calcError && <p className="text-sm text-destructive mt-2 text-center">{calcError}</p>}
       </div>
 
         {results && (

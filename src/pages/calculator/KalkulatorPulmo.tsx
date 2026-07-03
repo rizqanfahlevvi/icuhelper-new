@@ -81,6 +81,8 @@ export default function KalkulatorPulmo() {
   const [aaAge, setAaAge] = useState('');
   const [aaRes, setAaRes] = useState<any>(null);
   const [aaFio2Error, setAaFio2Error] = useState('');
+  const [aaInputError, setAaInputError] = useState('');
+  const [psiError, setPsiError] = useState('');
 
   const handleUreumChange = (val: string, type: 'mgdl' | 'mmol' | 'bun') => {
     if (val === '') {
@@ -235,7 +237,8 @@ export default function KalkulatorPulmo() {
 
   const calcPSI = () => {
     const age = parseFloat(psiAge);
-    if (isNaN(age)) { alert('Masukkan usia pasien'); return; }
+    if (isNaN(age)) { setPsiError('Masukkan usia pasien'); return; }
+    setPsiError('');
 
     const hasComorbid = psiNeoplastic || psiLiver || psiChf || psiCva || psiRenal;
     const hasAbnormalVitals = (
@@ -360,7 +363,8 @@ export default function KalkulatorPulmo() {
       setAaFio2Error(`FiO₂ tidak valid. Harus antara ${aaFio2Mode === 'percent' ? '21–100%' : '0.21–1.0'}`);
       return;
     }
-    if (isNaN(pco2) || isNaN(po2)) { alert('Masukkan PaCO₂ dan PaO₂'); return; }
+    if (isNaN(pco2) || isNaN(po2)) { setAaInputError('Masukkan PaCO₂ dan PaO₂'); return; }
+    setAaInputError('');
 
     const paO2calc = f * (patm - 47) - pco2 / 0.8;
     const aaGrad = paO2calc - po2;
@@ -647,6 +651,7 @@ export default function KalkulatorPulmo() {
           <button onClick={calcPSI} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
             Hitung PSI/PORT
           </button>
+          {psiError && <p className="text-sm text-destructive mt-2 text-center">{psiError}</p>}
         </div>
       </div>
 
@@ -935,6 +940,7 @@ export default function KalkulatorPulmo() {
         <button onClick={calcAa} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
           Hitung A-a Gradient
         </button>
+        {aaInputError && <p className="text-sm text-destructive mt-2 text-center">{aaInputError}</p>}
       </div>
 
       {aaRes && (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { calcIbw } from '../../utils/anthropometry';
 import { Utensils, AlertTriangle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
@@ -52,9 +53,8 @@ export default function KalkulatorNutrisi() {
 
     // When IBW not entered but height available, derive via Devine formula
     let derivedIbw: number | null = null;
-    if (!(!isNaN(i) && i > 0) && !isNaN(t) && t > 152.4) {
-      const isFemale = patient.gender === 'P';
-      derivedIbw = Math.round((isFemale ? 45.5 : 50) + 0.91 * (t - 152.4));
+    if (!(!isNaN(i) && i > 0) && !isNaN(t) && t > 0) {
+      derivedIbw = calcIbw(t, patient.gender === 'P');
     }
     const ibw = (!isNaN(i) && i > 0) ? i : (derivedIbw ?? w);
     const adjBW = isObese ? Math.round((ibw + 0.25 * (w - ibw)) * 10) / 10 : null;

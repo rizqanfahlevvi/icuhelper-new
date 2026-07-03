@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { calcIbw, calcBmi, calcAdjBw } from '../../utils/anthropometry';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
@@ -39,6 +40,7 @@ export default function KalkulatorRenal() {
   const [scrVal, setScrVal] = useState('');
   const [scrUnit, setScrUnit] = useState<'mg' | 'umol'>('mg');
   const [crclResults, setCrclResults] = useState<any>(null);
+  const [crclError, setCrclError] = useState<string>('');
 
   // --- TAB 2: FENA & FEUREA STATE ---
   const [sna, setSna] = useState('');
@@ -48,6 +50,7 @@ export default function KalkulatorRenal() {
   const [sureum, setSureum] = useState('');
   const [uureum, setUureum] = useState('');
   const [fenaResults, setFenaResults] = useState<any>(null);
+  const [fenaError, setFenaError] = useState<string>('');
 
   // Auto-load on mount
   useEffect(() => {
@@ -104,7 +107,7 @@ export default function KalkulatorRenal() {
     const scrRaw = parseFloat(scrVal);
 
     if (isNaN(scrRaw) || scrRaw <= 0) {
-      alert('Masukkan nilai Kreatinin Serum (SCr) yang valid');
+      setCrclError('Masukkan nilai Kreatinin Serum (SCr) yang valid');
       return;
     }
 
@@ -116,7 +119,7 @@ export default function KalkulatorRenal() {
 
     if (isPed) {
       if (isNaN(heightNum) || heightNum <= 0) {
-        alert('Untuk pasien anak (<18 tahun), masukkan tinggi badan (cm) untuk menggunakan rumus Schwartz');
+        setCrclError('Untuk pasien anak (<18 tahun), masukkan tinggi badan (cm) untuk menggunakan rumus Schwartz');
         return;
       }
       // Bedside Schwartz Equation: GFR = 0.413 * Height(cm) / SCr(mg/dL)
@@ -158,6 +161,7 @@ export default function KalkulatorRenal() {
         stageBg = 'bg-red-600/15 border-red-500/30 text-red-700 dark:text-red-300 dark:text-red-200 font-bold';
       }
 
+      setCrclError('');
       setCrclResults({
         isPediatric: true,
         schwartz: schwartzGfr.toFixed(1),
@@ -173,33 +177,26 @@ export default function KalkulatorRenal() {
 
     // Adult Calculations (Age >= 18)
     if (isNaN(ageNum) || ageNum <= 0) {
-      alert('Masukkan usia pasien (minimal 18 tahun untuk kalkulator dewasa)');
+      setCrclError('Masukkan usia pasien (minimal 18 tahun untuk kalkulator dewasa)');
       return;
     }
     if (isNaN(weightNum) || weightNum <= 0) {
-      alert('Masukkan berat badan pasien (kg)');
+      setCrclError('Masukkan berat badan pasien (kg)');
       return;
     }
 
     // Calculate Ideal Body Weight (IBW)
-    let ibw = 0;
-    if (!isNaN(heightNum) && heightNum > 0) {
-      ibw = sex === 'm' ? 50 + 0.91 * (heightNum - 152.4) : 45.5 + 0.91 * (heightNum - 152.4);
-      if (ibw < 30) ibw = 30; // clamp
-    } else {
-      // Default estimation without height based on typical demographic norms
-      ibw = sex === 'm' ? 65 : 55;
-    }
+    const hasHeight = !isNaN(heightNum) && heightNum > 0;
+    const ibw = hasHeight
+      ? calcIbw(heightNum, sex === 'f')
+      : (sex === 'm' ? 65 : 55);
 
     // BMI calculation
-    let bmi = null;
-    if (!isNaN(heightNum) && heightNum > 0) {
-      bmi = weightNum / Math.pow(heightNum / 100, 2);
-    }
+    const bmi = hasHeight ? calcBmi(weightNum, heightNum) : null;
 
     // Adjusted Body Weight for obese/overweight patients
     const isObeseOrOverweight = weightNum > 1.2 * ibw || (bmi && bmi >= 25);
-    const adjBw = isObeseOrOverweight ? ibw + 0.4 * (weightNum - ibw) : weightNum;
+    const adjBw = isObeseOrOverweight ? calcAdjBw(ibw, weightNum) : weightNum;
 
     // Body Surface Area (BSA) DuBois
     let bsa = 1.73;
@@ -278,6 +275,7 @@ export default function KalkulatorRenal() {
       stageBg = 'bg-red-600/15 border-red-500/30 text-red-700 dark:text-red-300 dark:text-red-200 font-bold';
     }
 
+    setCrclError('');
     setCrclResults({
       isPediatric: false,
       cgActual: cgActual.toFixed(1),
@@ -310,9 +308,10 @@ export default function KalkulatorRenal() {
     const ureaU = parseFloat(uureum);
 
     if (isNaN(naS) || isNaN(crS) || isNaN(naU) || isNaN(crU)) {
-      alert('Masukkan Na serum, SCr, Na urin, dan Cr urin yang valid');
+      setFenaError('Masukkan Na serum, SCr, Na urin, dan Cr urin yang valid');
       return;
     }
+    setFenaError('');
 
     const fena = (naU * crS) / (naS * crU) * 100;
     
@@ -583,13 +582,14 @@ export default function KalkulatorRenal() {
             </div>
 
             <div className="mt-4 mb-2">
-              <button 
+              <button
                 className="w-full flex items-center justify-center gap-2 py-3 bg-[var(--accent)] text-[var(--accent-fg)] font-bold rounded-2xl shadow-md cursor-pointer hover:opacity-95 transition-all text-sm active:scale-[0.99]"
                 onClick={calculateCrCl}
               >
                 <Activity className="w-4 h-4" />
                 Hitung LFG & Klirens Ginjal
               </button>
+              {crclError && <p className="text-sm text-destructive mt-2 text-center">{crclError}</p>}
             </div>
 
           {/* RESULTS OUTPUT TAB 1 */}
@@ -921,12 +921,13 @@ export default function KalkulatorRenal() {
             </div>
 
             <div className="px-4 mt-2 mb-2">
-              <button 
+              <button
                 className="w-full flex items-center justify-center gap-2 py-3 bg-[var(--accent)] text-[var(--accent-fg)] font-bold rounded-2xl shadow-md cursor-pointer hover:opacity-95 transition-all text-sm active:scale-[0.99]"
                 onClick={calculateFena}
               >
                 Hitung FENa / FEUrea
               </button>
+              {fenaError && <p className="text-sm text-destructive mt-2 text-center">{fenaError}</p>}
             </div>
 
           {/* RESULTS OUTPUT TAB 2 */}

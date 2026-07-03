@@ -36,6 +36,8 @@ export default function KalkulatorDrug() {
 
   const [resRsi, setResRsi] = useState<any>(null);
   const [resIcu, setResIcu] = useState<any>(null);
+  const [rsiError, setRsiError] = useState<string>('');
+  const [icuError, setIcuError] = useState<string>('');
 
   // Auto-load weight on mount
   useEffect(() => {
@@ -66,9 +68,10 @@ export default function KalkulatorDrug() {
   const calcRsi = () => {
     const w = parseFloat(ituBb);
     if (!w) {
-      alert('Masukkan berat badan pasien yang valid');
+      setRsiError('Masukkan berat badan pasien yang valid');
       return;
     }
+    setRsiError('');
 
     let drugs = [];
 
@@ -112,9 +115,10 @@ export default function KalkulatorDrug() {
   const calcIcu = () => {
     const w = parseFloat(icuBb);
     if (!w) {
-      alert('Masukkan berat badan pasien yang valid');
+      setIcuError('Masukkan berat badan pasien yang valid');
       return;
     }
+    setIcuError('');
 
     let drugs = [];
 
@@ -259,13 +263,14 @@ export default function KalkulatorDrug() {
           </div>
 
           <div className="mt-4">
-            <button 
+            <button
               onClick={calcRsi}
               className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px] flex items-center justify-center gap-2"
             >
               <Activity className="w-5 h-5" />
               Hitung Dosis Induksi RSI
             </button>
+            {rsiError && <p className="text-sm text-destructive mt-2 text-center">{rsiError}</p>}
           </div>
 
           {/* RESULTS FOR RSI */}
@@ -391,13 +396,14 @@ export default function KalkulatorDrug() {
           </div>
 
           <div className="mt-4">
-            <button 
+            <button
               onClick={calcIcu}
               className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px] flex items-center justify-center gap-2"
             >
               <Activity className="w-5 h-5" />
               Hitung Laju Drip Rumatan
             </button>
+            {icuError && <p className="text-sm text-destructive mt-2 text-center">{icuError}</p>}
           </div>
 
           {/* RESULTS FOR ICU MAINTENANCE */}
