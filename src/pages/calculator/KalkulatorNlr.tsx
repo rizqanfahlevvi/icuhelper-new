@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, TestTube, AlertTriangle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -274,9 +275,39 @@ export default function KalkulatorNlr() {
                  {res.ni}
                </div>
                
+               <div className="mb-4">
+                 <CalcSteps
+                   tone="slate"
+                   steps={[
+                     ...(res.mode === 'pct' ? [{
+                       label: 'Langkah 0 — Konversi persen ke absolut:',
+                       formula: `Neutrofil abs = %neutrofil/100 × WBC = ${res.neut.toFixed(2)} ×10³/µL\nLimfosit abs = %limfosit/100 × WBC = ${res.lymph.toFixed(2)} ×10³/µL`,
+                     }] : []),
+                     {
+                       label: 'Langkah 1 — NLR (Neutrophil-to-Lymphocyte):',
+                       formula: `NLR = neutrofil ÷ limfosit = ${res.neut.toFixed(2)} ÷ ${res.lymph.toFixed(2)} = ${res.nlr.toFixed(2)}`,
+                       note: '≤3 normal · 3-5 inflamasi aktif · 5-9 berat · >9 prediktor mortalitas ICU.',
+                     },
+                     ...(res.plr !== null ? [{
+                       label: 'Langkah 2 — PLR (Platelet-to-Lymphocyte):',
+                       formula: `PLR = trombosit ÷ limfosit = ${res.plt} ÷ ${res.lymph.toFixed(2)} = ${res.plr.toFixed(1)}`,
+                     }] : []),
+                     ...(res.sii !== null ? [{
+                       label: 'Langkah 3 — SII (Systemic Immune-Inflammation):',
+                       formula: `SII = (neutrofil × trombosit) ÷ limfosit\n= (${res.neut.toFixed(2)} × ${res.plt}) ÷ ${res.lymph.toFixed(2)} = ${res.sii.toFixed(0)}`,
+                     }] : []),
+                     ...(res.mlr !== null ? [{
+                       label: 'Langkah 4 — MLR (Monocyte-to-Lymphocyte):',
+                       formula: `MLR = monosit ÷ limfosit = ${res.mono.toFixed(2)} ÷ ${res.lymph.toFixed(2)} = ${res.mlr.toFixed(2)}`,
+                     }] : []),
+                   ]}
+                   footer="Indeks ini non-spesifik — nilai bersama konteks (infeksi, stres, steroid, keganasan) dan tren serial, bukan satu titik."
+                 />
+               </div>
+
                <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                  <SaveToHistoryButton 
-                    module="nlr" 
+                  <SaveToHistoryButton
+                    module="nlr"
                     label={`NLR: ${res.nlr.toFixed(2)}`}
                     inputs={{ wbc: res.wbc, neut: res.neut, lymph: res.lymph, mono: res.mono, plt: res.plt, mode: res.mode }}
                     summary={`NLR ${res.nlr.toFixed(2)} - ${res.ni}`}

@@ -7,6 +7,7 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { Accordion } from '../../components/ui/Accordion';
 
 export default function KalkulatorAnionGap() {
@@ -171,6 +172,30 @@ export default function KalkulatorAnionGap() {
             </div>
           )}
         </div>
+      )}
+
+      {(ag !== null) && (
+        <CalcSteps
+          tone="blue"
+          steps={[
+            {
+              label: 'Langkah 1 — Anion Gap:',
+              formula: `AG = Na − (Cl + HCO₃) = ${naVal} − (${clVal} + ${hco3Val}) = ${ag.toFixed(1)} mEq/L`,
+              note: 'Normal 8-12 mEq/L. Meningkat pada penumpukan asam tak terukur (laktat, keton, uremia, intoksikasi).',
+            },
+            ...(correctedAg !== null ? [{
+              label: 'Langkah 2 — Koreksi terhadap albumin:',
+              formula: `AG terkoreksi = AG + 2.5 × (4.4 − albumin)\n= ${ag.toFixed(1)} + 2.5 × (4.4 − ${albVal}) = ${correctedAg.toFixed(1)} mEq/L`,
+              note: 'Tiap penurunan 1 g/dL albumin menutupi ~2.5 mEq/L AG — wajib dikoreksi pada hipoalbuminemia ICU.',
+            }] : []),
+            ...(deltaRatio !== null ? [{
+              label: `Langkah ${correctedAg !== null ? 3 : 2} — Delta Ratio:`,
+              formula: `ΔRatio = (AG${correctedAg !== null ? ' terkoreksi' : ''} − 12) ÷ (24 − HCO₃)\n= (${(effectiveAGForDelta as number).toFixed(1)} − 12) ÷ (24 − ${hco3Val}) = ${deltaRatio.toFixed(2)}`,
+              note: '<0.4 asidosis AG normal (hiperkloremik) · 0.8-2.0 murni AG tinggi · >2.0 disertai alkalosis metabolik.',
+            }] : []),
+          ]}
+          footer="Anion gap membantu mempersempit diagnosis banding asidosis — interpretasikan bersama pH, laktat, dan konteks klinis."
+        />
       )}
 
       {(ag !== null) && (

@@ -3,6 +3,7 @@ import { calcIbw, calcBmi, calcBsa, calcLbw, calcAdjBw } from '../../utils/anthr
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -445,9 +446,43 @@ export default function KalkulatorIBW() {
               </div>
             )}
             
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+              <CalcSteps
+                tone="blue"
+                steps={[
+                  {
+                    label: 'Langkah 1 — Ideal Body Weight (Devine):',
+                    formula: `IBW = ${sex === 'f' ? '45.5' : '50'} + 0.91 × (TB − 152.4)\n= ${sex === 'f' ? '45.5' : '50'} + 0.91 × (${height} − 152.4) = ${results.ibwR.toFixed(1)} kg`,
+                    note: `Konstanta ${sex === 'f' ? '45.5 untuk perempuan' : '50 untuk laki-laki'}. IBW berbasis tinggi karena volume paru mengikuti TB, bukan massa lemak.`,
+                  },
+                  {
+                    label: 'Langkah 2 — Target tidal volume:',
+                    formula: `VT = ${results.vtLow}-${results.vtHigh} mL/kg × IBW = ${results.vtLowML}-${results.vtHighML} mL`,
+                    note: results.vtNote,
+                  },
+                  ...(results.extraParams ? [
+                    {
+                      label: 'Langkah 3 — BMI:',
+                      formula: `BMI = BB ÷ (TB/100)² = ${results.aBW} ÷ (${height}/100)² = ${results.extraParams.bmi} (${results.extraParams.bmiLabel})`,
+                    },
+                    {
+                      label: 'Langkah 4 — BSA (DuBois) & LBW:',
+                      formula: `BSA = √(TB × BB / 3600) = ${results.extraParams.bsa} m²\nLBW (Lean Body Weight) = ${results.extraParams.lbw} kg`,
+                    },
+                    ...(results.adjBW ? [{
+                      label: 'Langkah 5 — Adjusted BW (obesitas):',
+                      formula: `AdjBW = IBW + 0.4 × (BB − IBW)\n= ${results.ibwR.toFixed(1)} + 0.4 × (${results.aBW} − ${results.ibwR.toFixed(1)}) = ${results.adjBW.toFixed(1)} kg`,
+                      note: 'Dipakai untuk aminoglikosida, heparin, LMWH pada BMI ≥30.',
+                    }] : []),
+                  ] : []),
+                ]}
+                footer="Pilih berat yang tepat sesuai obat/parameter: VT & volume paru → IBW; dosis hidrofilik obesitas → AdjBW; resusitasi → BB aktual."
+              />
+            </div>
+
             <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/20">
-              <SaveToHistoryButton 
-                module="ibw" 
+              <SaveToHistoryButton
+                module="ibw"
                 label={`IBW ${results.ibwR.toFixed(1)} kg`}
                 inputs={{ sex, height, actualBW, age, condition, hb }}
                 summary={`IBW ${results.ibwR.toFixed(1)} kg · VT ${results.vtLowML}–${results.vtHighML} mL (${results.vtLow}–${results.vtHigh} mL/kg) — ${results.vtNote}`}

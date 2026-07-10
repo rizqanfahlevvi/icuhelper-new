@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, Wind, Info, ChevronDown } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -412,8 +413,39 @@ export default function KalkulatorPF() {
           )}
 
           <div className="mt-4">
-            <SaveToHistoryButton 
-              module="pf_ratio" 
+            <CalcSteps
+              tone="blue"
+              steps={[
+                {
+                  label: 'Langkah 1 — Rasio P/F:',
+                  formula: `P/F = PaO₂ ÷ FiO₂ = ${result.o2.toFixed(1)}${result.isPao2Estimated ? ' (estimasi dari SpO₂)' : ''} ÷ ${result.f.toFixed(2)} = ${result.pf}`,
+                  note: `${result.pfClass}. Ambang Berlin: ≤300 ringan · ≤200 sedang · ≤100 berat.`,
+                },
+                {
+                  label: 'Langkah 2 — Syarat kriteria Berlin:',
+                  formula: result.meetsBeepCriteria
+                    ? `PEEP = ${peep} cmH₂O ≥ 5 → kriteria ARDS terpenuhi`
+                    : `PEEP < 5 cmH₂O (atau kosong) → klasifikasi ARDS belum dapat dikonfirmasi`,
+                  note: 'Definisi Berlin mensyaratkan PEEP/CPAP ≥5 cmH₂O.',
+                },
+                ...(result.oiRes ? [{
+                  label: 'Langkah 3 — Oxygenation Index (OI):',
+                  formula: `OI = (MAP × FiO₂ × 100) ÷ PaO₂ = (${map} × ${result.f.toFixed(2)} × 100) ÷ ${result.o2.toFixed(1)} = ${result.oiRes.val}`,
+                  note: `${result.oiRes.cls}. OI memperhitungkan tekanan jalan napas — berguna pada anak & pertimbangan ECMO.`,
+                }] : []),
+                ...(result.dpRes ? [{
+                  label: `Langkah ${result.oiRes ? 4 : 3} — Driving Pressure:`,
+                  formula: `ΔP = Pplat − PEEP = ${pplat} − ${peep} = ${result.dpRes.val} cmH₂O`,
+                  note: result.dpRes.cls,
+                }] : []),
+              ]}
+              footer="P/F dipengaruhi FiO₂, PEEP, dan posisi — interpretasikan sebagai tren pada setting ventilator yang stabil."
+            />
+          </div>
+
+          <div className="mt-4">
+            <SaveToHistoryButton
+              module="pf_ratio"
               label={`P/F Ratio: ${result.pf} (${result.pfClass})`}
               inputs={{ pao2, fio2Mode, fio2, device, flow, map, spo2Source, spo2, pplat, peep, paco2 }}
               summary={`P/F: ${result.pf} (${result.pfClass}) · PaO₂: ${result.o2.toFixed(1)} · FiO₂: ${result.f.toFixed(2)}${result.dpRes ? ` · DP: ${result.dpRes.val}` : ''}`}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Stethoscope, Wind, FileText, ChevronDown } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -965,9 +966,32 @@ export default function KalkulatorPulmo() {
                {aaRes.ai}
              </div>
              
+             <div className="mt-4 text-left">
+               <CalcSteps
+                 tone="blue"
+                 steps={[
+                   {
+                     label: 'Langkah 1 — Tekanan O₂ alveolar (PAO₂):',
+                     formula: `PAO₂ = FiO₂ × (Patm − 47) − PaCO₂/0.8\n= ${aaRes.fio2dec} × (${aaPatm} − 47) − ${aaPaco2}/0.8 = ${aaRes.calc} mmHg`,
+                     note: '47 mmHg = tekanan uap air; 0.8 = respiratory quotient. Persamaan gas alveolar.',
+                   },
+                   {
+                     label: 'Langkah 2 — Gradien A-a:',
+                     formula: `A-a = PAO₂ − PaO₂ = ${aaRes.calc} − ${aaRes.po2} = ${aaRes.grad} mmHg`,
+                   },
+                   {
+                     label: 'Langkah 3 — Bandingkan dengan normal sesuai usia:',
+                     formula: `Normal ≈ (usia/4) + 4 = ${aaRes.normal} mmHg${aaAge ? '' : ' (default 15 tanpa usia)'}\nHasil: ${aaRes.grad} vs ${aaRes.normal}`,
+                     note: aaRes.ai,
+                   },
+                 ]}
+                 footer="A-a normal + hipoksemia → hipoventilasi atau FiO₂ rendah. A-a melebar → V/Q mismatch, shunt, atau gangguan difusi."
+               />
+             </div>
+
              <div className="mt-4">
-               <SaveToHistoryButton 
-                 module="aa_gradient" 
+               <SaveToHistoryButton
+                 module="aa_gradient"
                  label={`A-a Grad: ${aaRes.grad} mmHg`}
                  inputs={{ aaFio2Mode, aaFio2Raw, aaPaco2, aaPao2, aaPatm, aaAge }}
                  summary={`A-a Gradient: ${aaRes.grad} mmHg (Normal: ~${aaRes.normal} mmHg). ${aaRes.ai.split('—')[0]}`}
