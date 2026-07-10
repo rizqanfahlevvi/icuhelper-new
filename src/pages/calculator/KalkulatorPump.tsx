@@ -4,6 +4,7 @@ import { Accordion } from '../../components/ui/Accordion';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
@@ -97,7 +98,7 @@ export default function KalkulatorPump() {
     const duration = (v / rateMlH).toFixed(1);
     const isFlatDose = (unit === 'mg/jam' || unit === 'mg/mnt' || unit === 'mcg/mnt' || unit === 'units/mnt');
 
-    setResult({ rate: rateMlH.toFixed(2), duration, unit, isFlatDose, info: info.info, b, d, v, drug });
+    setResult({ rate: rateMlH.toFixed(2), duration, unit, isFlatDose, info: info.info, b, d, v, drug, conc });
   };
 
   const info = PUMP_INFO[drug];
@@ -195,9 +196,40 @@ export default function KalkulatorPump() {
               </div>
             </div>
             
+            <div className="p-4">
+              <CalcSteps
+                tone="slate"
+                steps={[
+                  {
+                    label: 'Langkah 1 — Konsentrasi larutan:',
+                    formula: `Konsentrasi sediaan = ${result.conc} ${result.unit.includes('mcg') ? 'mcg' : result.unit.includes('units') ? 'unit' : 'mg'}/mL (lihat resep pengenceran di atas)`,
+                  },
+                  {
+                    label: 'Langkah 2 — Laju infus (mL/jam):',
+                    formula: (() => {
+                      const u = result.unit;
+                      if (u === 'mg/jam') return `Laju = dosis ÷ konsentrasi\n= ${result.d} ÷ ${result.conc} = ${result.rate} mL/jam`;
+                      if (u === 'mg/mnt' || u === 'mcg/mnt' || u === 'units/mnt') return `Laju = dosis × 60 ÷ konsentrasi\n= ${result.d} × 60 ÷ ${result.conc} = ${result.rate} mL/jam`;
+                      if (u === 'mcg/kg/jam' || u === 'mg/kg/jam') return `Laju = dosis × BB ÷ konsentrasi\n= ${result.d} × ${result.b} ÷ ${result.conc} = ${result.rate} mL/jam`;
+                      return `Laju = dosis × BB × 60 ÷ konsentrasi\n= ${result.d} × ${result.b} × 60 ÷ ${result.conc} = ${result.rate} mL/jam`;
+                    })(),
+                    note: result.isFlatDose
+                      ? 'Obat ini dosis flat (tidak per kgBB) — laju tidak bergantung berat badan.'
+                      : 'Dosis per kgBB — laju otomatis menyesuaikan berat badan pasien.',
+                  },
+                  {
+                    label: 'Langkah 3 — Durasi 1 syringe:',
+                    formula: `Durasi = volume ÷ laju = ${result.v} ÷ ${result.rate} = ${result.duration} jam`,
+                    note: 'Siapkan syringe pengganti sebelum habis agar tidak ada jeda pada obat vasoaktif.',
+                  },
+                ]}
+                footer="Titrasi ke efek klinis (MAP, sedasi, HR), bukan ke angka laju semata. Pastikan konsentrasi sesuai resep pengenceran unit Anda."
+              />
+            </div>
+
             <div className="p-4 pt-0">
-               <SaveToHistoryButton 
-                 module="pump" 
+               <SaveToHistoryButton
+                 module="pump"
                  label={`Syringe Pump: ${result.drug.toUpperCase()}`}
                  inputs={{ bb: result.b, drug: result.drug, dose: result.d, volume: result.v }}
                  summary={`Kecepatan: ${result.rate} mL/jam (Durasi ${result.duration} jam)`}

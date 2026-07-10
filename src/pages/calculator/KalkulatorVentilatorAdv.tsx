@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Settings, AlertTriangle } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -156,11 +157,12 @@ export default function KalkulatorVentilatorAdv() {
       }
     }
 
-    setRes({ 
-      dp, cstat, mp, resist, ve, vtIbw, vtSug, 
+    setRes({
+      dp, cstat, mp, resist, ve, vtIbw, vtSug,
       pao2Used, isEstimated, pfRatio, oi, osi,
       peepLow, peepHigh, mapVent,
-      warnings 
+      warnings,
+      vVt, vRr, vPplat, vPeep, vPpeak, vFio2, vtL, vIbw,
     });
   };
 
@@ -345,6 +347,47 @@ export default function KalkulatorVentilatorAdv() {
                 </div>
               </div>
             )}
+
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+              <CalcSteps
+                tone="slate"
+                steps={[
+                  {
+                    label: 'Langkah 1 — Driving Pressure (ΔP):',
+                    formula: `ΔP = Pplat − PEEP = ${res.vPplat} − ${res.vPeep} = ${Math.round(res.dp)} cmH₂O`,
+                    note: 'Target ≤15 cmH₂O — prediktor mortalitas ARDS terkuat (Amato 2015).',
+                  },
+                  {
+                    label: 'Langkah 2 — Compliance statis:',
+                    formula: `Cstat = VT ÷ ΔP = ${res.vVt} ÷ ${Math.round(res.dp)} = ${Math.round(res.cstat)} mL/cmH₂O`,
+                  },
+                  {
+                    label: 'Langkah 3 — Resistensi jalan napas:',
+                    formula: `Raw = (Ppeak − Pplat) ÷ flow = (${res.vPpeak} − ${res.vPplat}) ÷ flow inspirasi = ${res.resist.toFixed(1)} cmH₂O/L/s`,
+                  },
+                  {
+                    label: 'Langkah 4 — Minute ventilation:',
+                    formula: `VE = VT(L) × RR = ${res.vtL.toFixed(2)} × ${res.vRr} = ${res.ve.toFixed(1)} L/min`,
+                  },
+                  {
+                    label: 'Langkah 5 — Mechanical Power:',
+                    formula: `MP = 0.098 × RR × VT(L) × (Ppeak − ΔP/2)\n= 0.098 × ${res.vRr} × ${res.vtL.toFixed(2)} × (${res.vPpeak} − ${Math.round(res.dp)}/2) = ${res.mp.toFixed(1)} J/min`,
+                    note: 'MP >17 J/min terkait VILI (Gattinoni 2016).',
+                  },
+                  ...(res.vtIbw ? [{
+                    label: 'Langkah 6 — Tidal volume per IBW:',
+                    formula: `VT/IBW = ${res.vVt} ÷ ${res.vIbw} = ${res.vtIbw} mL/kg\n${res.vtSug}`,
+                    note: 'ARDS: 4-6 mL/kg IBW (ARMA/ARDSNet); normal 6-8; PPOK 7-8.',
+                  }] : []),
+                  ...(res.pfRatio ? [{
+                    label: `Langkah ${res.vtIbw ? 7 : 6} — Rasio P/F (oksigenasi):`,
+                    formula: `P/F = PaO₂ ÷ FiO₂ = ${res.pao2Used}${res.isEstimated ? ' (estimasi dari SpO₂)' : ''} ÷ ${(res.vFio2 / 100).toFixed(2)} = ${Math.round(res.pfRatio)}`,
+                    note: res.isEstimated ? 'PaO₂ diestimasi dari SpO₂ — kurang akurat, konfirmasi dengan AGD.' : undefined,
+                  }] : []),
+                ]}
+                footer="Angka mekanik paru memandu setting protektif — selalu korelasikan dengan klinis, AGD, dan sinkroni pasien-ventilator."
+              />
+            </div>
 
             {res.warnings && res.warnings.length > 0 && (
               <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border-t border-slate-100 dark:border-slate-800">

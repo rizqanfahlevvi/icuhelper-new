@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Pill, Syringe, Clock, AlertTriangle, Info, RefreshCw, User, Activity, CheckCircle, Scale } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
@@ -315,9 +316,37 @@ export default function KalkulatorDrug() {
                   );
                 })}
                 
+                <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+                  <CalcSteps
+                    tone="slate"
+                    steps={(() => {
+                      const w = parseFloat(ituBb);
+                      const wtBased = resRsi.drugs.filter((d: any) => {
+                        const f = d.d / w;
+                        return w > 0 && f > 0 && f < 5 && d.d !== 10 && d.d !== 5 && d.d !== 0.5;
+                      });
+                      const steps = [{
+                        label: 'Prinsip — dosis berbasis berat badan:',
+                        formula: `Dosis (mg atau mcg) = dosis per kg × BB\nBB pasien = ${w} kg`,
+                        note: 'Obat emergensi (epinefrin/efedrin/atropin) diberikan dosis flat, bukan per kg.',
+                      }];
+                      wtBased.forEach((d: any) => {
+                        const f = Math.round((d.d / w) * 100) / 100;
+                        steps.push({
+                          label: `${d.n}:`,
+                          formula: `${f} ${d.u}/kg × ${w} kg = ${Math.round(d.d)} ${d.u}`,
+                          note: d.note,
+                        });
+                      });
+                      return steps;
+                    })()}
+                    footer="Dosis pembulatan praktis — verifikasi dengan sediaan ampul yang tersedia. Siapkan obat emergensi sebelum induksi."
+                  />
+                </div>
+
                 <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#2C2C2E]">
-                  <SaveToHistoryButton 
-                    module="drug_rsi" 
+                  <SaveToHistoryButton
+                    module="drug_rsi"
                     label={`Intubasi RSI — BB ${ituBb} kg`}
                     inputs={{ bb: ituBb, scenario: ituScenario, nmb: ituNmb, premed: ituPremed, lidocaine: ituLidocaine }}
                     summary={`RSI ${ituScenario} - Induksi: ${resRsi.drugs.map((d: any) => `${d.n} ${Math.round(d.d)}${d.u}`).join(', ')}`}

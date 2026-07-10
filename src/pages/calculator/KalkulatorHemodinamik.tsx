@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { HeartPulse, Plus, X, Info, AlertTriangle, ShieldAlert, ExternalLink, Activity } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -62,7 +63,7 @@ const CITATION_TEXT: Record<string, string> = {
 function calculateNEE(
   activeDrugs: ActiveDrug[],
   formula: NeeFormula
-): { score: number; formulaGapDrugs: string[]; structuralExclusions: string[] } {
+): { score: number; formulaGapDrugs: string[]; structuralExclusions: string[]; contributions: { name: string; dose: number; factor: number; unit: string; value: number }[] } {
   let score = 0;
   // Drugs missing from only ONE of the two formulas (e.g. dopamine under Kotani 2023) —
   // a genuine gap in that specific formula's coverage.
@@ -70,6 +71,7 @@ function calculateNEE(
   // Drugs with no NEE factor in EITHER formula (pure inotropes like dobutamine) —
   // excluded by design, not a formula limitation.
   const structuralExclusions: string[] = [];
+  const contributions: { name: string; dose: number; factor: number; unit: string; value: number }[] = [];
 
   activeDrugs.forEach((ad) => {
     const drug = getDrugById(ad.id);
@@ -86,10 +88,12 @@ function calculateNEE(
       formulaGapDrugs.push(drug.nameId);
       return;
     }
-    score += ad.dose * factor;
+    const value = ad.dose * factor;
+    contributions.push({ name: drug.nameId, dose: ad.dose, factor, unit: drug.unit, value });
+    score += value;
   });
 
-  return { score, formulaGapDrugs, structuralExclusions };
+  return { score, formulaGapDrugs, structuralExclusions, contributions };
 }
 
 function getNeeStatus(score: number): { level: 'normal' | 'warning' | 'danger'; label: string; desc: string; className: string } {
@@ -257,7 +261,7 @@ export default function KalkulatorHemodinamik() {
     setActiveDrugs((prev) => prev.map((ad) => (ad.id === id ? { ...ad, dose } : ad)));
   };
 
-  const { score: neeScore, formulaGapDrugs, structuralExclusions } = useMemo(
+  const { score: neeScore, formulaGapDrugs, structuralExclusions, contributions } = useMemo(
     () => calculateNEE(activeDrugs, neeFormula),
     [activeDrugs, neeFormula]
   );
@@ -539,6 +543,27 @@ export default function KalkulatorHemodinamik() {
               ⚠ {formulaGapDrugs.join(', ')} tidak dicakup formula {neeFormula === 'kotani' ? 'Kotani 2023' : 'Goradia 2021'} — kontribusinya TIDAK termasuk dalam skor NEE yang ditampilkan saat ini.
               {neeFormula === 'kotani' ? ' Gunakan Goradia 2021 jika dopamin digunakan.' : ''}
             </p>
+          )}
+
+          {contributions.length > 0 && (
+            <div className="border-t border-current/20 pt-3">
+              <CalcSteps
+                tone="slate"
+                title="🧮 Rincian Skor NEE (Kontribusi per Obat)"
+                steps={[
+                  ...contributions.map((c) => ({
+                    label: `${c.name}:`,
+                    formula: `${c.dose} ${c.unit} × faktor ${c.factor} = ${c.value.toFixed(3)} mcg/kgBB/menit ekuivalen NE`,
+                  })),
+                  {
+                    label: 'Total skor NEE:',
+                    formula: `Σ = ${contributions.map((c) => c.value.toFixed(3)).join(' + ')} = ${neeScore.toFixed(2)} mcg/kgBB/menit`,
+                    note: 'Ambang: <0.25 standar · 0.25-0.5 beban tinggi · >0.5 vasoplegik refrakter (mortalitas tinggi).',
+                  },
+                ]}
+                footer={`Faktor konversi dari ${neeFormula === 'goradia' ? 'Goradia 2021' : 'Kotani 2023'}. NEE menstandarkan beban vasopresor ke ekuivalen norepinefrin.`}
+              />
+            </div>
           )}
 
           {showNeeInfo && (
