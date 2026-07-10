@@ -109,7 +109,11 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
                    • NaHCO₃ 8.4% (1 mEq/mL) → <strong className="text-[var(--label-primary)]">{(0.5 * b * (target - act)).toFixed(0)} mL</strong><br/>
                    • NaHCO₃ 7.5% (0.9 mEq/mL) → <strong className="text-[var(--label-primary)]">{((0.5 * b * (target - act)) / 0.9).toFixed(0)} mL</strong>
                  </div>
-                 <div className="text-[11px] font-mono font-medium text-slate-500 mt-2 border-t border-slate-200 dark:border-slate-700/50 pt-2">Rumus: 0.5 × BBI × (target − aktual)</div>
+                 <div className="text-[11px] font-mono font-medium text-slate-500 mt-2 border-t border-slate-200 dark:border-slate-700/50 pt-2 leading-relaxed">
+                   Langkah: Defisit HCO₃⁻ = 0.5 × BBI × (target − aktual)<br/>
+                   = 0.5 × {b} × ({target} − {act}) = <strong className="text-[var(--label-primary)]">{(0.5 * b * (target - act)).toFixed(0)} mEq</strong><br/>
+                   Faktor 0.5 = ruang distribusi bikarbonat (L/kg). Berikan ½ dulu, re-evaluasi AGD.
+                 </div>
               </>
             )}
             <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 font-mono font-bold">📚 Seifter JL. NEJM 2014; Berend K. NEJM 2018</div>

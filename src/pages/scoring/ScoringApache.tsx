@@ -30,6 +30,13 @@ export default function ScoringApache() {
 
   const calculateScore = () => {
     let aps = 0;
+    // Rincian kontribusi per-parameter (untuk transparansi langkah demi langkah)
+    const breakdown: { label: string; value: string; pts: number }[] = [];
+    let _prev = 0;
+    const rec = (label: string, value: string) => {
+      breakdown.push({ label, value, pts: aps - _prev });
+      _prev = aps;
+    };
 
     // 1. Temp
     const t = parseFloat(temp);
@@ -42,6 +49,7 @@ export default function ScoringApache() {
       else if (t >= 32) aps += 2;
       else if (t >= 30) aps += 3;
       else aps += 4;
+      rec('Suhu', `${t} °C`);
     }
 
     // 2. MAP
@@ -53,6 +61,7 @@ export default function ScoringApache() {
       else if (m >= 70) aps += 0;
       else if (m >= 50) aps += 2;
       else aps += 4;
+      rec('MAP', `${m} mmHg`);
     }
 
     // 3. HR
@@ -65,6 +74,7 @@ export default function ScoringApache() {
       else if (h >= 55) aps += 2;
       else if (h >= 40) aps += 3;
       else aps += 4;
+      rec('Heart Rate', `${h} x/menit`);
     }
 
     // 4. RR
@@ -77,6 +87,7 @@ export default function ScoringApache() {
       else if (r >= 10) aps += 1;
       else if (r >= 6) aps += 2;
       else aps += 4;
+      rec('Respiratory Rate', `${r} x/menit`);
     }
 
     // 5. Oxygenation
@@ -92,12 +103,14 @@ export default function ScoringApache() {
           else if (aaDO2 >= 350) aps += 3;
           else if (aaDO2 >= 200) aps += 2;
           else aps += 0;
+          rec('Oksigenasi (A-a gradient, FiO₂≥50%)', `${Math.round((fNum * (760 - 47)) - (pco2 / 0.8) - pa2)} mmHg`);
         }
       } else {
         if (pa2 > 70) aps += 0;
         else if (pa2 > 61) aps += 1;
         else if (pa2 >= 55) aps += 3;
         else aps += 4;
+        rec('Oksigenasi (PaO₂, FiO₂<50%)', `${pa2} mmHg`);
       }
     }
 
@@ -111,6 +124,7 @@ export default function ScoringApache() {
       else if (p >= 7.25) aps += 2;
       else if (p >= 7.15) aps += 3;
       else aps += 4;
+      rec('pH arteri', `${p}`);
     }
 
     // 7. Sodium
@@ -124,6 +138,7 @@ export default function ScoringApache() {
       else if (sod >= 120) aps += 2;
       else if (sod >= 111) aps += 3;
       else aps += 4;
+      rec('Natrium', `${sod} mEq/L`);
     }
 
     // 8. Potassium
@@ -136,6 +151,7 @@ export default function ScoringApache() {
       else if (pot >= 3) aps += 1;
       else if (pot >= 2.5) aps += 2;
       else aps += 4;
+      rec('Kalium', `${pot} mEq/L`);
     }
 
     // 9. Creatinine
@@ -150,6 +166,7 @@ export default function ScoringApache() {
       
       if (aki === 'yes') pts = Math.min(pts * 2, 8);
       aps += pts;
+      rec(`Kreatinin${aki === 'yes' ? ' (AKI ×2)' : ''}`, `${crea} mg/dL`);
     }
 
     // 10. Hematocrit
@@ -161,6 +178,7 @@ export default function ScoringApache() {
       else if (hc >= 30) aps += 0;
       else if (hc >= 20) aps += 2;
       else aps += 4;
+      rec('Hematokrit', `${hc} %`);
     }
 
     // 11. WBC
@@ -172,12 +190,14 @@ export default function ScoringApache() {
       else if (wb >= 3) aps += 0;
       else if (wb >= 1) aps += 2;
       else aps += 4;
+      rec('Leukosit', `${wb} ×10³/µL`);
     }
 
     // 12. GCS
     const g = parseFloat(gcs);
     if (!isNaN(g)) {
       aps += (15 - g);
+      rec('GCS (15 − nilai)', `${g}`);
     }
 
     // Age Score
@@ -208,7 +228,10 @@ export default function ScoringApache() {
     else if (total > 9) mort = '~15%';
     else if (total > 4) mort = '~8%';
 
-    return { total, aps, ageScore, chronScore, mort };
+    if (ageScore > 0 || !isNaN(a)) breakdown.push({ label: 'Usia', value: !isNaN(a) ? `${a} th` : '—', pts: ageScore });
+    if (chronScore > 0) breakdown.push({ label: `Riwayat kronik (${chronicType === 'elective' ? 'bedah elektif' : 'non-operatif/darurat'})`, value: 'Ya', pts: chronScore });
+
+    return { total, aps, ageScore, chronScore, mort, breakdown };
   };
 
   const result = calculateScore();
@@ -411,6 +434,25 @@ export default function ScoringApache() {
                  </div>
               </div>
             </div>
+
+            {result.breakdown.length > 0 && (
+              <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
+                <div className="text-[13px] font-bold text-cyan-600 dark:text-cyan-400 mb-3">🧮 Rincian Kontribusi Poin</div>
+                <div className="space-y-1">
+                  {result.breakdown.map((b, i) => (
+                    <div key={i} className="flex items-center justify-between text-[13px] px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#2C2C2E]/40 border border-slate-100 dark:border-slate-800">
+                      <span className="text-slate-700 dark:text-slate-300">{b.label} <span className="text-slate-400 font-mono">({b.value})</span></span>
+                      <span className={`font-bold font-mono ${b.pts === 0 ? 'text-slate-400' : b.pts >= 3 ? 'text-red-500' : 'text-amber-500'}`}>+{b.pts}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between text-[13px] px-3 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 font-bold">
+                    <span className="text-cyan-700 dark:text-cyan-300">Total (APS {result.aps} + Usia {result.ageScore} + Kronik {result.chronScore})</span>
+                    <span className="font-mono text-cyan-700 dark:text-cyan-300">{result.total}</span>
+                  </div>
+                </div>
+                <p className="text-[11px] italic text-slate-500 mt-2">Parameter kosong tidak dihitung. Gunakan nilai terburuk dalam 24 jam pertama. Poin 0 berarti nilai dalam rentang normal.</p>
+              </div>
+            )}
          </div>
       </div>
 
