@@ -4,6 +4,7 @@ import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -274,9 +275,52 @@ export default function KalkulatorInsulin() {
                         </div>
                       )}
 
+                      <div className="mb-4">
+                        <CalcSteps
+                          tone="slate"
+                          steps={[
+                            {
+                              label: 'Langkah 1 — Total Daily Dose (TDD):',
+                              formula: bbcRes.tPrev
+                                ? `TDD = dosis harian sebelumnya (input) = ${bbcRes.tdd} unit`
+                                : `TDD = BB × faktor = ${bbcRes.w} × ${bbcRes.doseFactor} = ${bbcRes.tdd} unit/hari`,
+                              note: bbcRes.tPrev
+                                ? 'TDD dari riwayat lebih akurat daripada estimasi berbasis BB.'
+                                : `Faktor ${bbcRes.doseFactor}: 0.3 untuk risiko hipoglikemia (CKD/lansia/kritis), 0.5 standar, 0.6 saat steroid.`,
+                            },
+                            {
+                              label: 'Langkah 2 — Basal (50% TDD):',
+                              formula: `Basal = ${bbcRes.tdd} × 0.5 = ${bbcRes.basal} unit (long-acting, malam)`,
+                            },
+                            {
+                              label: 'Langkah 3 — Bolus prandial (50% TDD dibagi jumlah makan):',
+                              formula: bbcRes.mealCount > 0
+                                ? `Bolus total = ${bbcRes.tdd} − ${bbcRes.basal} = ${bbcRes.tdd - bbcRes.basal} unit\nPer makan = ${bbcRes.tdd - bbcRes.basal} ÷ ${bbcRes.mealCount} = ${bbcRes.bolusPerMeal} unit`
+                                : 'Puasa/NPO → bolus makan = 0 (hanya basal + koreksi)',
+                            },
+                            {
+                              label: 'Langkah 4 — Correction Factor (aturan 1800):',
+                              formula: `CF = 1800 ÷ TDD = 1800 ÷ ${bbcRes.tdd} = ${bbcRes.cf} mg/dL per unit`,
+                              note: '1 unit insulin rapid menurunkan GDS sekitar CF mg/dL (aturan 1800, insulin analog).',
+                            },
+                            {
+                              label: 'Langkah 5 — Dosis koreksi saat ini:',
+                              formula: `Koreksi = (GDS − target) ÷ CF = (${bbcRes.g} − ${bbcRes.t}) ÷ ${bbcRes.cf} = ${bbcRes.correction} unit`,
+                            },
+                            {
+                              label: 'Langkah 6 — Total diberikan sekarang:',
+                              formula: bbcRes.mealCount > 0
+                                ? `Total = bolus makan + koreksi = ${bbcRes.bolusPerMeal} + ${bbcRes.correction} = ${bbcRes.totalNow} unit`
+                                : `Total = koreksi saja = ${bbcRes.totalNow} unit`,
+                            },
+                          ]}
+                          footer="Estimasi awal — titrasi harian berdasarkan pola GDS. Verifikasi dosis dengan DPJP/apoteker sebelum pemberian."
+                        />
+                      </div>
+
                       <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                        <SaveToHistoryButton 
-                          module="insulin" 
+                        <SaveToHistoryButton
+                          module="insulin"
                           label={`Insulin BBC — BB ${bbcRes.w}kg, GDS ${gds}`}
                           inputs={{ bb: bbcRes.w, gds, target, tddPrev: bbcRes.tPrev, kondisi, makan }}
                           summary={`TDD ${bbcRes.tdd}u · Basal ${bbcRes.basal}u · Koreksi skrg ${bbcRes.correction}u${bbcRes.mealCount > 0 ? ` · Bolus/mkn ${bbcRes.bolusPerMeal}u` : ''}`}
@@ -422,9 +466,30 @@ export default function KalkulatorInsulin() {
                      </div>
                    )}
                    
+                   <CalcSteps
+                     tone="slate"
+                     steps={[
+                       {
+                         label: 'Langkah 1 — Kenaikan GDS yang dibutuhkan (Δ):',
+                         formula: `Δ = target − GDS = ${hipoTarget || 150} − ${hipoGds} = ${hipoRes.delta.toFixed(1)} mg/dL (minimal 30)`,
+                       },
+                       {
+                         label: 'Langkah 2 — Gram glukosa yang dibutuhkan:',
+                         formula: `Glukosa = Δ × 0.2 × BB ÷ 100\n= ${hipoRes.delta.toFixed(1)} × 0.2 × ${hipoBb} ÷ 100 = ${hipoRes.glucG.toFixed(1)} g`,
+                         note: 'Aturan praktis: ~0.2 g glukosa per kgBB menaikkan GDS ~100 mg/dL (volume distribusi glukosa).',
+                       },
+                       {
+                         label: 'Langkah 3 — Konversi ke volume dekstrosa:',
+                         formula: `D40% (0.4 g/mL): ${hipoRes.glucG.toFixed(1)} ÷ 0.4 = ${hipoRes.volD40.toFixed(0)} mL\nD20% (0.2 g/mL): ${hipoRes.glucG.toFixed(1)} ÷ 0.2 = ${hipoRes.volD20.toFixed(0)} mL\nD10% (0.1 g/mL): ${hipoRes.glucG.toFixed(1)} ÷ 0.1 = ${hipoRes.volD10.toFixed(0)} mL`,
+                         note: 'Praktisnya D40% dibulatkan per flakon 25 mL — karena itu protokol menyarankan ' + hipoRes.d40Bolus + '.',
+                       },
+                     ]}
+                     footer="Wajib cek GDS ulang 15 menit setelah koreksi — respons individual bervariasi (glikogen, insulin onboard, gagal hati/ginjal)."
+                   />
+
                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                      <SaveToHistoryButton 
-                        module="insulin" 
+                      <SaveToHistoryButton
+                        module="insulin"
                         label={`Hipo Koreksi — GDS ${hipoGds} mg/dL, BB ${hipoBb} kg`}
                         inputs={{ mode: 'hipo', gds: hipoGds, bb: hipoBb, kesadaran, route }}
                         summary={`${hipoRes.lvlLbl} · butuh ${hipoRes.glucG.toFixed(1)}g glukosa · D40% ${hipoRes.volD40.toFixed(0)} mL`}

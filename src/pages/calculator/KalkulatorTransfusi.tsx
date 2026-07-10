@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -33,6 +34,15 @@ interface TransfusiResult {
   inr?: number;           // INR jika diisi
   premed?: string;        // premedikasi yang dipilih
   premednote?: string;    // rekomendasi dosis premedikasi
+  // Input tersimpan untuk rincian langkah demi langkah
+  w?: number;             // berat badan
+  h1?: number;            // Hb aktual
+  h2?: number;            // Hb target
+  pv?: number;            // plasma volume (cryo)
+  f1_mgdl?: number;       // fibrinogen aktual mg/dL
+  f2?: number;            // fibrinogen target mg/dL
+  kForm?: number;         // kolf berbasis defisit
+  kRule?: number;         // kolf berbasis aturan praktis
 }
 
 export default function KalkulatorTransfusi() {
@@ -144,7 +154,8 @@ export default function KalkulatorTransfusi() {
         dhb,
         ebv,
         premed,
-        premednote: premedNotes[premed]
+        premednote: premedNotes[premed],
+        w, h1, h2,
       });
 
     } else if (tab === 'wb') {
@@ -168,7 +179,8 @@ export default function KalkulatorTransfusi() {
         type: 'wb',
         vol,
         kolf,
-        dhb
+        dhb,
+        w, h1, h2,
       });
 
     } else if (tab === 'ffp') {
@@ -182,7 +194,8 @@ export default function KalkulatorTransfusi() {
         vol,
         kolf,
         dose: d,
-        inr: inrVal
+        inr: inrVal,
+        w,
       });
 
     } else if (tab === 'tc') {
@@ -257,7 +270,8 @@ export default function KalkulatorTransfusi() {
         type: 'cryo',
         deficit,
         kolf,
-        vol
+        vol,
+        w, pv, f1_mgdl, f2, kForm, kRule,
       });
     }
   };
@@ -690,25 +704,76 @@ export default function KalkulatorTransfusi() {
 
             {/* Sub-result Detailed Information Blocks */}
             <div className="bg-slate-50 dark:bg-[#2C2C2E]/20 rounded-xl p-4 space-y-3.5 border border-slate-100 dark:border-slate-800">
-              
-              {/* Formula & Method Statement */}
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block tracking-wider">Formula yang Digunakan</span>
-                <p className="text-xs text-slate-700 dark:text-slate-300 font-mono mt-1">
-                  {res.type === 'prc' && `Volume (mL) = ΔHb (${res.dhb?.toFixed(1)}) × BB (${bb}) × 4 = ${Math.round(res.vol || 0)} mL`}
-                  {res.type === 'wb' && `Volume (mL) = ΔHb (${res.dhb?.toFixed(1)}) × BB (${bb}) × 6 = ${Math.round(res.vol || 0)} mL`}
-                  {res.type === 'ffp' && `Volume (mL) = Dosis (${res.dose} mL/kg) × BB (${bb}) = ${Math.round(res.vol || 0)} mL`}
-                  {res.type === 'tc' && (res.subtype === 'rd' ? `Sediaan RD: Min 4, Max 10 unit | BB / 10 = ${Math.ceil(parseFloat(bb) / 10)} unit` : "Sediaan Apheresis: Standard 1 Kantong (Setara 4-6 unit donor acak)")}
-                  {res.type === 'cryo' && `Fibrinogen Defisit (mg) = (Target - Aktual) × Plasma Volume (BB × 40) / 100`}
-                </p>
-                <span className="text-[10px] text-slate-500 italic mt-0.5 block">
-                  {res.type === 'prc' && "ℹ️ Faktor k=4 mengasumsikan Hct PRC ±70-75% sesuai spesifikasi umum BDRS di Indonesia."}
-                  {res.type === 'wb' && "⚠️ WB jarang tersedia di unit darah. WB hanya dianjurkan untuk perdarahan masif akut."}
-                  {res.type === 'ffp' && "ℹ️ Target FFP adalah pemulihan status faktor pembekuan darah."}
-                  {res.type === 'tc' && "ℹ️ Efek kenaikan trombosit bervariasi bergantung pada splenomegali, demam, dan sepsis."}
-                  {res.type === 'cryo' && "ℹ️ 1 kolf Cryoprecipitate mengandung rata-rata 200 mg fibrinogen fungsional."}
-                </span >
-              </div>
+
+              {/* Step-by-step calculation */}
+              {res.type === 'prc' && (
+                <CalcSteps
+                  tone="slate"
+                  steps={[
+                    {
+                      label: 'Langkah 1 — Selisih Hb (ΔHb):',
+                      formula: `ΔHb = Hb target − Hb aktual = ${res.h2} − ${res.h1} = ${res.dhb?.toFixed(1)} g/dL`,
+                    },
+                    {
+                      label: 'Langkah 2 — Volume PRC (formula Davies):',
+                      formula: `Volume = ΔHb × BB × faktor\n= ${res.dhb?.toFixed(1)} × ${res.w} × 4 = ${Math.round(res.vol || 0)} mL`,
+                      note: 'Faktor k=4 mengasumsikan Hct PRC ±70-75% (spesifikasi BDRS Indonesia). Untuk PRC Hct rendah, volume aktual bisa berbeda.',
+                    },
+                    {
+                      label: 'Langkah 3 — Konversi ke jumlah kantong (kolf):',
+                      formula: `Kolf = volume ÷ 250 mL = ${Math.round(res.vol || 0)} ÷ 250 → dibulatkan ke atas = ${res.kolf} kantong`,
+                      note: '1 kantong PRC ≈ 250 mL. Transfusikan 1 kantong dalam ≤4 jam, cek Hb ulang setelah selesai.',
+                    },
+                  ]}
+                  footer="Estimasi — kenaikan Hb aktual dipengaruhi perdarahan berlanjut, hemolisis, dan hidrasi. Pertimbangkan ambang restriktif Hb <7 g/dL (AABB)."
+                />
+              )}
+              {res.type === 'wb' && (
+                <CalcSteps
+                  tone="slate"
+                  steps={[
+                    { label: 'Langkah 1 — Selisih Hb (ΔHb):', formula: `ΔHb = ${res.h2} − ${res.h1} = ${res.dhb?.toFixed(1)} g/dL` },
+                    { label: 'Langkah 2 — Volume Whole Blood:', formula: `Volume = ΔHb × BB × 6 = ${res.dhb?.toFixed(1)} × ${res.w} × 6 = ${Math.round(res.vol || 0)} mL`, note: 'Faktor k=6 mengasumsikan Hct WB ±38-45% (lebih encer dari PRC → butuh volume lebih besar).' },
+                    { label: 'Langkah 3 — Jumlah kantong:', formula: `Kolf = ${Math.round(res.vol || 0)} ÷ 450 → ${res.kolf} kantong`, note: '1 kantong WB ≈ 450 mL.' },
+                  ]}
+                  footer="WB jarang tersedia — hanya dianjurkan untuk perdarahan masif akut. Umumnya pilih PRC + komponen terpisah."
+                />
+              )}
+              {res.type === 'ffp' && (
+                <CalcSteps
+                  tone="slate"
+                  steps={[
+                    { label: 'Langkah 1 — Dosis per kgBB:', formula: `Dosis = ${res.dose} mL/kg${res.inr ? ` (dari INR ${res.inr})` : ''}`, note: res.inr ? 'INR 1.5-2 → 15 mL/kg; INR 2-3 → 20 mL/kg; INR >3 → 30 mL/kg.' : 'Dosis lazim koreksi koagulopati 10-20 mL/kg.' },
+                    { label: 'Langkah 2 — Volume total:', formula: `Volume = dosis × BB = ${res.dose} × ${res.w} = ${Math.round(res.vol || 0)} mL` },
+                    { label: 'Langkah 3 — Jumlah kantong:', formula: `Kolf = ${Math.round(res.vol || 0)} ÷ 250 → ${res.kolf} kantong`, note: '1 kantong FFP ≈ 250 mL.' },
+                  ]}
+                  footer="FFP untuk koagulopati dengan perdarahan/prosedur — bukan koreksi INR asimptomatik. Nilai ulang dengan PT/APTT setelah pemberian."
+                />
+              )}
+              {res.type === 'tc' && (
+                <CalcSteps
+                  tone="slate"
+                  steps={res.subtype === 'rd' ? [
+                    { label: 'Langkah 1 — Jumlah unit (Random Donor):', formula: `Unit = BB ÷ 10 = ${res.w} ÷ 10 → ${res.units} unit (min 4, maks 10)`, note: 'Aturan praktis 1 unit RD per 10 kg BB.' },
+                    { label: 'Langkah 2 — Volume & estimasi kenaikan:', formula: `Volume = ${res.units} × 60 mL = ${res.vol} mL\nKenaikan trombosit ≈ ${res.minExpectedPltRise.toLocaleString()}–${res.maxExpectedPltRise.toLocaleString()} /µL`, note: '1 unit RD ≈ 60 mL; kenaikan ~5.000-10.000/µL per unit (disesuaikan ke BB).' },
+                  ] : [
+                    { label: 'Langkah 1 — Sediaan Apheresis (SDA):', formula: `1 kantong SDA (setara 4-6 unit donor acak), volume ≈ ${res.vol} mL` },
+                    { label: 'Langkah 2 — Estimasi kenaikan:', formula: `Kenaikan trombosit ≈ ${res.minExpectedPltRise.toLocaleString()}–${res.maxExpectedPltRise.toLocaleString()} /µL`, note: 'Disesuaikan ke BB pasien (basis 70 kg).' },
+                  ]}
+                  footer="Kenaikan aktual turun pada splenomegali, demam, sepsis, DIC — cek trombosit 10-60 menit & 24 jam pasca-transfusi."
+                />
+              )}
+              {res.type === 'cryo' && (
+                <CalcSteps
+                  tone="slate"
+                  steps={[
+                    { label: 'Langkah 1 — Volume plasma:', formula: `PV = BB × 40 mL/kg = ${res.w} × 40 = ${res.pv} mL` },
+                    { label: 'Langkah 2 — Defisit fibrinogen:', formula: `Defisit = (target − aktual) × PV ÷ 100\n= (${res.f2} − ${res.f1_mgdl}) × ${res.pv} ÷ 100 = ${Math.round(res.deficit || 0)} mg` },
+                    { label: 'Langkah 3 — Jumlah kantong:', formula: `Berbasis defisit: ${Math.round(res.deficit || 0)} ÷ 200 → ${res.kForm} kantong\nAturan praktis: BB ÷ 10 → ${res.kRule} kantong\nDipakai nilai lebih besar = ${res.kolf} kantong`, note: '1 kantong Cryo ≈ 200 mg fibrinogen fungsional, volume ±17 mL.' },
+                  ]}
+                  footer="Target fibrinogen ≥150 mg/dL (≥200 pada perdarahan obstetrik). Nilai ulang fibrinogen setelah pemberian."
+                />
+              )}
 
               {/* Premedication advice block */}
               {res.type === 'prc' && res.premednote && (

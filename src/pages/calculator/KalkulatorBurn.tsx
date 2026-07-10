@@ -5,6 +5,7 @@ import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { usePatientStore } from '../../store/usePatientStore';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 
 // Beautiful organic SVG paths for a human mannequin
 const SVG_PATHS = {
@@ -314,8 +315,47 @@ export default function KalkulatorBurn() {
                   })()}
                 </div>
                 
+                {fluidVolume > 0 && (() => {
+                  const w = parseFloat(localWeight) || 0;
+                  const f = parseFloat(factor) || 0;
+                  const hrs = parseFloat(hoursElapsed);
+                  const hoursRemaining = (!isNaN(hrs) && hrs >= 0 && hrs < 8) ? (8 - hrs) : null;
+                  const vol = fluidVolume.toLocaleString(undefined, { maximumFractionDigits: 0 });
+                  const half = (fluidVolume / 2).toLocaleString(undefined, { maximumFractionDigits: 0 });
+                  return (
+                    <div className="mt-4 pt-4 border-t border-[var(--accent)]/20">
+                      <CalcSteps
+                        tone="slate"
+                        steps={[
+                          {
+                            label: 'Langkah 1 — Luas luka bakar (%TBSA):',
+                            formula: `TBSA = jumlah area terpilih (Lund-Browder, usia ${localAge} th) = ${tbsa.toFixed(1)}%`,
+                            note: 'Lund-Browder menyesuaikan proporsi kepala/tungkai dengan usia — lebih akurat dari rule of nines.',
+                          },
+                          {
+                            label: 'Langkah 2 — Total cairan 24 jam (Parkland/ABLS):',
+                            formula: `Total = faktor × BB × %TBSA\n= ${f} × ${w} × ${tbsa.toFixed(1)} = ${vol} mL Ringer Laktat`,
+                            note: `Faktor ${f} mL/kg/%TBSA: dewasa termal = 2, anak = 3, listrik = 4 (ATLS/ABLS).`,
+                          },
+                          {
+                            label: 'Langkah 3 — Pembagian waktu:',
+                            formula: `8 jam pertama = ${vol} ÷ 2 = ${half} mL\n16 jam berikutnya = ${half} mL → ${Math.round(fluidVolume / 2 / 16)} mL/jam`,
+                            note: '8 jam dihitung sejak KEJADIAN luka bakar, bukan sejak tiba di RS.',
+                          },
+                          ...(hoursRemaining !== null ? [{
+                            label: 'Langkah 4 — Koreksi jam yang sudah berlalu:',
+                            formula: `Sisa waktu fase-1 = 8 − ${hrs} = ${hoursRemaining.toFixed(1)} jam\nLaju = ${half} ÷ ${hoursRemaining.toFixed(1)} = ${Math.round(fluidVolume / 2 / hoursRemaining)} mL/jam`,
+                            note: 'Porsi 8-jam-pertama harus habis dalam sisa waktu, sehingga lajunya lebih tinggi.',
+                          }] : []),
+                        ]}
+                        footer="Parkland hanya titik awal — titrasi tiap jam berdasarkan urine output (dewasa 0.5 mL/kg/jam; anak 1 mL/kg/jam; listrik 1-1.5 mL/kg/jam)."
+                      />
+                    </div>
+                  );
+                })()}
+
                 <div className="mt-4 pt-4 border-t border-[var(--accent)]/20">
-                  <SaveToHistoryButton 
+                  <SaveToHistoryButton
                     module="burn" 
                     label={`Resusitasi Luka Bakar — ${tbsa.toFixed(1)}% TBSA`}
                     inputs={{ age: localAge, weight: localWeight, factor, tbsa, selectedFront: Array.from(selectedPartsFront), selectedBack: Array.from(selectedPartsBack) }}

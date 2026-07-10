@@ -5,6 +5,7 @@ import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -101,12 +102,18 @@ export default function KalkulatorNutrisi() {
       pNote = '1.2-2.0 g/kg — kritis standar';
     }
 
+    // Basis berat untuk formula (obese: kalori & protein berbasis IBW)
+    let kBase = isObese && fase === 'akut-lanjut' && kondisi !== 'ards' ? ibw : dosingWt;
+    const pBase = isObese ? ibw : dosingWt;
+
     let rfNote = '';
     if (refeeding === 'tinggi') {
       kMin = Math.round(dosingWt * 10); kMax = Math.round(dosingWt * 20);
+      kBase = dosingWt;
       rfNote = 'Mulai pelan! 10-20 kkal/kg/hari. Suplementasi tiamin, fosfat, K, Mg.';
     } else if (refeeding === 'sedang') {
       kMin = Math.round(dosingWt * 15); kMax = Math.round(dosingWt * 22);
+      kBase = dosingWt;
       rfNote = 'Risiko sedang. Mulai 15-22 kkal/kg/hari.';
     }
 
@@ -121,7 +128,14 @@ export default function KalkulatorNutrisi() {
       isObese,
       dosingWt,
       rfNote,
-      enVol
+      enVol,
+      // Data untuk rincian langkah
+      w, t: !isNaN(t) && t > 0 ? t : null,
+      ibwUsed: Math.round(ibw * 10) / 10,
+      ibwDerived: derivedIbw !== null,
+      adjBW,
+      kBase: Math.round(kBase * 10) / 10,
+      pBase: Math.round(pBase * 10) / 10,
     });
   };
 
@@ -274,8 +288,49 @@ export default function KalkulatorNutrisi() {
               )}
             </div>
 
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+              <CalcSteps
+                tone="slate"
+                steps={[
+                  {
+                    label: 'Langkah 1 — Tentukan berat badan dosis:',
+                    formula: res.t
+                      ? `BMI = BB ÷ (TB/100)² = ${res.w} ÷ (${res.t}/100)² = ${res.bmi}` +
+                        (res.isObese
+                          ? `\nIBW${res.ibwDerived ? ' (Devine)' : ' (input)'} = ${res.ibwUsed} kg\nAdjBW = IBW + 0.25 × (BB − IBW) = ${res.ibwUsed} + 0.25 × (${res.w} − ${res.ibwUsed}) = ${res.adjBW} kg`
+                          : `\nBMI < 30 → gunakan BB aktual = ${res.dosingWt} kg`)
+                      : `Tanpa TB → gunakan BB aktual = ${res.dosingWt} kg`,
+                    note: res.isObese
+                      ? 'Obesitas: pemakaian BB aktual akan over-feeding — target berbasis IBW/AdjBW (ASPEN 2016).'
+                      : 'BB dosis dipakai sebagai basis semua target di bawah.',
+                  },
+                  {
+                    label: 'Langkah 2 — Target kalori:',
+                    formula: `Kalori = ${Math.round(res.kMin / res.kBase)}-${Math.round(res.kMax / res.kBase)} kkal/kg × ${res.kBase} kg = ${res.kMin}-${res.kMax} kkal/hari`,
+                    note: res.kNote,
+                  },
+                  {
+                    label: 'Langkah 3 — Target protein:',
+                    formula: `Protein = ${(parseFloat(res.pMin) / res.pBase).toFixed(1)}-${(parseFloat(res.pMax) / res.pBase).toFixed(1)} g/kg × ${res.pBase} kg = ${res.pMin}-${res.pMax} g/hari`,
+                    note: res.pNote,
+                  },
+                  ...(res.rfNote ? [{
+                    label: 'Langkah 4 — Penyesuaian risiko refeeding:',
+                    formula: `Target kalori DITURUNKAN menjadi ${res.kMin}-${res.kMax} kkal/hari`,
+                    note: res.rfNote,
+                  }] : []),
+                  ...(res.enVol ? [{
+                    label: `Langkah ${res.rfNote ? 5 : 4} — Estimasi volume enteral:`,
+                    formula: `Volume = rerata kalori ÷ densitas formula\n= ${Math.round((res.kMin + res.kMax) / 2)} ÷ 1.2 kkal/mL = ${res.enVol} mL/hari ≈ ${Math.round(res.enVol / 24)} mL/jam`,
+                    note: 'Asumsi formula standar 1.2 kkal/mL — sesuaikan dengan densitas produk yang dipakai.',
+                  }] : []),
+                ]}
+                footer="Target adalah tujuan bertahap (ramp-up), bukan kecepatan awal — capai penuh dalam 3-7 hari sambil pantau toleransi & elektrolit."
+              />
+            </div>
+
             <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1C1C1E]">
-              <SaveToHistoryButton 
+              <SaveToHistoryButton
                 module="nutrisi" 
                 label={`Kebutuhan Nutrisi: ${res.kMin}-${res.kMax} kkal`}
                 inputs={{ fase, kondisi, route, refeeding, bb, ibwIn, tb }}

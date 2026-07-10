@@ -8,6 +8,7 @@ import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { 
   Activity, 
   Info, 
@@ -352,7 +353,8 @@ export default function KalkulatorRenal() {
 
     setFenaResults({
       fena: fena.toFixed(2), fi, fc, fcls,
-      feurea: feurea ? feurea.toFixed(2) : null, fui, fuc, fucls
+      feurea: feurea ? feurea.toFixed(2) : null, fui, fuc, fucls,
+      naS, crS, naU, crU, ureaS: !isNaN(ureaS) ? ureaS : null, ureaU: !isNaN(ureaU) ? ureaU : null,
     });
   };
 
@@ -730,8 +732,58 @@ export default function KalkulatorRenal() {
               />
 
               <div className="mt-4">
-                <SaveToHistoryButton 
-                  module="renal" 
+                {crclResults.isPediatric ? (
+                  <CalcSteps
+                    tone="slate"
+                    steps={[
+                      {
+                        label: 'Langkah 1 — Konversi SCr (jika perlu):',
+                        formula: scrUnit === 'umol'
+                          ? `SCr = ${scrVal} µmol/L ÷ 88.4 = ${crclResults.scrMgDl} mg/dL`
+                          : `SCr = ${crclResults.scrMgDl} mg/dL (tanpa konversi)`,
+                      },
+                      {
+                        label: 'Langkah 2 — eGFR Bedside Schwartz (anak <18 th):',
+                        formula: `eGFR = 0.413 × TB ÷ SCr\n= 0.413 × ${crclResults.height} ÷ ${crclResults.scrMgDl} = ${crclResults.schwartz} mL/min/1.73m²`,
+                        note: 'Konstanta 0.413 berlaku untuk metode kreatinin enzimatik (IDMS-traceable).',
+                      },
+                    ]}
+                    footer="eGFR berbasis kreatinin kurang akurat pada perubahan akut (AKI) — nilai tren, bukan angka tunggal."
+                  />
+                ) : (
+                  <CalcSteps
+                    tone="slate"
+                    steps={[
+                      {
+                        label: 'Langkah 1 — Konversi SCr (jika perlu):',
+                        formula: scrUnit === 'umol'
+                          ? `SCr = ${scrVal} µmol/L ÷ 88.4 = ${crclResults.scrMgDl} mg/dL`
+                          : `SCr = ${crclResults.scrMgDl} mg/dL (tanpa konversi)`,
+                      },
+                      {
+                        label: 'Langkah 2 — Pilih berat badan untuk Cockcroft-Gault:',
+                        formula: `IBW (Devine) = ${crclResults.ibw} kg${crclResults.bmi ? ` · BMI = ${crclResults.bmi}` : ''}\nAdjBW = IBW + 0.4 × (BB − IBW) = ${crclResults.adjBw} kg\n→ Dipakai: ${crclResults.recommendWeight}`,
+                        note: 'Underweight → BB aktual; normal → IBW; overweight/obese → AdjBW (CrCl berbasis BB aktual akan overestimate pada obesitas).',
+                      },
+                      {
+                        label: 'Langkah 3 — CrCl Cockcroft-Gault:',
+                        formula: `CrCl = (140 − usia) × BB ÷ (72 × SCr)${sex === 'f' ? ' × 0.85' : ''}\n= (140 − ${age}) × BB terpilih ÷ (72 × ${crclResults.scrMgDl})${sex === 'f' ? ' × 0.85' : ''} = ${crclResults.cgRecommended} mL/min`,
+                        note: `Pembanding: ABW ${crclResults.cgActual} · IBW ${crclResults.cgIdeal} · AdjBW ${crclResults.cgAdjusted} mL/min. CrCl (bukan eGFR) adalah basis dosis obat di kebanyakan label farmasi.`,
+                      },
+                      {
+                        label: 'Langkah 4 — eGFR CKD-EPI 2021 (klasifikasi KDIGO):',
+                        formula: `eGFR = ${crclResults.ckdEpi} mL/min/1.73m² → stadium ${crclResults.stage} (${crclResults.stageDesc})\nGFR absolut = eGFR × BSA/1.73 = ${crclResults.ckdEpi} × ${crclResults.bsa}/1.73 = ${crclResults.absoluteGfr} mL/min`,
+                        note: 'CKD-EPI 2021 (tanpa koefisien ras) untuk staging CKD; MDRD ' + crclResults.mdrd + ' hanya pembanding historis.',
+                      },
+                    ]}
+                    footer="Semua estimasi mengasumsikan SCr steady-state — TIDAK valid saat AKI sedang berlangsung (SCr masih bergerak)."
+                  />
+                )}
+              </div>
+
+              <div className="mt-4">
+                <SaveToHistoryButton
+                  module="renal"
                   label={`LFG: ${crclResults.isPediatric ? crclResults.schwartz : crclResults.ckdEpi} mL/min`}
                   inputs={{ age, sex, weight, height, scrVal, scrUnit }}
                   summary={crclResults.isPediatric 
@@ -983,7 +1035,26 @@ export default function KalkulatorRenal() {
                 </div>
               )}
 
-              <ClinicalReport 
+              <div className="mb-4">
+                <CalcSteps
+                  tone="slate"
+                  steps={[
+                    {
+                      label: 'Langkah 1 — FENa (fraksi ekskresi natrium):',
+                      formula: `FENa = (UNa × SCr) ÷ (SNa × UCr) × 100%\n= (${fenaResults.naU} × ${fenaResults.crS}) ÷ (${fenaResults.naS} × ${fenaResults.crU}) × 100% = ${fenaResults.fena}%`,
+                      note: fenaResults.fi,
+                    },
+                    ...(fenaResults.feurea ? [{
+                      label: 'Langkah 2 — FEUrea (bila pasien mendapat diuretik):',
+                      formula: `FEUrea = (UUrea × SCr) ÷ (SUrea × UCr) × 100%\n= (${fenaResults.ureaU} × ${fenaResults.crS}) ÷ (${fenaResults.ureaS} × ${fenaResults.crU}) × 100% = ${fenaResults.feurea}%`,
+                      note: fenaResults.fui + ' — FEUrea tetap valid saat diuretik, FENa tidak.',
+                    }] : []),
+                  ]}
+                  footer="FENa <1% juga bisa muncul pada AKI intrinsik dini, kontras, sepsis, glomerulonefritis — interpretasikan bersama konteks klinis."
+                />
+              </div>
+
+              <ClinicalReport
                 title="Diferensiasi AKI (FENa & FEUrea)"
                 patientInfo={{
                   name: patient.nama || ''

@@ -5,6 +5,7 @@ import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
+import { CalcSteps } from '../../components/ui/CalcSteps';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -317,8 +318,31 @@ export default function KalkulatorKebutuhanCairan() {
                 </div>
               </div>
               <div className="mt-3">
-                <SaveToHistoryButton 
-                  module="cairan_basal" 
+                <CalcSteps
+                  tone="blue"
+                  steps={[
+                    {
+                      label: 'Langkah 1 — Restriksi rasional ICU (NICE/CLASSIC):',
+                      formula: `Basal = target × BB = ${targetMaint} × ${bw} = ${b1Res.icuDay.toFixed(0)} mL/hari\nLaju = ${b1Res.icuDay.toFixed(0)} ÷ 24 = ${b1Res.icuHr.toFixed(1)} mL/jam`,
+                      note: 'NICE: 25-30 mL/kg/hari untuk maintenance dewasa; pasien ICU cenderung lebih restriktif (CLASSIC trial).',
+                    },
+                    {
+                      label: 'Langkah 2 — Pembanding Holliday-Segar (4-2-1):',
+                      formula: (() => {
+                        const w = parseFloat(bw);
+                        if (w <= 10) return `BB ≤10 kg: ${w} × 100 = ${b1Res.hs.toFixed(0)} mL/hari`;
+                        if (w <= 20) return `10 kg pertama: 1000 mL\n+ ${(w - 10).toFixed(0)} kg berikutnya × 50 = ${((w - 10) * 50).toFixed(0)} mL\nTotal = ${b1Res.hs.toFixed(0)} mL/hari`;
+                        return `10 kg pertama: 1000 mL\n10 kg kedua: 500 mL\n+ ${(w - 20).toFixed(0)} kg sisanya × 20 = ${((w - 20) * 20).toFixed(0)} mL\nTotal = ${b1Res.hs.toFixed(0)} mL/hari`;
+                      })(),
+                      note: `Selisih vs restriksi ICU: ${b1Res.diff.toFixed(0)} mL (${b1Res.diffPct}%) — Holliday-Segar dirancang untuk pediatri/pasien stabil, cenderung berlebih untuk dewasa kritis.`,
+                    },
+                  ]}
+                  footer="Ini baru maintenance basal — kebutuhan total (IWL, demam, output ekstra) dihitung di bagian Faktor Koreksi di bawah."
+                />
+              </div>
+              <div className="mt-3">
+                <SaveToHistoryButton
+                  module="cairan_basal"
                   label={`Basal: ${b1Res.icuDay.toFixed(0)} mL/hari`}
                   inputs={{ bw, targetMaint }}
                   summary={`Cairan Basal ICU: ${b1Res.icuDay.toFixed(0)} mL/hari (${targetMaint} mL/kg/hari) · Rate: ${b1Res.icuHr.toFixed(1)} mL/jam`}
@@ -483,8 +507,41 @@ export default function KalkulatorKebutuhanCairan() {
                 </div>
               </div>
               <div className="mt-3">
-                <SaveToHistoryButton 
-                  module="total_cairan" 
+                <CalcSteps
+                  tone="blue"
+                  steps={[
+                    {
+                      label: 'Langkah 1 — Maintenance basal:',
+                      formula: `Maintenance = ${targetMaint} mL/kg × ${bw} kg = ${b2Res.maint.toFixed(0)} mL/hari`,
+                    },
+                    {
+                      label: 'Langkah 2 — Insensible Water Loss (IWL):',
+                      formula: `IWL dasar = ${vent === 'ventilator' ? '6.5' : vent === 'hfnc' ? '9' : '12'} mL/kg × ${bw} = ${b2Res.iwlBase.toFixed(0)} mL` +
+                        (b2Res.tempCorr > 0 ? `\n+ Demam: 10% maintenance per °C di atas 37.5 = +${b2Res.tempCorr.toFixed(0)} mL` : '') +
+                        (b2Res.sweatCorr > 0 ? `\n+ Diaphoresis = +${b2Res.sweatCorr.toFixed(0)} mL` : '') +
+                        `\nIWL total = ${b2Res.iwlTotal.toFixed(0)} mL`,
+                      note: 'Ventilator menurunkan IWL (gas sudah dilembapkan); napas spontan ~12 mL/kg/hari.',
+                    },
+                    {
+                      label: 'Langkah 3 — Penggantian urine output target:',
+                      formula: `UO = ${uoTgt} mL/kg/jam × ${bw} kg × 24 = ${b2Res.uoDay.toFixed(0)} mL/hari`,
+                    },
+                    ...((b2Res.n > 0 || b2Res.d > 0 || b2Res.o > 0) ? [{
+                      label: 'Langkah 4 — Output ekstra terukur:',
+                      formula: `NGT ${b2Res.n} + drain ${b2Res.d} + lainnya ${b2Res.o} = ${(b2Res.n + b2Res.d + b2Res.o).toFixed(0)} mL`,
+                    }] : []),
+                    {
+                      label: `Langkah ${(b2Res.n > 0 || b2Res.d > 0 || b2Res.o > 0) ? 5 : 4} — Total kebutuhan 24 jam:`,
+                      formula: `Total = ${b2Res.maint.toFixed(0)} + ${b2Res.iwlTotal.toFixed(0)} + ${b2Res.uoDay.toFixed(0)}${(b2Res.n + b2Res.d + b2Res.o) > 0 ? ` + ${(b2Res.n + b2Res.d + b2Res.o).toFixed(0)}` : ''} = ${b2Res.total.toFixed(0)} mL/hari\nLaju = ${b2Res.total.toFixed(0)} ÷ 24 = ${(b2Res.total / 24).toFixed(1)} mL/jam`,
+                      note: 'Kurangi input lain yang sudah berjalan (obat drip, nutrisi enteral/TPN) dari laju infus tunggal ini.',
+                    },
+                  ]}
+                  footer="Estimasi kebutuhan — sesuaikan dengan fase ROSE, balans harian aktual, dan status volume klinis."
+                />
+              </div>
+              <div className="mt-3">
+                <SaveToHistoryButton
+                  module="total_cairan"
                   label={`Total: ${b2Res.total.toFixed(0)} mL/hari`}
                   inputs={{ rose, temp, vent, sweat, uoTgt, ngt, drain, other }}
                   summary={`Total Kebutuhan Cairan: ${b2Res.total.toFixed(0)} mL/hari (Fase ROSE: ${rose ? ROSE_DATA[rose]?.label : 'Tidak dipilih'})`}
