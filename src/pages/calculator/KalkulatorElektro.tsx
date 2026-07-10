@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Activity, Thermometer, Wind, Beaker, ChevronsRight, AlertTriangle } from 'lucide-react';
+import { Activity, Thermometer, Wind, Beaker, ChevronsRight, AlertTriangle, Info } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
@@ -430,6 +430,21 @@ export default function KalkulatorElektro() {
                              <li>Target awal: Menghentikan kejang/gejala krisis, bukan menormalkan Na.</li>
                            </ul>
                            <p className="mt-3 text-[11px] italic opacity-80 border-t border-red-200 dark:border-red-800/50 pt-2">📚 Spasovski G. ERBP/ESE Guidelines. Nephrol Dial Transplant 2014;29 Suppl 2:i1</p>
+                         </div>
+                       </div>
+                     )}
+
+                     {!res.isEmergensi && (
+                       <div className="w-full bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 text-left">
+                         <div className="flex items-start gap-2 text-amber-800 dark:text-amber-300 text-[13px]">
+                           <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                           <div>
+                             <strong className="block mb-1">Pastikan indikasi NaCl 3% dulu</strong>
+                             <p className="leading-relaxed">
+                               Saline hipertonik terutama untuk hiponatremia <strong>bergejala</strong> (kejang, penurunan kesadaran, muntah) atau penurunan Na cepat. Pada hiponatremia <strong>kronik asimtomatik</strong>, lini pertama biasanya <strong>atasi penyebab</strong> (obat, SIADH, hipovolemia) dan <strong>restriksi cairan</strong> — bukan 3%. Resep di bawah adalah estimasi bila 3% memang diindikasikan.
+                             </p>
+                             <p className="mt-2 text-[11px] italic opacity-80">📚 Spasovski G. NDT 2014 · Hoorn EJ. NEJM 2023;388:2340</p>
+                           </div>
                          </div>
                        </div>
                      )}
