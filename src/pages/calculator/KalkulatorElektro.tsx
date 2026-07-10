@@ -108,23 +108,29 @@ export default function KalkulatorElektro() {
         const limHi = onset === 'akut' ? 12 : 8;
         const tgt = Math.min(calcN + limLo, naT);
         const d = tgt - calcN;
-        const vol3 = (d * tbw * 1000) / 513;
+        const deficit = d * tbw; // mEq Na yang dibutuhkan
+        const vol3 = (deficit * 1000) / 513; // NaCl 3% = 513 mEq/L
+        const rate24 = vol3 / 24; // habis dalam 24 jam
+        const rateMax = (0.5 * tbw * 1000) / 513; // laju setara 0.5 mEq/L/jam
 
         setRes({
-          type: 'hipo', tbw, v: vol3.toFixed(0), d: d.toFixed(1),
-          rate: (vol3 / (d/0.5)).toFixed(1), h: (d/0.5).toFixed(1),
-          lim: `${limLo}-${limHi}`, onset, isEmergensi: calcN < 120,
-          calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia
+          type: 'hipo', v: vol3.toFixed(0), d: d.toFixed(1),
+          rate: rate24.toFixed(1), rateMax: rateMax.toFixed(1),
+          limLo, limHi, onset, isEmergensi: calcN < 120,
+          calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia,
+          tgt: tgt.toFixed(1), tbw: tbw.toFixed(1), tbwF, w,
+          deficit: deficit.toFixed(0),
         });
       } else if (calcN > 145) {
         const d = tbw * (calcN / naT - 1);
         const rate = (d * 1000) / 48; // 48 jam
-        setRes({ 
-          type: 'hiper', 
-          v: d.toFixed(2), 
+        setRes({
+          type: 'hiper',
+          v: d.toFixed(2),
           rate: rate.toFixed(0),
           calcN: calcN.toFixed(1),
-          hasHyper: hasHyperglycemia 
+          hasHyper: hasHyperglycemia,
+          tbw: tbw.toFixed(1), tbwF, w, naT,
         });
       } else {
          setRes({ type: 'normal', calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia });
@@ -429,19 +435,55 @@ export default function KalkulatorElektro() {
                            <strong className="text-[14px] text-blue-700 dark:text-blue-400 block mb-1">Target Koreksi Aman (Batas 24 Jam)</strong>
                            <p>Peningkatan maksimal yang direkomendasikan untuk mencegah <em>Osmotic Demyelination Syndrome (ODS)</em>:</p>
                            <ul className="list-disc pl-4 mt-1 font-semibold">
-                             <li>Target Kenaikan Maksimal: <strong>{res.limLo} - {res.limHi} mEq/L dalam 24 jam</strong>.</li>
-                             <li>Target Na Sementara: <strong>~{parseFloat(res.calcN) + parseFloat(res.d)} mEq/L</strong>.</li>
+                             <li>Target Kenaikan Maksimal: <strong>{res.limLo}-{res.limHi} mEq/L dalam 24 jam</strong>.</li>
+                             <li>Target Na Sementara: <strong>~{res.tgt} mEq/L</strong> (dari {res.calcN} mEq/L).</li>
                            </ul>
                          </div>
-                         
+
                          <div>
                            <strong className="text-[14px] text-blue-700 dark:text-blue-400 block mb-1">Resep NaCl 3% (Hipertonis)</strong>
                            <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-1 border border-blue-200 dark:border-blue-900/50">
                              <div className="font-mono text-2xl font-bold mb-1 text-blue-700 dark:text-blue-300">
                                Kebutuhan: {res.v} <span className="text-[16px] text-blue-500 font-sans font-medium">mL</span>
                              </div>
-                             <p className="mt-1">Laju Infus: <strong>{res.rate} mL/jam</strong> (agar habis dalam 24 jam).</p>
+                             <p className="mt-1">Laju Infus: <strong>{res.rate} mL/jam</strong> (kenaikan {res.d} mEq/L tercapai merata dalam 24 jam).</p>
+                             <p className="mt-1 text-[12px]">Batas atas laju: <strong>{res.rateMax} mL/jam</strong> (setara kecepatan koreksi 0.5 mEq/L/jam) — jangan dilampaui di luar kondisi emergensi bergejala.</p>
                              <p className="text-[11px] mt-1 italic text-blue-700/80">Catatan: Gunakan vena sentral jika memungkinkan. Periksa Na tiap 4-6 jam.</p>
+                           </div>
+                         </div>
+
+                         <div>
+                           <strong className="text-[14px] text-blue-700 dark:text-blue-400 block mb-1">🧮 Rincian Perhitungan (Langkah demi Langkah)</strong>
+                           <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-1 border border-blue-200 dark:border-blue-900/50 space-y-2.5 text-[12.5px]">
+                             {res.hasHyper && (
+                               <div>
+                                 <p className="font-bold">Langkah 0 — Koreksi Na terhadap hiperglikemia (Katz/Hillier):</p>
+                                 <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">Na terkoreksi = Na terukur + 1.6 × (Glukosa − 100)/100<br/>= {na} + 1.6 × ({glu} − 100)/100 = <strong>{res.calcN} mEq/L</strong></p>
+                               </div>
+                             )}
+                             <div>
+                               <p className="font-bold">Langkah 1 — Total Body Water (TBW):</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">TBW = {res.tbwF} × BB = {res.tbwF} × {res.w} kg = <strong>{res.tbw} L</strong></p>
+                               <p className="text-[11px] italic opacity-80 mt-0.5">Faktor {res.tbwF} untuk {sex === 'm' ? 'laki-laki dewasa' : 'perempuan dewasa'}.</p>
+                             </div>
+                             <div>
+                               <p className="font-bold">Langkah 2 — Target kenaikan Na ({res.onset === 'akut' ? 'akut' : 'kronik'}):</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">ΔNa = {res.d} mEq/L (batas aman {res.limLo}-{res.limHi} mEq/L per 24 jam)<br/>Target Na = {res.calcN} + {res.d} = <strong>{res.tgt} mEq/L</strong></p>
+                             </div>
+                             <div>
+                               <p className="font-bold">Langkah 3 — Defisit natrium yang perlu diberikan:</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">Defisit Na = TBW × ΔNa = {res.tbw} × {res.d} = <strong>{res.deficit} mEq</strong></p>
+                             </div>
+                             <div>
+                               <p className="font-bold">Langkah 4 — Konversi ke volume NaCl 3%:</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">NaCl 3% mengandung 513 mEq Na per liter.<br/>Volume = {res.deficit} ÷ 513 × 1000 = <strong>{res.v} mL</strong></p>
+                             </div>
+                             <div>
+                               <p className="font-bold">Langkah 5 — Laju infus:</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">Laju = {res.v} mL ÷ 24 jam = <strong>{res.rate} mL/jam</strong></p>
+                               <p className="text-[11px] italic opacity-80 mt-0.5">Praktisnya: koreksi diberikan merata 24 jam supaya kecepatan kenaikan Na ({res.d}/24 ≈ {(parseFloat(res.d) / 24).toFixed(2)} mEq/L/jam) jauh di bawah batas 0.5 mEq/L/jam.</p>
+                             </div>
+                             <p className="text-[11px] italic opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-2">Rumus ini estimasi awal — respons nyata dipengaruhi output urin dan penyebab hiponatremia. Nilai ulang dengan hasil Na serial tiap 4-6 jam.</p>
                            </div>
                          </div>
                        </div>
@@ -497,6 +539,33 @@ export default function KalkulatorElektro() {
                            </ul>
                          </div>
                          
+                         <div>
+                           <strong className="text-[14px] text-red-700 dark:text-red-400 block mb-1">🧮 Rincian Perhitungan (Langkah demi Langkah)</strong>
+                           <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-1 border border-red-200 dark:border-red-900/50 space-y-2.5 text-[12.5px]">
+                             {res.hasHyper && (
+                               <div>
+                                 <p className="font-bold">Langkah 0 — Koreksi Na terhadap hiperglikemia (Katz/Hillier):</p>
+                                 <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-red-300 dark:border-red-700">Na terkoreksi = Na terukur + 1.6 × (Glukosa − 100)/100<br/>= {na} + 1.6 × ({glu} − 100)/100 = <strong>{res.calcN} mEq/L</strong></p>
+                               </div>
+                             )}
+                             <div>
+                               <p className="font-bold">Langkah 1 — Total Body Water (TBW):</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-red-300 dark:border-red-700">TBW = {res.tbwF} × BB = {res.tbwF} × {res.w} kg = <strong>{res.tbw} L</strong></p>
+                               <p className="text-[11px] italic opacity-80 mt-0.5">Faktor {res.tbwF} untuk {sex === 'm' ? 'laki-laki dewasa' : 'perempuan dewasa'}. Pada geriatri/dehidrasi berat, TBW nyata bisa lebih rendah.</p>
+                             </div>
+                             <div>
+                               <p className="font-bold">Langkah 2 — Defisit air bebas (Free Water Deficit):</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-red-300 dark:border-red-700">Defisit = TBW × (Na/140 − 1)<br/>= {res.tbw} × ({res.calcN}/140 − 1) = <strong>{res.v} L</strong></p>
+                             </div>
+                             <div>
+                               <p className="font-bold">Langkah 3 — Laju pemberian:</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-red-300 dark:border-red-700">Laju = {res.v} L × 1000 ÷ 48 jam = <strong>{res.rate} mL/jam</strong></p>
+                               <p className="text-[11px] italic opacity-80 mt-0.5">Dibagi rata 48 jam agar penurunan Na ≤10 mEq/L per 24 jam. Tambahkan kebutuhan IWL & ongoing loss pada laju total cairan.</p>
+                             </div>
+                             <p className="text-[11px] italic opacity-70 border-t border-red-200 dark:border-red-800/50 pt-2">Rumus ini estimasi awal — nilai ulang dengan hasil Na serial tiap 4-6 jam.</p>
+                           </div>
+                         </div>
+
                          <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-2 border border-red-200 dark:border-red-900/50">
                            <div className="font-bold mb-1 text-red-800 dark:text-red-300">Monitoring Ketat</div>
                            <p>Cek Na serum setiap 4-6 jam selama 24 jam pertama. Sesuaikan laju infus cairan jika penurunan &gt; 0.5 mEq/L/jam.</p>
