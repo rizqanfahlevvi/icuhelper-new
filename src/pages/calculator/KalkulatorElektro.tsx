@@ -108,14 +108,21 @@ export default function KalkulatorElektro() {
         const limHi = onset === 'akut' ? 12 : 8;
         const tgt = Math.min(calcN + limLo, naT);
         const d = tgt - calcN;
+        // Metode 1 — Defisit natrium: ΔNa × TBW, dikonversi ke volume NaCl 3% (513 mEq/L)
         const deficit = d * tbw; // mEq Na yang dibutuhkan
-        const vol3 = (deficit * 1000) / 513; // NaCl 3% = 513 mEq/L
+        const vol3 = (deficit * 1000) / 513;
         const rate24 = vol3 / 24; // habis dalam 24 jam
         const rateMax = (0.5 * tbw * 1000) / 513; // laju setara 0.5 mEq/L/jam
+        // Metode 2 — Adrogué–Madías: kenaikan Na per 1 L NaCl 3% = (513 − Na)/(TBW+1)
+        const amPerLiter = (513 - calcN) / (tbw + 1);
+        const volAM = (d / amPerLiter) * 1000; // mL untuk mencapai ΔNa target
+        const rateAM = volAM / 24;
 
         setRes({
           type: 'hipo', v: vol3.toFixed(0), d: d.toFixed(1),
           rate: rate24.toFixed(1), rateMax: rateMax.toFixed(1),
+          vAM: volAM.toFixed(0), rateAM: rateAM.toFixed(1),
+          amPerLiter: amPerLiter.toFixed(1),
           limLo, limHi, onset, isEmergensi: calcN < 120,
           calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia,
           tgt: tgt.toFixed(1), tbw: tbw.toFixed(1), tbwF, w,
@@ -174,9 +181,11 @@ export default function KalkulatorElektro() {
       if (!cav || !al) return;
       
       const corr = cav + 0.8 * (4 - al);
-      let ionized = corr * 0.25;
+      // Estimasi Ca ionized (mmol/L): total mg/dL ÷ 4.008 (→ mmol/L) × ~0.5 (fraksi ionized) ≈ ×0.125
+      let ionized = corr * 0.125;
       let hasPh = false;
       if (!isNaN(pv) && pv > 0) {
+        // Asidosis menaikkan Ca ionized ~0.05 mmol/L per penurunan 0.1 unit pH
         ionized = ionized + (7.4 - pv) * 0.5;
         hasPh = true;
       }
@@ -443,12 +452,26 @@ export default function KalkulatorElektro() {
                          <div>
                            <strong className="text-[14px] text-blue-700 dark:text-blue-400 block mb-1">Resep NaCl 3% (Hipertonis)</strong>
                            <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-1 border border-blue-200 dark:border-blue-900/50">
+                             <div className="text-[11px] uppercase tracking-wide font-semibold text-blue-600/80 dark:text-blue-400/80 mb-1">Estimasi Kebutuhan Volume (Rentang 2 Metode)</div>
                              <div className="font-mono text-2xl font-bold mb-1 text-blue-700 dark:text-blue-300">
-                               Kebutuhan: {res.v} <span className="text-[16px] text-blue-500 font-sans font-medium">mL</span>
+                               {Math.min(parseFloat(res.v), parseFloat(res.vAM))} – {Math.max(parseFloat(res.v), parseFloat(res.vAM))} <span className="text-[16px] text-blue-500 font-sans font-medium">mL</span>
                              </div>
-                             <p className="mt-1">Laju Infus: <strong>{res.rate} mL/jam</strong> (kenaikan {res.d} mEq/L tercapai merata dalam 24 jam).</p>
-                             <p className="mt-1 text-[12px]">Batas atas laju: <strong>{res.rateMax} mL/jam</strong> (setara kecepatan koreksi 0.5 mEq/L/jam) — jangan dilampaui di luar kondisi emergensi bergejala.</p>
-                             <p className="text-[11px] mt-1 italic text-blue-700/80">Catatan: Gunakan vena sentral jika memungkinkan. Periksa Na tiap 4-6 jam.</p>
+                             <div className="grid grid-cols-2 gap-2 mt-2 text-[12px]">
+                               <div className="bg-blue-100/40 dark:bg-blue-900/20 rounded-lg p-2 border border-blue-200 dark:border-blue-800/50">
+                                 <div className="font-bold text-blue-800 dark:text-blue-300">Metode Defisit</div>
+                                 <div className="font-mono">{res.v} mL</div>
+                                 <div className="text-[11px]">Laju {res.rate} mL/jam · 24 jam</div>
+                                 <div className="text-[10px] italic opacity-70">konservatif (batas bawah)</div>
+                               </div>
+                               <div className="bg-blue-100/40 dark:bg-blue-900/20 rounded-lg p-2 border border-blue-200 dark:border-blue-800/50">
+                                 <div className="font-bold text-blue-800 dark:text-blue-300">Adrogué–Madías</div>
+                                 <div className="font-mono">{res.vAM} mL</div>
+                                 <div className="text-[11px]">Laju {res.rateAM} mL/jam · 24 jam</div>
+                                 <div className="text-[10px] italic opacity-70">memperhitungkan dilusi (batas atas)</div>
+                               </div>
+                             </div>
+                             <p className="mt-2 text-[12px]">Batas atas laju absolut: <strong>{res.rateMax} mL/jam</strong> (setara kecepatan koreksi 0.5 mEq/L/jam) — jangan dilampaui di luar kondisi emergensi bergejala.</p>
+                             <p className="text-[11px] mt-1 italic text-blue-700/80">Mulai dari estimasi lebih rendah, titrasi berdasarkan Na serial. Gunakan vena sentral jika memungkinkan. Periksa Na tiap 4-6 jam.</p>
                            </div>
                          </div>
 
@@ -475,15 +498,20 @@ export default function KalkulatorElektro() {
                                <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">Defisit Na = TBW × ΔNa = {res.tbw} × {res.d} = <strong>{res.deficit} mEq</strong></p>
                              </div>
                              <div>
-                               <p className="font-bold">Langkah 4 — Konversi ke volume NaCl 3%:</p>
+                               <p className="font-bold">Langkah 4a — Volume via Metode Defisit:</p>
                                <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">NaCl 3% mengandung 513 mEq Na per liter.<br/>Volume = {res.deficit} ÷ 513 × 1000 = <strong>{res.v} mL</strong></p>
                              </div>
                              <div>
-                               <p className="font-bold">Langkah 5 — Laju infus:</p>
-                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">Laju = {res.v} mL ÷ 24 jam = <strong>{res.rate} mL/jam</strong></p>
-                               <p className="text-[11px] italic opacity-80 mt-0.5">Praktisnya: koreksi diberikan merata 24 jam supaya kecepatan kenaikan Na ({res.d}/24 ≈ {(parseFloat(res.d) / 24).toFixed(2)} mEq/L/jam) jauh di bawah batas 0.5 mEq/L/jam.</p>
+                               <p className="font-bold">Langkah 4b — Volume via Adrogué–Madías:</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">Kenaikan Na per 1 L NaCl 3% = (513 − Na)/(TBW + 1)<br/>= (513 − {res.calcN})/({res.tbw} + 1) = <strong>{res.amPerLiter} mEq/L per L</strong><br/>Volume = ΔNa ÷ {res.amPerLiter} × 1000 = {res.d} ÷ {res.amPerLiter} × 1000 = <strong>{res.vAM} mL</strong></p>
+                               <p className="text-[11px] italic opacity-80 mt-0.5">Metode ini memperhitungkan dilusi cairan yang ikut masuk, sehingga volumenya lebih tinggi dari metode defisit.</p>
                              </div>
-                             <p className="text-[11px] italic opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-2">Rumus ini estimasi awal — respons nyata dipengaruhi output urin dan penyebab hiponatremia. Nilai ulang dengan hasil Na serial tiap 4-6 jam.</p>
+                             <div>
+                               <p className="font-bold">Langkah 5 — Laju infus:</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">Defisit: {res.v} ÷ 24 = <strong>{res.rate} mL/jam</strong> · Adrogué: {res.vAM} ÷ 24 = <strong>{res.rateAM} mL/jam</strong></p>
+                               <p className="text-[11px] italic opacity-80 mt-0.5">Diberikan merata 24 jam supaya kecepatan kenaikan Na ({res.d}/24 ≈ {(parseFloat(res.d) / 24).toFixed(2)} mEq/L/jam) jauh di bawah batas 0.5 mEq/L/jam.</p>
+                             </div>
+                             <p className="text-[11px] italic opacity-70 border-t border-blue-200 dark:border-blue-800/50 pt-2">Kedua rumus adalah estimasi awal — respons nyata dipengaruhi output urin dan penyebab hiponatremia. Mulai dari estimasi lebih rendah dan nilai ulang dengan hasil Na serial tiap 4-6 jam.</p>
                            </div>
                          </div>
                        </div>
