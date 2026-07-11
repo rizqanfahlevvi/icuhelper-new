@@ -110,6 +110,49 @@
 html {
   font-size: calc(16px * var(--font-scale)) !important;
 }
+
+/* ── Skala Font untuk ukuran px absolut ──────────────────────────────────────
+   Kalkulator & skoring memakai ukuran teks px tetap (text-[13px], dst.) yang
+   secara default TIDAK ikut skala rem. Override ini membuat semua ukuran px
+   ikut menyesuaikan slider "Ukuran Font" di Pengaturan. Default --font-scale=1
+   → tidak ada perubahan; hanya bereaksi saat pengguna mengubah setelan. */
+.text-\[8px\]    { font-size: calc(8px    * var(--font-scale)) !important; }
+.text-\[9px\]    { font-size: calc(9px    * var(--font-scale)) !important; }
+.text-\[10px\]   { font-size: calc(10px   * var(--font-scale)) !important; }
+.text-\[10\.5px\]{ font-size: calc(10.5px * var(--font-scale)) !important; }
+.text-\[11px\]   { font-size: calc(11px   * var(--font-scale)) !important; }
+.text-\[11\.5px\]{ font-size: calc(11.5px * var(--font-scale)) !important; }
+.text-\[12px\]   { font-size: calc(12px   * var(--font-scale)) !important; }
+.text-\[12\.5px\]{ font-size: calc(12.5px * var(--font-scale)) !important; }
+.text-\[13px\]   { font-size: calc(13px   * var(--font-scale)) !important; }
+.text-\[14px\]   { font-size: calc(14px   * var(--font-scale)) !important; }
+.text-\[15px\]   { font-size: calc(15px   * var(--font-scale)) !important; }
+.text-\[16px\]   { font-size: calc(16px   * var(--font-scale)) !important; }
+.text-\[17px\]   { font-size: calc(17px   * var(--font-scale)) !important; }
+.text-\[18px\]   { font-size: calc(18px   * var(--font-scale)) !important; }
+.text-\[20px\]   { font-size: calc(20px   * var(--font-scale)) !important; }
+
+/* Varian responsif (harus setelah aturan base agar tetap menang di breakpoint) */
+@media (min-width: 640px) {
+  .sm\:text-\[9px\]  { font-size: calc(9px  * var(--font-scale)) !important; }
+  .sm\:text-\[11px\] { font-size: calc(11px * var(--font-scale)) !important; }
+  .sm\:text-\[13px\] { font-size: calc(13px * var(--font-scale)) !important; }
+}
+@media (min-width: 768px) {
+  .md\:text-\[13px\] { font-size: calc(13px * var(--font-scale)) !important; }
+}
+
+/* ── Ketebalan Font mengikuti setelan (offset --fw-*) ─────────────────────────
+   Utility berat Tailwind memakai nilai tetap (font-bold=700). Override ini
+   mengaitkannya ke variabel --fw-* yang di-set dari slider "Ketebalan Font".
+   Fallback = nilai default Tailwind agar aman sebelum efek JS berjalan. */
+.font-light     { font-weight: var(--fw-light, 300)     !important; }
+.font-normal    { font-weight: var(--fw-normal, 400)    !important; }
+.font-medium    { font-weight: var(--fw-medium, 500)    !important; }
+.font-semibold  { font-weight: var(--fw-semibold, 600)  !important; }
+.font-bold      { font-weight: var(--fw-bold, 700)      !important; }
+.font-extrabold { font-weight: var(--fw-extrabold, 800) !important; }
+.font-black     { font-weight: var(--fw-black, 900)     !important; }
 html, body, #root { height: 100%; overscroll-behavior-y: none; overflow-x: hidden; }
 body { 
   margin: 0; 
