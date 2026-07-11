@@ -51,3 +51,16 @@ React 19 (route lazy-loaded) · Vite 6 · Tailwind CSS v4 (via `@tailwindcss/vit
 - Firebase `apiKey` di `src/lib/firebase.ts` memang publik & aman — keamanan sesungguhnya ada di **Firestore Security Rules** (dikelola di Console, bukan di repo).
 - `/api/daily-news` butuh Firebase ID token + cache server (lihat `api/_lib/`). `GEMINI_API_KEY` hanya di server.
 - Logout menghapus data pasien lokal (`src/utils/logout.ts`).
+- Firestore rules melindungi field `role`, `isAdmin`, `subscriptionStatus`, `subscriptionExpiredAt`, `verificationStatus` dari update oleh pemilik dokumen sendiri (hanya admin). Jangan tambah field otorisasi baru di `users/{uid}` tanpa mendaftarkannya ke `protectedFields` di rules (Firebase Console).
+
+## Testing
+- Test ada di `src/__tests__/*.test.ts` (Vitest, `vitest run`). Baru mencakup util antropometri & sebagian rumus kalkulator — cakupan masih tipis.
+- Kalkulator lain (Transfusi, Elektrolit, SOFA, APACHE, dll.) belum punya test — jika mengubah/menambah rumus di sana, tambahkan test verifikasi (input tahu-hasil) di `__tests__/calculators.test.ts` sebagai bukti, terutama untuk perbaikan bug klinis.
+
+## Maintainability
+- Beberapa file sudah besar (mis. `PatientsPage.tsx`, `KalkulatorTransfusi.tsx`, `KalkulatorRenal.tsx`, `KalkulatorPulmo.tsx`, `ScoringSofa.tsx` — semua >900 baris). Saat menyentuh file ini untuk fitur besar, pertimbangkan mengekstrak logika perhitungan murni ke `utils/` (pola yang sama seperti `anthropometry.ts`) alih-alih menambah lagi ke file yang sama.
+- Kode baru **dilarang** pakai `any`/`as any` (sudah ada ~350 pemakaian lama — jangan tambah lagi; jangan juga refactor massal tanpa diminta).
+- Tidak ada CI (GitHub Actions) saat ini — gerbang mutu hanya dijalankan manual sebelum commit; jangan asumsikan ada pipeline otomatis yang memblokir push.
+
+## Ekosistem MD Kit
+- ICU Helper adalah satu dari beberapa app "Helper" sejenis (ACLS Helper, ResNeo Helper, PICNIC Helper) — repo terpisah, tapi kadang fitur/pola disamakan lintas app (mis. halaman Setting/About, Kalkulator Elektrolit). Saat diminta menyamakan/porting fitur ke app lain, ingat repo lain **tidak bisa dibaca langsung** — sertakan kode sumber lengkap di prompt/instruksi untuk sesi Claude Code di repo tujuan.
