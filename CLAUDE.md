@@ -18,7 +18,14 @@ React 19 (route lazy-loaded) · Vite 6 · Tailwind CSS v4 (via `@tailwindcss/vit
 - Token iOS yang VALID: `var(--sys-blue)`, `var(--sys-green)`, `var(--sys-orange)`, `var(--sys-red)`, `var(--accent)`. Token `var(--blue)`/`var(--green)`/`var(--amber)`/`var(--red)` **TIDAK ADA**.
 - Tailwind semantik: `text-destructive` **ADA**; `text-warning` **TIDAK ADA** (pakai `text-amber-600 dark:text-amber-400`).
 - **Jangan** hardcode warna hex/rgb. Pakai token CSS atau kelas Tailwind semantik.
-- Mendukung light/dark. Ukuran teks `text-[Npx]` & bobot `font-*` otomatis skala dari Pengaturan (override di `src/index.css`) — jangan tambah override px baru tanpa mendaftarkannya di sana.
+- Mendukung light/dark.
+
+## Koneksi ke Pengaturan (Ukuran & Ketebalan Font) — SERING TERLUPA, WAJIB CEK
+- Slider di Pengaturan men-set `--font-scale` (1 = 100%) dan `--fw-light`…`--fw-black` di root (lihat `useEffect` di `App.tsx`). Semua teks di app HARUS ikut skala/tebal ini — **jangan asumsikan Tailwind default sudah menangani ini**, karena `text-[Npx]` dan `font-bold`/`font-semibold` Tailwind TIDAK otomatis ikut variabel tersebut kecuali di-override.
+- Override globalnya ada di `src/index.css`: setiap kelas `text-[Npx]` yang dipakai di kode HARUS punya pasangan `.text-\[Npx\] { font-size: calc(Npx * var(--font-scale)) !important; }`, dan `font-light`…`font-black` HARUS di-map ke `var(--fw-light)`…`var(--fw-black)`.
+- **Setiap kali menambah ukuran `text-[Npx]` BARU yang belum pernah dipakai di codebase** (cek dulu dengan grep), WAJIB tambahkan juga override-nya di `src/index.css` (termasuk varian responsif `sm:`/`md:` jika dipakai) — kalau tidak, teks itu akan diam saja saat pengguna mengubah Ukuran Font, padahal elemen di sekitarnya berubah. Ini bug yang berulang kali lolos sebelum diperbaiki — jangan diulang.
+- Verifikasi cepat sebelum menganggap selesai: build lalu grep file CSS hasil build untuk memastikan `calc(<ukuran>px * var(--font-scale))` benar-benar muncul untuk ukuran baru yang ditambahkan.
+- Default `--font-scale: 1` dan offset ketebalan `0` → tampilan default TIDAK berubah; efek hanya terlihat saat pengguna menggeser slider. Jangan menyimpulkan "sudah benar" hanya dari tampilan default — harus dites dengan slider digeser (atau dicek di CSS bundle).
 
 ## State (Zustand)
 - `usePatientStore` — `weightKg`, `heightCm`, `gender` (`''`/`'L'`/`'P'`), daftar `patients`, `activePatientId`. Persist ke IndexedDB.
