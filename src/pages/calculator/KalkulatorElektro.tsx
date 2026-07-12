@@ -271,6 +271,13 @@ export default function KalkulatorElektro() {
     }
   }, [tab, bw, na, glu, k, ph, gdsK, ca, alb, caPh, mg]);
 
+  // Keparahan diturunkan LIVE dari checklist gejala → hasil ikut berubah tanpa
+  // perlu menekan "Hitung Koreksi" lagi saat gejala di-toggle.
+  const naSeverity: 'berat' | 'sedang' | 'ringan' =
+    SEVERE_SX.some(s => symptoms.has(s)) ? 'berat'
+    : MODERATE_SX.some(s => symptoms.has(s)) ? 'sedang'
+    : 'ringan';
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
@@ -460,7 +467,7 @@ export default function KalkulatorElektro() {
                  {tab === 'na' && res.type === 'hipo' && (
                    <div className="space-y-4">
                      {/* Kartu terapi utama — di-gate oleh keparahan GEJALA, bukan angka Na (Spasovski 2014) */}
-                     {res.severity === 'berat' && (
+                     {naSeverity === 'berat' && (
                        <div className="w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 text-left">
                          <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold mb-2">
                            <AlertTriangle className="w-5 h-5" />
@@ -478,7 +485,7 @@ export default function KalkulatorElektro() {
                        </div>
                      )}
 
-                     {res.severity === 'sedang' && (
+                     {naSeverity === 'sedang' && (
                        <div className="w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 text-left">
                          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold mb-2">
                            <AlertTriangle className="w-5 h-5" />
@@ -495,7 +502,7 @@ export default function KalkulatorElektro() {
                        </div>
                      )}
 
-                     {res.severity === 'ringan' && (
+                     {naSeverity === 'ringan' && (
                        <div className="w-full bg-emerald-50 dark:bg-emerald-900/15 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 text-left">
                          <div className="flex items-start gap-2 text-emerald-800 dark:text-emerald-300 text-[13px]">
                            <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -609,7 +616,7 @@ export default function KalkulatorElektro() {
                          📚 Adrogué HJ, Madias NE. NEJM 2000;342:1581 &middot; Sterns RH. NEJM 2015;372:55 &middot; Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280
                        </p>
                      </div>
-                     ); return res.severity === 'ringan'
+                     ); return naSeverity === 'ringan'
                        ? <Accordion title="🧮 Estimasi koreksi lambat NaCl 3% (buka bila koreksi aktif diputuskan)">{calcBox}</Accordion>
                        : calcBox; })()}
 
