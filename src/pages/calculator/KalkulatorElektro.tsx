@@ -7,6 +7,11 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
+// Klasifikasi gejala hiponatremia (Spasovski 2014, ERBP/ESE/ESICM).
+// Indikasi NaCl 3% ditentukan oleh GEJALA, bukan angka natrium semata.
+const SEVERE_SX = ['Muntah', 'Distres kardiorespirasi', 'Kejang', 'Kantuk dalam / somnolen abnormal', 'Penurunan kesadaran / koma (GCS ≤8)'];
+const MODERATE_SX = ['Mual (tanpa muntah)', 'Bingung / konfusi', 'Nyeri kepala'];
+
 export default function KalkulatorElektro() {
   const [tab, setTab] = useState<'na' | 'k' | 'ca' | 'mg'>('na');
 
@@ -20,6 +25,12 @@ export default function KalkulatorElektro() {
   const [sex, setSex] = useState('m');
   const [glu, setGlu] = useState('');
   const [onset, setOnset] = useState('kronik');
+  const [symptoms, setSymptoms] = useState<Set<string>>(new Set());
+  const toggleSymptom = (s: string) => setSymptoms(prev => {
+    const next = new Set(prev);
+    next.has(s) ? next.delete(s) : next.add(s);
+    return next;
+  });
   
   // K
   const [k, setK] = useState('');
@@ -118,12 +129,21 @@ export default function KalkulatorElektro() {
         const volAM = (d / amPerLiter) * 1000; // mL untuk mencapai ΔNa target
         const rateAM = volAM / 24;
 
+        // Keparahan ditentukan gejala (kategori terberat yang tercentang), bukan angka Na.
+        const hasSevere = SEVERE_SX.some(s => symptoms.has(s));
+        const hasModerate = MODERATE_SX.some(s => symptoms.has(s));
+        const severity: 'berat' | 'sedang' | 'ringan' = hasSevere ? 'berat' : hasModerate ? 'sedang' : 'ringan';
+        // Faktor risiko tinggi ODS yang bisa dideteksi otomatis: Na sangat rendah (≤105).
+        const highOdsRisk = calcN <= 105;
+
         setRes({
           type: 'hipo', v: vol3.toFixed(0), d: d.toFixed(1),
           rate: rate24.toFixed(1), rateMax: rateMax.toFixed(1),
           vAM: volAM.toFixed(0), rateAM: rateAM.toFixed(1),
           amPerLiter: amPerLiter.toFixed(1),
-          limLo, limHi, onset, isEmergensi: calcN < 120,
+          limLo, limHi, onset,
+          severity, highOdsRisk,
+          isProfound: calcN < 125,
           calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia,
           tgt: tgt.toFixed(1), tbw: tbw.toFixed(1), tbwF, w,
           deficit: deficit.toFixed(0),
@@ -317,6 +337,29 @@ export default function KalkulatorElektro() {
                      <option value="akut">Akut (&lt;48 jam)</option>
                    </select>
                 </div>
+                <div className="px-4 py-3">
+                  <div className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Gejala Hiponatremia</div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2.5 leading-relaxed">Centang gejala yang <em>plausibel disebabkan</em> hiponatremia. Indikasi NaCl 3% ditentukan oleh gejala, bukan angka Na semata.</p>
+                  <div className="space-y-2.5">
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1.5">🔴 Berat</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {SEVERE_SX.map(s => (
+                          <button key={s} type="button" onClick={()=>toggleSymptom(s)} className={`text-[12px] px-2.5 py-1.5 rounded-lg border transition-colors ${symptoms.has(s) ? 'bg-red-500/15 border-red-500/40 text-red-700 dark:text-red-300 font-semibold' : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>{s}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1.5">🟠 Sedang</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {MODERATE_SX.map(s => (
+                          <button key={s} type="button" onClick={()=>toggleSymptom(s)} className={`text-[12px] px-2.5 py-1.5 rounded-lg border transition-colors ${symptoms.has(s) ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300 font-semibold' : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>{s}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">Tidak ada yang dicentang = ringan / asimtomatik → 3% tidak rutin diindikasikan.</p>
+                  </div>
+                </div>
               </>
             )}
 
@@ -416,42 +459,73 @@ export default function KalkulatorElektro() {
 
                  {tab === 'na' && res.type === 'hipo' && (
                    <div className="space-y-4">
-                     {res.isEmergensi && (
-                       <div className="w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 flex flex-col text-left">
+                     {/* Kartu terapi utama — di-gate oleh keparahan GEJALA, bukan angka Na (Spasovski 2014) */}
+                     {res.severity === 'berat' && (
+                       <div className="w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 text-left">
                          <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold mb-2">
                            <AlertTriangle className="w-5 h-5" />
-                           PROTOKOL EMERGENSI (HIPONATREMIA BERAT)
+                           GEJALA BERAT — PROTOKOL BOLUS 3% SEGERA
                          </div>
                          <div className="text-[13px] text-red-800 dark:text-red-300 space-y-1">
-                           <p>Jika ada gejala berat (Kejang, Penurunan Kesadaran, Koma):</p>
-                           <ul className="list-disc pl-4 space-y-1 font-medium mt-2 bg-red-100/50 dark:bg-red-900/40 p-3 rounded-lg border border-red-200 dark:border-red-800/60">
-                             <li><strong>BOLUS NaCl 3%:</strong> 100-150 mL IV dalam 10-20 menit.</li>
-                             <li>Periksa Na serum ulang. Jika gejala menetap, bolus dapat diulang hingga 2-3 kali (maksimal naik 4-6 mEq/L).</li>
-                             <li>Target awal: Menghentikan kejang/gejala krisis, bukan menormalkan Na.</li>
+                           <ul className="list-disc pl-4 space-y-1 font-medium mt-1 bg-red-100/50 dark:bg-red-900/40 p-3 rounded-lg border border-red-200 dark:border-red-800/60">
+                             <li><strong>Bolus NaCl 3%: 150 mL IV dalam 20 menit</strong> (alternatif 100 mL/10 menit).</li>
+                             <li>Cek Na ulang tiap 20 menit; ulangi bolus hingga 2–3× sampai gejala membaik atau Na naik ~5 mEq/L.</li>
+                             <li>Target jam pertama: <strong>+4–6 mEq/L</strong> untuk menghentikan krisis serebral — <strong>bukan</strong> menormalkan Na.</li>
+                             <li>Setelah krisis reda: STOP hipertonik. Total kenaikan <strong>≤ {res.highOdsRisk ? 8 : 10} mEq/L / 24 jam</strong> (plafon ODS).</li>
                            </ul>
-                           <p className="mt-3 text-[11px] italic opacity-80 border-t border-red-200 dark:border-red-800/50 pt-2">📚 Spasovski G. ERBP/ESE Guidelines. Nephrol Dial Transplant 2014;29 Suppl 2:i1</p>
+                           <p className="mt-3 text-[11px] italic opacity-80 border-t border-red-200 dark:border-red-800/50 pt-2">📚 Spasovski G. NDT 2014;29(Suppl 2):i1 · Sterns RH. NEJM 2015;372:55</p>
                          </div>
                        </div>
                      )}
 
-                     {!res.isEmergensi && (
-                       <div className="w-full bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 text-left">
-                         <div className="flex items-start gap-2 text-amber-800 dark:text-amber-300 text-[13px]">
+                     {res.severity === 'sedang' && (
+                       <div className="w-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 text-left">
+                         <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold mb-2">
+                           <AlertTriangle className="w-5 h-5" />
+                           GEJALA SEDANG — INFUS TUNGGAL 3%
+                         </div>
+                         <div className="text-[13px] text-amber-800 dark:text-amber-300 space-y-1">
+                           <ul className="list-disc pl-4 space-y-1 font-medium mt-1 bg-amber-100/40 dark:bg-amber-900/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800/60">
+                             <li><strong>Infus tunggal NaCl 3% 150 mL dalam 20 menit</strong>, lalu cek Na ulang & re-evaluasi.</li>
+                             <li>Target kenaikan ~5 mEq/L / 24 jam; plafon <strong>≤ {res.highOdsRisk ? 8 : 10} mEq/L / 24 jam</strong>.</li>
+                             <li>Cari & atasi penyebab bersamaan (obat pemicu, SIADH, status volume).</li>
+                           </ul>
+                           <p className="mt-3 text-[11px] italic opacity-80 border-t border-amber-200 dark:border-amber-800/50 pt-2">📚 Spasovski G. NDT 2014;29(Suppl 2):i1</p>
+                         </div>
+                       </div>
+                     )}
+
+                     {res.severity === 'ringan' && (
+                       <div className="w-full bg-emerald-50 dark:bg-emerald-900/15 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 text-left">
+                         <div className="flex items-start gap-2 text-emerald-800 dark:text-emerald-300 text-[13px]">
                            <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
                            <div>
-                             <strong className="block mb-1">Pastikan indikasi NaCl 3% dulu</strong>
-                             <p className="leading-relaxed">
-                               Saline hipertonik terutama untuk hiponatremia <strong>bergejala</strong> (kejang, penurunan kesadaran, muntah) atau penurunan Na cepat. Pada hiponatremia <strong>kronik asimtomatik</strong>, lini pertama biasanya <strong>atasi penyebab</strong> (obat, SIADH, hipovolemia) dan <strong>restriksi cairan</strong> — bukan 3%. Resep di bawah adalah estimasi bila 3% memang diindikasikan.
-                             </p>
-                             <p className="mt-2 text-[11px] italic opacity-80">📚 Spasovski G. NDT 2014 · Hoorn EJ. NEJM 2023;388:2340</p>
+                             <strong className="block mb-1">Ringan / asimtomatik — NaCl 3% TIDAK rutin diindikasikan</strong>
+                             <p className="leading-relaxed mb-2">Prioritas: <strong>cari & atasi penyebab</strong>, hentikan obat/cairan hipotonik pemicu. Pilih terapi sesuai status volume:</p>
+                             <ul className="list-disc pl-4 space-y-1">
+                               <li><strong>Hipovolemik</strong> → NaCl 0.9% (isotonik) + atasi sumber kehilangan.</li>
+                               <li><strong>Euvolemik / SIADH</strong> → restriksi cairan (mis. &lt;800–1000 mL/hari).</li>
+                               <li><strong>Hipervolemik</strong> (gagal jantung/sirosis) → restriksi cairan + terapi penyakit dasar.</li>
+                             </ul>
+                             <p className="mt-2 leading-relaxed"><strong>Pengecualian:</strong> bila penurunan <strong>akut</strong> terdokumentasi &gt;10 mEq/L meski gejala ringan, pertimbangkan infus tunggal 150 mL 3%.</p>
+                             {res.isProfound && <p className="mt-2 text-[12px] font-semibold text-emerald-900 dark:text-emerald-200">Na &lt;125 (profound): tetap perlu evaluasi & mungkin koreksi lambat hati-hati — pertimbangkan konsul.</p>}
+                             <p className="mt-2 text-[11px] italic opacity-80">📚 Spasovski G. NDT 2014;29(Suppl 2):i1 · Verbalis JG. Am J Med 2013;126:S1</p>
                            </div>
                          </div>
                        </div>
                      )}
 
+                     {res.highOdsRisk && (
+                       <div className="w-full bg-rose-50 dark:bg-rose-900/15 border border-rose-200 dark:border-rose-800/60 rounded-xl p-3 text-[12px] text-rose-800 dark:text-rose-300">
+                         <strong className="flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Risiko tinggi ODS (Na ≤105)</strong>
+                         <p className="mt-1 leading-relaxed">Batasi kenaikan Na <strong>≤8 mEq/L / 24 jam</strong>. Faktor risiko lain yang perlu dinilai manual: hipokalemia, alkoholisme, malnutrisi, penyakit hati lanjut. <span className="italic opacity-80">📚 Sterns RH. NEJM 2015 · Verbalis JG. Am J Med 2013</span></p>
+                       </div>
+                     )}
+
+                     {(() => { const calcBox = (
                      <div className="w-full bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 flex flex-col items-start text-left">
                        <div className="text-[13px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-3 w-full border-b border-blue-200 dark:border-blue-800/50 pb-2">
-                         Koreksi Hiponatremia {res.onset === 'akut' ? 'Akut' : 'Kronik'}
+                         Estimasi Koreksi Lambat &amp; Batas Aman ({res.onset === 'akut' ? 'Akut' : 'Kronik'})
                        </div>
                        
                        <div className="text-[13px] text-blue-900 dark:text-blue-200 space-y-4 w-full">
@@ -532,9 +606,12 @@ export default function KalkulatorElektro() {
                        </div>
                        
                        <p className="mt-4 text-[11px] italic text-blue-700/70 dark:text-blue-300/70 w-full text-center border-t border-blue-200 dark:border-blue-800/50 pt-3">
-                         📚 Sterns RH. NEJM 2015;372:55 &middot; Hoorn EJ. NEJM 2023;388:2340
+                         📚 Adrogué HJ, Madias NE. NEJM 2000;342:1581 &middot; Sterns RH. NEJM 2015;372:55 &middot; Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280
                        </p>
                      </div>
+                     ); return res.severity === 'ringan'
+                       ? <Accordion title="🧮 Estimasi koreksi lambat NaCl 3% (buka bila koreksi aktif diputuskan)">{calcBox}</Accordion>
+                       : calcBox; })()}
 
                      <Accordion title="⚠ Rescue Protocol (Overcorrection)">
                        <div className="text-[12px] text-slate-700 dark:text-slate-300 space-y-2">
@@ -865,13 +942,17 @@ export default function KalkulatorElektro() {
 
       <Accordion title="📖 Teori & Referensi: Koreksi Elektrolit">
         <ul className="pl-4 space-y-1 list-disc text-muted-foreground text-sm">
-          <li><strong className="text-foreground">Defisit Natrium:</strong> Koreksi Hiponatremia bergejala dibatasi (max 8-10 mEq/L per 24 jam) untuk mencegah <em>Osmotic Demyelination Syndrome</em> (ODS). Na Defisit = Total Body Water &times; (Na Target - Na Pasien). TBW = 0.6 &times; BB (pria) / 0.5 &times; BB (wanita).</li>
+          <li><strong className="text-foreground">Hiponatremia — dua sumbu keparahan:</strong> (1) biokimia: ringan 130–135, sedang 125–129, berat/profound &lt;125 mEq/L; (2) gejala. Keduanya bisa tidak sejalan — dan <strong>indikasi NaCl 3% ditentukan oleh GEJALA, bukan angka</strong>. Gejala berat: muntah, distres kardiorespirasi, kejang, penurunan kesadaran/koma. Gejala sedang: mual tanpa muntah, bingung, nyeri kepala. <em>(Spasovski 2014)</em></li>
+          <li><strong className="text-foreground">Patofisiologi & dasar risiko ODS:</strong> Pada hiponatremia <strong>kronik</strong> (&gt;48 jam) otak beradaptasi dengan mengeluarkan osmol; koreksi terlalu cepat → <em>Osmotic Demyelination Syndrome</em>. Pada <strong>akut</strong> (&lt;48 jam) otak belum beradaptasi → risiko ODS rendah, bahaya utama justru edema serebri. Karena itu onset akut/kronik menentukan <strong>kecepatan aman</strong>, bukan apakah pakai 3%. <em>(Sterns 2015)</em></li>
+          <li><strong className="text-foreground">Terapi berbasis gejala:</strong> Berat → bolus NaCl 3% 150 mL/20 mnt (ulangi s/d +5 mEq/L atau gejala reda; target jam-1 +4–6). Sedang → infus tunggal 150 mL 3%, lalu re-evaluasi. Ringan/asimtomatik → <strong>bukan 3%</strong>: atasi penyebab; hipovolemik→NaCl 0.9%, euvolemik/SIADH→restriksi cairan, hipervolemik→restriksi + penyakit dasar. <em>(Spasovski 2014; Verbalis 2013)</em></li>
+          <li><strong className="text-foreground">Plafon kecepatan & ODS:</strong> Batas ≤10 mEq/L/24 jam (≤8 pada risiko tinggi: Na ≤105, hipokalemia, alkoholisme, malnutrisi, penyakit hati lanjut) berlaku di <strong>semua</strong> mode — yang berubah menurut gejala adalah target & metode, bukan plafon. Bila overcorrection: STOP hipertonik, D5W ± desmopressin (DDAVP) untuk re-lowering. <em>(Sterns 2015; Verbalis 2013)</em></li>
+          <li><strong className="text-foreground">Dua rumus estimasi (koreksi lambat):</strong> Metode defisit = TBW × ΔNa ÷ 513 (TBW = 0.6 × BB pria / 0.5 × BB wanita); Adrogué–Madías = ΔNa per 1 L 3% = (513 − Na)/(TBW+1). Keduanya estimasi kasar yang sering meleset (mengabaikan output urin/diuresis air) → <strong>wajib ukur Na serial tiap 4–6 jam</strong>. <em>(Adrogué–Madías 2000; Sterns 2015)</em></li>
           <li><strong className="text-foreground">Koreksi Kalium:</strong> Kadar Kalium harus dilihat bersama pH pasien karena asidemia menggeser K+ intrasel ke ekstrasel, menciptakan hiperkalemia palsu. Rumus koreksi empiris: Defisit K+ = (Target K+ - Pasien K+) &times; 100. Rekomendasi rate KCL Vena Perifer maks 10 mEq/jam.</li>
           <li><strong className="text-foreground">Kalsium & Albumin:</strong> Kalsium terikat dengan protein albumin. Kalsium Terkoreksi = Kalsium Total + 0.8 &times; (4.0 - Albumin). Pada kasus kritis, disarankan pengukuran fraksi Ionized Kalsium bebas dibandingkan terkoreksi albumin.</li>
           <li><strong className="text-foreground">Magnesium:</strong> Sering berkorelasi dengan hipokalemia persisten. Jika Mg &lt; 1.5, berikan 1-2 gr Magnesium Sulfat dalam bolus lambat (4-6 jam).</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Adrogué HJ, Madias NE (2000). Hyponatremia. NEJM; Weisberg LS. (2008) Management of severe hyperkalemia. Crit Care Med.
+          📚 Spasovski G, et al. Eur J Endocrinol 2014;170:G1 / Nephrol Dial Transplant 2014;29(Suppl 2):i1 · Verbalis JG, et al. Am J Med 2013;126(10 Suppl 1):S1 · Adrogué HJ, Madias NE. NEJM 2000;342:1581 · Sterns RH. NEJM 2015;372:55 · Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280 · Weisberg LS. Crit Care Med 2008.
         </div>
       </Accordion>
     </div>
