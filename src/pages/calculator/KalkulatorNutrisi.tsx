@@ -6,6 +6,8 @@ import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { InputWarning } from '../../components/ui/InputWarning';
+import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -219,6 +221,7 @@ export default function KalkulatorNutrisi() {
         </button>
       </div>
 
+      {res && <InputWarning message={weightPlausibilityWarning(parseFloat(bb))} />}
       {res && (
         <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">

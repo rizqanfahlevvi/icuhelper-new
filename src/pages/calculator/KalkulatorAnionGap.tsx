@@ -8,6 +8,8 @@ import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { InputWarning } from '../../components/ui/InputWarning';
+import { rangeWarning } from '../../utils/validation';
 import { Accordion } from '../../components/ui/Accordion';
 
 export default function KalkulatorAnionGap() {
@@ -133,6 +135,11 @@ export default function KalkulatorAnionGap() {
         </div>
       </div>
 
+      {(ag !== null) && <InputWarning messages={[
+        rangeWarning(naVal, 100, 180, 'Na', ' mEq/L'),
+        rangeWarning(clVal, 70, 130, 'Cl', ' mEq/L'),
+        rangeWarning(hco3Val, 3, 45, 'HCO₃', ' mEq/L'),
+      ]} />}
       {(ag !== null) && (
         <div className="bg-primary/10 border border-primary/20 rounded-2xl p-5 space-y-4">
           <div>

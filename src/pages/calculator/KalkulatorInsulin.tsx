@@ -5,6 +5,8 @@ import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { InputWarning } from '../../components/ui/InputWarning';
+import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -228,6 +230,7 @@ export default function KalkulatorInsulin() {
                 )}
              </div>
 
+             {mode === 'bbc' && bbcRes && !bbcRes.error && <InputWarning message={weightPlausibilityWarning(parseFloat(bb))} />}
              {mode === 'bbc' && bbcRes && (
                <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
                  {bbcRes.error ? (
@@ -411,6 +414,7 @@ export default function KalkulatorInsulin() {
              </div>
              
              <div className="mt-4">
+               {hipoRes && <InputWarning message={weightPlausibilityWarning(parseFloat(hipoBb))} />}
                {hipoRes ? (
                  <div className="animate-in fade-in slide-in-from-bottom-3 duration-300 space-y-4">
                    <div className={`px-5 py-3 border rounded-xl text-center text-sm font-bold shadow-sm ${hipoRes.lvlCls}`}>{hipoRes.lvlLbl}</div>

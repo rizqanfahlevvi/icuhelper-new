@@ -6,6 +6,8 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { InputWarning } from '../../components/ui/InputWarning';
+import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -296,6 +298,7 @@ export default function KalkulatorKebutuhanCairan() {
           </button>
         </div>
 
+          {b1Res && <InputWarning message={weightPlausibilityWarning(parseFloat(bw))} />}
           {b1Res && (
             <div className="mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
               <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">

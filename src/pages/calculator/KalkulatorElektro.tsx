@@ -6,6 +6,8 @@ import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { InputWarning } from '../../components/ui/InputWarning';
+import { weightPlausibilityWarning, rangeWarning } from '../../utils/validation';
 
 // Klasifikasi gejala hiponatremia (Spasovski 2014, ERBP/ESE/ESICM).
 // Indikasi NaCl 3% ditentukan oleh GEJALA, bukan angka natrium semata.
@@ -454,6 +456,13 @@ export default function KalkulatorElektro() {
          </div>
 
          <div className="mt-4 pb-6">
+            {res && <InputWarning messages={[
+              weightPlausibilityWarning(parseFloat(bw)),
+              tab === 'na' ? rangeWarning(parseFloat(na), 100, 180, 'Na', ' mEq/L') : null,
+              tab === 'k' ? rangeWarning(parseFloat(k), 1.5, 9, 'K', ' mEq/L') : null,
+              tab === 'ca' ? rangeWarning(parseFloat(ca), 4, 18, 'Ca', ' mg/dL') : null,
+              tab === 'mg' ? rangeWarning(parseFloat(mg), 0.5, 6, 'Mg', ' mg/dL') : null,
+            ]} />}
             {res && (
                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-4">
                  

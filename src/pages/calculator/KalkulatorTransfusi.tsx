@@ -14,6 +14,8 @@ import {
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { InputWarning } from '../../components/ui/InputWarning';
+import { weightPlausibilityWarning } from '../../utils/validation';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
@@ -613,6 +615,7 @@ export default function KalkulatorTransfusi() {
       </div>
 
       {/* Calculation Output Card (Result Block) */}
+      {res && <InputWarning message={weightPlausibilityWarning(parseFloat(bb))} />}
       {res && (
         <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
           

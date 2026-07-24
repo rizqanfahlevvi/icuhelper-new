@@ -9,6 +9,8 @@ import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { InputWarning } from '../../components/ui/InputWarning';
+import { weightPlausibilityWarning } from '../../utils/validation';
 import { 
   Activity, 
   Info, 
@@ -595,6 +597,7 @@ export default function KalkulatorRenal() {
             </div>
 
           {/* RESULTS OUTPUT TAB 1 */}
+          {crclResults && !crclResults.isPediatric && <InputWarning message={weightPlausibilityWarning(parseFloat(weight))} />}
           {crclResults && (
             <div className="mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
               <h2 className="mb-2 px-1 text-[13px] font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
