@@ -3,6 +3,7 @@ import { Pill, Syringe, Clock, AlertTriangle, Info, RefreshCw, User, Activity, C
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
@@ -277,6 +278,12 @@ export default function KalkulatorDrug() {
           {/* RESULTS FOR RSI */}
           {resRsi && (
             <div className="animate-in fade-in slide-in-from-bottom-3 duration-300 mt-4 pb-6">
+              {weightPlausibilityWarning(parseFloat(ituBb)) && (
+                <div className="mb-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/60 text-[12px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+                  <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>{weightPlausibilityWarning(parseFloat(ituBb))}</span>
+                </div>
+              )}
               <h2 className="mb-2 text-[13px] font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                 Hasil Perhitungan Dosis RSI
               </h2>

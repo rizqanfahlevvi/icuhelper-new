@@ -5,6 +5,7 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
@@ -175,6 +176,13 @@ export default function KalkulatorPump() {
           Hitung Laju (mL/jam)
         </button>
       </div>
+
+      {result && weightPlausibilityWarning(result.b) && (
+        <div className="mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/60 text-[12px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <span>{weightPlausibilityWarning(result.b)}</span>
+        </div>
+      )}
 
       {result && (
         <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">

@@ -119,3 +119,27 @@ describe('Bicarbonate correction', () => {
     expect(recommendBicarbFactor(4).factor).toBe(0.8);
   });
 });
+
+// ── Validasi input (plausibilitas berat) ────────────────────────────────────
+import { weightPlausibilityWarning, rangeWarning } from '../utils/validation';
+
+describe('Input validation', () => {
+  it('weight in normal adult range → no warning', () => {
+    expect(weightPlausibilityWarning(70)).toBeNull();
+    expect(weightPlausibilityWarning(45)).toBeNull();
+    expect(weightPlausibilityWarning(120)).toBeNull();
+  });
+  it('implausible weight (unit/typo error) → warns', () => {
+    expect(weightPlausibilityWarning(7)).not.toBeNull();   // gram? anak?
+    expect(weightPlausibilityWarning(700)).not.toBeNull(); // typo 70
+  });
+  it('empty/zero weight → no warning (blocked elsewhere)', () => {
+    expect(weightPlausibilityWarning(0)).toBeNull();
+    expect(weightPlausibilityWarning(NaN)).toBeNull();
+  });
+  it('rangeWarning fires outside range only', () => {
+    expect(rangeWarning(7.4, 6.8, 7.8, 'pH')).toBeNull();
+    expect(rangeWarning(9, 6.8, 7.8, 'pH')).not.toBeNull();
+    expect(rangeWarning(NaN, 6.8, 7.8, 'pH')).toBeNull();
+  });
+});

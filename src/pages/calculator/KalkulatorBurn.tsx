@@ -6,6 +6,7 @@ import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { usePatientStore } from '../../store/usePatientStore';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { CalcSteps } from '../../components/ui/CalcSteps';
+import { weightPlausibilityWarning } from '../../utils/validation';
 
 // Beautiful organic SVG paths for a human mannequin
 const SVG_PATHS = {
@@ -272,6 +273,12 @@ export default function KalkulatorBurn() {
             </div>
 
             <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+              {weightPlausibilityWarning(parseFloat(localWeight)) && (
+                <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/60 text-[12px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
+                  <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>{weightPlausibilityWarning(parseFloat(localWeight))}</span>
+                </div>
+              )}
               <div className="bg-gradient-to-br from-[var(--accent)]/10 to-[var(--accent)]/5 rounded-2xl p-5 border border-[var(--accent)]/20">
                 <div className="flex flex-col mb-5">
                   <span className="text-sm font-semibold text-[var(--accent)]">Total Cairan 24 Jam</span>
