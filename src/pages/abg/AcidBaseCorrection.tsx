@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AbgInputs } from './types';
-import { Calculator } from 'lucide-react';
+import { Calculator, AlertTriangle } from 'lucide-react';
+import { bicarbDeficit, bicarbSpaceFernandez, recommendBicarbFactor } from '../../utils/acidBase';
 
 interface Props {
   abgInputs: AbgInputs;
@@ -14,6 +15,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
   const [hco3act, setHco3act] = useState('');
   const [hco3tgt, setHco3tgt] = useState('18');
   const [type1, setType1] = useState('met');
+  const [factorChoice, setFactorChoice] = useState('auto'); // 'auto' | '0.5' | '0.6' | '0.8'
 
   // Tab 2 state
   const [bb2, setBb2] = useState('');
@@ -61,6 +63,10 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
 
     const b = parseFloat(bb);
     const act = parseFloat(hco3act);
+    const rec = recommendBicarbFactor(act);
+    const factor = factorChoice === 'auto' ? rec.factor : parseFloat(factorChoice);
+    const deficit = (!isNaN(b) && !isNaN(act)) ? bicarbDeficit(factor, b, target, act) : 0;
+    const isLargeDose = deficit > 150;
 
     return (
       <div className="space-y-4">
@@ -87,6 +93,26 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
           </div>
         </div>
 
+        {type1 !== 'card' && (
+          <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/60 dark:bg-slate-800/40 space-y-2">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Faktor Ruang Distribusi HCO₃ (L/kg)</span>
+              {!isNaN(act) && <span className="text-[11px] text-[var(--label-secondary)]">Fernandez: 0.4 + 2.6/{act} = <strong className="text-[var(--label-primary)]">{bicarbSpaceFernandez(act).toFixed(2)}</strong></span>}
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {[['auto', `Auto (${!isNaN(act) ? rec.factor : '—'})`], ['0.5','0.5'], ['0.6','0.6'], ['0.8','0.8']].map(([val, lbl]) => (
+                <button key={val} type="button" onClick={()=>setFactorChoice(val)} className={`py-2 rounded-lg text-[12px] font-bold border transition-colors ${factorChoice === val ? 'bg-primary/15 border-primary/50 text-primary' : 'bg-white dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>{lbl}</button>
+              ))}
+            </div>
+            <p className="text-[11px] text-[var(--label-secondary)] leading-relaxed">
+              Ruang distribusi bikarbonat <strong>membesar saat asidosis makin berat</strong> — 0.4–0.5 pada asidosis ringan; 0.6–0.8 saat HCO₃ sangat rendah. Mode <strong>Auto</strong> menyarankan {!isNaN(act) ? <>{rec.factor} ({rec.label})</> : 'berdasarkan HCO₃ aktual'}.
+            </p>
+            <p className="text-[11px] text-[var(--label-secondary)] leading-relaxed border-t border-slate-200 dark:border-slate-700/50 pt-2">
+              <strong>Target HCO₃:</strong> rentang tersarankan <strong>15–18 mEq/L</strong> (koreksi parsial, bukan normalisasi). Sesuaikan komorbid: hipernatremia/overload cairan → waspada beban Na &amp; volume dari NaHCO₃; hipokalsemia → alkalinisasi cepat dapat memicu tetani; AKI → risiko akumulasi.
+            </p>
+          </div>
+        )}
+
         {!isNaN(b) && !isNaN(act) && (
           <div className="p-4 border border-slate-200 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-800/50 rounded-xl space-y-2">
             {type1 === 'card' ? (
@@ -101,22 +127,30 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
             ) : (
               <>
                  <div className="text-sm font-bold text-primary mb-2">Dosis NaHCO₃ — {type1 === 'dka' ? 'DKA' : 'Asidosis Metabolik'}</div>
-                 <div className="text-2xl font-black text-primary">{(0.5 * b * (target - act)).toFixed(0)} mEq</div>
-                 <div className="text-sm text-[var(--label-primary)] font-medium mt-1">Berikan ½ dosis dulu: <strong className="text-primary">{((0.5 * b * (target - act)) / 2).toFixed(0)} mEq</strong> dalam 4–6 jam, lalu re-evaluasi AGD.</div>
+                 <div className="text-2xl font-black text-primary">{deficit.toFixed(0)} mEq</div>
+                 <div className="text-sm text-[var(--label-primary)] font-medium mt-1">Berikan ½ dosis dulu: <strong className="text-primary">{(deficit / 2).toFixed(0)} mEq</strong> dalam 4–6 jam, lalu re-evaluasi AGD.</div>
+
+                 {isLargeDose && (
+                   <div className="mt-3 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-[12px] text-rose-800 dark:text-rose-300">
+                     <strong className="flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Dosis besar (&gt;150 mEq) — JANGAN bolus penuh</strong>
+                     <p className="mt-1 leading-relaxed">Berikan bertahap (mulai ½ dosis / infus lambat), cek AGD ulang tiap 2–4 jam. Koreksi HCO₃ berlebih berisiko alkalosis overshoot, hipokalemia, hipokalsemia (tetani), Na overload, dan pergeseran kurva O₂. NaHCO₃ hanya diindikasikan pada asidosis metabolik berat tertentu (mis. pH &lt;7.1) — bukan rutin.</p>
+                   </div>
+                 )}
+
                  <hr className="my-3 border-slate-200 dark:border-slate-700/50" />
                  <div className="text-xs text-[var(--label-secondary)] font-medium leading-relaxed">
                    <strong className="text-[var(--label-primary)]">Sediaan:</strong><br/>
-                   • NaHCO₃ 8.4% (1 mEq/mL) → <strong className="text-[var(--label-primary)]">{(0.5 * b * (target - act)).toFixed(0)} mL</strong><br/>
-                   • NaHCO₃ 7.5% (0.9 mEq/mL) → <strong className="text-[var(--label-primary)]">{((0.5 * b * (target - act)) / 0.9).toFixed(0)} mL</strong>
+                   • NaHCO₃ 8.4% (1 mEq/mL) → <strong className="text-[var(--label-primary)]">{deficit.toFixed(0)} mL</strong><br/>
+                   • NaHCO₃ 7.5% (0.9 mEq/mL) → <strong className="text-[var(--label-primary)]">{(deficit / 0.9).toFixed(0)} mL</strong>
                  </div>
                  <div className="text-[11px] font-mono font-medium text-slate-500 mt-2 border-t border-slate-200 dark:border-slate-700/50 pt-2 leading-relaxed">
-                   Langkah: Defisit HCO₃⁻ = 0.5 × BBI × (target − aktual)<br/>
-                   = 0.5 × {b} × ({target} − {act}) = <strong className="text-[var(--label-primary)]">{(0.5 * b * (target - act)).toFixed(0)} mEq</strong><br/>
-                   Faktor 0.5 = ruang distribusi bikarbonat (L/kg). Berikan ½ dulu, re-evaluasi AGD.
+                   Langkah: Defisit HCO₃⁻ = faktor × BBI × (target − aktual)<br/>
+                   = {factor} × {b} × ({target} − {act}) = <strong className="text-[var(--label-primary)]">{deficit.toFixed(0)} mEq</strong><br/>
+                   Faktor {factor} L/kg = ruang distribusi bikarbonat{factorChoice === 'auto' ? ` (Auto — ${rec.label})` : ' (dipilih manual)'}. Berikan ½ dulu, re-evaluasi AGD.
                  </div>
               </>
             )}
-            <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 font-mono font-bold">📚 Seifter JL. NEJM 2014; Berend K. NEJM 2018</div>
+            <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 font-mono font-bold leading-relaxed">📚 Faktor 0.4–0.5 konvensional: Seifter JL. NEJM 2014; Berend K. NEJM 2018 · Ruang distribusi bergantung severity: Fernandez PC, et al. Kidney Int 1989;36:747; Adrogué HJ, Madias NE. NEJM 1998;338:26</div>
           </div>
         )}
       </div>

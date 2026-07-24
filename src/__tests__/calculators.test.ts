@@ -98,3 +98,24 @@ describe('Cockcroft-Gault CrCl', () => {
     expect(high).toBeLessThan(low);
   });
 });
+
+// ── Koreksi Bikarbonat (NaHCO3) ─────────────────────────────────────────────
+import { bicarbDeficit, bicarbSpaceFernandez, recommendBicarbFactor } from '../utils/acidBase';
+
+describe('Bicarbonate correction', () => {
+  it('bicarbDeficit: 0.5 x 70 x (18-10) = 280 mEq', () => {
+    expect(bicarbDeficit(0.5, 70, 18, 10)).toBeCloseTo(280, 5);
+  });
+  it('bicarbDeficit scales with factor', () => {
+    expect(bicarbDeficit(0.8, 70, 18, 10)).toBeCloseTo(448, 5);
+  });
+  it('Fernandez space expands as HCO3 falls', () => {
+    expect(bicarbSpaceFernandez(24)).toBeCloseTo(0.4 + 2.6 / 24, 5);
+    expect(bicarbSpaceFernandez(5)).toBeGreaterThan(bicarbSpaceFernandez(20));
+  });
+  it('recommended factor rises with severity', () => {
+    expect(recommendBicarbFactor(15).factor).toBe(0.5);
+    expect(recommendBicarbFactor(8).factor).toBe(0.6);
+    expect(recommendBicarbFactor(4).factor).toBe(0.8);
+  });
+});
