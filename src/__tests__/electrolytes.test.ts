@@ -4,7 +4,7 @@ import {
   correctedCalcium, caMgdlToMmol, caGluconateInfusion, hyperCaSeverity,
   mgMgdlToMeq, mgso4DoseToTarget, mgMaxDoseGrams, mgInfusionHours,
 } from '../utils/electrolytes';
-import { hypoNaRiseLimits } from '../utils/sodium';
+import { hypoNaRiseLimits, computeNa } from '../utils/sodium';
 
 describe('Kalium — hipokalemia', () => {
   it('klasifikasi keparahan (Kardalas 2018)', () => {
@@ -122,5 +122,43 @@ describe('Natrium — batas kenaikan hiponatremia', () => {
   it('risiko ODS normal vs tinggi (Verbalis 2013; Spasovski 2014)', () => {
     expect(hypoNaRiseLimits(false)).toEqual({ goalLo: 4, goalHi: 8, limit24: 10, limitNext24: 8 });
     expect(hypoNaRiseLimits(true)).toEqual({ goalLo: 4, goalHi: 6, limit24: 8, limitNext24: 8 });
+  });
+});
+
+describe('Natrium — computeNa (hitung manual)', () => {
+  const base = { glucose: NaN, sex: 'm' as const, age: NaN, onset: 'kronik', fluidId: 'd5w', odsRiskFactors: 0, riseTarget: 6, hyperTargetNa: 140, hyperDropPer24: 10 };
+  it('hiponatremia: 60 kg pria, Na 118, target +6', () => {
+    const r = computeNa({ ...base, weightKg: 60, na: 118 });
+    if (!r || r.type !== 'hipo') throw new Error('harus hipo');
+    expect(r.tbw).toBeCloseTo(36);
+    expect(r.tgt).toBeCloseTo(124);
+    expect(r.deficit).toBeCloseTo(216);          // 36 × 6
+    expect(r.v).toBeCloseTo(421.05, 1);          // 216 ÷ 513 × 1000
+    expect(r.amPerLiter).toBeCloseTo(10.676, 2); // (513 − 118) ÷ 37
+    expect(r.vAM).toBeCloseTo(562.0, 0);         // 6 ÷ 10.676 × 1000
+    expect(r.totalDeficit).toBeCloseTo(792);     // 36 × (140 − 118)
+    expect(r.daysTo140).toBe(4);                 // ⌈22 ÷ 6⌉
+  });
+  it('hiponatremia: faktor risiko ODS → batas 8', () => {
+    const r = computeNa({ ...base, weightKg: 60, na: 118, odsRiskFactors: 1, riseTarget: 10 });
+    if (!r || r.type !== 'hipo') throw new Error('harus hipo');
+    expect(r.lim.limit24).toBe(8);
+    expect(r.riseOverLimit).toBe(true);
+  });
+  it('hipernatremia: 70 kg pria, Na 160 → 140, D5W, batas 10/24 jam', () => {
+    const r = computeNa({ ...base, weightKg: 70, na: 160 });
+    if (!r || r.type !== 'hiper') throw new Error('harus hiper');
+    expect(r.deficit).toBeCloseTo(6.0);          // 42 × (160/140 − 1)
+    expect(r.targetDrop).toBe(10);
+    expect(r.days).toBe(2);
+    expect(r.dNaPerL).toBeCloseTo(-3.721, 2);    // (0 − 160) ÷ 43
+    expect(r.volForTarget).toBeCloseTo(2.6875, 3);
+    expect(r.rateMlHr).toBeCloseTo(111.98, 1);
+  });
+  it('koreksi glukosa & normal', () => {
+    const r = computeNa({ ...base, weightKg: 70, na: 132, glucose: 600 });
+    expect(r?.type).toBe('normal');              // 132 + 1.6 × 5 = 140
+    expect(r?.calcN).toBeCloseTo(140);
+    expect(computeNa({ ...base, weightKg: 0, na: 120 })).toBeNull();
   });
 });

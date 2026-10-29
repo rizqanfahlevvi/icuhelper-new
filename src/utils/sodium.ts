@@ -53,3 +53,72 @@ export const NA_FLUIDS: { id: string; label: string; na: number; note: string }[
   { id: 'half', label: 'NaCl 0.45% IV', na: 77, note: 'Bila butuh volume juga; menurunkan Na lebih lambat.' },
   { id: 'ns', label: 'NaCl 0.9% IV', na: 154, note: 'Untuk hipovolemia berat dulu sampai stabil; TIDAK untuk menurunkan Na bila Na <154.' },
 ];
+
+/** Koreksi Na terhadap hiperglikemia (Katz/Hillier): Na + 1.6 × (glukosa − 100)/100 bila glukosa >100 mg/dL. */
+export function glucoseCorrectedNa(na: number, glucoseMgDl: number): { value: number; corrected: boolean } {
+  if (!isNaN(glucoseMgDl) && glucoseMgDl > 100) return { value: na + 1.6 * ((glucoseMgDl - 100) / 100), corrected: true };
+  return { value: na, corrected: false };
+}
+
+export interface NaInput {
+  weightKg: number; na: number; glucose: number; sex: 'm' | 'f'; age: number; onset: string;
+  fluidId: string; odsRiskFactors: number; riseTarget: number; hyperTargetNa: number; hyperDropPer24: number;
+}
+
+/**
+ * Perhitungan lengkap koreksi Na (hipo/hiper) dari input — fungsi murni.
+ * Hipo: defisit Na 24 jam = TBW × ΔNa target; volume NaCl 3% via metode defisit & Adrogué–Madías;
+ *       konteks defisit total ke 140 = TBW × (140 − Na) (TIDAK diberikan sekaligus).
+ * Hiper: defisit air bebas = TBW × (Na/Na target − 1); volume cairan hari ini via Adrogué–Madías.
+ */
+export function computeNa(i: NaInput) {
+  if (!(i.weightKg > 0) || !(i.na > 0)) return null;
+  const g = glucoseCorrectedNa(i.na, i.glucose);
+  const calcN = g.value;
+  const tbwF = tbwFactor(i.sex, i.age);
+  const tbw = i.weightKg * tbwF;
+  const naT = 140;
+  const base = { naMeasured: i.na, calcN, hasHyper: g.corrected, tbwF, tbw, w: i.weightKg };
+
+  if (calcN < 135) {
+    const odsAuto = calcN <= 105;
+    const highOdsRisk = odsAuto || i.odsRiskFactors > 0;
+    const lim = hypoNaRiseLimits(highOdsRisk);
+    const rise = i.riseTarget > 0 ? i.riseTarget : 6;
+    const d = Math.min(rise, naT - calcN);
+    const deficit = d * tbw;                        // mEq Na untuk ΔNa 24 jam
+    const v = (deficit * 1000) / 513;               // mL NaCl 3% (metode defisit)
+    const amPerLiter = (513 - calcN) / (tbw + 1);   // Adrogué–Madías: ΔNa per 1 L NaCl 3%
+    const vAM = (d / amPerLiter) * 1000;
+    const totalDeficit = (naT - calcN) * tbw;       // konteks: defisit total ke 140
+    return {
+      type: 'hipo' as const, ...base,
+      lim, rise, d, tgt: calcN + d, riseOverGoal: rise > lim.goalHi, riseOverLimit: rise > lim.limit24,
+      highOdsRisk, odsAuto, isProfound: calcN < 125,
+      bioClass: calcN < 125 ? 'berat (<125)' : calcN < 130 ? 'sedang (125–129)' : 'ringan (130–134)',
+      deficit, v, rate: v / 24, vAM, rateAM: vAM / 24, amPerLiter,
+      rateMax: (0.5 * tbw * 1000) / 513,            // mL/jam NaCl 3% setara +0.5 mEq/L/jam (metode defisit)
+      totalDeficit, daysTo140: Math.ceil((naT - calcN) / Math.min(rise, lim.limit24)),
+    };
+  }
+  if (calcN > 145) {
+    const targetNa = i.hyperTargetNa >= 135 && i.hyperTargetNa <= 150 ? i.hyperTargetNa : naT;
+    const deficit = Math.max(0, freeWaterDeficit(tbw, calcN, targetNa)); // L
+    const maxDropPer24 = i.hyperDropPer24 > 0 ? i.hyperDropPer24 : (i.onset === 'akut' ? 24 : 10);
+    const totalDrop = Math.max(0, calcN - targetNa);
+    const targetDrop = Math.min(totalDrop, maxDropPer24);
+    const fluid = NA_FLUIDS.find(f => f.id === i.fluidId) ?? NA_FLUIDS[1];
+    const dNaPerL = adrogueDeltaNaPerLiter(fluid.na, calcN, tbw);
+    const lowersNa = dNaPerL < 0;
+    const volForTarget = lowersNa ? targetDrop / -dNaPerL : null; // L
+    return {
+      type: 'hiper' as const, ...base,
+      targetNa, deficit, maxDropPer24, dropOverGuideline: i.onset !== 'akut' && maxDropPer24 > 10,
+      totalDrop, targetDrop, days: Math.max(1, Math.ceil(totalDrop / maxDropPer24)),
+      fluid, dNaPerL, lowersNa, volForTarget,
+      rateMlHr: volForTarget !== null ? (volForTarget * 1000) / 24 : null,
+    };
+  }
+  return { type: 'normal' as const, ...base };
+}
+export type NaResult = NonNullable<ReturnType<typeof computeNa>>;

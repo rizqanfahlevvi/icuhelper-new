@@ -73,15 +73,17 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
   );
 
   const corrStep: CalcStep = usedAlb
-    ? { label: 'Langkah 1 — Ca terkoreksi albumin (Payne):', formula: `Ca terkoreksi = Ca + 0.8 × (4.0 − albumin)\n= ${ca} + 0.8 × (4.0 − ${alb}) = ${fmt(corr, 2)} mg/dL`, note: 'Hanya perkiraan; bila tersedia, gunakan Ca ion terukur.' }
+    ? { label: 'Langkah 1 — Ca terkoreksi albumin (Payne):', formula: `Ca terkoreksi = Ca + 0.8 × (4.0 − albumin)\n= ${ca} + 0.8 × (4.0 − ${alb}) = ${fmt(corr, 2)} mg/dL`, note: 'Albumin mengikat ±40% Ca; tiap 1 g/dL albumin di bawah 4.0 membuat Ca total tampak turun ±0.8 mg/dL. Hanya perkiraan — bila tersedia, gunakan Ca ion terukur.' }
     : { label: 'Langkah 1 — Ca total (albumin tidak diisi):', formula: `Ca = ${ca} mg/dL (tanpa koreksi albumin)`, note: 'Isi albumin agar Ca dikoreksi — hipoalbuminemia membuat Ca total tampak rendah palsu.' };
-  const mmolStep: CalcStep = { label: 'Langkah 2 — Konversi ke mmol/L:', formula: `${fmt(corr, 2)} ÷ 4.008 = ${fmt(mmol, 2)} mmol/L` };
+  const mmolStep = (note?: string): CalcStep => ({ label: 'Langkah 2 — Konversi ke mmol/L:', formula: `${fmt(corr, 2)} ÷ 4.008 = ${fmt(mmol, 2)} mmol/L`, note });
 
+  // ── Hiperkalsemia ──
   if (corr > 10.5) {
     const sev = hyperCaSeverity(corr);
     const sevText = { ringan: 'Ringan (<3.0 mmol/L / <12 mg/dL) — sering asimtomatik, biasanya tidak perlu koreksi segera', sedang: 'Sedang (3.0–3.5 mmol/L / 12–14 mg/dL) — terapi segera biasanya diindikasikan, terutama bila bergejala', berat: 'BERAT (>3.5 mmol/L / >14 mg/dL) — koreksi URGEN: risiko disritmia & koma' }[sev];
     const flow: FlowStep[] = [
       { title: 'Konfirmasi & EKG', body: 'Ca terkoreksi albumin; EKG untuk QT pendek / gangguan konduksi. Periksa fosfat, PTH, ureum-kreatinin.' },
+      { title: `Hitung dasar: Ca ${fmt(corr, 2)} mg/dL (${fmt(mmol, 2)} mmol/L) → ${sev}`, body: 'Lihat ① Hasil Dasar.', state: 'now' },
       { title: 'Rehidrasi NaCl 0.9% 4–6 L / 24 jam', body: <>≈ 170–250 mL/jam. Pantau overload terutama pada gangguan ginjal & lansia.</>, state: sev === 'ringan' ? 'todo' : 'now' },
       { title: 'Bisfosfonat IV bila masih perlu', body: 'Zoledronat 4 mg dalam 15 menit, ATAU pamidronat 30–90 mg (sesuai beratnya) @20 mg/jam, ATAU ibandronat 2–4 mg. Lebih lambat / dosis dikurangi pada gangguan ginjal. Nadir Ca 2–4 hari.', state: sev === 'ringan' ? 'skip' : 'now' },
       { title: 'Lini kedua', body: 'Kalsitonin, denosumab, kalsimimetik (dosis sesuai label/spesialis); glukokortikoid (prednisolon 40 mg/hari) pada limfoma, penyakit granulomatosa, intoksikasi vitamin D. Dialisis bila gagal ginjal berat.' },
@@ -91,12 +93,20 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
     return (
       <div className="space-y-4">
         <div className="w-full bg-red-50 dark:bg-red-900/15 border border-red-200 dark:border-red-800 rounded-2xl p-5 text-left">
-          <div className="text-[12px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1">Hiperkalsemia</div>
-          <div className="font-mono text-2xl font-bold text-red-700 dark:text-red-300">{fmt(corr, 2)} mg/dL · {fmt(mmol, 2)} mmol/L</div>
-          <p className="text-[12px] text-red-800 dark:text-red-300 mt-1">{sevText}</p>
+          <div className="text-[12px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1">① Hasil Dasar · Hiperkalsemia {sev}</div>
+          <div className="font-mono text-2xl font-bold text-red-700 dark:text-red-300">Ca terkoreksi: {fmt(corr, 2)} mg/dL</div>
+          <p className="text-[12px] text-red-800/80 dark:text-red-300/80">= {fmt(mmol, 2)} mmol/L · {sevText}</p>
+        </div>
+        <CalcSteps tone="red" title="🧮 Langkah Dasar — dari input ke derajat hiperkalsemia" steps={[corrStep, mmolStep('Ambang SfE: <3.0 mmol/L ringan · 3.0–3.5 sedang · >3.5 berat.')]} />
+
+        <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
+        <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
+          <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Rehidrasi — langkah pertama{sev === 'ringan' ? ' (bila bergejala / dehidrasi)' : ''}</div>
+          <div className="font-mono text-2xl font-bold text-slate-800 dark:text-slate-100">NaCl 0.9% 4–6 L / 24 jam</div>
+          <p className="text-[12px] text-slate-700 dark:text-slate-300">≈ 167–250 mL/jam; lalu bisfosfonat IV bila masih perlu (zoledronat 4 mg/15 menit). Diuretik loop hanya bila overload.</p>
+          <CalcSteps tone="slate" title="🧮 Rincian" steps={[{ label: 'Langkah P1 — Laju rehidrasi:', formula: '4–6 L ÷ 24 jam = 167–250 mL/jam', note: 'Sesuaikan dengan status volume, fungsi jantung & ginjal.' }]} />
         </div>
         <StrategyFlow steps={flow} />
-        <CalcSteps tone="red" steps={[corrStep, mmolStep, { label: 'Langkah 3 — Laju rehidrasi:', formula: '4–6 L ÷ 24 jam = 167–250 mL/jam', note: 'Sesuaikan dengan status volume, fungsi jantung & ginjal.' }]} />
         <RefLine>Walsh J, Gittoes N, Selby P. SfE Endocrine Emergency Guidance: acute hypercalcaemia. Endocr Connect 2016;5:G9</RefLine>
         <Disclaimer />
         {save(`Ca terkoreksi ${fmt(corr, 2)} mg/dL — hiperkalsemia ${sev}`)}
@@ -118,6 +128,7 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
 
   // ── Hipokalsemia ──
   const severe = mmol < HYPOCA_SEVERE_MMOL || s.sx.size > 0;
+  const sevReason = [mmol < HYPOCA_SEVERE_MMOL ? 'kadar <1.9 mmol/L' : null, s.sx.size > 0 ? 'bergejala' : null].filter(Boolean).join(' + ');
   const eskd = s.ctx.has(CA_CTX[0]);
   const digoxin = s.ctx.has(CA_CTX[1]);
   const tParsed = parseFloat(s.target);
@@ -126,24 +137,25 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
   const rate = rParsed > 0 && rParsed <= 200 ? rParsed : 50;
   const inf = caGluconateInfusion(rate, w);
   const bagHours = 1100 / rate;
+  const delta = Math.max(0, tgt - corr);
 
-  const steps: CalcStep[] = [corrStep, {
-    ...mmolStep,
-    note: `Ambang BERAT SfE: <${HYPOCA_SEVERE_MMOL} mmol/L (≈7.6 mg/dL) dan/atau bergejala → ${severe ? `pasien ini BERAT (${mmol < HYPOCA_SEVERE_MMOL ? 'kadar' : ''}${mmol < HYPOCA_SEVERE_MMOL && s.sx.size > 0 ? ' + ' : ''}${s.sx.size > 0 ? 'gejala' : ''})` : 'pasien ini RINGAN (asimtomatik, >1.9 mmol/L)'}.`,
-  }];
-  if (severe) {
-    steps.push(
-      { label: 'Langkah 3 — Bolus awal:', formula: `Ca glukonat 10% 10–20 mL = ${fmt(10 * CA_GLUCONATE_ELEMENTAL_MG_PER_ML, 0)}–${fmt(20 * CA_GLUCONATE_ELEMENTAL_MG_PER_ML, 0)} mg Ca elemental\ndalam 50–100 mL D5W, IV 10 menit, dengan monitor EKG`, note: 'Dapat diulang hingga pasien asimtomatik.' },
-      { label: 'Langkah 4 — Infus rumatan:', formula: `100 mL Ca glukonat 10% (${fmt(100 * CA_GLUCONATE_ELEMENTAL_MG_PER_ML, 0)} mg) dalam 1 L NaCl 0.9%/D5W → ±1100 mL\nKonsentrasi = ${fmt(100 * CA_GLUCONATE_ELEMENTAL_MG_PER_ML, 0)} ÷ 1100 = ${fmt(inf.concMgPerMl, 2)} mg/mL\nLaju ${rate} mL/jam × ${fmt(inf.concMgPerMl, 2)} = ${fmt(inf.mgPerHr, 0)} mg/jam${w > 0 ? ` = ${fmt(inf.mgPerKgPerHr, 2)} mg/kg/jam` : ''}\n1 kantong habis ±${fmt(bagHours, 0)} jam`, note: 'SfE: 50–100 mL/jam, titrasi menuju normokalsemia sampai terapi penyebab bekerja.' },
-    );
-  } else {
-    steps.push({ label: 'Langkah 3 — Terapi ringan:', formula: 'Suplemen kalsium oral + terapi penyebab', note: 'Vitamin D bila defisiensi; Mg bila hipomagnesemia. Ulang Ca dalam 24 jam (SfE 2016).' });
-  }
-  steps.push({ label: `Langkah ${severe ? 5 : 4} — Selisih ke target:`, formula: `Target ${tgt} − ${fmt(corr, 2)} = ${fmt(Math.max(0, tgt - corr), 2)} mg/dL`, note: 'Tidak ada rumus dosis→kenaikan Ca yang andal; laju dititrasi dengan Ca serial (SfE: pemeriksaan sering pada fase stabilisasi).' });
+  const basic: CalcStep[] = [
+    corrStep,
+    mmolStep(`Ambang BERAT SfE: <${HYPOCA_SEVERE_MMOL} mmol/L (≈7.6 mg/dL) dan/atau bergejala → pasien ini ${severe ? `BERAT (${sevReason})` : 'RINGAN (asimtomatik, ≥1.9 mmol/L)'}.`),
+    { label: 'Langkah 3 — Selisih ke target:', formula: `ΔCa = target − Ca terkoreksi = ${tgt} − ${fmt(corr, 2)} = ${fmt(delta, 2)} mg/dL (${fmt(caMgdlToMmol(delta), 2)} mmol/L)`, note: 'Tidak ada rumus dosis→kenaikan Ca yang andal; selisih ini dipakai untuk titrasi & kriteria berhenti, bukan untuk menghitung dosis sekaligus.' },
+  ];
+  if (hasIca) basic.push({ label: 'Langkah 4 — Ca ion terukur:', formula: `iCa ${iv} mmol/L (rentang rujukan lab umum ±1.12–1.32)${icaLow ? ' → RENDAH' : ''}`, note: 'Pada sakit kritis, iCa lebih akurat daripada koreksi albumin.' });
+
+  const give: CalcStep[] = severe ? [
+    { label: 'Langkah P1 — Bolus awal:', formula: `Ca glukonat 10% 10–20 mL = ${fmt(10 * CA_GLUCONATE_ELEMENTAL_MG_PER_ML, 0)}–${fmt(20 * CA_GLUCONATE_ELEMENTAL_MG_PER_ML, 0)} mg Ca elemental\ndalam 50–100 mL D5W, IV 10 menit, dengan monitor EKG`, note: 'Dapat diulang hingga pasien asimtomatik.' },
+    { label: 'Langkah P2 — Infus rumatan:', formula: `100 mL Ca glukonat 10% (${fmt(100 * CA_GLUCONATE_ELEMENTAL_MG_PER_ML, 0)} mg) dalam 1 L NaCl 0.9%/D5W → ±1100 mL\nKonsentrasi = ${fmt(100 * CA_GLUCONATE_ELEMENTAL_MG_PER_ML, 0)} ÷ 1100 = ${fmt(inf.concMgPerMl, 2)} mg/mL\nLaju ${rate} mL/jam × ${fmt(inf.concMgPerMl, 2)} = ${fmt(inf.mgPerHr, 0)} mg/jam${w > 0 ? ` = ${fmt(inf.mgPerKgPerHr, 2)} mg/kg/jam` : ''}\n1 kantong habis ±${fmt(bagHours, 0)} jam`, note: `SfE: 50–100 mL/jam, titrasi menuju target ${tgt} mg/dL sampai terapi penyebab bekerja.` },
+  ] : [
+    { label: 'Langkah P1 — Terapi ringan:', formula: 'Suplemen kalsium oral + terapi penyebab', note: 'Vitamin D bila defisiensi; Mg bila hipomagnesemia. Ulang Ca dalam 24 jam (SfE 2016).' },
+  ];
 
   const flow: FlowStep[] = [
     { title: 'Konfirmasi', body: <>Ca terkoreksi albumin{hasIca ? ` dan Ca ion ${iv} mmol/L` : ' — lebih baik Ca ion terukur bila ada'}. Periksa fosfat, PTH, ureum-kreatinin, vitamin D, <strong>magnesium</strong>.</> },
-    { title: `Keparahan: ${severe ? 'BERAT — kegawatan medis' : 'ringan'}`, body: severe ? 'Kadar <1.9 mmol/L dan/atau bergejala (parestesia, Trousseau/Chvostek, tetani, laringospasme, QT memanjang/aritmia, kejang).' : 'Asimtomatik dan >1.9 mmol/L.', state: 'now' },
+    { title: `Hitung dasar: Ca ${fmt(corr, 2)} mg/dL → ${severe ? 'BERAT' : 'ringan'}, Δ ke target ${fmt(delta, 2)}`, body: severe ? `Berat karena ${sevReason} — kegawatan medis.` : 'Asimtomatik dan ≥1.9 mmol/L.', state: 'now' },
     { title: 'Koreksi Mg bila rendah', body: 'Hipomagnesemia menghambat sekresi PTH → hipokalsemia refrakter. SfE: Mg IV 24 mmol/24 jam (= 6 g MgSO₄ dalam 500 mL NaCl 0.9%/D5W). Gunakan tab Magnesium.' },
     { title: 'Bolus Ca glukonat 10% 10–20 mL / 10 menit', body: 'Dalam 50–100 mL D5W, dengan monitor EKG; ulang sampai asimtomatik.', state: severe ? 'now' : 'skip' },
     { title: `Infus rumatan ${rate} mL/jam`, body: <>100 mL Ca glukonat 10% dalam 1 L → {fmt(inf.mgPerHr, 0)} mg Ca elemental/jam. Titrasi menuju target {tgt} mg/dL.{eskd && <strong> Gagal ginjal tahap akhir/dialisis: infus volume besar TIDAK dianjurkan — ikuti panduan KDOQI/konsul nefrologi.</strong>}</>, state: severe ? 'now' : 'skip' },
@@ -152,20 +164,45 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
 
   return (
     <div className="space-y-4">
+      {/* ① HASIL DASAR */}
       <div className={`w-full rounded-2xl p-5 text-left border ${severe ? 'bg-red-50 dark:bg-red-900/15 border-red-200 dark:border-red-800' : 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-900/30'}`}>
-        <div className={`text-[12px] font-bold uppercase tracking-wider mb-1 ${severe ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>Hipokalsemia {severe ? 'BERAT' : 'ringan'} · target {tgt} mg/dL</div>
-        <div className="font-mono text-2xl font-bold text-slate-800 dark:text-slate-100">{fmt(corr, 2)} mg/dL · {fmt(mmol, 2)} mmol/L{hasIca ? ` · iCa ${iv}` : ''}</div>
-        <p className="text-[12px] text-slate-700 dark:text-slate-300 mt-1">
-          {severe ? `Bolus 10–20 mL Ca glukonat 10% → infus ${rate} mL/jam (${fmt(inf.mgPerHr, 0)} mg/jam)` : 'Kalsium oral + terapi penyebab; ulang Ca 24 jam'}
-        </p>
+        <div className={`text-[12px] font-bold uppercase tracking-wider mb-1 ${severe ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>① Hasil Dasar · Hipokalsemia {severe ? 'BERAT' : 'ringan'}</div>
+        <div className="font-mono text-2xl font-bold text-slate-800 dark:text-slate-100">Ca terkoreksi: {fmt(corr, 2)} mg/dL</div>
+        <p className="text-[12px] text-slate-700/80 dark:text-slate-300/80">{usedAlb ? `= ${ca} + 0.8 × (4.0 − ${alb})` : 'tanpa koreksi albumin'}</p>
+        <div className="grid grid-cols-3 gap-2 mt-3 text-[12px]">
+          <div className="bg-white/60 dark:bg-black/20 rounded-lg p-2 border border-slate-200 dark:border-slate-700">
+            <div className="font-semibold text-slate-600 dark:text-slate-400">mmol/L</div>
+            <div className="font-mono font-bold text-[14px] text-slate-800 dark:text-slate-100">{fmt(mmol, 2)}</div>
+            <div className="text-[11px] opacity-80">ambang berat 1.9</div>
+          </div>
+          <div className="bg-white/60 dark:bg-black/20 rounded-lg p-2 border border-slate-300 dark:border-slate-600">
+            <div className="font-semibold text-slate-600 dark:text-slate-400">Δ ke target</div>
+            <div className="font-mono font-bold text-[14px] text-slate-800 dark:text-slate-100">{fmt(delta, 2)} mg/dL</div>
+            <div className="text-[11px] opacity-80">target {tgt}</div>
+          </div>
+          <div className="bg-white/60 dark:bg-black/20 rounded-lg p-2 border border-slate-200 dark:border-slate-700">
+            <div className="font-semibold text-slate-600 dark:text-slate-400">{hasIca ? 'Ca ion' : 'Keparahan'}</div>
+            <div className="font-mono font-bold text-[14px] text-slate-800 dark:text-slate-100">{hasIca ? `${iv}` : severe ? 'BERAT' : 'Ringan'}</div>
+            <div className="text-[11px] opacity-80">{hasIca ? (icaLow ? 'mmol/L · rendah' : 'mmol/L') : severe ? sevReason : 'asimtomatik'}</div>
+          </div>
+        </div>
       </div>
+      <CalcSteps tone="amber" title="🧮 Langkah Dasar — dari input ke derajat hipokalsemia" steps={basic} />
 
-      <StrategyFlow steps={flow} />
-      <CalcSteps tone="amber" steps={steps} />
+      {/* ② CARA PEMBERIAN */}
+      <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
+      <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
+        <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">{severe ? 'Berat — IV dengan monitor EKG (SfE 2016)' : 'Ringan — oral + terapi penyebab'}</div>
+        <div className="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">{severe ? `Bolus 10–20 mL Ca glukonat 10% → infus ${rate} mL/jam` : 'Kalsium oral · ulang Ca 24 jam'}</div>
+        {severe && <p className="text-[12px] text-slate-700 dark:text-slate-300">{fmt(inf.mgPerHr, 0)} mg Ca elemental/jam{w > 0 ? ` (${fmt(inf.mgPerKgPerHr, 2)} mg/kg/jam)` : ''} · 1 kantong ±{fmt(bagHours, 0)} jam · titrasi ke {tgt} mg/dL</p>}
+        <CalcSteps tone="slate" title="🧮 Rincian pemberian" steps={give} />
+      </div>
 
       <InfoBox tone="red" title="⚠ Keamanan Ca IV">
         Ca klorida 10% (10 mL = 6.8 mmol, ±3× Ca glukonat) hanya via vena sentral — lebih iritan. Jangan campur dengan NaHCO₃ atau fosfat (presipitasi). Efek samping: flebitis, hipotensi, aritmia.{digoxin ? ' Pasien digoksin/aritmia: monitor EKG kontinu selama Ca IV (SfE 2016).' : ' Pasien digoksin/aritmia perlu monitor EKG kontinu.'}
       </InfoBox>
+
+      <StrategyFlow steps={flow} />
 
       <Accordion title="📖 Dasar rujukan hipokalsemia">
         <ul className="list-disc pl-4 space-y-1 text-[12px] text-slate-700 dark:text-slate-300">
@@ -177,7 +214,7 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
 
       <RefLine>Turner J, Gittoes N, Selby P. SfE Endocrine Emergency Guidance: acute hypocalcaemia. Endocr Connect 2016;5:G7 · Payne RB. BMJ 1973</RefLine>
       <Disclaimer />
-      {save(`Ca terkoreksi ${fmt(corr, 2)} mg/dL — hipokalsemia ${severe ? 'berat' : 'ringan'}${severe ? `; bolus 10–20 mL + infus ${rate} mL/jam` : '; oral'}`)}
+      {save(`Ca terkoreksi ${fmt(corr, 2)} mg/dL (Δ ${fmt(delta, 2)} ke ${tgt}) — hipokalsemia ${severe ? 'berat' : 'ringan'}${severe ? `; bolus 10–20 mL + infus ${rate} mL/jam` : '; oral'}`)}
     </div>
   );
 }
