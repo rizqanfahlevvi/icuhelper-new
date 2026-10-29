@@ -6,7 +6,7 @@ import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton'
 import {
   hypoKSeverity, kDeficitRange, kclEmpiricPlan, kProtocol24h, kAtNormalPh, hyperKSeverity, K_RISE_PER_20_MEQ, glucoseMgdlToMmol,
 } from '../../../utils/electrolytes';
-import { FieldRow, TargetField, ToggleList, useToggleSet, StrategyFlow, InfoBox, RefLine, Disclaimer, selectCls, fmt, type FlowStep, type FlowState } from './ElektroUI';
+import { FieldRow, TargetField, ToggleList, useToggleSet, StrategyFlow, InfoBox, RefLine, Disclaimer, selectCls, fmt, type FlowStep } from './ElektroUI';
 
 const K_HYPO_CTX = ['Perubahan EKG / aritmia', 'Gejala (lemah otot, paralisis, ileus)', 'Tidak bisa oral (muntah/NPO)', 'Gangguan ginjal berat / dialisis', 'Mendapat digoksin'];
 const K_HYPER_CTX = ['Perubahan EKG (QRS lebar, bradikardia, ritme junctional, T tinggi)', 'Gangguan ginjal berat (AKI / CKD 4–5)', 'Curiga pseudohiperkalemia (hemolisis / hanya dari VBG)'];
@@ -44,6 +44,8 @@ export function KaliumInputs({ s, k }: { s: KaliumState; k: string }) {
     return (
       <>
         <TargetField label="Target K" sub="ketik atau pilih rujukan" value={s.target} onChange={s.setTarget} unit="mEq/L" step="0.1" options={K_TARGETS} />
+        <TargetField label="Faktor defisit" sub="defisit = faktor × ΔK × BB" value={s.factor} onChange={s.setFactor} unit="× BB" step="0.05" options={K_FACTOR_OPTIONS} />
+        <TargetField label="Rumatan K" sub="kebutuhan harian" value={s.maint} onChange={s.setMaint} unit="mEq/kg" step="0.1" options={K_MAINT_OPTIONS} />
         <FieldRow label="Akses IV">
           <select className={selectCls} value={s.access} onChange={e => s.setAccess(e.target.value as 'perifer' | 'sentral')}>
             <option value="perifer">Vena perifer</option>
@@ -51,8 +53,6 @@ export function KaliumInputs({ s, k }: { s: KaliumState; k: string }) {
           </select>
         </FieldRow>
         <ToggleList title="Konteks Klinis" hint="Menentukan rute (oral vs IV) dan tingkat kehati-hatian." items={K_HYPO_CTX} selected={s.ctx} onToggle={s.toggleCtx} tone="amber" />
-        <TargetField label="Faktor defisit" sub="protokol 24 jam: faktor × ΔK × BB" value={s.factor} onChange={s.setFactor} unit="× BB" step="0.05" options={K_FACTOR_OPTIONS} />
-        <TargetField label="Rumatan K" sub="protokol 24 jam, per hari" value={s.maint} onChange={s.setMaint} unit="mEq/kg" step="0.1" options={K_MAINT_OPTIONS} />
       </>
     );
   }
@@ -125,9 +125,13 @@ function HypoK({ s, kv, pv, hasPh, kNorm, w, saveInputs }: { s: KaliumState; kv:
   const proto = w > 0 ? kProtocol24h(kv, tgt, w, factor, maintPerKg) : null;
   const protoTooSlow = sev === 'berat' || ecg || symp;
 
-  const steps: CalcStep[] = [];
+  const hasW = w > 0;
+  const ext = proto; // defisit (faktor × ΔK × BB) + rumatan, tersedia bila BB diisi
+
+  // ① Langkah dasar: dari input → defisit K → kebutuhan 24 jam
+  const basicSteps: CalcStep[] = [];
   if (hasPh) {
-    steps.push({
+    basicSteps.push({
       label: 'Langkah 0 — Pengaruh pH terhadap K (pergeseran transseluler):',
       formula: `K pada pH 7.40 ≈ K − ((7.40 − pH) ÷ 0.1) × 0.6\n= ${kv} − ((7.40 − ${pv}) ÷ 0.1) × 0.6 = ${fmt(kNorm, 2)} mEq/L`,
       note: pv < 7.35
@@ -135,35 +139,44 @@ function HypoK({ s, kv, pv, hasPh, kNorm, w, saveInputs }: { s: KaliumState; kv:
         : pv > 7.45 ? 'Alkalosis memindahkan K ke dalam sel; koreksi alkalosis akan ikut menaikkan K.' : 'pH normal — pergeseran transseluler minimal.',
     });
   }
-  steps.push(
-    { label: 'Langkah 1 — Selisih ke target:', formula: `ΔK = target − K = ${tgt} − ${kv} = ${fmt(plan.delta, 2)} mEq/L` },
+  basicSteps.push({ label: 'Langkah 1 — Selisih ke target:', formula: `ΔK = K target − K aktual = ${tgt} − ${kv} = ${fmt(plan.delta, 2)} mEq/L` });
+  if (ext) {
+    basicSteps.push(
+      { label: 'Langkah 2 — Defisit K:', formula: `Defisit = faktor × ΔK × BB\n= ${factor} × ${fmt(ext.delta, 2)} × ${w} = ${fmt(ext.deficit, 1)} mEq`, note: `Faktor ${factor} × BB (${fmt(factor * w, 0)} L) kira-kira ruang ekstrasel — rumus ini "mengisi" cairan di luar sel ke target.` },
+      { label: 'Langkah 3 — Kebutuhan rumatan harian:', formula: `Rumatan = ${maintPerKg} mEq/kg/hari × ${w} kg = ${fmt(ext.maint, 0)} mEq/hari`, note: maintPerKg > 0 ? 'Kebutuhan normal harian bila asupan K hanya dari cairan IV (NICE CG174). Obesitas → BB ideal.' : 'Rumatan 0: pasien makan / nutrisi sudah mengandung K.' },
+      { label: 'Langkah 4 — Total kebutuhan K 24 jam:', formula: `Total = defisit + rumatan = ${fmt(ext.deficit, 1)} + ${fmt(ext.maint, 0)} = ${fmt(ext.raw, 1)} mEq / 24 jam` },
+    );
+  }
+  basicSteps.push({
+    label: `Langkah ${ext ? 5 : 2} — Konteks: defisit K total tubuh:`,
+    formula: `≈ ΔK × (200–400 mEq) × (BB ÷ 70)\n= ${fmt(plan.delta, 2)} × (200–400) × (${hasW ? w : 70} ÷ 70) = ${fmt(def.lo, 0)}–${fmt(def.hi, 0)} mEq`,
+    note: '±98% K ada di dalam sel; K serum hanya "jendela kecil". Cadangan ini jauh lebih besar dari defisit Langkah 2 — itulah sebabnya koreksi diulang beberapa hari dengan K serial, bukan sekali (Kardalas 2018).',
+  });
+
+  // ② Koreksi per sesi (empiris ICU)
+  const sessionSteps: CalcStep[] = [
     {
-      label: 'Langkah 2 — Gambaran defisit K total tubuh:',
-      formula: `Defisit ≈ ΔK × (200–400 mEq) × (BB ÷ 70)\n= ${fmt(plan.delta, 2)} × (200–400) × (${w > 0 ? w : 70} ÷ 70) = ${fmt(def.lo, 0)}–${fmt(def.hi, 0)} mEq`,
-      note: '98% K ada di dalam sel; K serum hanya "jendela kecil". Angka ini menjelaskan mengapa koreksi butuh beberapa sesi — bukan dosis yang diberikan sekaligus (Kardalas 2018).',
-    },
-    {
-      label: 'Langkah 3 — Rencana empiris KCl:',
+      label: 'Langkah S1 — Rencana empiris KCl:',
       formula: `Jumlah infus @20 mEq = ⌈ΔK ÷ 0.25⌉ = ⌈${fmt(plan.delta, 2)} ÷ 0.25⌉ = ${plan.doses20}\nTotal ≈ ${plan.doses20} × 20 = ${plan.totalMeq} mEq`,
       note: 'Pada pasien ICU, tiap 20 mEq KCl IV menaikkan K rata-rata 0.25 mmol/L (Kruse & Carlson 1990). Respons individual bervariasi — selalu cek ulang.',
     },
     {
-      label: `Langkah 4 — Sesi 1 (${iv ? 'IV' : 'oral'}):`,
+      label: `Langkah S2 — Sesi 1 (${iv ? 'IV' : 'oral'}):`,
       formula: iv
         ? `Dosis sesi = min(total, ${sessionCap}) = ${sessionMeq} mEq\nLaju maks ${s.access} = ${rateMax} mEq/jam → durasi ≥ ${sessionMeq} ÷ ${rateMax} = ${fmt(hours, 1)} jam\nVolume KCl 7.46% (1 mEq/mL) = ${sessionMeq} mL\nPrediksi K setelah sesi ≈ ${kv} + (${sessionMeq} ÷ 20) × 0.25 = ${fmt(kAfter, 2)} mEq/L`
         : `Dosis sesi = ${sessionMeq} mEq ≈ ${tablets} tablet KSR 600 mg (8 mEq/tablet), dosis terbagi\nPrediksi K ≈ ${fmt(kAfter, 2)} mEq/L (aturan IV, untuk oral hanya kasar)`,
       note: renal ? 'Gangguan ginjal berat: sesi dibatasi 20 mEq — K diganti sangat hati-hati dan libatkan tim renal (Kardalas 2018).' : undefined,
     },
-  );
+  ];
 
   const flow: FlowStep[] = [
     { title: 'Konfirmasi & rekam EKG', body: <>EKG dianjurkan untuk <strong>semua</strong> pasien hipokalemia (ST depresi, T datar, gelombang U, aritmia).{digoxin && <strong> Pasien digoksin: risiko aritmia lebih tinggi — monitor EKG kontinu.</strong>}</>, state: ecg || digoxin ? 'now' : 'todo' },
     { title: 'Cari & hentikan penyebab', body: 'Diuretik, muntah/NGT, diare, insulin/β-agonis (pergeseran ke sel), alkalosis. Tanpa ini K akan turun lagi.' },
     { title: 'Periksa & koreksi Magnesium', body: '>50% hipokalemia bermakna disertai defisiensi Mg; hipokalemia refrakter tidak akan terkoreksi sebelum Mg dikoreksi (Kardalas 2018). Gunakan tab Magnesium.' },
+    { title: ext ? `Hitung dasar: defisit ${fmt(ext.deficit, 0)} + rumatan ${fmt(ext.maint, 0)} = ${fmt(ext.raw, 0)} mEq/24 jam` : 'Hitung dasar: isi BB', body: 'Lihat ① Hasil Dasar — angka ini menjadi pegangan sebelum memilih cara pemberian.', state: 'now' },
     { title: `Rute: ${iv ? 'INTRAVENA' : 'ORAL'}`, body: iv ? <>Alasan IV: {ivReasons.join(', ')}. Pada K &lt;2.5 / bergejala: monitor EKG kontinu & K serial.</> : 'K 2.5–3.4 tanpa gejala/EKG & bisa minum: oral cukup dan lebih aman (Kardalas 2018). Minum dengan 100–250 mL air, bersama/setelah makan.', state: 'now' },
-    { title: `Beri sesi 1: ${sessionMeq} mEq`, body: iv ? <>KCl dalam <strong>NaCl 0.9%</strong> (bukan dekstrosa — glukosa memicu insulin & menggeser K ke sel). Laju ≤{rateMax} mEq/jam ({s.access}); konsentrasi & volume pelarut ikuti protokol RS.</> : `${tablets} tablet KSR 600 mg dalam dosis terbagi.`, state: 'now' },
-    ...(proto ? [{ title: `Alternatif: protokol ${proto.rounded} mEq / 24 jam`, body: <>Defisit ({factor} × ΔK × BB) + rumatan {maintPerKg} mEq/kg/hari, ≈{fmt(proto.ratePerHr, 1)} mEq/jam.{protoTooSlow ? ' Tidak cukup sendirian untuk pasien ini — dahulukan Opsi A.' : ' Sesuai untuk ringan–sedang yang stabil.'}</>, state: (protoTooSlow ? 'skip' : 'todo') as FlowState }] : []),
-    { title: 'Cek ulang K → ulangi sampai target', body: remaining > 0 ? <>Sisa perkiraan ±{remaining} mEq ({remaining / 20} × 20 mEq). Cek K sebelum tiap sesi berikutnya — jangan berikan seluruh rencana sekaligus.</> : 'Target kemungkinan tercapai setelah sesi ini — konfirmasi dengan K ulang.' },
+    { title: protoTooSlow ? `Koreksi per sesi dulu: ${sessionMeq} mEq` : ext ? `Pilih cara pemberian: protokol ${ext.rounded} mEq/24 jam atau per sesi` : `Beri sesi 1: ${sessionMeq} mEq`, body: protoTooSlow ? <>Pasien ini ({sev === 'berat' ? 'K <2.5' : ecg ? 'EKG berubah' : 'bergejala'}) perlu koreksi aktif per sesi dengan monitor EKG; protokol 24 jam menyusul setelah keluar zona bahaya.</> : <>KCl dalam <strong>NaCl 0.9%</strong> (bukan dekstrosa — glukosa memicu insulin & menggeser K ke sel). Protokol 24 jam ≈{ext ? fmt(ext.ratePerHr, 1) : '–'} mEq/jam, atau per sesi ≤{rateMax} mEq/jam ({s.access}).</>, state: 'now' },
+    { title: 'Cek ulang K → ulangi sampai target', body: 'Cek K minimal harian (lebih sering bila K <2.5 atau koreksi per sesi), lalu hitung ulang dari ① dengan K terbaru — jangan berikan seluruh rencana sekaligus.' },
     { title: `Pertahankan target ${tgt} mEq/L`, body: 'Atasi penyebab; pertimbangkan diuretik hemat-K bila hipokalemia akibat diuretik dan diuretik tetap diperlukan (Kardalas 2018).' },
   ];
 
@@ -175,56 +188,83 @@ function HypoK({ s, kv, pv, hasPh, kNorm, w, saveInputs }: { s: KaliumState; kv:
         </InfoBox>
       )}
 
+      {/* ① HASIL DASAR */}
       <div className="w-full bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-5 text-left">
-        <div className="text-[12px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500 mb-1">Hipokalemia {sev} · K {kv} → target {tgt} mEq/L</div>
+        <div className="text-[12px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500 mb-1">① Hasil Dasar · Hipokalemia {sev} · K {kv} → target {tgt} mEq/L</div>
         {targetInvalid && <p className="text-[11px] text-amber-700 dark:text-amber-400 mb-1">Target di luar 3.0–5.5 — dipakai 4.0.</p>}
         {tgt > 4.5 && <p className="text-[11px] text-amber-700 dark:text-amber-400 mb-1">Target &gt;4.5 tidak terbukti bermanfaat (TIGHT-K 2024) dan pada IMA berkaitan dengan mortalitas lebih tinggi (Goyal 2012).</p>}
-        {plan.totalMeq === 0 ? (
-          <p className="text-[13px] text-amber-800 dark:text-amber-300">K sudah ≥ target — tidak perlu suplementasi ke target ini.</p>
-        ) : (
+        {!hasW ? (
+          <p className="text-[13px] text-amber-800 dark:text-amber-300">Isi <strong>Berat Badan</strong> untuk menghitung defisit K.</p>
+        ) : ext && (
           <>
-            <div className="text-[11px] font-semibold text-amber-700/80 dark:text-amber-400/80">Opsi A — koreksi per sesi (empiris ICU)</div>
-            <div className="font-mono text-2xl font-bold text-amber-700 dark:text-amber-400">Sesi 1: {sessionMeq} mEq KCl {iv ? 'IV' : 'oral'}</div>
-            <div className="text-[13px] text-amber-800 dark:text-amber-300 mt-1 space-y-0.5">
-              {iv && <p>≥ {fmt(hours, 1)} jam via {s.access} (≤{rateMax} mEq/jam) · {sessionMeq} mL KCl 7.46%</p>}
-              {!iv && <p>≈ {tablets} tablet KSR 600 mg, terbagi</p>}
-              <p>Perkiraan total ke target: <strong>{plan.totalMeq} mEq</strong> ({plan.doses20} × 20 mEq) · defisit tubuh {fmt(def.lo, 0)}–{fmt(def.hi, 0)} mEq</p>
+            {plan.delta === 0 && <p className="text-[13px] text-amber-800 dark:text-amber-300 mb-1">K sudah ≥ target — defisit 0; yang tersisa hanya kebutuhan rumatan.</p>}
+            <div className="font-mono text-2xl font-bold text-amber-700 dark:text-amber-400">Defisit K: {fmt(ext.deficit, 1)} mEq</div>
+            <p className="text-[12px] text-amber-800/80 dark:text-amber-300/80">= {factor} × ΔK {fmt(ext.delta, 2)} × {w} kg</p>
+            <div className="grid grid-cols-3 gap-2 mt-3 text-[12px]">
+              <div className="bg-white/60 dark:bg-black/20 rounded-lg p-2 border border-amber-200 dark:border-amber-800/50">
+                <div className="text-amber-700 dark:text-amber-400 font-semibold">Rumatan</div>
+                <div className="font-mono font-bold text-[14px] text-slate-800 dark:text-slate-100">{fmt(ext.maint, 0)} mEq</div>
+                <div className="text-[11px] opacity-80">per hari</div>
+              </div>
+              <div className="bg-white/60 dark:bg-black/20 rounded-lg p-2 border border-amber-300 dark:border-amber-700">
+                <div className="text-amber-700 dark:text-amber-400 font-semibold">Total 24 jam</div>
+                <div className="font-mono font-bold text-[14px] text-slate-800 dark:text-slate-100">{fmt(ext.raw, 1)} mEq</div>
+                <div className="text-[11px] opacity-80">defisit + rumatan</div>
+              </div>
+              <div className="bg-white/60 dark:bg-black/20 rounded-lg p-2 border border-amber-200 dark:border-amber-800/50">
+                <div className="text-amber-700 dark:text-amber-400 font-semibold">Defisit tubuh</div>
+                <div className="font-mono font-bold text-[14px] text-slate-800 dark:text-slate-100">{fmt(def.lo, 0)}–{fmt(def.hi, 0)}</div>
+                <div className="text-[11px] opacity-80">mEq · konteks</div>
+              </div>
             </div>
           </>
         )}
       </div>
 
-      {proto && (
+      <CalcSteps tone="amber" title="🧮 Langkah Dasar — dari input ke defisit K" steps={basicSteps} footer="Rumus defisit adalah estimasi; tidak memperhitungkan kehilangan yang berlanjut (diuretik, diare, NGT, insulin pada KAD) — tambahkan bila ada." />
+
+      {/* ② CARA PEMBERIAN */}
+      <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
+
+      {ext && (
         <div className="w-full bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 text-left space-y-2">
-          <div className="text-[11px] font-semibold text-blue-700/80 dark:text-blue-400/80">Opsi B — protokol 24 jam (defisit + rumatan)</div>
-          <div className="font-mono text-2xl font-bold text-blue-700 dark:text-blue-300">KCl {proto.rounded} mEq / 24 jam</div>
-          <p className="text-[13px] text-blue-900 dark:text-blue-200">≈ {fmt(proto.ratePerHr, 1)} mEq/jam · {proto.rounded} mL KCl 7.46% · hitungan mentah {fmt(proto.raw, 0)} mEq (defisit {fmt(proto.deficit, 0)} + rumatan {fmt(proto.maint, 0)})</p>
+          <div className="text-[11px] font-semibold text-blue-700/80 dark:text-blue-400/80">Protokol 24 jam — total kebutuhan dibulatkan ke paket</div>
+          <div className="font-mono text-2xl font-bold text-blue-700 dark:text-blue-300">KCl {ext.rounded} mEq / 24 jam</div>
+          <p className="font-mono text-[12px] text-blue-900 dark:text-blue-200">{fmt(ext.raw, 1)} mEq → paket {ext.rounded} mEq · {ext.rounded} ÷ 24 = {fmt(ext.ratePerHr, 2)} mEq/jam · {ext.rounded} mL KCl 7.46%</p>
+          <p className="text-[11px] italic text-blue-800/80 dark:text-blue-300/80">Dibulatkan ke kelipatan 50 mEq terdekat (minimal 50) — sesuaikan dengan paket di RS. Obesitas → BB ideal untuk rumatan. Cek K minimal harian; protokol diulang dengan K terbaru.</p>
           {protoTooSlow && (
             <InfoBox tone="red" title="⚠ Kemungkinan terlalu lambat untuk pasien ini">
-              {sev === 'berat' ? 'K <2.5' : ecg ? 'Perubahan EKG' : 'Bergejala'}: ≈{fmt(proto.ratePerHr, 1)} mEq/jam merata 24 jam. Pedoman menganjurkan KCl IV dengan monitor EKG dan koreksi aktif per sesi (Opsi A) sampai keluar dari zona bahaya, baru lanjut protokol harian (Kardalas 2018).
+              {sev === 'berat' ? 'K <2.5' : ecg ? 'Perubahan EKG' : 'Bergejala'}: ≈{fmt(ext.ratePerHr, 1)} mEq/jam merata 24 jam. Pedoman menganjurkan KCl IV dengan monitor EKG dan koreksi aktif per sesi sampai keluar dari zona bahaya, baru lanjut protokol harian (Kardalas 2018).
             </InfoBox>
           )}
           {renal && maintPerKg > 0 && (
             <InfoBox tone="amber" title="Gangguan ginjal berat">Rumatan 1 mEq/kg/hari berasal dari pedoman yang tidak mencakup penyakit ginjal berat (NICE CG174) — pertimbangkan rumatan 0 dan titrasi dengan K serial.</InfoBox>
           )}
-          <p className="text-[11px] italic text-blue-800/80 dark:text-blue-300/80">Belum termasuk kehilangan berlanjut (diuretik, diare, NGT, insulin pada KAD) — tambahkan. Obesitas → BB ideal untuk rumatan. Cek K minimal harian; protokol diulang dengan K terbaru.</p>
         </div>
       )}
 
-      {proto && plan.totalMeq > 0 && (
-        <CalcSteps tone="blue" title="⚖️ Protokol 24 Jam vs Kalkulator — memahami selisihnya" steps={[
-          { label: 'Langkah B1 — Defisit menurut protokol:', formula: `Defisit = faktor × ΔK × BB = ${factor} × ${fmt(proto.delta, 2)} × ${w} = ${fmt(proto.deficit, 1)} mEq`, note: `Faktor ${factor} × BB ≈ ruang ekstrasel; tiap 1 mEq/L hanya dihitung ${fmt(factor * w, 0)} mEq.` },
-          { label: 'Langkah B2 — Rumatan harian:', formula: `Rumatan = ${maintPerKg} mEq/kg/hari × ${w} kg = ${fmt(proto.maint, 0)} mEq` },
-          { label: 'Langkah B3 — Total & paket protokol:', formula: `Total = ${fmt(proto.deficit, 1)} + ${fmt(proto.maint, 0)} = ${fmt(proto.raw, 1)} mEq → paket ${proto.rounded} mEq/24 jam\nLaju = ${proto.rounded} ÷ 24 = ${fmt(proto.ratePerHr, 2)} mEq/jam`, note: 'Dibulatkan ke kelipatan 50 mEq terdekat (minimal 50) — sesuaikan dengan paket yang tersedia di RS.' },
-          { label: 'Langkah B4 — Tiga angka, tiga arti:', formula: `Protokol 24 jam        : ${proto.rounded} mEq dalam 24 jam (≈${fmt(proto.ratePerHr, 1)} mEq/jam)\nEmpiris ICU (Opsi A)   : ${plan.totalMeq} mEq untuk menaikkan K ke ${tgt}, per sesi ≤${rateMax} mEq/jam\nDefisit tubuh total    : ${fmt(def.lo, 0)}–${fmt(def.hi, 0)} mEq (cadangan intrasel, dikejar beberapa hari)`, note: `Protokol menghitung defisit kecil (${fmt(proto.deficit, 0)} mEq) karena hanya "mengisi" ruang ekstrasel, tetapi rumatan membuat totalnya mendekati angka empiris. Bedanya pada KECEPATAN: protokol merata 24 jam, Opsi A cepat per sesi. Untuk ringan–sedang keduanya wajar; untuk K <2.5/EKG berubah, protokol saja terlalu lambat.` },
-        ]} footer="Kedua pendekatan sama-sama estimasi — yang menentukan adalah K serial. Data ICU: kenaikan K setelah 20–80 mEq IV sangat bervariasi antar-pasien (rata-rata +0.27 pada hipokalemia ringan, +0.45 pada sedang; Frenkel 2021)." />
+      {plan.totalMeq > 0 && (
+        <>
+          <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left">
+            <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Koreksi per sesi (empiris ICU){protoTooSlow ? ' — DIDAHULUKAN untuk pasien ini' : ''}</div>
+            <div className="font-mono text-2xl font-bold text-slate-800 dark:text-slate-100">Sesi 1: {sessionMeq} mEq KCl {iv ? 'IV' : 'oral'}</div>
+            <div className="text-[13px] text-slate-700 dark:text-slate-300 mt-1 space-y-0.5">
+              {iv && <p>≥ {fmt(hours, 1)} jam via {s.access} (≤{rateMax} mEq/jam) · {sessionMeq} mL KCl 7.46%</p>}
+              {!iv && <p>≈ {tablets} tablet KSR 600 mg, terbagi</p>}
+              <p>Perkiraan total ke target: <strong>{plan.totalMeq} mEq</strong> ({plan.doses20} × 20 mEq){remaining > 0 ? ` · sisa ±${remaining} mEq setelah sesi 1, cek K dulu` : ''}</p>
+            </div>
+          </div>
+          <CalcSteps tone="slate" title="🧮 Rincian koreksi per sesi" steps={sessionSteps} footer="Estimasi awal. Respons nyata dipengaruhi kehilangan yang berlanjut, pergeseran transseluler, Mg, dan fungsi ginjal — titrasi dengan K serial." />
+        </>
+      )}
+
+      {ext && plan.totalMeq > 0 && (
+        <CalcSteps tone="blue" title="⚖️ Mengapa angkanya berbeda?" steps={[
+          { label: 'Tiga angka, tiga arti:', formula: `Defisit K (faktor ${factor})   : ${fmt(ext.deficit, 0)} mEq — mengisi ruang ekstrasel\nTotal 24 jam / protokol    : ${fmt(ext.raw, 0)} → ${ext.rounded} mEq (+ rumatan), ≈${fmt(ext.ratePerHr, 1)} mEq/jam\nEmpiris ICU (per sesi)     : ${plan.totalMeq} mEq untuk menaikkan K ke ${tgt}, ≤${rateMax} mEq/jam\nDefisit tubuh total        : ${fmt(def.lo, 0)}–${fmt(def.hi, 0)} mEq — cadangan intrasel, dikejar beberapa hari`, note: `Defisit rumus kecil karena hanya ruang ekstrasel, tetapi rumatan membuat total harian mendekati angka empiris. Bedanya pada KECEPATAN: protokol merata 24 jam, per sesi cepat dengan monitor. Untuk ringan–sedang keduanya wajar; untuk K <2.5/EKG berubah/bergejala, protokol saja terlalu lambat.` },
+        ]} footer="Data ICU: kenaikan K setelah 20–80 mEq IV sangat bervariasi antar-pasien (rata-rata +0.27 pada hipokalemia ringan, +0.45 pada sedang; Frenkel 2021) — yang menentukan adalah K serial." />
       )}
 
       <StrategyFlow steps={flow} />
-
-      {plan.totalMeq > 0 && (
-        <CalcSteps tone="amber" steps={steps} footer="Estimasi awal. Respons nyata dipengaruhi kehilangan yang berlanjut, pergeseran transseluler, Mg, dan fungsi ginjal — titrasi dengan K serial." />
-      )}
 
       <Accordion title="📖 Dasar rujukan hipokalemia">
         <ul className="list-disc pl-4 space-y-1 text-[12px] text-slate-700 dark:text-slate-300">
@@ -240,7 +280,7 @@ function HypoK({ s, kv, pv, hasPh, kNorm, w, saveInputs }: { s: KaliumState; kv:
 
       <RefLine>Kardalas E. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · O'Brien B. JAMA 2024;332:979 (TIGHT-K) · Goyal A. JAMA 2012;307:157 · Frenkel A. J Clin Med 2021;10:1986 · NICE CG174 (2013, upd. 2017) · Gumz ML. NEJM 2015;373:60 · Adrogué HJ, Madias NE. Am J Med 1981;71:456</RefLine>
       <Disclaimer />
-      <SaveToHistoryButton module="elektrolit" label="Koreksi Elektrolit — K" className="w-full" inputs={saveInputs} summary={`K: ${kv} → target ${tgt} mEq/L — hipokalemia ${sev}; sesi 1 ${sessionMeq} mEq ${iv ? 'IV' : 'oral'} (total ±${plan.totalMeq} mEq)${proto ? `; protokol 24 jam ${proto.rounded} mEq (faktor ${factor}, rumatan ${maintPerKg}/kg)` : ''}`} />
+      <SaveToHistoryButton module="elektrolit" label="Koreksi Elektrolit — K" className="w-full" inputs={saveInputs} summary={`K: ${kv} → target ${tgt} mEq/L — hipokalemia ${sev}${ext ? `; defisit ${fmt(ext.deficit, 1)} (faktor ${factor}) + rumatan ${fmt(ext.maint, 0)} = ${fmt(ext.raw, 1)} mEq/24 jam → paket ${ext.rounded}` : ''}; per sesi: sesi 1 ${sessionMeq} mEq ${iv ? 'IV' : 'oral'} (total ±${plan.totalMeq} mEq)`} />
     </div>
   );
 }
