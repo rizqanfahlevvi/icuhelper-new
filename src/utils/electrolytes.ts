@@ -43,6 +43,26 @@ export function kclEmpiricPlan(currentK: number, targetK: number): { delta: numb
   return { delta, doses20, totalMeq: doses20 * 20 };
 }
 
+/** Kebutuhan K rumatan harian dewasa ±1 mmol/kg/hari (NICE CG174; obesitas → BB ideal). */
+export const K_MAINT_MEQ_PER_KG_DAY = 1;
+
+/**
+ * "Protokol 24 jam" (gaya protokol RS): defisit ekstrasel + rumatan harian.
+ *   Defisit = faktor × (K target − K) × BB   (faktor 0.4 lazim dipakai; sebagian protokol 0.3)
+ *   Rumatan = mEq/kg/hari × BB
+ * Hasil dibulatkan ke paket terdekat (kelipatan `pkg`, minimal satu paket).
+ * Catatan: faktor ini TIDAK mewakili defisit total tubuh (98% K intrasel) — rencana ini
+ * bekerja karena diulang harian dengan K serial.
+ */
+export function kProtocol24h(currentK: number, targetK: number, weightKg: number, factor = 0.4, maintPerKgDay = K_MAINT_MEQ_PER_KG_DAY, pkg = 50): { delta: number; deficit: number; maint: number; raw: number; rounded: number; ratePerHr: number } {
+  const delta = Math.max(0, targetK - currentK);
+  const deficit = factor * delta * weightKg;
+  const maint = maintPerKgDay * weightKg;
+  const raw = deficit + maint;
+  const rounded = raw > 0 ? Math.max(pkg, Math.round(raw / pkg) * pkg) : 0;
+  return { delta, deficit, maint, raw, rounded, ratePerHr: rounded / 24 };
+}
+
 /**
  * Perkiraan K bila pH dinormalkan ke 7.40: rata-rata ~0.6 mEq/L per 0.1 unit pH
  * (Adrogué & Madias 1981; rentang 0.2–1.7, terutama pada asidosis mineral/non-anion-gap).
