@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Activity, Thermometer, Wind, Beaker, ChevronsRight, AlertTriangle, Info } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { AlertTriangle, Info } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
@@ -8,12 +8,33 @@ import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { InputWarning } from '../../components/ui/InputWarning';
 import { weightPlausibilityWarning, rangeWarning } from '../../utils/validation';
-import { tbwFactor, freeWaterDeficit, adrogueDeltaNaPerLiter, NA_FLUIDS } from '../../utils/sodium';
+import { tbwFactor, freeWaterDeficit, adrogueDeltaNaPerLiter, hypoNaRiseLimits, NA_FLUIDS } from '../../utils/sodium';
+import { TargetField, ToggleList, useToggleSet, StrategyFlow, type FlowStep } from './components/ElektroUI';
+import { useKaliumState, KaliumInputs, KaliumResult } from './components/ElektroKalium';
+import { useKalsiumState, KalsiumInputs, KalsiumResult } from './components/ElektroKalsium';
+import { useMagnesiumState, MagnesiumInputs, MagnesiumResult } from './components/ElektroMagnesium';
 
 // Klasifikasi gejala hiponatremia (Spasovski 2014, ERBP/ESE/ESICM).
 // Indikasi NaCl 3% ditentukan oleh GEJALA, bukan angka natrium semata.
 const SEVERE_SX = ['Muntah', 'Distres kardiorespirasi', 'Kejang', 'Kantuk dalam / somnolen abnormal', 'Penurunan kesadaran / koma (GCS ≤8)'];
 const MODERATE_SX = ['Mual (tanpa muntah)', 'Bingung / konfusi', 'Nyeri kepala'];
+// Faktor risiko ODS selain Na ≤105 (Verbalis 2013).
+const ODS_RISK = ['Hipokalemia', 'Alkoholisme', 'Malnutrisi', 'Penyakit hati lanjut'];
+
+const NA_RISE_OPTIONS = [
+  { value: '4', label: 'Risiko ODS tinggi', note: 'Risiko ODS tinggi: target 4–6 mEq/L/24 jam, batas 8 (Verbalis 2013).' },
+  { value: '6', label: 'Standar kronik', note: 'Target minimal 4–8 mEq/L/24 jam; cukup untuk mengurangi risiko klinis (Verbalis 2013).' },
+  { value: '8', label: 'Batas atas target', note: 'Batas atas target risiko normal. Batas absolut 24 jam pertama 10 mEq/L, lalu 8 tiap 24 jam berikutnya (Spasovski 2014).' },
+];
+const HYPER_TARGET_OPTIONS = [
+  { value: '140', label: 'Formula klasik', note: 'Rumus defisit air bebas Adrogué–Madías memakai Na target 140.' },
+  { value: '145', label: 'Batas atas normal', note: 'Target lebih konservatif (volume air lebih kecil); tetap koreksi bertahap hari berikutnya bila perlu.' },
+];
+const HYPER_DROP_OPTIONS = [
+  { value: '8', label: 'Kronik konservatif', note: 'Kronik/tidak tahu onset: 8–10 mEq/L/24 jam (~0.5 mEq/L/jam) — mencegah edema serebri.' },
+  { value: '10', label: 'Kronik (pedoman)', note: 'Batas umum hipernatremia kronik ≤10 mEq/L/24 jam (Adrogué–Madías 2000).' },
+  { value: '24', label: 'Akut <48 jam', note: 'Onset jelas <48 jam: boleh ~1 mEq/L/jam karena otak belum beradaptasi.' },
+];
 
 export default function KalkulatorElektro() {
   const [tab, setTab] = useState<'na' | 'k' | 'ca' | 'mg'>('na');
@@ -22,7 +43,7 @@ export default function KalkulatorElektro() {
   const clinicalStore = useClinicalStore();
 
   const [bw, setBw] = useState('');
-  
+
   // Na
   const [na, setNa] = useState('');
   const [sex, setSex] = useState('m');
@@ -30,13 +51,12 @@ export default function KalkulatorElektro() {
   const [glu, setGlu] = useState('');
   const [onset, setOnset] = useState('kronik');
   const [naFluid, setNaFluid] = useState('d5w'); // pilihan cairan koreksi hipernatremia
-  const [symptoms, setSymptoms] = useState<Set<string>>(new Set());
-  const toggleSymptom = (s: string) => setSymptoms(prev => {
-    const next = new Set(prev);
-    next.has(s) ? next.delete(s) : next.add(s);
-    return next;
-  });
-  
+  const [symptoms, toggleSymptom] = useToggleSet();
+  const [odsFactors, toggleOds] = useToggleSet();
+  const [naRise, setNaRise] = useState('6');            // target kenaikan Na /24 jam (hipo)
+  const [hyperTarget, setHyperTarget] = useState('140'); // Na target akhir (hiper)
+  const [hyperDrop, setHyperDrop] = useState('10');      // batas penurunan /24 jam (hiper)
+
   // K
   const [k, setK] = useState('');
   const [ph, setPh] = useState('');
@@ -50,9 +70,14 @@ export default function KalkulatorElektro() {
   // Mg
   const [mg, setMg] = useState('');
   const [egfr, setEgfr] = useState('');
-  const [mgSymp, setMgSymp] = useState('asimtomatik');
 
-  const [res, setRes] = useState<any>(null);
+  // State target/konteks per elektrolit (modul terpisah di ./components)
+  const kState = useKaliumState();
+  const caState = useKalsiumState();
+  const mgState = useMagnesiumState();
+
+  // Hasil tampil setelah "Hitung Koreksi" ditekan, lalu ikut berubah LIVE saat input/target diubah.
+  const [shown, setShown] = useState(false);
 
   // Auto-load on mount
   useEffect(() => {
@@ -94,171 +119,103 @@ export default function KalkulatorElektro() {
       setPh(clinicalStore.data.ph);
       setCaPh(clinicalStore.data.ph);
     }
-
-    setRes(null);
   };
 
-  const calculate = () => {
+  // ── Perhitungan Natrium (live) ──────────────────────────────────────────
+  const naRes = useMemo(() => {
     const w = parseFloat(bw);
-    if (!w) return;
+    const n = parseFloat(na);
+    const g = parseFloat(glu);
+    if (!(w > 0) || !(n > 0)) return null;
 
-    if (tab === 'na') {
-      const n = parseFloat(na);
-      const g = parseFloat(glu);
-      if (!n) return;
-
-      let naCorr = n;
-      let hasHyperglycemia = false;
-      if (!isNaN(g) && g > 100) {
-        naCorr = n + 1.6 * ((g - 100) / 100);
-        hasHyperglycemia = true;
-      }
-      
-      const calcN = hasHyperglycemia ? naCorr : n;
-      const ageNum = parseFloat(age);
-      const tbwF = tbwFactor(sex as 'm' | 'f', ageNum);
-      const tbw = w * tbwF;
-      const naT = 140;
-
-      if (calcN < 135) {
-        const limLo = onset === 'akut' ? 10 : 6;
-        const limHi = onset === 'akut' ? 12 : 8;
-        const tgt = Math.min(calcN + limLo, naT);
-        const d = tgt - calcN;
-        // Metode 1 — Defisit natrium: ΔNa × TBW, dikonversi ke volume NaCl 3% (513 mEq/L)
-        const deficit = d * tbw; // mEq Na yang dibutuhkan
-        const vol3 = (deficit * 1000) / 513;
-        const rate24 = vol3 / 24; // habis dalam 24 jam
-        const rateMax = (0.5 * tbw * 1000) / 513; // laju setara 0.5 mEq/L/jam
-        // Metode 2 — Adrogué–Madías: kenaikan Na per 1 L NaCl 3% = (513 − Na)/(TBW+1)
-        const amPerLiter = (513 - calcN) / (tbw + 1);
-        const volAM = (d / amPerLiter) * 1000; // mL untuk mencapai ΔNa target
-        const rateAM = volAM / 24;
-
-        // Keparahan ditentukan gejala (kategori terberat yang tercentang), bukan angka Na.
-        const hasSevere = SEVERE_SX.some(s => symptoms.has(s));
-        const hasModerate = MODERATE_SX.some(s => symptoms.has(s));
-        const severity: 'berat' | 'sedang' | 'ringan' = hasSevere ? 'berat' : hasModerate ? 'sedang' : 'ringan';
-        // Faktor risiko tinggi ODS yang bisa dideteksi otomatis: Na sangat rendah (≤105).
-        const highOdsRisk = calcN <= 105;
-
-        setRes({
-          type: 'hipo', v: vol3.toFixed(0), d: d.toFixed(1),
-          rate: rate24.toFixed(1), rateMax: rateMax.toFixed(1),
-          vAM: volAM.toFixed(0), rateAM: rateAM.toFixed(1),
-          amPerLiter: amPerLiter.toFixed(1),
-          limLo, limHi, onset,
-          severity, highOdsRisk,
-          isProfound: calcN < 125,
-          calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia,
-          tgt: tgt.toFixed(1), tbw: tbw.toFixed(1), tbwF, w,
-          deficit: deficit.toFixed(0),
-        });
-      } else if (calcN > 145) {
-        const deficit = freeWaterDeficit(tbw, calcN, naT); // L
-        // Kecepatan aman: kronik/tidak tahu ≤10 mEq/L/24 jam (~0.5/jam);
-        // akut (<48 jam, jelas) boleh ~1 mEq/L/jam → ≤24/24 jam.
-        const maxDropPer24 = onset === 'akut' ? 24 : 10;
-        const totalDrop = calcN - naT;                       // ΔNa menuju 140
-        const targetDrop = Math.min(totalDrop, maxDropPer24); // yang dikoreksi HARI INI
-        const days = Math.max(1, Math.ceil(totalDrop / maxDropPer24));
-        // Adrogué–Madías untuk cairan terpilih
-        const fluid = NA_FLUIDS.find(f => f.id === naFluid) ?? NA_FLUIDS[1];
-        const dNaPerL = adrogueDeltaNaPerLiter(fluid.na, calcN, tbw); // mEq/L per L (negatif = menurunkan)
-        const lowersNa = dNaPerL < 0;
-        const volForTarget = lowersNa ? targetDrop / -dNaPerL : null;  // L untuk drop hari ini
-        const rateMlHr = volForTarget !== null ? (volForTarget * 1000) / 24 : null;
-        setRes({
-          type: 'hiper',
-          calcN: calcN.toFixed(1),
-          tbw: tbw.toFixed(1), tbwF, w,
-          deficit: deficit.toFixed(2),
-          onset, maxDropPer24, totalDrop: totalDrop.toFixed(1),
-          targetDrop: targetDrop.toFixed(1), days,
-          fluidId: fluid.id, fluidLabel: fluid.label, fluidNa: fluid.na, fluidNote: fluid.note,
-          dNaPerL: dNaPerL.toFixed(2), lowersNa,
-          volForTarget: volForTarget !== null ? volForTarget.toFixed(2) : null,
-          rateMlHr: rateMlHr !== null ? rateMlHr.toFixed(0) : null,
-          hasHyper: hasHyperglycemia,
-        });
-      } else {
-         setRes({ type: 'normal', calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia });
-      }
-    } else if (tab === 'k') {
-      const kv = parseFloat(k);
-      const pv = parseFloat(ph);
-      const gv = parseFloat(gdsK);
-      if (!kv) return;
-      
-      let kCorr = kv;
-      let hasPh = false;
-      let isAcidosis = false;
-      if (!isNaN(pv) && pv > 0) {
-        kCorr = kv - (7.4 - pv) * 6;
-        hasPh = true;
-        if (pv < 7.35) isAcidosis = true;
-      }
-
-      if (kv < 3.5) {
-         const def = (3.5 - kv) * 100 * (w/70);
-         const defHi = (3.5 - kv) * 200 * (w/70);
-         setRes({ 
-           type: 'hipo', kv, d1: def.toFixed(0), d2: defHi.toFixed(0),
-           kCorr: kCorr.toFixed(2), hasPh, isAcidosis
-         });
-      } else if (kv > 5.0) {
-         setRes({ 
-           type: 'hiper', kv,
-           sev: kv > 6.0 ? 'Berat (Emergensi)' : 'Sedang',
-           gds: !isNaN(gv) ? gv : null,
-           kCorr: kCorr.toFixed(2), hasPh, isAcidosis
-         });
-      } else {
-         setRes({ type: 'normal', kv, kCorr: kCorr.toFixed(2), hasPh });
-      }
-    } else if (tab === 'ca') {
-      const cav = parseFloat(ca);
-      const al = parseFloat(alb);
-      const pv = parseFloat(caPh);
-      if (!cav || !al) return;
-      
-      const corr = cav + 0.8 * (4 - al);
-      // Estimasi Ca ionized (mmol/L): total mg/dL ÷ 4.008 (→ mmol/L) × ~0.5 (fraksi ionized) ≈ ×0.125
-      let ionized = corr * 0.125;
-      let hasPh = false;
-      if (!isNaN(pv) && pv > 0) {
-        // Asidosis menaikkan Ca ionized ~0.05 mmol/L per penurunan 0.1 unit pH
-        ionized = ionized + (7.4 - pv) * 0.5;
-        hasPh = true;
-      }
-      
-      let type = 'normal';
-      if (corr < 8.5 || (hasPh && ionized < 1.12)) type = 'hipo';
-      if (corr > 10.5) type = 'hiper';
-
-      setRes({ 
-        type, 
-        corr: corr.toFixed(2),
-        ionized: ionized.toFixed(2),
-        hasPh 
-      });
-    } else if (tab === 'mg') {
-      const mv = parseFloat(mg);
-      const egfrV = parseFloat(egfr);
-      if (!mv) return;
-      
-      let type = 'normal';
-      if (mv < 1.7) type = 'hipo';
-
-      setRes({ 
-        type, 
-        d: Math.min(0.04 * w, 4).toFixed(1),
-        mv,
-        symp: mgSymp,
-        egfr: !isNaN(egfrV) ? egfrV : null
-      });
+    let naCorr = n;
+    let hasHyperglycemia = false;
+    if (!isNaN(g) && g > 100) {
+      naCorr = n + 1.6 * ((g - 100) / 100);
+      hasHyperglycemia = true;
     }
-  };
+
+    const calcN = naCorr;
+    const ageNum = parseFloat(age);
+    const tbwF = tbwFactor(sex as 'm' | 'f', ageNum);
+    const tbw = w * tbwF;
+    const naT = 140;
+
+    if (calcN < 135) {
+      // Risiko ODS tinggi: Na ≤105 (otomatis) atau faktor risiko yang dicentang (Verbalis 2013).
+      const odsAuto = calcN <= 105;
+      const highOdsRisk = odsAuto || odsFactors.size > 0;
+      const lim = hypoNaRiseLimits(highOdsRisk);
+      const riseIn = parseFloat(naRise);
+      const rise = riseIn > 0 ? riseIn : 6;
+      const d = Math.min(rise, naT - calcN);
+      const tgt = calcN + d;
+      // Metode 1 — Defisit natrium: ΔNa × TBW, dikonversi ke volume NaCl 3% (513 mEq/L)
+      const deficit = d * tbw; // mEq Na yang dibutuhkan
+      const vol3 = (deficit * 1000) / 513;
+      const rate24 = vol3 / 24; // habis dalam 24 jam
+      const rateMax = (0.5 * tbw * 1000) / 513; // laju setara 0.5 mEq/L/jam
+      // Metode 2 — Adrogué–Madías: kenaikan Na per 1 L NaCl 3% = (513 − Na)/(TBW+1)
+      const amPerLiter = (513 - calcN) / (tbw + 1);
+      const volAM = (d / amPerLiter) * 1000; // mL untuk mencapai ΔNa target
+      const rateAM = volAM / 24;
+
+      return {
+        type: 'hipo' as const, v: vol3.toFixed(0), d: d.toFixed(1),
+        rate: rate24.toFixed(1), rateMax: rateMax.toFixed(1),
+        vAM: volAM.toFixed(0), rateAM: rateAM.toFixed(1),
+        amPerLiter: amPerLiter.toFixed(1),
+        lim, rise, riseOverGoal: rise > lim.goalHi, riseOverLimit: rise > lim.limit24,
+        highOdsRisk, odsAuto,
+        isProfound: calcN < 125,
+        calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia,
+        tgt: tgt.toFixed(1), tbw: tbw.toFixed(1), tbwF, w,
+        deficit: deficit.toFixed(0),
+      };
+    }
+    if (calcN > 145) {
+      const tIn = parseFloat(hyperTarget);
+      const targetNa = tIn >= 135 && tIn <= 150 ? tIn : naT;
+      const deficit = Math.max(0, freeWaterDeficit(tbw, calcN, targetNa)); // L
+      const dIn = parseFloat(hyperDrop);
+      const maxDropPer24 = dIn > 0 ? dIn : (onset === 'akut' ? 24 : 10);
+      const totalDrop = Math.max(0, calcN - targetNa);                 // ΔNa menuju target
+      const targetDrop = Math.min(totalDrop, maxDropPer24);            // yang dikoreksi HARI INI
+      const days = Math.max(1, Math.ceil(totalDrop / maxDropPer24));
+      // Adrogué–Madías untuk cairan terpilih
+      const fluid = NA_FLUIDS.find(f => f.id === naFluid) ?? NA_FLUIDS[1];
+      const dNaPerL = adrogueDeltaNaPerLiter(fluid.na, calcN, tbw); // mEq/L per L (negatif = menurunkan)
+      const lowersNa = dNaPerL < 0;
+      const volForTarget = lowersNa ? targetDrop / -dNaPerL : null;  // L untuk drop hari ini
+      const rateMlHr = volForTarget !== null ? (volForTarget * 1000) / 24 : null;
+      return {
+        type: 'hiper' as const,
+        calcN: calcN.toFixed(1),
+        tbw: tbw.toFixed(1), tbwF, w,
+        targetNa, deficit: deficit.toFixed(2),
+        onset, maxDropPer24, totalDrop: totalDrop.toFixed(1),
+        dropOverGuideline: onset !== 'akut' && maxDropPer24 > 10,
+        targetDrop: targetDrop.toFixed(1), days,
+        fluidId: fluid.id, fluidLabel: fluid.label, fluidNa: fluid.na, fluidNote: fluid.note,
+        dNaPerL: dNaPerL.toFixed(2), lowersNa,
+        volForTarget: volForTarget !== null ? volForTarget.toFixed(2) : null,
+        rateMlHr: rateMlHr !== null ? rateMlHr.toFixed(0) : null,
+        hasHyper: hasHyperglycemia,
+      };
+    }
+    return { type: 'normal' as const, calcN: calcN.toFixed(1), hasHyper: hasHyperglycemia };
+  }, [bw, na, glu, age, sex, onset, naFluid, odsFactors, naRise, hyperTarget, hyperDrop]);
+
+  // Na terkoreksi glukosa untuk menentukan input mana yang relevan (hipo vs hiper) sebelum dihitung.
+  const naPreview = (() => {
+    const n = parseFloat(na);
+    const g = parseFloat(glu);
+    if (!(n > 0)) return NaN;
+    return !isNaN(g) && g > 100 ? n + 1.6 * ((g - 100) / 100) : n;
+  })();
+
+  const res = shown && tab === 'na' ? naRes : null;
+  const calculate = () => setShown(true);
 
   const syncFields = useMemo(() => {
     const common = [
@@ -300,6 +257,25 @@ export default function KalkulatorElektro() {
     : MODERATE_SX.some(s => symptoms.has(s)) ? 'sedang'
     : 'ringan';
 
+  // Alur strategi koreksi Na (Spasovski 2014; Verbalis 2013; Sterns 2015; Adrogué–Madías 2000).
+  const hypoNaFlow: FlowStep[] | null = res && res.type === 'hipo' ? [
+    { title: 'Pastikan hiponatremia hipotonik', body: <>Koreksi terhadap glukosa{res.hasHyper ? ` (Na terkoreksi ${res.calcN})` : ''}; osmolalitas serum &lt;275 mOsm/kg; singkirkan pseudohiponatremia (lipid/protein sangat tinggi).</> },
+    { title: `Nilai gejala → ${naSeverity.toUpperCase()}`, body: naSeverity === 'berat' ? 'Bolus NaCl 3% 150 mL/20 menit, ulang s/d gejala reda atau Na naik ~5 (target jam-1 +4–6).' : naSeverity === 'sedang' ? 'Infus tunggal NaCl 3% 150 mL/20 menit, lalu re-evaluasi.' : 'NaCl 3% tidak rutin. Fokus penyebab & status volume.', state: 'now' },
+    { title: `Onset: ${onset === 'akut' ? 'akut (<48 jam)' : 'kronik / tidak tahu'}`, body: onset === 'akut' ? 'Risiko ODS rendah; bahaya utama edema serebri.' : 'Otak sudah beradaptasi → batasi kecepatan koreksi (risiko ODS). Jika ragu, perlakukan sebagai kronik.' },
+    { title: 'Tentukan status volume & atasi penyebab', body: 'Hipovolemik → NaCl 0.9%; euvolemik/SIADH → restriksi cairan; hipervolemik → restriksi + terapi penyakit dasar. Hentikan obat pemicu (tiazid, SSRI, dll).' },
+    { title: `Target +${res.rise} / batas ${res.lim.limit24} mEq/L dalam 24 jam`, body: <>Na target 24 jam ~{res.tgt}. Hari berikutnya batas {res.lim.limitNext24} mEq/L per 24 jam.{res.highOdsRisk ? ' Risiko ODS tinggi → batas lebih ketat.' : ''}{odsFactors.has('Hipokalemia') ? ' Koreksi KCl ikut menaikkan Na (K infusat masuk rumus Adrogué–Madías: Na+K infusat) — hitung dalam target.' : ''}</>, state: res.riseOverLimit ? 'now' : 'todo' },
+    { title: 'Pantau & cegah overkoreksi', body: 'Na tiap 4–6 jam (tiap 20 menit saat bolus). Waspadai diuresis air (urin encer banyak) setelah penyebab teratasi → Na melonjak. Bila melewati batas: hentikan hipertonik, D5W ± desmopressin (lihat Rescue Protocol).' },
+  ] : null;
+
+  const hyperNaFlow: FlowStep[] | null = res && res.type === 'hiper' ? [
+    { title: 'Klasifikasi status volume & penyebab', body: 'Hipovolemik (GI, diuretik, diuresis osmotik) · euvolemik (Diabetes Insipidus, insensible loss) · hipervolemik (iatrogenik NaHCO₃/hipertonik). Osmolalitas urin membantu.' },
+    { title: 'Syok / hipovolemia berat? → NaCl 0.9% dulu', body: 'Stabilkan hemodinamik dengan isotonik, baru ganti ke air bebas.' },
+    { title: `Defisit air ${res.deficit} L menuju Na ${res.targetNa}`, body: 'Air oral/NGT bila saluran cerna berfungsi > D5W > NaCl 0.45%.', state: 'now' },
+    { title: `Batas penurunan ${res.maxDropPer24} mEq/L / 24 jam`, body: <>Hari ini turunkan {res.targetDrop} mEq/L → {res.rateMlHr ? `±${res.rateMlHr} mL/jam ${res.fluidLabel}` : 'pilih cairan hipotonik'}; total ±{res.days} hari.{res.dropOverGuideline ? ' ⚠ Melebihi batas kronik pedoman (≤10).' : ''}</>, state: 'now' },
+    { title: 'Tambahkan IWL & kehilangan berlanjut', body: 'IWL ±30–40 mL/jam + urin encer (DI) + GI loss — tambahkan pada laju total, bukan bagian dari defisit.' },
+    { title: 'Pantau Na tiap 2–4 jam & hitung ULANG', body: 'Atasi penyebab: DI sentral → desmopressin; nefrogenik → tiazid + NSAID. Waspadai edema serebri bila penurunan terlalu cepat.' },
+  ] : null;
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
@@ -310,10 +286,10 @@ export default function KalkulatorElektro() {
       <UnifiedSyncBanner fields={syncFields} />
       
       <div className="flex bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4">
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'na' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('na'); setRes(null)}}>Natrium</button>
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'k' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('k'); setRes(null)}}>Kalium</button>
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'ca' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('ca'); setRes(null)}}>Kalsium</button>
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'mg' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('mg'); setRes(null)}}>Magnesium</button>
+        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'na' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('na'); setShown(false)}}>Natrium</button>
+        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'k' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('k'); setShown(false)}}>Kalium</button>
+        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'ca' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('ca'); setShown(false)}}>Kalsium</button>
+        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'mg' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('mg'); setShown(false)}}>Magnesium</button>
       </div>
 
       <div className="flex flex-col gap-0">
@@ -368,17 +344,25 @@ export default function KalkulatorElektro() {
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Onset</span>
-                   <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={onset} onChange={e=>setOnset(e.target.value)}>
+                   <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={onset} onChange={e=>{ setOnset(e.target.value); setHyperDrop(e.target.value === 'akut' ? '24' : '10'); }}>
                      <option value="kronik">Kronik / Tidak tahu</option>
                      <option value="akut">Akut (&lt;48 jam)</option>
                    </select>
                 </div>
+                {naPreview > 145 && (
+                  <>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Cairan <span className="font-normal text-slate-500 text-[11px]">(hipernatremia)</span></span>
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Cairan koreksi</span>
                    <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={naFluid} onChange={e=>setNaFluid(e.target.value)}>
                      {NA_FLUIDS.map(f => <option key={f.id} value={f.id}>{f.label} ({f.na} mEq/L)</option>)}
                    </select>
                 </div>
+                    <TargetField label="Target Na akhir" sub="untuk rumus defisit air" value={hyperTarget} onChange={setHyperTarget} unit="mEq/L" step="1" options={HYPER_TARGET_OPTIONS} />
+                    <TargetField label="Batas penurunan / 24 jam" sub="kecepatan koreksi" value={hyperDrop} onChange={setHyperDrop} unit="mEq/L" step="1" options={HYPER_DROP_OPTIONS} />
+                  </>
+                )}
+                {naPreview < 135 && (
+                  <>
                 <div className="px-4 py-3">
                   <div className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 mb-1">Gejala Hiponatremia</div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2.5 leading-relaxed">Centang gejala yang <em>plausibel disebabkan</em> hiponatremia. Indikasi NaCl 3% ditentukan oleh gejala, bukan angka Na semata.</p>
@@ -402,6 +386,10 @@ export default function KalkulatorElektro() {
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">Tidak ada yang dicentang = ringan / asimtomatik → 3% tidak rutin diindikasikan.</p>
                   </div>
                 </div>
+                    <TargetField label="Target kenaikan Na / 24 jam" sub="koreksi lambat (bila diputuskan)" value={naRise} onChange={setNaRise} unit="mEq/L" step="1" options={NA_RISE_OPTIONS} />
+                    <ToggleList title="Faktor Risiko ODS" hint="Na ≤105 otomatis dihitung berisiko tinggi. Risiko tinggi → batas 8 mEq/L/24 jam (Verbalis 2013)." items={ODS_RISK} selected={odsFactors} onToggle={toggleOds} tone="amber" />
+                  </>
+                )}
               </>
             )}
 
@@ -427,6 +415,7 @@ export default function KalkulatorElektro() {
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
+                <KaliumInputs s={kState} k={k} />
               </>
             )}
 
@@ -452,6 +441,7 @@ export default function KalkulatorElektro() {
                      <input type="number" step="0.01" value={caPh} onChange={e=>setCaPh(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
                    </div>
                 </div>
+                <KalsiumInputs s={caState} ca={ca} alb={alb} />
               </>
             )}
 
@@ -471,13 +461,7 @@ export default function KalkulatorElektro() {
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mL/min</span>
                    </div>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4 border-t border-slate-100 dark:border-slate-800">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Gejala</span>
-                   <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={mgSymp} onChange={e=>setMgSymp(e.target.value)}>
-                     <option value="asimtomatik">Asimtomatik / Ringan</option>
-                     <option value="simtomatik">Gejala Berat (Aritmia/Kejang)</option>
-                   </select>
-                </div>
+                <MagnesiumInputs s={mgState} mg={mg} />
               </>
             )}
          </div>
@@ -489,13 +473,16 @@ export default function KalkulatorElektro() {
          </div>
 
          <div className="mt-4 pb-6">
-            {res && <InputWarning messages={[
+            {shown && <InputWarning messages={[
               weightPlausibilityWarning(parseFloat(bw)),
               tab === 'na' ? rangeWarning(parseFloat(na), 100, 180, 'Na', ' mEq/L') : null,
               tab === 'k' ? rangeWarning(parseFloat(k), 1.5, 9, 'K', ' mEq/L') : null,
               tab === 'ca' ? rangeWarning(parseFloat(ca), 4, 18, 'Ca', ' mg/dL') : null,
               tab === 'mg' ? rangeWarning(parseFloat(mg), 0.5, 6, 'Mg', ' mg/dL') : null,
             ]} />}
+            {shown && tab === 'k' && <KaliumResult s={kState} k={k} ph={ph} gds={gdsK} bw={bw} />}
+            {shown && tab === 'ca' && <KalsiumResult s={caState} ca={ca} alb={alb} bw={bw} />}
+            {shown && tab === 'mg' && <MagnesiumResult s={mgState} mg={mg} egfr={egfr} bw={bw} />}
             {res && (
                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-4">
                  
@@ -520,7 +507,7 @@ export default function KalkulatorElektro() {
                              <li><strong>Bolus NaCl 3%: 150 mL IV dalam 20 menit</strong> (alternatif 100 mL/10 menit).</li>
                              <li>Cek Na ulang tiap 20 menit; ulangi bolus hingga 2–3× sampai gejala membaik atau Na naik ~5 mEq/L.</li>
                              <li>Target jam pertama: <strong>+4–6 mEq/L</strong> untuk menghentikan krisis serebral — <strong>bukan</strong> menormalkan Na.</li>
-                             <li>Setelah krisis reda: STOP hipertonik. Total kenaikan <strong>≤ {res.highOdsRisk ? 8 : 10} mEq/L / 24 jam</strong> (plafon ODS).</li>
+                             <li>Setelah krisis reda: STOP hipertonik. Total kenaikan <strong>≤ {res.lim.limit24} mEq/L / 24 jam</strong> (plafon ODS).</li>
                            </ul>
                            <p className="mt-3 text-[11px] italic opacity-80 border-t border-red-200 dark:border-red-800/50 pt-2">📚 Spasovski G. NDT 2014;29(Suppl 2):i1 · Sterns RH. NEJM 2015;372:55</p>
                          </div>
@@ -536,7 +523,7 @@ export default function KalkulatorElektro() {
                          <div className="text-[13px] text-amber-800 dark:text-amber-300 space-y-1">
                            <ul className="list-disc pl-4 space-y-1 font-medium mt-1 bg-amber-100/40 dark:bg-amber-900/30 p-3 rounded-lg border border-amber-200 dark:border-amber-800/60">
                              <li><strong>Infus tunggal NaCl 3% 150 mL dalam 20 menit</strong>, lalu cek Na ulang & re-evaluasi.</li>
-                             <li>Target kenaikan ~5 mEq/L / 24 jam; plafon <strong>≤ {res.highOdsRisk ? 8 : 10} mEq/L / 24 jam</strong>.</li>
+                             <li>Target kenaikan {res.lim.goalLo}–{res.lim.goalHi} mEq/L / 24 jam; plafon <strong>≤ {res.lim.limit24} mEq/L / 24 jam</strong>.</li>
                              <li>Cari & atasi penyebab bersamaan (obat pemicu, SIADH, status volume).</li>
                            </ul>
                            <p className="mt-3 text-[11px] italic opacity-80 border-t border-amber-200 dark:border-amber-800/50 pt-2">📚 Spasovski G. NDT 2014;29(Suppl 2):i1</p>
@@ -566,15 +553,17 @@ export default function KalkulatorElektro() {
 
                      {res.highOdsRisk && (
                        <div className="w-full bg-rose-50 dark:bg-rose-900/15 border border-rose-200 dark:border-rose-800/60 rounded-xl p-3 text-[12px] text-rose-800 dark:text-rose-300">
-                         <strong className="flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Risiko tinggi ODS (Na ≤105)</strong>
-                         <p className="mt-1 leading-relaxed">Batasi kenaikan Na <strong>≤8 mEq/L / 24 jam</strong>. Faktor risiko lain yang perlu dinilai manual: hipokalemia, alkoholisme, malnutrisi, penyakit hati lanjut. <span className="italic opacity-80">📚 Sterns RH. NEJM 2015 · Verbalis JG. Am J Med 2013</span></p>
+                         <strong className="flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Risiko tinggi ODS ({[res.odsAuto ? 'Na ≤105' : null, ...odsFactors].filter(Boolean).join(', ')})</strong>
+                         <p className="mt-1 leading-relaxed">Batasi kenaikan Na <strong>≤8 mEq/L / 24 jam</strong>. Target dianjurkan {res.lim.goalLo}–{res.lim.goalHi} mEq/L/24 jam. Faktor risiko: Na ≤105, hipokalemia, alkoholisme, malnutrisi, penyakit hati lanjut (centang di input). <span className="italic opacity-80">📚 Sterns RH. NEJM 2015 · Verbalis JG. Am J Med 2013</span></p>
                        </div>
                      )}
+
+                     {hypoNaFlow && <StrategyFlow steps={hypoNaFlow} />}
 
                      {(() => { const calcBox = (
                      <div className="w-full bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 flex flex-col items-start text-left">
                        <div className="text-[13px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-3 w-full border-b border-blue-200 dark:border-blue-800/50 pb-2">
-                         Estimasi Koreksi Lambat &amp; Batas Aman ({res.onset === 'akut' ? 'Akut' : 'Kronik'})
+                         Estimasi Koreksi Lambat &amp; Batas Aman ({onset === 'akut' ? 'Akut' : 'Kronik'})
                        </div>
                        
                        <div className="text-[13px] text-blue-900 dark:text-blue-200 space-y-4 w-full">
@@ -582,9 +571,12 @@ export default function KalkulatorElektro() {
                            <strong className="text-[14px] text-blue-700 dark:text-blue-400 block mb-1">Target Koreksi Aman (Batas 24 Jam)</strong>
                            <p>Peningkatan maksimal yang direkomendasikan untuk mencegah <em>Osmotic Demyelination Syndrome (ODS)</em>:</p>
                            <ul className="list-disc pl-4 mt-1 font-semibold">
-                             <li>Target Kenaikan Maksimal: <strong>{res.limLo}-{res.limHi} mEq/L dalam 24 jam</strong>.</li>
-                             <li>Target Na Sementara: <strong>~{res.tgt} mEq/L</strong> (dari {res.calcN} mEq/L).</li>
+                             <li>Target pilihan Anda: <strong>+{res.rise} mEq/L / 24 jam</strong> (anjuran {res.lim.goalLo}–{res.lim.goalHi}).</li>
+                             <li>Batas absolut: <strong>{res.lim.limit24} mEq/L</strong> di 24 jam pertama, lalu <strong>{res.lim.limitNext24} mEq/L</strong> tiap 24 jam berikutnya.</li>
+                             <li>Target Na 24 jam: <strong>~{res.tgt} mEq/L</strong> (dari {res.calcN} mEq/L).</li>
                            </ul>
+                           {res.riseOverLimit && <p className="mt-2 text-[12px] font-bold text-red-700 dark:text-red-400">⚠ Target +{res.rise} melebihi batas {res.lim.limit24} mEq/L/24 jam{res.highOdsRisk ? ' untuk pasien risiko ODS tinggi' : ''} — turunkan target.</p>}
+                           {!res.riseOverLimit && res.riseOverGoal && <p className="mt-2 text-[12px] text-amber-700 dark:text-amber-400">Target di atas anjuran {res.lim.goalLo}–{res.lim.goalHi} mEq/L; masih di bawah batas, tetapi sisakan ruang untuk kenaikan tak terduga (diuresis air).</p>}
                          </div>
 
                          <div>
@@ -625,11 +617,12 @@ export default function KalkulatorElektro() {
                              <div>
                                <p className="font-bold">Langkah 1 — Total Body Water (TBW):</p>
                                <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">TBW = {res.tbwF} × BB = {res.tbwF} × {res.w} kg = <strong>{res.tbw} L</strong></p>
-                               <p className="text-[11px] italic opacity-80 mt-0.5">Faktor {res.tbwF} untuk {sex === 'm' ? 'laki-laki dewasa' : 'perempuan dewasa'}.</p>
+                               <p className="text-[11px] italic opacity-80 mt-0.5">Faktor {res.tbwF} ({sex === 'm' ? 'pria' : 'wanita'}{age ? `, ${age} th` : ''}; lansia ≥65 th memakai faktor lebih kecil).</p>
                              </div>
                              <div>
-                               <p className="font-bold">Langkah 2 — Target kenaikan Na ({res.onset === 'akut' ? 'akut' : 'kronik'}):</p>
-                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">ΔNa = {res.d} mEq/L (batas aman {res.limLo}-{res.limHi} mEq/L per 24 jam)<br/>Target Na = {res.calcN} + {res.d} = <strong>{res.tgt} mEq/L</strong></p>
+                               <p className="font-bold">Langkah 2 — Target kenaikan Na ({onset === 'akut' ? 'akut' : 'kronik'}):</p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-blue-300 dark:border-blue-700">ΔNa = {res.d} mEq/L (anjuran {res.lim.goalLo}–{res.lim.goalHi}; batas {res.lim.limit24} per 24 jam{res.highOdsRisk ? ', risiko ODS tinggi' : ''})<br/>Target Na = {res.calcN} + {res.d} = <strong>{res.tgt} mEq/L</strong></p>
+                               {onset === 'akut' && <p className="text-[11px] italic opacity-80 mt-0.5">Onset akut (&lt;48 jam) terdokumentasi: otak belum beradaptasi → risiko ODS rendah; bahaya utama edema serebri.</p>}
                              </div>
                              <div>
                                <p className="font-bold">Langkah 3 — Defisit natrium yang perlu diberikan:</p>
@@ -680,22 +673,24 @@ export default function KalkulatorElektro() {
 
                  {tab === 'na' && res.type === 'hiper' && (
                    <div className="space-y-4">
+                     {hyperNaFlow && <StrategyFlow steps={hyperNaFlow} />}
                      <div className="w-full bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex flex-col items-start text-left">
                        <div className="text-[13px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-3 w-full border-b border-red-200 dark:border-red-800/50 pb-2">
-                         Koreksi Hipernatremia {res.onset === 'akut' ? '(Akut)' : '(Kronik / Tidak tahu)'}
+                         Koreksi Hipernatremia {onset === 'akut' ? '(Akut)' : '(Kronik / Tidak tahu)'}
                        </div>
 
                        <div className="font-mono text-3xl font-bold mb-1 text-red-700 dark:text-red-300">
                          Defisit Air Bebas : {res.deficit} <span className="text-[16px] text-red-500 font-sans font-medium">L</span>
                        </div>
-                       <p className="text-[12px] text-red-700/80 dark:text-red-300/80">ΔNa menuju 140 = {res.totalDrop} mEq/L · butuh ± <strong>{res.days} hari</strong> pada laju aman.</p>
+                       <p className="text-[12px] text-red-700/80 dark:text-red-300/80">ΔNa menuju target {res.targetNa} = {res.totalDrop} mEq/L · butuh ± <strong>{res.days} hari</strong> pada laju aman.</p>
 
                        <div className="text-[13px] text-red-900 dark:text-red-200 space-y-4 w-full mt-4">
                          {/* Kecepatan koreksi — batas aman */}
                          <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 border border-red-200 dark:border-red-900/50">
                            <strong className="text-[14px] text-red-700 dark:text-red-400 block mb-1">Kecepatan Koreksi — batas aman</strong>
                            <ul className="list-disc pl-4 space-y-1">
-                             <li>Turunkan Na maksimal <strong>{res.maxDropPer24} mEq/L / 24 jam</strong> {res.onset === 'akut' ? '(akut <48 jam boleh ~1 mEq/L/jam)' : '(~0.5 mEq/L/jam)'} — mencegah edema serebri.</li>
+                             <li>Batas pilihan Anda: <strong>{res.maxDropPer24} mEq/L / 24 jam</strong> ({(res.maxDropPer24 / 24).toFixed(2)} mEq/L/jam) {onset === 'akut' ? '— akut <48 jam boleh ~1 mEq/L/jam' : '— kronik ≤10 mEq/L/24 jam (~0.5/jam)'} untuk mencegah edema serebri.</li>
+                             {res.dropOverGuideline && <li className="font-bold text-red-700 dark:text-red-400">⚠ Melebihi batas pedoman hipernatremia kronik (≤10 mEq/L/24 jam). Bukti observasional terbaru belum konsisten (Chauhan 2019: koreksi cepat tidak terkait edema serebri; Chacon-Palma 2025: koreksi lambat terkait mortalitas lebih rendah) — ikuti pedoman kecuali ada alasan kuat.</li>}
                              <li>Hari ini cukup turunkan <strong>{res.targetDrop} mEq/L</strong>; sisanya lanjut hari berikutnya.</li>
                              <li className="text-[11px] italic opacity-80">Jika ragu onset → perlakukan sebagai KRONIK (lebih lambat, lebih aman).</li>
                            </ul>
@@ -734,7 +729,7 @@ export default function KalkulatorElektro() {
                              </div>
                              <div>
                                <p className="font-bold">Langkah 2 — Defisit air bebas:</p>
-                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-red-300 dark:border-red-700">Defisit = TBW × (Na/140 − 1) = {res.tbw} × ({res.calcN}/140 − 1) = <strong>{res.deficit} L</strong></p>
+                               <p className="font-mono text-[11.5px] mt-0.5 pl-2 border-l-2 border-red-300 dark:border-red-700">Defisit = TBW × (Na ÷ Na target − 1) = {res.tbw} × ({res.calcN} ÷ {res.targetNa} − 1) = <strong>{res.deficit} L</strong></p>
                              </div>
                              <div>
                                <p className="font-bold">Langkah 3 — Prediksi efek cairan (Adrogué–Madías):</p>
@@ -783,216 +778,6 @@ export default function KalkulatorElektro() {
                    </div>
                  )}
 
-                 {tab === 'k' && res.type === 'hipo' && (
-                   <>
-                     <div className="w-full bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 rounded-2xl p-5 flex flex-col items-center text-center">
-                       <div className="text-[12px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500 mb-2">Hipokalemia</div>
-                       
-                       {res.hasPh && (
-                         <div className="text-[12px] mb-3 p-2 bg-white/50 dark:bg-black/20 rounded-lg text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800/50">
-                           K intrasel sesungguhnya (pH-adjusted): <strong>{res.kCorr} mEq/L</strong>
-                           {res.isAcidosis && (
-                             <div className="mt-1 text-red-600 dark:text-red-400 font-bold flex items-start gap-1 text-left">
-                               <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                               <span>PERINGATAN KRITIS: Koreksi asidosis akan menurunkan K serum. Koreksi K harus mendahului/bersamaan asidosis!</span>
-                             </div>
-                           )}
-                           <p className="mt-1 text-[10px] italic opacity-70">📚 Macdonald JE. Heart 2004;90:1098</p>
-                         </div>
-                       )}
-
-                       <div className="font-mono text-3xl font-bold mb-1 text-amber-700 dark:text-amber-400">
-                         Defisit: {res.d1} – {res.d2} <span className="text-[16px] text-amber-500 font-sans font-medium">mEq</span>
-                       </div>
-                       <div className="text-[13px] text-amber-700/80 dark:text-amber-300/80 mt-1 space-x-3">
-                         <span>V. Perifer maks: <strong>10 mEq/j</strong></span>
-                         <span>&middot;</span>
-                         <span>V. Sentral maks: <strong>20 mEq/j</strong></span>
-                       </div>
-                       <p className="mt-3 text-[11px] italic text-amber-700/70 dark:text-amber-400/70">📚 Palmer BF. NEJM 2020;382:2152 &middot; Kraft MD. AJHSP 2005</p>
-                     </div>
-
-                     <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 text-[12px] text-slate-700 dark:text-slate-300">
-                       <strong className="text-[13px] text-slate-900 dark:text-white block mb-2">📋 Strategi Pemberian Bertahap</strong>
-                       <ul className="list-disc pl-4 space-y-1">
-                         <li>Berikan ~40% estimasi defisit terlebih dahulu</li>
-                         <li>Cek K serum setelah infus selesai: <br/>K &lt;2.5 (tiap 1-2j), K 2.5-3.0 (tiap 2-4j)</li>
-                         <li>Evaluasi ulang untuk sesi 2. Jangan berikan seluruh defisit sekaligus (distribusi butuh 4-6 jam).</li>
-                       </ul>
-                       <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-                         <strong className="text-amber-600 dark:text-amber-400">💡 Mg REMINDER (Hipokalemia Refrakter):</strong>
-                         <p className="mt-1">Jika K tidak naik meski dikoreksi, periksa Mg serum. Hipomagnesemia menyebabkan kebocoran K ginjal. Koreksi: MgSO₄ 2g IV dalam 100 mL NS (20-30 menit).</p>
-                       </div>
-                     </div>
-                   </>
-                 )}
-
-                 {tab === 'k' && res.type === 'hiper' && (
-                   <div className="space-y-4">
-                     <div className="w-full bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-5 flex flex-col items-start text-left">
-                       <div className="text-[13px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-3 w-full border-b border-red-200 dark:border-red-800/50 pb-2">
-                         Hiperkalemia {res.sev}
-                       </div>
-                       
-                       {res.hasPh && (
-                         <div className="text-[12px] mb-3 p-2 bg-white/50 dark:bg-black/20 rounded-lg text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800/50 w-full">
-                           K intrasel sesungguhnya (pH-adjusted): <strong>{res.kCorr} mEq/L</strong>
-                           {res.isAcidosis && (
-                             <p className="mt-1 text-[11px] opacity-80">Koreksi asidosis akan membantu menurunkan K serum.</p>
-                           )}
-                         </div>
-                       )}
-
-                       <div className="text-[13px] text-red-900 dark:text-red-200 space-y-4 w-full">
-                         <div>
-                           <strong className="text-[14px] text-red-700 dark:text-red-400 block mb-1">STEP 1: Stabilisasi Membran</strong>
-                           <p>Ca Glukonat 10% 10mL IV (3-5 menit). Ulang jika EKG tidak membaik dalam 5-10 menit.</p>
-                         </div>
-
-                         <div>
-                           <strong className="text-[14px] text-red-700 dark:text-red-400 block mb-1">STEP 2: Shift K ke Intrasel (Onset 15-30 mnt)</strong>
-                           
-                           {/* UKKA 2023 Protocol */}
-                           <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-2 border border-red-200 dark:border-red-900/50">
-                             <div className="font-bold mb-1 text-red-800 dark:text-red-300">A. Insulin + Dextrose (Protokol UKKA 2023)</div>
-                             {res.gds ? (
-                               <div className="space-y-1">
-                                 <p>GDS Pre: <strong>{res.gds} mg/dL</strong></p>
-                                 {res.gds >= 126 ? (
-                                   <div className="p-2 bg-green-100/50 dark:bg-green-900/20 rounded text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
-                                     <strong>GDS &ge; 126:</strong> Insulin Reg 10 IU + D50% 50mL (atau D40% 25mL) IV Bolus. <br/><em>Tidak perlu D10W follow-on. Monitor GDS tiap 30m.</em>
-                                   </div>
-                                 ) : (
-                                   <div className="p-2 bg-amber-100/50 dark:bg-amber-900/20 rounded text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                                     <strong>GDS &lt; 126:</strong> Insulin Reg 10 IU + D50% 50mL (atau D40% 25mL) IV Bolus.<br/>
-                                     <span className="font-bold underline">WAJIB TAMBAHKAN:</span> D10% 50 mL/jam selama 5 jam (total 25g glukosa). <br/><em>Risiko hipoglikemia TINGGI. Monitor GDS tiap 30m.</em>
-                                   </div>
-                                 )}
-                               </div>
-                             ) : (
-                               <p className="italic text-[12px] opacity-80">Masukkan GDS pre-koreksi untuk melihat panduan UKKA 2023 yang spesifik.</p>
-                             )}
-                           </div>
-
-                           <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-2 border border-red-200 dark:border-red-900/50">
-                             <div className="font-bold mb-1 text-red-800 dark:text-red-300">B. Salbutamol Nebulisasi</div>
-                             <p>10-20 mg (2.5-5 ampul @2.5mg). Efek sinergistik dengan insulin. Tidak efektif pada ~40% pasien.</p>
-                           </div>
-
-                           <div className="bg-white/60 dark:bg-black/30 rounded-xl p-3 mt-2 border border-red-200 dark:border-red-900/50">
-                             <div className="font-bold mb-1 text-red-800 dark:text-red-300">C. NaHCO&sub3; 8.4% 50 mEq IV</div>
-                             <p>HANYA jika asidosis metabolik pH &lt;7.2. Tidak efektif sebagai monoterapi pada pH normal.</p>
-                           </div>
-                         </div>
-                       </div>
-                       
-                       <p className="mt-4 text-[11px] italic text-red-700/70 dark:text-red-400/70 w-full text-center border-t border-red-200 dark:border-red-800/50 pt-3">
-                         📚 UKKA Guideline. Oct 2023 &middot; Kovesdy CP. Kidney Int 2023 &middot; Dépret F. Ann Intensive Care 2019;9:32
-                       </p>
-                     </div>
-
-                     <Accordion title="⏱ Alternatif ICU — Infus Insulin Kontinu">
-                       <div className="text-[12px] text-slate-700 dark:text-slate-300 space-y-2">
-                         <p><strong>Indikasi:</strong> K 5.5-6.5 tanpa perubahan EKG, mempertahankan efek pasca-bolus, hiperK perioperatif.</p>
-                         <p><strong>Preparasi:</strong> Insulin Regular 50 IU + NaCl 0.9% 48 mL = 1 IU/mL.</p>
-                         <p><strong>Rate:</strong> 1.5–2 mL/jam (= 1.5–2 IU/jam) selama 6 jam.</p>
-                         <p><strong>Pairing Glukosa:</strong> D10% 50–100 mL/jam berjalan bersamaan (jika puasa), atau cek GDS ketat tiap 1-2 jam (jika sudah ada asupan).</p>
-                         <p><strong>Stop:</strong> Jika K &lt;4.5 atau GDS &lt;100 mg/dL.</p>
-                         <p className="pt-2 text-[11px] italic opacity-80 border-t border-slate-200 dark:border-slate-700 mt-2">📚 Dépret F. Ann Intensive Care 2019;9:32</p>
-                       </div>
-                     </Accordion>
-                   </div>
-                 )}
-
-                 {tab === 'ca' && (
-                   <div className="space-y-4">
-                     <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 flex flex-col items-center text-center shadow-sm">
-                       <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">Ca Terkoreksi Albumin</div>
-                       <div className="font-mono text-4xl font-bold mb-1 text-slate-800 dark:text-slate-200">
-                         {res.corr} <span className="text-[16px] text-slate-500 font-sans font-medium">mg/dL</span>
-                       </div>
-                       
-                       <div className="mt-3 w-full max-w-[250px] p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg text-[13px] text-slate-600 dark:text-slate-400">
-                         Estimasi Ca Ionized: <br/><strong className="text-slate-800 dark:text-slate-200">{res.ionized} mmol/L</strong>
-                         {res.hasPh && <span className="text-[11px] block mt-1">(pH-adjusted)</span>}
-                       </div>
-                       
-                       <p className="mt-3 text-[11px] italic text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700 pt-3 w-full">
-                         📚 Payne RB. BMJ 1973 &middot; Cooper MS. BMJ 2003;326:417 &middot; Bilezikian JP. NEJM 2022;386:254
-                       </p>
-                     </div>
-
-                     {res.type === 'hipo' && (
-                       <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl text-[13px] text-amber-800 dark:text-amber-300 text-left">
-                         <strong className="text-[14px] mb-2 block">Pilihan Koreksi Hipokalsemia:</strong>
-                         <p className="font-bold mt-2">Ca Glukonat 10% (Perifer / Sentral):</p>
-                         <ul className="list-disc pl-4 space-y-1">
-                           <li>1 ampul (10 mL) = 4.65 mEq Ca&sup2;&⁺;</li>
-                           <li><strong>Emergensi (Kejang/Tetani):</strong> 1-2 ampul IV lambat (5-10 mnt) + EKG monitor</li>
-                           <li><strong>Koreksi Sedang:</strong> 1 ampul dalam 100 mL NS/D5W &rarr; infus 30-60 mnt</li>
-                         </ul>
-                         <p className="font-bold mt-3">Ca Klorida 10% (HANYA VIA CVC):</p>
-                         <ul className="list-disc pl-4 space-y-1">
-                           <li>1 ampul = 13.6 mEq (3&times; lebih poten)</li>
-                           <li>Indikasi: syok, henti jantung, transfusi masif</li>
-                         </ul>
-                         <p className="mt-3 text-[11px] text-red-600 dark:text-red-400 font-bold bg-red-100/50 dark:bg-red-900/20 p-2 rounded">⚠ Jangan campur dengan NaHCO&sub3; atau fosfat. Hati-hati pada pasien digitalis.</p>
-                       </div>
-                     )}
-
-                     {res.type === 'hiper' && (
-                       <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-2xl text-[13px] text-red-800 dark:text-red-300 text-left">
-                         <strong className="text-[14px] mb-2 block text-red-600 dark:text-red-400">Protokol Hiperkalsemia (&gt;10.5 mg/dL):</strong>
-                         <ol className="list-decimal pl-4 space-y-1 font-medium">
-                           <li><strong>Hidrasi:</strong> NaCl 0.9% 200–500 mL/jam (Target UO 100-150 mL/jam)</li>
-                           <li><strong>Furosemide:</strong> 20-40 mg IV (HANYA setelah euvolemia)</li>
-                           <li><strong>Kalsitonin:</strong> 4-8 IU/kg SC/IM tiap 12 jam (onset cepat)</li>
-                           <li><strong>Zoledronat:</strong> 4 mg IV dalam 15 mnt (onset lambat 48j)</li>
-                           <li><strong>Denosumab:</strong> 120 mg SC (jika gagal ginjal)</li>
-                         </ol>
-                       </div>
-                     )}
-                   </div>
-                 )}
-
-                 {tab === 'mg' && res.type === 'hipo' && (
-                   <div className="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-5 flex flex-col items-center text-center">
-                     <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">Hipomagnesemia</div>
-                     
-                     {res.egfr && res.egfr < 30 && (
-                       <div className="mb-3 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800 rounded-xl text-[12px] text-red-800 dark:text-red-300 font-medium w-full text-left">
-                         <strong className="text-red-600 dark:text-red-400 block mb-1">⚠ eGFR &lt; 30 mL/menit</strong>
-                         <ul className="list-disc pl-4 space-y-1">
-                           <li>TURUNKAN dosis MgSO&sub4; sebesar 50%</li>
-                           <li>Monitor refleks patella tiap 1 jam (STOP infus jika Mg &gt;4)</li>
-                           <li>Monitor napas tiap 30m (depresi napas jika Mg &gt;5)</li>
-                         </ul>
-                       </div>
-                     )}
-
-                     <div className="w-full text-left text-[13px] text-emerald-800 dark:text-emerald-200 space-y-3 bg-white/50 dark:bg-black/20 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
-                       {res.symp === 'simtomatik' ? (
-                         <div>
-                           <strong className="text-[14px] text-emerald-900 dark:text-emerald-400">Dosis Gejala Berat (Aritmia/Kejang):</strong>
-                           <p className="font-mono text-lg font-bold text-emerald-700 dark:text-emerald-300 mt-1">MgSO&sub4; {res.d} gram IV</p>
-                           <p>Dalam 100 mL NaCl 0.9% &rarr; Habis dalam 15-20 menit.</p>
-                         </div>
-                       ) : (
-                         <div>
-                           <strong className="text-[14px] text-emerald-900 dark:text-emerald-400">Dosis Asimtomatik:</strong>
-                           <p className="font-mono text-lg font-bold text-emerald-700 dark:text-emerald-300 mt-1">MgSO&sub4; {res.d} gram IV</p>
-                           <p>Dalam 250 mL NaCl 0.9% &rarr; Habis dalam 4-6 jam.</p>
-                         </div>
-                       )}
-                       <div className="pt-2 mt-2 border-t border-emerald-200 dark:border-emerald-800/50 text-[11px]">
-                         <em>Catatan: Jika eGFR &lt;30, pastikan memotong dosis di atas sebesar 50%.</em>
-                       </div>
-                     </div>
-                     
-                     <p className="mt-3 text-[11px] italic text-emerald-700/70 dark:text-emerald-400/70">📚 de Baaij JH. Physiol Rev 2015;95:791 &middot; Glasdam SM. AACN Adv Crit Care 2012</p>
-                   </div>
-                 )}
-
                  {(res.type === 'normal') && (
                    <div className="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-5 flex flex-col items-center justify-center text-center">
                      <span className="font-bold text-[15px] text-emerald-700 dark:text-emerald-400">✅ Kadar Elektrolit Normal</span>
@@ -1007,15 +792,13 @@ export default function KalkulatorElektro() {
                  <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#2C2C2E]">
                     <SaveToHistoryButton 
                       module="elektrolit" 
-                      label={`Koreksi Elektrolit — ${tab.toUpperCase()}`}
+                      label="Koreksi Elektrolit — NA"
                       inputs={{ 
-                        tab, bw, na, glu, onset, k, ph, gdsK, ca, alb, caPh, mg, egfr, mgSymp
+                        tab, bw, na, glu, onset, sex, age, naFluid, naRise, hyperTarget, hyperDrop,
+                        gejala: [...symptoms], risikoODS: [...odsFactors],
                       }}
                       summary={
-                        tab === 'na' ? `Na: ${na} mEq/L, ${res.type === 'hipo' ? `Defisit -> ${res.v}mL NaCl 3%` : res.type === 'hiper' ? `Defisit air -> ${res.deficit}L (${res.fluidLabel})` : 'Normal'}` :
-                        tab === 'k' ? `K: ${k} mEq/L, ${res.type === 'hipo' ? `Defisit ${res.d1}-${res.d2}mEq` : res.type === 'hiper' ? `HiperK ${res.sev}` : 'Normal'}` :
-                        tab === 'ca' ? `Ca Terkoreksi: ${res.corr} mg/dL (${res.type})` :
-                        `Mg: ${mg} mg/dL, ${res.type === 'hipo' ? `Butuh ${res.d}g MgSO4` : 'Normal'}`
+                        `Na: ${na} mEq/L, ${res.type === 'hipo' ? `target +${res.d}/24 jam → ${res.tgt}; NaCl 3% ${res.v}–${res.vAM} mL (gejala ${naSeverity})` : res.type === 'hiper' ? `Defisit air -> ${res.deficit}L menuju ${res.targetNa} (${res.fluidLabel}), turun ${res.targetDrop}/24 jam` : 'Normal'}`
                       }
                       className="w-full"
                     />
@@ -1034,12 +817,14 @@ export default function KalkulatorElektro() {
           <li><strong className="text-foreground">Dua rumus estimasi (koreksi lambat):</strong> Metode defisit = TBW × ΔNa ÷ 513 (TBW = 0.6 × BB pria / 0.5 × BB wanita); Adrogué–Madías = ΔNa per 1 L 3% = (513 − Na)/(TBW+1). Keduanya estimasi kasar yang sering meleset (mengabaikan output urin/diuresis air) → <strong>wajib ukur Na serial tiap 4–6 jam</strong>. <em>(Adrogué–Madías 2000; Sterns 2015)</em></li>
           <li><strong className="text-foreground">Hipernatremia — definisi & penyebab:</strong> Na &gt;145 mEq/L (berat &gt;160). Hampir selalu mencerminkan <strong>defisit air relatif</strong>, bukan kelebihan natrium murni. Klasifikasi status volume: hipovolemik (GI losses, diuretik, luka bakar, diuresis osmotik DKA/HHS/manitol) · euvolemik (Diabetes Insipidus sentral/nefrogenik, insensible losses) · hipervolemik (iatrogenik: NaHCO₃/NaCl 3%). <em>(Miller 2023; Adrogué–Madías 2000)</em></li>
           <li><strong className="text-foreground">Hipernatremia — evaluasi & tatalaksana:</strong> Osmolalitas urin &lt;300 curiga DI (uji desmopressin: sentral vs nefrogenik), &gt;800 kehilangan ekstrarenal, 300–800 renal parsial. Empat langkah: (1) defisit air = TBW × (Na/140 − 1); TBW = BB × 0.6 (pria dewasa)/0.5 (wanita dewasa/pria lansia)/0.45 (wanita lansia); (2) kecepatan — kronik/tak tahu maks 8–10 mEq/L/24 jam (~0.5/jam), akut boleh ~1/jam (jika ragu → kronik); (3) cairan: air oral/NGT &gt; D5W &gt; NaCl 0.45% &gt; NaCl 0.9% dulu bila hipovolemia berat — prediksi Adrogué–Madías ΔNa/L = (Na infusat − Na serum)/(TBW+1); (4) atasi penyebab (DI sentral→desmopressin, nefrogenik→tiazid+NSAID). <strong>Cek Na tiap 2–4 jam & hitung ULANG defisit</strong>. Pada AKI oliguria, CRRT dapat menangani volume + kecepatan sekaligus. <em>(Adrogué–Madías 2000; Sterns 2015; Miller 2023)</em></li>
-          <li><strong className="text-foreground">Koreksi Kalium:</strong> Kadar Kalium harus dilihat bersama pH pasien karena asidemia menggeser K+ intrasel ke ekstrasel, menciptakan hiperkalemia palsu. Rumus koreksi empiris: Defisit K+ = (Target K+ - Pasien K+) &times; 100. Rekomendasi rate KCL Vena Perifer maks 10 mEq/jam.</li>
-          <li><strong className="text-foreground">Kalsium & Albumin:</strong> Kalsium terikat dengan protein albumin. Kalsium Terkoreksi = Kalsium Total + 0.8 &times; (4.0 - Albumin). Pada kasus kritis, disarankan pengukuran fraksi Ionized Kalsium bebas dibandingkan terkoreksi albumin.</li>
-          <li><strong className="text-foreground">Magnesium:</strong> Sering berkorelasi dengan hipokalemia persisten. Jika Mg &lt; 1.5, berikan 1-2 gr Magnesium Sulfat dalam bolus lambat (4-6 jam).</li>
+          <li><strong className="text-foreground">Bukti terbaru kecepatan koreksi Na:</strong> Meta-analisis 7 kohort (6.032 pasien hiponatremia berat): ODS 0.48%; koreksi cepat meningkatkan risiko ODS (RR 3.9) tetapi berkaitan dengan mortalitas RS lebih rendah (RR 0.51) — ODS juga dapat terjadi pada koreksi lambat <em>(See 2024)</em>. Batas pedoman tetap dipakai; jangan menunda terapi gejala berat demi "terlalu hati-hati". Pada hipernatremia, data observasional bertentangan (Chauhan 2019 vs Chacon-Palma 2025).</li>
+          <li><strong className="text-foreground">Kalium — hipokalemia:</strong> Berat &lt;2.5 mEq/L. Tiap turun 1 mEq/L ≈ defisit 200–400 mEq (gambaran, bisa meleset). K 2.5–3.4 tanpa gejala/EKG → oral; &lt;2.5, bergejala, EKG berubah, atau tidak bisa oral → IV dengan monitor EKG. Empiris di ICU: 20 mEq KCl ≈ +0.25 mmol/L. Pelarut NaCl 0.9% (bukan dekstrosa). Koreksi Mg bersamaan. Target: rentang normal 3.5–5.0; IMA mortalitas terendah 3.5–&lt;4.5; pasca-CABG suplementasi hanya bila &lt;3.6. <em>(Kardalas 2018; Kruse 1990; Goyal 2012; TIGHT-K 2024)</em></li>
+          <li><strong className="text-foreground">Kalium — hiperkalemia:</strong> Verifikasi (pseudohiperkalemia) → Ca glukonat 10% <strong>30 mL</strong> bila EKG berubah/K ≥6.5 → insulin 10 U (5 U pada gangguan ginjal berat) + dekstrosa 25 g (+ D10% 50 mL/jam × 5 jam bila GDS &lt;7 mmol/L) + salbutamol 10–20 mg nebul → keluarkan K (dialisis bila refrakter) → pantau K 1–2 j & 2–4 j, GDS tiap 30 mnt × 2 j lalu tiap jam ≥6 j. NaHCO₃ dan binder oral bukan terapi akut rutin. <em>(Ford 2026; Jessen 2025)</em></li>
+          <li><strong className="text-foreground">Kalsium:</strong> Ca terkoreksi = Ca + 0.8 × (4.0 − albumin) — hanya perkiraan; gunakan Ca ion bila ada. Berat = &lt;1.9 mmol/L (7.6 mg/dL) dan/atau bergejala → Ca glukonat 10% 10–20 mL/10 menit lalu infus 100 mL/1 L @50–100 mL/jam; koreksi Mg. Hiperkalsemia: NaCl 0.9% 4–6 L/24 jam → bisfosfonat IV; diuretik loop hanya bila overload. <em>(SfE 2016)</em></li>
+          <li><strong className="text-foreground">Magnesium:</strong> Mg serum tidak mencerminkan Mg tubuh total. IV bila &lt;0.5 mmol/L (≈1.2 mg/dL) atau bergejala; 1 g MgSO₄ ≈ +0.15 mEq/L (18–30 jam); maksimal 1.5 mEq/kg; &lt;6 g dalam 8–12 jam. Aritmia tidak stabil: 2 g dalam 2–15 menit. Gangguan ginjal: sesuaikan & pantau. <em>(Hansen 2018)</em></li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 <strong>Hiponatremia:</strong> Spasovski G, et al. Eur J Endocrinol 2014;170:G1 / Nephrol Dial Transplant 2014;29(Suppl 2):i1 · Verbalis JG, et al. Am J Med 2013;126(10 Suppl 1):S1 · Adrogué HJ, Madias NE. NEJM 2000;342:1581. <strong>Hipernatremia:</strong> Adrogué HJ, Madias NE. NEJM 2000;342:1493 · Miller NE, et al. Am Fam Physician 2023;108:476. <strong>Umum:</strong> Sterns RH. NEJM 2015;372:55 · Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280 · Weisberg LS. Crit Care Med 2008.
+          📚 <strong>Hiponatremia:</strong> Spasovski G, et al. Eur J Endocrinol 2014;170:G1 / Nephrol Dial Transplant 2014;29(Suppl 2):i1 · Verbalis JG, et al. Am J Med 2013;126(10 Suppl 1):S1 · Adrogué HJ, Madias NE. NEJM 2000;342:1581 · Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280 · See XY, et al. J Crit Care Med 2024;10:209. <strong>Hipernatremia:</strong> Adrogué HJ, Madias NE. NEJM 2000;342:1493 · Miller NE, et al. Am Fam Physician 2023;108:476 · Chauhan K, et al. CJASN 2019;14:656 · Chacon-Palma G, et al. Kidney360 2025;6:1305. <strong>Kalium:</strong> Kardalas E, et al. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · Goyal A, et al. JAMA 2012;307:157 · O'Brien B, et al. JAMA 2024;332:979 · Ford S, et al. Aust Prescr 2026;49:194 · Jessen MK, et al. Resuscitation 2025;208:110489. <strong>Kalsium:</strong> Turner J, et al. Endocr Connect 2016;5:G7 · Walsh J, et al. Endocr Connect 2016;5:G9. <strong>Magnesium:</strong> Hansen BA, Bruserud Ø. J Intensive Care 2018;6:21. <strong>Umum:</strong> Sterns RH. NEJM 2015;372:55.
         </div>
       </Accordion>
     </div>

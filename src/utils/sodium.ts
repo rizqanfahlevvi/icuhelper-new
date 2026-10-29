@@ -35,6 +35,17 @@ export function adrogueDeltaNaPerLiter(infusateNa: number, serumNa: number, tbwL
   return (infusateNa - serumNa) / (tbwL + 1);
 }
 
+/**
+ * Target & batas kenaikan Na pada hiponatremia kronik (mEq/L).
+ * Target minimal 4–8/24 jam (4–6 bila risiko ODS tinggi) — Verbalis 2013.
+ * Batas 24 jam pertama 10 (8 bila risiko ODS tinggi); tiap 24 jam berikutnya 8 — Spasovski 2014.
+ */
+export function hypoNaRiseLimits(highOdsRisk: boolean): { goalLo: number; goalHi: number; limit24: number; limitNext24: number } {
+  return highOdsRisk
+    ? { goalLo: 4, goalHi: 6, limit24: 8, limitNext24: 8 }
+    : { goalLo: 4, goalHi: 8, limit24: 10, limitNext24: 8 };
+}
+
 /** Pilihan cairan untuk koreksi hipernatremia beserta kandungan Na (mEq/L). */
 export const NA_FLUIDS: { id: string; label: string; na: number; note: string }[] = [
   { id: 'oral', label: 'Air oral / via NGT', na: 0, note: 'Paling fisiologis bila saluran cerna berfungsi.' },
