@@ -4,7 +4,7 @@ import { CalcSteps, type CalcStep } from '../../../components/ui/CalcSteps';
 import { Accordion } from '../../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
 import {
-  hypoKSeverity, kDeficitRange, kclEmpiricPlan, kProtocol24h, kAtNormalPh, hyperKSeverity, K_RISE_PER_20_MEQ, glucoseMgdlToMmol,
+  hypoKSeverity, kDeficitRange, kclEmpiricPlan, kProtocol24h, K_DEFICIT_FACTOR, kAtNormalPh, hyperKSeverity, K_RISE_PER_20_MEQ, glucoseMgdlToMmol,
 } from '../../../utils/electrolytes';
 import { FieldRow, TargetField, ToggleList, useToggleSet, StrategyFlow, InfoBox, RefLine, Disclaimer, selectCls, fmt, type FlowStep } from './ElektroUI';
 
@@ -17,10 +17,6 @@ const K_TARGETS = [
   { value: '4.0', label: 'Umum · IMA', note: 'IMA: mortalitas terendah pada K 3.5–<4.5; pada 4.5–<5.0 mortalitas ±2× (Goyal, JAMA 2012). Target 4.0 berada di tengah rentang aman.' },
 ];
 
-const K_FACTOR_OPTIONS = [
-  { value: '0.4', label: 'Lazim dipakai', note: 'Faktor 0.4 dipakai di materi kasus NEJM 2015 (Gumz et al.) dan kalkulator GlobalRPh. Sumber yang sama mengingatkan: ±98% K ada di dalam sel, jadi rumus ini bisa under- maupun overestimasi dan tidak menghitung kehilangan yang berlanjut.' },
-  { value: '0.3', label: 'Protokol lokal', note: 'Sebagian protokol memakai 0.3 (sumber primer tidak ditemukan). Selisih 0.3 vs 0.4 pada 70 kg hanya 7 mEq per 1 mEq/L — kecil dibanding rumatan harian.' },
-];
 const K_MAINT_OPTIONS = [
   { value: '1', label: 'NICE CG174', note: 'Rumatan ±1 mmol/kg/hari bila kebutuhan dipenuhi dari cairan IV (NICE CG174). Obesitas → pakai BB ideal. Pedoman ini tidak mencakup penyakit ginjal/hati berat.' },
   { value: '0', label: 'Sudah makan / nutrisi ber-K', note: 'Pasien makan atau mendapat nutrisi enteral/parenteral berisi K: rumatan sudah terpenuhi — hitung defisit saja.' },
@@ -30,9 +26,8 @@ export function useKaliumState() {
   const [target, setTarget] = useState('4.0');
   const [access, setAccess] = useState<'perifer' | 'sentral'>('perifer');
   const [ctx, toggleCtx] = useToggleSet();
-  const [factor, setFactor] = useState('0.4'); // protokol 24 jam: faktor defisit × BB
   const [maint, setMaint] = useState('1');     // protokol 24 jam: rumatan mEq/kg/hari
-  return { target, setTarget, access, setAccess, ctx, toggleCtx, factor, setFactor, maint, setMaint };
+  return { target, setTarget, access, setAccess, ctx, toggleCtx, maint, setMaint };
 }
 export type KaliumState = ReturnType<typeof useKaliumState>;
 
@@ -44,7 +39,6 @@ export function KaliumInputs({ s, k }: { s: KaliumState; k: string }) {
     return (
       <>
         <TargetField label="Target K" sub="ketik atau pilih rujukan" value={s.target} onChange={s.setTarget} unit="mEq/L" step="0.1" options={K_TARGETS} />
-        <TargetField label="Faktor defisit" sub="defisit = faktor × ΔK × BB" value={s.factor} onChange={s.setFactor} unit="× BB" step="0.05" options={K_FACTOR_OPTIONS} />
         <TargetField label="Rumatan K" sub="kebutuhan harian" value={s.maint} onChange={s.setMaint} unit="mEq/kg" step="0.1" options={K_MAINT_OPTIONS} />
         <FieldRow label="Akses IV">
           <select className={selectCls} value={s.access} onChange={e => s.setAccess(e.target.value as 'perifer' | 'sentral')}>
@@ -70,7 +64,7 @@ export function KaliumResult({ s, k, ph, gds, bw }: { s: KaliumState; k: string;
   const hasPh = pv > 6.5 && pv < 8;
   const kNorm = hasPh ? kAtNormalPh(kv, pv) : NaN;
 
-  const saveInputs = { k, ph, gds, bw, target: s.target, access: s.access, konteks: [...s.ctx], faktorDefisit: s.factor, rumatanPerKg: s.maint };
+  const saveInputs = { k, ph, gds, bw, target: s.target, access: s.access, konteks: [...s.ctx], rumatanPerKg: s.maint };
 
   if (kv >= 3.5 && kv <= 5.0) {
     return (
@@ -118,8 +112,7 @@ function HypoK({ s, kv, pv, hasPh, kNorm, w, saveInputs }: { s: KaliumState; kv:
   const tablets = Math.ceil(sessionMeq / 8);
 
   // Opsi B — protokol 24 jam (defisit faktor × ΔK × BB + rumatan harian)
-  const fParsed = parseFloat(s.factor);
-  const factor = fParsed > 0 && fParsed <= 1 ? fParsed : 0.4;
+  const factor = K_DEFICIT_FACTOR;
   const mParsed = parseFloat(s.maint);
   const maintPerKg = mParsed >= 0 && mParsed <= 3 ? mParsed : 1;
   const proto = w > 0 ? kProtocol24h(kv, tgt, w, factor, maintPerKg) : null;
@@ -272,7 +265,7 @@ function HypoK({ s, kv, pv, hasPh, kNorm, w, saveInputs }: { s: KaliumState; kv:
           <li>Tiap penurunan 1 mEq/L ≈ defisit 200–400 mEq — bisa meleset ke dua arah (Kardalas 2018).</li>
           <li>495 set infus KCl 20 mEq/100 mL NaCl di ICU: rata-rata +0.25 mmol/L per 20 mEq, laju 20 mEq/jam via vena sentral maupun perifer tanpa aritmia mengancam (Kruse & Carlson 1990). Banyak protokol RS tetap membatasi perifer ≤10 mEq/jam.</li>
           <li>Pelarut NaCl 0.9%, bukan dekstrosa 5% (Kardalas 2018).</li>
-          <li><strong>Rumus "faktor × ΔK × BB"</strong> (0.4 lazim; sebagian protokol 0.3) hanya memperkirakan ruang ekstrasel — tidak menggambarkan defisit total & tidak menghitung kehilangan berlanjut (GlobalRPh; materi kasus NEJM 2015). Dipakai sebagai rencana harian yang diulang dengan K serial.</li>
+          <li><strong>Rumus "faktor × ΔK × BB"</strong> (faktor 0.4) hanya memperkirakan ruang ekstrasel — tidak menggambarkan defisit total & tidak menghitung kehilangan berlanjut (GlobalRPh; materi kasus NEJM 2015). Dipakai sebagai rencana harian yang diulang dengan K serial.</li>
           <li><strong>Rumatan</strong> ±1 mmol/kg/hari K bila kebutuhan dari cairan IV; obesitas → BB ideal; dibulatkan ke sediaan yang tersedia (NICE CG174).</li>
           <li>Respons ICU sangat bervariasi: rata-rata +0.27 (ringan) dan +0.45 mEq/L (sedang) setelah 20–80 mEq IV; kenaikan lebih besar pada kreatinin tinggi (Frenkel 2021, n=683).</li>
         </ul>
@@ -280,7 +273,7 @@ function HypoK({ s, kv, pv, hasPh, kNorm, w, saveInputs }: { s: KaliumState; kv:
 
       <RefLine>Kardalas E. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · O'Brien B. JAMA 2024;332:979 (TIGHT-K) · Goyal A. JAMA 2012;307:157 · Frenkel A. J Clin Med 2021;10:1986 · NICE CG174 (2013, upd. 2017) · Gumz ML. NEJM 2015;373:60 · Adrogué HJ, Madias NE. Am J Med 1981;71:456</RefLine>
       <Disclaimer />
-      <SaveToHistoryButton module="elektrolit" label="Koreksi Elektrolit — K" className="w-full" inputs={saveInputs} summary={`K: ${kv} → target ${tgt} mEq/L — hipokalemia ${sev}${ext ? `; defisit ${fmt(ext.deficit, 1)} (faktor ${factor}) + rumatan ${fmt(ext.maint, 0)} = ${fmt(ext.raw, 1)} mEq/24 jam → paket ${ext.rounded}` : ''}; per sesi: sesi 1 ${sessionMeq} mEq ${iv ? 'IV' : 'oral'} (total ±${plan.totalMeq} mEq)`} />
+      <SaveToHistoryButton module="elektrolit" label="Koreksi Elektrolit — K" className="w-full" inputs={saveInputs} summary={`K: ${kv} → target ${tgt} mEq/L — hipokalemia ${sev}${ext ? `; defisit ${fmt(ext.deficit, 1)} + rumatan ${fmt(ext.maint, 0)} = ${fmt(ext.raw, 1)} mEq/24 jam → paket ${ext.rounded}` : ''}; per sesi: sesi 1 ${sessionMeq} mEq ${iv ? 'IV' : 'oral'} (total ±${plan.totalMeq} mEq)`} />
     </div>
   );
 }

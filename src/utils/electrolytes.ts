@@ -46,15 +46,18 @@ export function kclEmpiricPlan(currentK: number, targetK: number): { delta: numb
 /** Kebutuhan K rumatan harian dewasa ±1 mmol/kg/hari (NICE CG174; obesitas → BB ideal). */
 export const K_MAINT_MEQ_PER_KG_DAY = 1;
 
+/** Faktor defisit K × BB (≈ ruang ekstrasel) — 0.4 (materi kasus NEJM 2015, Gumz et al.; GlobalRPh). */
+export const K_DEFICIT_FACTOR = 0.4;
+
 /**
  * "Protokol 24 jam" (gaya protokol RS): defisit ekstrasel + rumatan harian.
- *   Defisit = faktor × (K target − K) × BB   (faktor 0.4 lazim dipakai; sebagian protokol 0.3)
+ *   Defisit = 0.4 × (K target − K) × BB
  *   Rumatan = mEq/kg/hari × BB
  * Hasil dibulatkan ke paket terdekat (kelipatan `pkg`, minimal satu paket).
  * Catatan: faktor ini TIDAK mewakili defisit total tubuh (98% K intrasel) — rencana ini
  * bekerja karena diulang harian dengan K serial.
  */
-export function kProtocol24h(currentK: number, targetK: number, weightKg: number, factor = 0.4, maintPerKgDay = K_MAINT_MEQ_PER_KG_DAY, pkg = 50): { delta: number; deficit: number; maint: number; raw: number; rounded: number; ratePerHr: number } {
+export function kProtocol24h(currentK: number, targetK: number, weightKg: number, factor = K_DEFICIT_FACTOR, maintPerKgDay = K_MAINT_MEQ_PER_KG_DAY, pkg = 50): { delta: number; deficit: number; maint: number; raw: number; rounded: number; ratePerHr: number } {
   const delta = Math.max(0, targetK - currentK);
   const deficit = factor * delta * weightKg;
   const maint = maintPerKgDay * weightKg;

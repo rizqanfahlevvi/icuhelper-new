@@ -36,23 +36,21 @@ describe('Kalium — hipokalemia', () => {
     expect(kclEmpiricPlan(4.1, 4.0).doses20).toBe(0);
   });
 
-  it('protokol 24 jam: faktor × ΔK × BB + rumatan 1 mEq/kg/hari', () => {
-    // K 2.8 → 4.0, 70 kg, faktor 0.3: 25.2 + 70 = 95.2 → paket 100 mEq (4.17 mEq/jam)
-    const a = kProtocol24h(2.8, 4.0, 70, 0.3, 1);
-    expect(a.deficit).toBeCloseTo(25.2);
+  it('protokol 24 jam: 0.4 × ΔK × BB + rumatan 1 mEq/kg/hari', () => {
+    // K 2.8 → 4.0, 70 kg: 0.4 × 1.2 × 70 = 33.6 + 70 = 103.6 → paket 100 mEq (4.17 mEq/jam)
+    const a = kProtocol24h(2.8, 4.0, 70);
+    expect(a.deficit).toBeCloseTo(33.6);
     expect(a.maint).toBe(70);
-    expect(a.raw).toBeCloseTo(95.2);
+    expect(a.raw).toBeCloseTo(103.6);
     expect(a.rounded).toBe(100);
     expect(a.ratePerHr).toBeCloseTo(4.167, 2);
-    // faktor 0.4: 33.6 + 70 = 103.6 → 100
-    expect(kProtocol24h(2.8, 4.0, 70, 0.4, 1).rounded).toBe(100);
-    // 50 kg, K 3.2 → 4.0, 0.4: 16 + 50 = 66 → 50
-    expect(kProtocol24h(3.2, 4.0, 50, 0.4, 1).rounded).toBe(50);
+    // 50 kg, K 3.2 → 4.0: 16 + 50 = 66 → 50
+    expect(kProtocol24h(3.2, 4.0, 50).rounded).toBe(50);
     // tanpa rumatan, defisit kecil → minimal satu paket 50
-    expect(kProtocol24h(3.2, 4.0, 70, 0.4, 0).raw).toBeCloseTo(22.4);
-    expect(kProtocol24h(3.2, 4.0, 70, 0.4, 0).rounded).toBe(50);
+    expect(kProtocol24h(3.2, 4.0, 70, undefined, 0).raw).toBeCloseTo(22.4);
+    expect(kProtocol24h(3.2, 4.0, 70, undefined, 0).rounded).toBe(50);
     // K ≥ target, tanpa rumatan → 0
-    expect(kProtocol24h(4.2, 4.0, 70, 0.4, 0).rounded).toBe(0);
+    expect(kProtocol24h(4.2, 4.0, 70, undefined, 0).rounded).toBe(0);
   });
 
   it('K pada pH dinormalkan (~0.6 per 0.1 pH)', () => {
