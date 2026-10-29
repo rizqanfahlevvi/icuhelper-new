@@ -7,7 +7,7 @@ import { StrategyFlow, InfoBox, RefLine, Disclaimer, fmt, type FlowStep } from '
 
 type Severity = 'berat' | 'sedang' | 'ringan';
 interface Props {
-  r: NaResult; na: string; glu: string; sex: string; age: string; onset: string;
+  r: NaResult; na: string; glu: string; ureum: string; ureaUnit: string; sex: string; age: string; onset: string;
   naSeverity: Severity; odsFactors: Set<string>; saveInputs: Record<string, unknown>;
 }
 
@@ -21,6 +21,52 @@ const tbwStep = (r: NaResult, sex: string, age: string): CalcStep => ({
   formula: `TBW = faktor × BB = ${r.tbwF} × ${r.w} kg = ${fmt(r.tbw, 1)} L`,
   note: `Faktor ${r.tbwF} (${sex === 'm' ? 'pria' : 'wanita'}${age ? `, ${age} th` : ''}; lansia ≥65 th memakai faktor lebih kecil). Pada dehidrasi berat TBW nyata bisa lebih rendah.`,
 });
+
+type Osm = NaResult['osm'];
+const ureaLabel = (unit: string) => (unit === 'bun' ? 'BUN/2.8' : 'Ureum/6');
+
+/** Langkah 0b — osmolalitas serum terhitung (efektif & total), plus terukur & Na direct bila ada. */
+const osmStep = (o: Osm, na: string, glu: string, ureum: string, ureaUnit: string): CalcStep => {
+  if (isNaN(o.effective)) {
+    return { label: 'Langkah 0b — Osmolalitas serum (konfirmasi tonisitas):', formula: 'Isi glukosa (dan ureum) untuk menghitung osmolalitas.', note: 'Langkah pertama pedoman: memastikan hiponatremia HIPOTONIK (osmolalitas <275 mOsm/kg) sebelum memilih terapi.' };
+  }
+  const lines = [
+    `Efektif = 2 × Na + Glukosa/18 = 2 × ${na} + ${glu}/18 = ${fmt(o.effective, 1)} mOsm/kg → ${o.calcClass}`,
+  ];
+  if (!isNaN(o.total)) lines.push(`Total   = efektif + ${ureaLabel(ureaUnit)} = ${fmt(o.effective, 1)} + ${fmt(o.ureaTerm, 1)} = ${fmt(o.total, 1)} mOsm/kg`);
+  if (o.hasMeasured) {
+    lines.push(`Terukur = ${o.measuredOsm} mOsm/kg → ${o.measuredClass}${!isNaN(o.effFromMeasured) ? ` · efektif ≈ ${o.measuredOsm} − ${fmt(o.ureaTerm, 1)} = ${fmt(o.effFromMeasured, 1)}` : ''}`);
+    if (!isNaN(o.gap)) lines.push(`Osmolar gap = terukur − total = ${o.measuredOsm} − ${fmt(o.total, 1)} = ${fmt(o.gap, 1)}`);
+  }
+  if (o.hasDirect) lines.push(`Na gas darah ${o.naDirect} − Na lab ${na} = ${o.naDiff > 0 ? '+' : ''}${fmt(o.naDiff, 1)} mEq/L`);
+  return {
+    label: 'Langkah 0b — Osmolalitas serum (konfirmasi tonisitas):',
+    formula: lines.join('\n'),
+    note: 'Urea bebas melintasi membran sel (osmol tidak efektif) — yang menentukan tonisitas adalah osmolalitas EFEKTIF. Osm terhitung <275 belum menyingkirkan osmol tak terukur (manitol, glisin, kontras) maupun pseudohiponatremia; osm TERUKUR <275 selalu berarti hipotonik (Spasovski 2014).',
+  };
+};
+
+/** Banner status tonisitas di atas hasil hiponatremia. */
+function TonicityBanner({ o, na }: { o: Osm; na: string }) {
+  const directLine = o.hasDirect && o.status !== 'curiga-pseudo'
+    ? <p className="mt-1">Na gas darah {o.naDirect} vs Na lab {na}: selisih {o.naDiff > 0 ? '+' : ''}{fmt(o.naDiff, 1)} mEq/L. Normalnya kedua metode berbeda rata-rata &lt;±1 mmol/L (Vera 2022); selisih jauh lebih besar berarti sebagian penurunan Na lab kemungkinan artefak (lipid/protein tinggi).</p>
+    : null;
+  const gapLine = o.hasMeasured && !isNaN(o.gap)
+    ? <p className="mt-1">Osmolar gap {fmt(o.gap, 1)} mOsm/kg{o.gap > 10 ? ' — meningkat: curiga osmol tak terukur (manitol, alkohol toksik, glisin) atau pseudohiponatremia.' : '.'}</p>
+    : null;
+  switch (o.status) {
+    case 'pasti-hipotonik':
+      return <InfoBox tone="emerald" title={`✓ Hiponatremia HIPOTONIK terkonfirmasi (osm terukur ${o.measuredOsm} <275)`}>Lanjutkan alur di bawah.{gapLine}{directLine}</InfoBox>;
+    case 'kemungkinan-hipotonik':
+      return <InfoBox tone="blue" title={`Kemungkinan hipotonik — osm efektif ${o.hasMeasured && !isNaN(o.effFromMeasured) ? `≈${fmt(o.effFromMeasured, 1)} (dari terukur)` : `terhitung ${fmt(o.effective, 1)}`} mOsm/kg`}>Belum menyingkirkan osmol tak terukur (manitol, glisin pasca-TURP, kontras) dan pseudohiponatremia. Bila ada analyzer gas darah, isi Na gas darah untuk pembanding.{gapLine}{directLine}</InfoBox>;
+    case 'curiga-pseudo':
+      return <InfoBox tone="red" title={<span className="flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Curiga PSEUDOhiponatremia</span>}>Na gas darah (direct ISE) {o.naDirect} sudah normal, sedangkan Na lab (indirect ISE) {na} rendah. Indirect ISE menganggap air plasma 93% — trigliserida/protein sangat tinggi membuat Na tampak rendah palsu (El Hage 2018). <strong>Jangan koreksi berdasarkan Na lab.</strong> Periksa trigliserida, kolesterol, protein total.{gapLine}</InfoBox>;
+    case 'bukan-hipotonik':
+      return <InfoBox tone="red" title={<span className="flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> BUKAN hiponatremia hipotonik ({o.hasMeasured ? `osm terukur ${o.measuredOsm}` : `osm efektif ${fmt(o.effective, 1)}`} → {o.hasMeasured ? o.measuredClass : o.calcClass})</span>}>Jangan berikan NaCl 3% berdasarkan angka Na ini. Cari penyebab: hiperglikemia (lihat Na terkoreksi), manitol, glisin/sorbitol (irigasi TURP), kontras, atau pseudohiponatremia (lipid/protein tinggi — bandingkan dengan Na gas darah).{gapLine}{directLine}</InfoBox>;
+    default:
+      return <InfoBox tone="slate" title="Tonisitas belum dinilai">Isi glukosa dan ureum (panel lab rutin) untuk menghitung osmolalitas efektif — langkah pertama memastikan hiponatremia hipotonik.</InfoBox>;
+  }
+}
 
 export function NatriumResult(p: Props) {
   const { r } = p;
@@ -36,10 +82,13 @@ export function NatriumResult(p: Props) {
   );
 }
 
-function HypoNa({ r, na, glu, sex, age, onset, naSeverity, odsFactors, saveInputs }: Props & { r: Extract<NaResult, { type: 'hipo' }> }) {
+function HypoNa({ r, na, glu, ureum, ureaUnit, sex, age, onset, naSeverity, odsFactors, saveInputs }: Props & { r: Extract<NaResult, { type: 'hipo' }> }) {
+  const o = r.osm;
+  const tonicityOk = o.status === 'pasti-hipotonik' || o.status === 'kemungkinan-hipotonik' || o.status === 'belum-dinilai';
   // ① Langkah dasar
   const basic: CalcStep[] = [];
   if (r.hasHyper) basic.push(glucoseStep(r, na, glu));
+  basic.push(osmStep(o, na, glu, ureum, ureaUnit));
   basic.push(
     tbwStep(r, sex, age),
     { label: `Langkah 2 — Target kenaikan Na 24 jam (${onset === 'akut' ? 'akut' : 'kronik'}):`, formula: `ΔNa = +${fmt(r.d, 1)} mEq/L (anjuran ${r.lim.goalLo}–${r.lim.goalHi}; batas ${r.lim.limit24}${r.highOdsRisk ? ', risiko ODS tinggi' : ''})\nNa target 24 jam = ${fmt(r.calcN, 1)} + ${fmt(r.d, 1)} = ${fmt(r.tgt, 1)} mEq/L`, note: onset === 'akut' ? 'Onset akut (<48 jam) terdokumentasi: otak belum beradaptasi → risiko ODS rendah; bahaya utama edema serebri.' : 'Kronik/tidak tahu: otak sudah beradaptasi → kecepatan dibatasi untuk mencegah ODS.' },
@@ -55,7 +104,7 @@ function HypoNa({ r, na, glu, sex, age, onset, naSeverity, odsFactors, saveInput
   ];
 
   const flow: FlowStep[] = [
-    { title: 'Pastikan hiponatremia hipotonik', body: <>Koreksi terhadap glukosa{r.hasHyper ? ` (Na terkoreksi ${fmt(r.calcN, 1)})` : ''}; osmolalitas serum &lt;275 mOsm/kg; singkirkan pseudohiponatremia (lipid/protein sangat tinggi).</> },
+    { title: o.status === 'pasti-hipotonik' ? '✓ Hipotonik terkonfirmasi (osm terukur)' : o.status === 'kemungkinan-hipotonik' ? `Kemungkinan hipotonik (osm efektif ${fmt(o.hasMeasured && !isNaN(o.effFromMeasured) ? o.effFromMeasured : o.effective, 0)})` : o.status === 'belum-dinilai' ? 'Pastikan hiponatremia hipotonik' : '⚠ Belum terbukti hipotonik — hentikan dulu', body: <>Osmolalitas efektif &lt;275 mOsm/kg (terhitung: 2×Na + glukosa/18; urea tidak dihitung karena tidak efektif){r.hasHyper ? `; Na terkoreksi glukosa ${fmt(r.calcN, 1)}` : ''}. Singkirkan pseudohiponatremia: bandingkan dengan Na analyzer gas darah (direct ISE).</>, state: o.status === 'pasti-hipotonik' ? 'done' : 'now' },
     { title: `Hitung dasar: target +${fmt(r.d, 1)} → defisit ${fmt(r.deficit, 0)} mEq`, body: `Lihat ① Hasil Dasar. Batas ${r.lim.limit24} mEq/L di 24 jam pertama, ${r.lim.limitNext24} tiap 24 jam berikutnya.`, state: r.riseOverLimit ? 'now' : 'todo' },
     { title: `Nilai gejala → ${naSeverity.toUpperCase()}`, body: naSeverity === 'berat' ? 'Bolus NaCl 3% 150 mL/20 menit, ulang s/d gejala reda atau Na naik ~5 (target jam-1 +4–6).' : naSeverity === 'sedang' ? 'Infus tunggal NaCl 3% 150 mL/20 menit, lalu re-evaluasi.' : 'NaCl 3% tidak rutin. Fokus penyebab & status volume.', state: 'now' },
     { title: `Onset: ${onset === 'akut' ? 'akut (<48 jam)' : 'kronik / tidak tahu'}`, body: onset === 'akut' ? 'Risiko ODS rendah; bahaya utama edema serebri.' : 'Otak sudah beradaptasi → batasi kecepatan koreksi (risiko ODS). Jika ragu, perlakukan sebagai kronik.' },
@@ -86,12 +135,14 @@ function HypoNa({ r, na, glu, sex, age, onset, naSeverity, odsFactors, saveInput
 
   return (
     <div className="space-y-4">
+      <TonicityBanner o={o} na={na} />
       {/* ① HASIL DASAR */}
       <div className="w-full bg-cyan-50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-900/30 rounded-2xl p-5 text-left">
         <div className="text-[12px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-400 mb-1">① Hasil Dasar · Hiponatremia biokimia {r.bioClass} · gejala {naSeverity} · Na {fmt(r.calcN, 1)} → {fmt(r.tgt, 1)} (24 jam)</div>
         {r.hasHyper && <p className="text-[11px] text-cyan-800 dark:text-cyan-300 mb-1">Na terukur {na} → terkoreksi glukosa {fmt(r.calcN, 1)} mEq/L.</p>}
         <div className="font-mono text-2xl font-bold text-cyan-700 dark:text-cyan-300">Defisit Na: {fmt(r.deficit, 0)} mEq</div>
         <p className="text-[12px] text-cyan-800/80 dark:text-cyan-300/80">= TBW {fmt(r.tbw, 1)} L × ΔNa +{fmt(r.d, 1)} mEq/L (target 24 jam)</p>
+        {!isNaN(o.effective) && <p className="text-[12px] text-cyan-800 dark:text-cyan-300 mt-1">Osm efektif {fmt(o.effective, 1)}{!isNaN(o.total) ? ` · total ${fmt(o.total, 1)}` : ''}{o.hasMeasured ? ` · terukur ${o.measuredOsm}` : ''} mOsm/kg</p>}
         <div className="grid grid-cols-3 gap-2 mt-3 text-[12px]">
           <div className="bg-white/60 dark:bg-black/20 rounded-lg p-2 border border-cyan-200 dark:border-cyan-800/50">
             <div className="text-cyan-700 dark:text-cyan-400 font-semibold">TBW</div>
@@ -122,7 +173,7 @@ function HypoNa({ r, na, glu, sex, age, onset, naSeverity, odsFactors, saveInput
       <CalcSteps tone="blue" title="🧮 Langkah Dasar — dari input ke defisit Na" steps={basic} />
 
       {/* ② CARA PEMBERIAN */}
-      <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian — ditentukan GEJALA</div>
+      <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian — ditentukan GEJALA{tonicityOk ? '' : ' (TUNDA sampai tonisitas jelas)'}</div>
 
       {naSeverity === 'berat' && (
         <div className="w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 text-left">
@@ -194,9 +245,10 @@ function HypoNa({ r, na, glu, sex, age, onset, naSeverity, odsFactors, saveInput
   );
 }
 
-function HyperNa({ r, na, glu, sex, age, onset, saveInputs }: Props & { r: Extract<NaResult, { type: 'hiper' }> }) {
+function HyperNa({ r, na, glu, ureum, ureaUnit, sex, age, onset, saveInputs }: Props & { r: Extract<NaResult, { type: 'hiper' }> }) {
   const basic: CalcStep[] = [];
   if (r.hasHyper) basic.push(glucoseStep(r, na, glu));
+  if (!isNaN(r.osm.effective)) basic.push({ ...osmStep(r.osm, na, glu, ureum, ureaUnit), label: 'Langkah 0b — Osmolalitas serum:', note: 'Hipernatremia selalu berarti hipertonisitas (defisit air relatif). Osmolalitas di sini sebagai gambaran beratnya.' });
   basic.push(
     tbwStep(r, sex, age),
     { label: 'Langkah 2 — Defisit air bebas:', formula: `Defisit = TBW × (Na ÷ Na target − 1)\n= ${fmt(r.tbw, 1)} × (${fmt(r.calcN, 1)} ÷ ${r.targetNa} − 1) = ${fmt(r.deficit, 2)} L`, note: 'Air yang hilang relatif terhadap Na. Belum termasuk IWL & kehilangan yang berlanjut.' },

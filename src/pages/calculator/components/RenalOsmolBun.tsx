@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
+import { serumOsmolality, ureumToBun, type UreaUnit } from '../../../utils/sodium';
 
 export function RenalOsmolBun() {
   // Osmolalitas
@@ -7,6 +8,8 @@ export function RenalOsmolBun() {
   const [bun, setBun] = useState('');
   const [glucose, setGlucose] = useState('');
   const [measuredOsm, setMeasuredOsm] = useState('');
+  // Lab Indonesia umumnya melaporkan UREUM (bukan BUN): ureum ÷ 6 vs BUN ÷ 2.8; BUN = ureum ÷ 2.14
+  const [ureaUnit, setUreaUnit] = useState<UreaUnit>('ureum');
 
   // BUN:Cr
   const [bunRatio, setBunRatio] = useState('');
@@ -20,7 +23,7 @@ export function RenalOsmolBun() {
 
     if (!vNa || !vGluc || !vBun) return null;
 
-    const calcOsm = (2 * vNa) + (vGluc / 18) + (vBun / 2.8);
+    const calcOsm = serumOsmolality(vNa, vGluc, vBun, ureaUnit).total;
     let gap = null;
     if (vMeas > 0) {
       gap = vMeas - calcOsm;
@@ -29,9 +32,11 @@ export function RenalOsmolBun() {
   };
 
   const calculateRatio = () => {
-    const vBun = parseFloat(bunRatio);
+    const vUrea = parseFloat(bunRatio);
     const vScr = parseFloat(scrRatio);
-    if (!vBun || !vScr) return null;
+    if (!vUrea || !vScr) return null;
+    // Ambang rasio (>20 pre-renal) berbasis BUN → ureum dikonversi dulu
+    const vBun = ureaUnit === 'ureum' ? ureumToBun(vUrea) : vUrea;
     return vBun / vScr;
   };
 
@@ -55,10 +60,10 @@ export function RenalOsmolBun() {
             </div>
           </div>
           <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Ureum (BUN)</span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
             <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bun} onChange={e=>setBun(e.target.value)} placeholder="14" />
-              <span className="text-xs text-slate-500 w-12">mg/dL</span>
+              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
+              <select value={ureaUnit} onChange={e=>setUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex items-center justify-between px-4 py-3 gap-4">
@@ -83,6 +88,7 @@ export function RenalOsmolBun() {
               <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Osmolalitas Kalkulasi</div>
               <div className="text-2xl font-black text-slate-800 dark:text-slate-200">{osmRes.calcOsm.toFixed(1)}</div>
               <div className="text-[11px] text-slate-500 mt-1">Normal: 275 - 295</div>
+              <div className="text-[10px] text-slate-400 mt-1">2×Na + Glu/18 + {ureaUnit === 'ureum' ? 'Ureum/6' : 'BUN/2.8'}</div>
             </div>
             {osmRes.gap !== null ? (
               <div className={`border rounded-xl p-4 text-center ${osmRes.gap > 10 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200'} dark:bg-[#1C1C1E] dark:border-slate-800`}>
@@ -106,10 +112,10 @@ export function RenalOsmolBun() {
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-3">
           <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Ureum (BUN)</span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
             <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder="20" />
-              <span className="text-xs text-slate-500 w-12">mg/dL</span>
+              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
+              <select value={ureaUnit} onChange={e=>setUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex items-center justify-between px-4 py-3 gap-4">
@@ -124,6 +130,7 @@ export function RenalOsmolBun() {
         {ratioRes && (
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center">
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Rasio BUN:Cr</div>
+            {ureaUnit === 'ureum' && <div className="text-[10px] text-slate-400 mb-1">BUN = ureum ÷ 2.14 = {(ureumToBun(parseFloat(bunRatio))).toFixed(1)} mg/dL</div>}
             <div className={`text-3xl font-black ${ratioRes > 20 ? 'text-orange-500' : ratioRes >= 10 ? 'text-blue-500' : 'text-emerald-500'}`}>
               {ratioRes.toFixed(1)}
             </div>

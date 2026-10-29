@@ -54,6 +54,35 @@ export const NA_FLUIDS: { id: string; label: string; na: number; note: string }[
   { id: 'ns', label: 'NaCl 0.9% IV', na: 154, note: 'Untuk hipovolemia berat dulu sampai stabil; TIDAK untuk menurunkan Na bila Na <154.' },
 ];
 
+export type UreaUnit = 'ureum' | 'bun';
+
+/** Konversi ureum ↔ BUN (mg/dL): BUN = ureum × 28/60 = ureum ÷ 2.14. */
+export const ureumToBun = (ureumMgDl: number) => (ureumMgDl * 28) / 60;
+
+/**
+ * Osmolalitas serum TERHITUNG & EFEKTIF (mOsm/kg), dari Na TERUKUR (bukan Na terkoreksi glukosa).
+ *   Total   = 2 × Na + glukosa/18 + ureum/6   (BUN: ÷ 2.8)
+ *   Efektif = 2 × Na + glukosa/18             — urea adalah osmol TIDAK efektif (bebas melintasi
+ *             membran sel, tidak menarik air), sehingga tidak menentukan tonisitas (Spasovski 2014).
+ * Glukosa kosong → NaN (tidak ditebak). Ureum kosong → total NaN, efektif tetap dihitung.
+ */
+export function serumOsmolality(naMeasured: number, glucoseMgDl: number, urea: number, unit: UreaUnit = 'ureum') {
+  const glucoseTerm = glucoseMgDl > 0 ? glucoseMgDl / 18 : NaN;
+  const ureaTerm = urea >= 0 && !isNaN(urea) ? urea / (unit === 'bun' ? 2.8 : 6) : NaN;
+  const effective = 2 * naMeasured + glucoseTerm;
+  return { glucoseTerm, ureaTerm, effective, total: effective + ureaTerm };
+}
+
+export type Tonicity = 'hipotonik' | 'isotonik' | 'hipertonik';
+
+/** Klasifikasi tonisitas: <275 hipotonik · 275–295 isotonik · >295 hipertonik (mOsm/kg). */
+export function tonicityClass(osm: number): Tonicity | null {
+  if (isNaN(osm)) return null;
+  if (osm < 275) return 'hipotonik';
+  if (osm <= 295) return 'isotonik';
+  return 'hipertonik';
+}
+
 /** Koreksi Na terhadap hiperglikemia (Katz/Hillier): Na + 1.6 × (glukosa − 100)/100 bila glukosa >100 mg/dL. */
 export function glucoseCorrectedNa(na: number, glucoseMgDl: number): { value: number; corrected: boolean } {
   if (!isNaN(glucoseMgDl) && glucoseMgDl > 100) return { value: na + 1.6 * ((glucoseMgDl - 100) / 100), corrected: true };
@@ -63,7 +92,39 @@ export function glucoseCorrectedNa(na: number, glucoseMgDl: number): { value: nu
 export interface NaInput {
   weightKg: number; na: number; glucose: number; sex: 'm' | 'f'; age: number; onset: string;
   fluidId: string; odsRiskFactors: number; riseTarget: number; hyperTargetNa: number; hyperDropPer24: number;
+  /** Opsional: ureum/BUN (mg/dL), osmolalitas terukur (mOsm/kg), Na analyzer gas darah (direct ISE). */
+  urea?: number; ureaUnit?: UreaUnit; measuredOsm?: number; naDirect?: number;
 }
+
+/**
+ * Konfirmasi tonisitas untuk hiponatremia.
+ * - Osm TERUKUR <275 → pasti hipotonik. Osm efektif dari terukur ≈ terukur − ureum/6 (urea tak efektif).
+ * - Osm TERHITUNG <275 → kemungkinan hipotonik; BELUM menyingkirkan osmol tak terukur (manitol, glisin,
+ *   kontras) maupun pseudohiponatremia (Spasovski 2014).
+ * - Na analyzer gas darah (direct ISE) normal sementara Na lab (indirect ISE) rendah → curiga
+ *   pseudohiponatremia (lipid/protein tinggi). Normalnya kedua metode berbeda <±1 mmol/L (Vera 2022).
+ */
+export function naTonicity(na: number, glucose: number, urea: number, unit: UreaUnit, measuredOsm: number, naDirect: number) {
+  const calc = serumOsmolality(na, glucose, urea, unit);
+  const hasMeasured = measuredOsm > 0;
+  const effFromMeasured = hasMeasured && !isNaN(calc.ureaTerm) ? measuredOsm - calc.ureaTerm : NaN;
+  const gap = hasMeasured && !isNaN(calc.total) ? measuredOsm - calc.total : NaN;
+  const hasDirect = naDirect > 0;
+  const pseudoSuspect = hasDirect && naDirect >= 135 && na < 135;
+  const calcClass = tonicityClass(calc.effective);
+  const measuredClass = hasMeasured ? tonicityClass(measuredOsm) : null;
+  // Status: terukur <275 (pasti) > curiga pseudo > efektif dari terukur <275 > terhitung <275 (kemungkinan) > bukan
+  let status: 'pasti-hipotonik' | 'kemungkinan-hipotonik' | 'bukan-hipotonik' | 'curiga-pseudo' | 'belum-dinilai';
+  if (measuredClass === 'hipotonik') status = 'pasti-hipotonik'; // pseudohiponatremia selalu ber-osm terukur normal
+  else if (pseudoSuspect) status = 'curiga-pseudo';
+  else if (hasMeasured && !isNaN(effFromMeasured) && effFromMeasured < 275) status = 'kemungkinan-hipotonik';
+  else if (hasMeasured) status = 'bukan-hipotonik';
+  else if (calcClass === 'hipotonik') status = 'kemungkinan-hipotonik';
+  else if (calcClass) status = 'bukan-hipotonik';
+  else status = 'belum-dinilai';
+  return { ...calc, calcClass, hasMeasured, measuredOsm, measuredClass, effFromMeasured, gap, hasDirect, naDirect, naDiff: hasDirect ? naDirect - na : NaN, pseudoSuspect, status };
+}
+
 
 /**
  * Perhitungan lengkap koreksi Na (hipo/hiper) dari input — fungsi murni.
@@ -78,7 +139,8 @@ export function computeNa(i: NaInput) {
   const tbwF = tbwFactor(i.sex, i.age);
   const tbw = i.weightKg * tbwF;
   const naT = 140;
-  const base = { naMeasured: i.na, calcN, hasHyper: g.corrected, tbwF, tbw, w: i.weightKg };
+  const osm = naTonicity(i.na, i.glucose, i.urea ?? NaN, i.ureaUnit ?? 'ureum', i.measuredOsm ?? NaN, i.naDirect ?? NaN);
+  const base = { naMeasured: i.na, calcN, hasHyper: g.corrected, tbwF, tbw, w: i.weightKg, osm };
 
   if (calcN < 135) {
     const odsAuto = calcN <= 105;

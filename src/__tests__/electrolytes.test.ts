@@ -4,7 +4,7 @@ import {
   correctedCalcium, caMgdlToMmol, caGluconateInfusion, hyperCaSeverity,
   mgMgdlToMeq, mgso4DoseToTarget, mgMaxDoseGrams, mgInfusionHours,
 } from '../utils/electrolytes';
-import { hypoNaRiseLimits, computeNa } from '../utils/sodium';
+import { hypoNaRiseLimits, computeNa, serumOsmolality, tonicityClass, naTonicity, ureumToBun } from '../utils/sodium';
 
 describe('Kalium — hipokalemia', () => {
   it('klasifikasi keparahan (Kardalas 2018)', () => {
@@ -158,5 +158,45 @@ describe('Natrium — computeNa (hitung manual)', () => {
     expect(r?.type).toBe('normal');              // 132 + 1.6 × 5 = 140
     expect(r?.calcN).toBeCloseTo(140);
     expect(computeNa({ ...base, weightKg: 0, na: 120 })).toBeNull();
+  });
+});
+
+describe('Osmolalitas serum (Na) — hitung manual', () => {
+  it('total & efektif dari ureum (÷6) dan BUN (÷2.8)', () => {
+    const a = serumOsmolality(118, 110, 40);           // 236 + 6.11 + 6.67
+    expect(a.effective).toBeCloseTo(242.11, 1);
+    expect(a.total).toBeCloseTo(248.78, 1);
+    expect(serumOsmolality(140, 90, 14, 'bun').total).toBeCloseTo(290); // 280 + 5 + 5
+    expect(ureumToBun(60)).toBeCloseTo(28);
+    expect(serumOsmolality(130, NaN, 30).effective).toBeNaN(); // glukosa kosong → tidak ditebak
+  });
+  it('uremia: total tampak normal tetapi efektif hipotonik', () => {
+    const u = serumOsmolality(128, 100, 180);          // 256 + 5.56 (+ 30)
+    expect(u.total).toBeCloseTo(291.56, 1);
+    expect(tonicityClass(u.total)).toBe('isotonik');
+    expect(tonicityClass(u.effective)).toBe('hipotonik');
+  });
+  it('ambang tonisitas', () => {
+    expect(tonicityClass(274.9)).toBe('hipotonik');
+    expect(tonicityClass(275)).toBe('isotonik');
+    expect(tonicityClass(295)).toBe('isotonik');
+    expect(tonicityClass(295.1)).toBe('hipertonik');
+  });
+  it('status: pseudo, terukur, terhitung', () => {
+    // Na gas darah (direct ISE) sudah normal → curiga pseudo
+    expect(naTonicity(119, 100, 30, 'ureum', NaN, 137).status).toBe('curiga-pseudo');
+    // El Hage 2018: Na lab 119 vs direct 132 → selisih 13 ditampilkan; status tetap dari osmolalitas
+    const e = naTonicity(119, 100, 30, 'ureum', NaN, 132);
+    expect(e.naDiff).toBe(13);
+    expect(e.status).toBe('kemungkinan-hipotonik');
+    // osm terukur 283 → efektif ≈ 283 − 5 = 278 → bukan hipotonik; gap = 283 − 248.56 = 34.4
+    const m = naTonicity(119, 100, 30, 'ureum', 283, NaN);
+    expect(m.status).toBe('bukan-hipotonik');
+    expect(m.gap).toBeCloseTo(34.44, 1);
+    // osm terukur 260 → pasti hipotonik, mengalahkan tanda pseudo
+    expect(naTonicity(119, 100, 30, 'ureum', 260, 132).status).toBe('pasti-hipotonik');
+    // hanya terhitung
+    expect(naTonicity(118, 110, 40, 'ureum', NaN, NaN).status).toBe('kemungkinan-hipotonik');
+    expect(naTonicity(130, 900, 40, 'ureum', NaN, NaN).status).toBe('bukan-hipotonik'); // hiperglikemia: 260 + 50
   });
 });

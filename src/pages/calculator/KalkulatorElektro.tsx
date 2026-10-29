@@ -6,8 +6,8 @@ import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { InputWarning } from '../../components/ui/InputWarning';
 import { weightPlausibilityWarning, rangeWarning } from '../../utils/validation';
-import { computeNa, glucoseCorrectedNa, NA_FLUIDS } from '../../utils/sodium';
-import { TargetField, ToggleList, useToggleSet } from './components/ElektroUI';
+import { computeNa, glucoseCorrectedNa, NA_FLUIDS, type UreaUnit } from '../../utils/sodium';
+import { TargetField, ToggleList, useToggleSet, FieldRow, NumField, inputCls } from './components/ElektroUI';
 import { NatriumResult } from './components/ElektroNatrium';
 import { useKaliumState, KaliumInputs, KaliumResult } from './components/ElektroKalium';
 import { useKalsiumState, KalsiumInputs, KalsiumResult } from './components/ElektroKalsium';
@@ -55,6 +55,11 @@ export default function KalkulatorElektro() {
   const [naRise, setNaRise] = useState('6');            // target kenaikan Na /24 jam (hipo)
   const [hyperTarget, setHyperTarget] = useState('140'); // Na target akhir (hiper)
   const [hyperDrop, setHyperDrop] = useState('10');      // batas penurunan /24 jam (hiper)
+  // Konfirmasi tonisitas (osmolalitas terhitung dari panel lab rutin)
+  const [ureum, setUreum] = useState('');
+  const [ureaUnit, setUreaUnit] = useState<UreaUnit>('ureum');
+  const [naDirect, setNaDirect] = useState('');          // Na analyzer gas darah (direct ISE)
+  const [measuredOsm, setMeasuredOsm] = useState('');    // osmolalitas terukur (bila ada)
 
   // K
   const [k, setK] = useState('');
@@ -90,6 +95,7 @@ export default function KalkulatorElektro() {
 
     if (clinicalStore.data.na) setNa(clinicalStore.data.na);
     if (clinicalStore.data.glukosa) setGlu(clinicalStore.data.glukosa);
+    if (clinicalStore.data.ureum) setUreum(clinicalStore.data.ureum);
     if (clinicalStore.data.k) setK(clinicalStore.data.k);
     if (clinicalStore.data.ca) setCa(clinicalStore.data.ca);
     if (clinicalStore.data.albumin) setAlb(clinicalStore.data.albumin);
@@ -109,6 +115,7 @@ export default function KalkulatorElektro() {
     // Pull any available clinically saved data as well
     if (clinicalStore.data.na) setNa(clinicalStore.data.na);
     if (clinicalStore.data.glukosa) setGlu(clinicalStore.data.glukosa);
+    if (clinicalStore.data.ureum) setUreum(clinicalStore.data.ureum);
     if (clinicalStore.data.k) setK(clinicalStore.data.k);
     if (clinicalStore.data.ca) setCa(clinicalStore.data.ca);
     if (clinicalStore.data.albumin) setAlb(clinicalStore.data.albumin);
@@ -126,7 +133,8 @@ export default function KalkulatorElektro() {
     sex: sex as 'm' | 'f', age: parseFloat(age), onset, fluidId: naFluid,
     odsRiskFactors: odsFactors.size, riseTarget: parseFloat(naRise),
     hyperTargetNa: parseFloat(hyperTarget), hyperDropPer24: parseFloat(hyperDrop),
-  }), [bw, na, glu, age, sex, onset, naFluid, odsFactors, naRise, hyperTarget, hyperDrop]);
+    urea: parseFloat(ureum), ureaUnit, measuredOsm: parseFloat(measuredOsm), naDirect: parseFloat(naDirect),
+  }), [bw, na, glu, age, sex, onset, naFluid, odsFactors, naRise, hyperTarget, hyperDrop, ureum, ureaUnit, measuredOsm, naDirect]);
 
   // Na terkoreksi glukosa untuk menentukan input mana yang relevan (hipo vs hiper) sebelum dihitung.
   const naPreview = parseFloat(na) > 0 ? glucoseCorrectedNa(parseFloat(na), parseFloat(glu)).value : NaN;
@@ -144,6 +152,7 @@ export default function KalkulatorElektro() {
         ...common,
         { key: 'na' as const, label: 'Natrium', value: na, setter: setNa, unit: 'mEq/L' },
         { key: 'glukosa' as const, label: 'Glukosa', value: glu, setter: setGlu, unit: 'mg/dL' },
+        { key: 'ureum' as const, label: 'Ureum', value: ureum, setter: setUreum, unit: 'mg/dL' },
       ];
     } else if (tab === 'k') {
       return [
@@ -165,7 +174,7 @@ export default function KalkulatorElektro() {
         { key: 'mg' as const, label: 'Magnesium', value: mg, setter: setMg, unit: 'mg/dL' },
       ];
     }
-  }, [tab, bw, na, glu, k, ph, gdsK, ca, alb, caPh, mg]);
+  }, [tab, bw, na, glu, ureum, k, ph, gdsK, ca, alb, caPh, mg]);
 
   // Keparahan diturunkan LIVE dari checklist gejala → hasil ikut berubah tanpa
   // perlu menekan "Hitung Koreksi" lagi saat gejala di-toggle.
@@ -240,6 +249,25 @@ export default function KalkulatorElektro() {
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
+                <FieldRow label={ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} sub="untuk osmolalitas terhitung">
+                  <div className="flex-1 flex items-center justify-end gap-2">
+                    <input type="number" value={ureum} onChange={e=>setUreum(e.target.value)} placeholder="Opsional" className={inputCls} />
+                    <select value={ureaUnit} onChange={e=>setUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
+                      <option value="ureum">Ureum</option>
+                      <option value="bun">BUN</option>
+                    </select>
+                  </div>
+                </FieldRow>
+                {naPreview < 135 && (
+                  <>
+                    <FieldRow label="Na gas darah" sub="analyzer gas darah (direct ISE), opsional">
+                      <NumField value={naDirect} onChange={setNaDirect} placeholder="Opsional" unit="mEq/L" />
+                    </FieldRow>
+                    <FieldRow label="Osm terukur" sub="bila lab memeriksa, opsional">
+                      <NumField value={measuredOsm} onChange={setMeasuredOsm} placeholder="Opsional" unit="mOsm" />
+                    </FieldRow>
+                  </>
+                )}
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Onset</span>
                    <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={onset} onChange={e=>{ setOnset(e.target.value); setHyperDrop(e.target.value === 'akut' ? '24' : '10'); }}>
@@ -382,8 +410,8 @@ export default function KalkulatorElektro() {
             {shown && tab === 'ca' && <KalsiumResult s={caState} ca={ca} alb={alb} bw={bw} />}
             {shown && tab === 'mg' && <MagnesiumResult s={mgState} mg={mg} egfr={egfr} bw={bw} />}
             {res && (
-              <NatriumResult r={res} na={na} glu={glu} sex={sex} age={age} onset={onset} naSeverity={naSeverity} odsFactors={odsFactors}
-                saveInputs={{ tab, bw, na, glu, onset, sex, age, naFluid, naRise, hyperTarget, hyperDrop, gejala: [...symptoms], risikoODS: [...odsFactors] }} />
+              <NatriumResult r={res} na={na} glu={glu} ureum={ureum} ureaUnit={ureaUnit} sex={sex} age={age} onset={onset} naSeverity={naSeverity} odsFactors={odsFactors}
+                saveInputs={{ tab, bw, na, glu, ureum, ureaUnit, naDirect, measuredOsm, onset, sex, age, naFluid, naRise, hyperTarget, hyperDrop, gejala: [...symptoms], risikoODS: [...odsFactors] }} />
             )}
          </div>
       </div>
@@ -397,6 +425,7 @@ export default function KalkulatorElektro() {
           <li><strong className="text-foreground">Dua rumus estimasi (koreksi lambat):</strong> Metode defisit = TBW × ΔNa ÷ 513 (TBW = 0.6 × BB pria / 0.5 × BB wanita); Adrogué–Madías = ΔNa per 1 L 3% = (513 − Na)/(TBW+1). Keduanya estimasi kasar yang sering meleset (mengabaikan output urin/diuresis air) → <strong>wajib ukur Na serial tiap 4–6 jam</strong>. <em>(Adrogué–Madías 2000; Sterns 2015)</em></li>
           <li><strong className="text-foreground">Hipernatremia — definisi & penyebab:</strong> Na &gt;145 mEq/L (berat &gt;160). Hampir selalu mencerminkan <strong>defisit air relatif</strong>, bukan kelebihan natrium murni. Klasifikasi status volume: hipovolemik (GI losses, diuretik, luka bakar, diuresis osmotik DKA/HHS/manitol) · euvolemik (Diabetes Insipidus sentral/nefrogenik, insensible losses) · hipervolemik (iatrogenik: NaHCO₃/NaCl 3%). <em>(Miller 2023; Adrogué–Madías 2000)</em></li>
           <li><strong className="text-foreground">Hipernatremia — evaluasi & tatalaksana:</strong> Osmolalitas urin &lt;300 curiga DI (uji desmopressin: sentral vs nefrogenik), &gt;800 kehilangan ekstrarenal, 300–800 renal parsial. Empat langkah: (1) defisit air = TBW × (Na/140 − 1); TBW = BB × 0.6 (pria dewasa)/0.5 (wanita dewasa/pria lansia)/0.45 (wanita lansia); (2) kecepatan — kronik/tak tahu maks 8–10 mEq/L/24 jam (~0.5/jam), akut boleh ~1/jam (jika ragu → kronik); (3) cairan: air oral/NGT &gt; D5W &gt; NaCl 0.45% &gt; NaCl 0.9% dulu bila hipovolemia berat — prediksi Adrogué–Madías ΔNa/L = (Na infusat − Na serum)/(TBW+1); (4) atasi penyebab (DI sentral→desmopressin, nefrogenik→tiazid+NSAID). <strong>Cek Na tiap 2–4 jam & hitung ULANG defisit</strong>. Pada AKI oliguria, CRRT dapat menangani volume + kecepatan sekaligus. <em>(Adrogué–Madías 2000; Sterns 2015; Miller 2023)</em></li>
+          <li><strong className="text-foreground">Osmolalitas & tonisitas (langkah pertama hiponatremia):</strong> Osm efektif = 2×Na + glukosa/18; osm total = efektif + ureum/6 (BUN/2.8). Urea adalah osmol tidak efektif → yang menentukan tonisitas adalah osm efektif. Osm <strong>terukur</strong> &lt;275 selalu hipotonik; osm <strong>terhitung</strong> &lt;275 belum menyingkirkan osmol tak terukur (manitol, glisin, kontras) maupun pseudohiponatremia <em>(Spasovski 2014)</em>. Pseudohiponatremia: Na lab (indirect ISE) rendah palsu pada lipid/protein tinggi, sedangkan Na analyzer gas darah (direct ISE) tidak terpengaruh; normalnya kedua metode berbeda rata-rata &lt;±1 mmol/L <em>(El Hage 2018; Vera 2022)</em>.</li>
           <li><strong className="text-foreground">Bukti terbaru kecepatan koreksi Na:</strong> Meta-analisis 7 kohort (6.032 pasien hiponatremia berat): ODS 0.48%; koreksi cepat meningkatkan risiko ODS (RR 3.9) tetapi berkaitan dengan mortalitas RS lebih rendah (RR 0.51) — ODS juga dapat terjadi pada koreksi lambat <em>(See 2024)</em>. Batas pedoman tetap dipakai; jangan menunda terapi gejala berat demi "terlalu hati-hati". Pada hipernatremia, data observasional bertentangan (Chauhan 2019 vs Chacon-Palma 2025).</li>
           <li><strong className="text-foreground">Kalium — hipokalemia:</strong> Berat &lt;2.5 mEq/L. Tiap turun 1 mEq/L ≈ defisit 200–400 mEq (gambaran, bisa meleset). K 2.5–3.4 tanpa gejala/EKG → oral; &lt;2.5, bergejala, EKG berubah, atau tidak bisa oral → IV dengan monitor EKG. Empiris di ICU: 20 mEq KCl ≈ +0.25 mmol/L. Pelarut NaCl 0.9% (bukan dekstrosa). Koreksi Mg bersamaan. Target: rentang normal 3.5–5.0; IMA mortalitas terendah 3.5–&lt;4.5; pasca-CABG suplementasi hanya bila &lt;3.6. <em>(Kardalas 2018; Kruse 1990; Goyal 2012; TIGHT-K 2024)</em></li>
           <li><strong className="text-foreground">Kalium — hiperkalemia:</strong> Verifikasi (pseudohiperkalemia) → Ca glukonat 10% <strong>30 mL</strong> bila EKG berubah/K ≥6.5 → insulin 10 U (5 U pada gangguan ginjal berat) + dekstrosa 25 g (+ D10% 50 mL/jam × 5 jam bila GDS &lt;7 mmol/L) + salbutamol 10–20 mg nebul → keluarkan K (dialisis bila refrakter) → pantau K 1–2 j & 2–4 j, GDS tiap 30 mnt × 2 j lalu tiap jam ≥6 j. NaHCO₃ dan binder oral bukan terapi akut rutin. <em>(Ford 2026; Jessen 2025)</em></li>
@@ -404,7 +433,7 @@ export default function KalkulatorElektro() {
           <li><strong className="text-foreground">Magnesium:</strong> Mg serum tidak mencerminkan Mg tubuh total. IV bila &lt;0.5 mmol/L (≈1.2 mg/dL) atau bergejala; 1 g MgSO₄ ≈ +0.15 mEq/L (18–30 jam); maksimal 1.5 mEq/kg; &lt;6 g dalam 8–12 jam. Aritmia tidak stabil: 2 g dalam 2–15 menit. Gangguan ginjal: sesuaikan & pantau. <em>(Hansen 2018)</em></li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 <strong>Hiponatremia:</strong> Spasovski G, et al. Eur J Endocrinol 2014;170:G1 / Nephrol Dial Transplant 2014;29(Suppl 2):i1 · Verbalis JG, et al. Am J Med 2013;126(10 Suppl 1):S1 · Adrogué HJ, Madias NE. NEJM 2000;342:1581 · Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280 · See XY, et al. J Crit Care Med 2024;10:209. <strong>Hipernatremia:</strong> Adrogué HJ, Madias NE. NEJM 2000;342:1493 · Miller NE, et al. Am Fam Physician 2023;108:476 · Chauhan K, et al. CJASN 2019;14:656 · Chacon-Palma G, et al. Kidney360 2025;6:1305. <strong>Kalium:</strong> Kardalas E, et al. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · Goyal A, et al. JAMA 2012;307:157 · O'Brien B, et al. JAMA 2024;332:979 · Ford S, et al. Aust Prescr 2026;49:194 · Jessen MK, et al. Resuscitation 2025;208:110489. <strong>Kalsium:</strong> Turner J, et al. Endocr Connect 2016;5:G7 · Walsh J, et al. Endocr Connect 2016;5:G9. <strong>Magnesium:</strong> Hansen BA, Bruserud Ø. J Intensive Care 2018;6:21. <strong>Umum:</strong> Sterns RH. NEJM 2015;372:55.
+          📚 <strong>Hiponatremia:</strong> Spasovski G, et al. Eur J Endocrinol 2014;170:G1 / Nephrol Dial Transplant 2014;29(Suppl 2):i1 · Verbalis JG, et al. Am J Med 2013;126(10 Suppl 1):S1 · Adrogué HJ, Madias NE. NEJM 2000;342:1581 · Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280 · See XY, et al. J Crit Care Med 2024;10:209 · El Hage L, et al. AACE Clin Case Rep 2018;5:e172 · Vera MA, et al. Lab Med 2022;53:e105. <strong>Hipernatremia:</strong> Adrogué HJ, Madias NE. NEJM 2000;342:1493 · Miller NE, et al. Am Fam Physician 2023;108:476 · Chauhan K, et al. CJASN 2019;14:656 · Chacon-Palma G, et al. Kidney360 2025;6:1305. <strong>Kalium:</strong> Kardalas E, et al. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · Goyal A, et al. JAMA 2012;307:157 · O'Brien B, et al. JAMA 2024;332:979 · Ford S, et al. Aust Prescr 2026;49:194 · Jessen MK, et al. Resuscitation 2025;208:110489. <strong>Kalsium:</strong> Turner J, et al. Endocr Connect 2016;5:G7 · Walsh J, et al. Endocr Connect 2016;5:G9. <strong>Magnesium:</strong> Hansen BA, Bruserud Ø. J Intensive Care 2018;6:21. <strong>Umum:</strong> Sterns RH. NEJM 2015;372:55.
         </div>
       </Accordion>
     </div>
