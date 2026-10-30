@@ -68,6 +68,41 @@ function TonicityBanner({ o, na }: { o: Osm; na: string }) {
   }
 }
 
+const TONICITY_SCALE = [
+  { key: 'hipotonik', label: 'Hipotonik', range: '<275', causes: 'Hiponatremia "sejati" (kelebihan air relatif) — lanjutkan penilaian status volume, osmolalitas & Na urin.' },
+  { key: 'isotonik', label: 'Isotonik', range: '275–295', causes: 'Pseudohiponatremia (trigliserida/protein sangat tinggi); cairan irigasi isotonik (glisin/sorbitol/manitol, mis. TURP).' },
+  { key: 'hipertonik', label: 'Hipertonik', range: '>295', causes: 'Hiperglikemia, manitol, kontras radiologi — air tertarik keluar sel sehingga Na terencerkan (koreksi Na terhadap glukosa).' },
+] as const;
+
+/**
+ * Skala tonisitas (mOsm/kg): hipotonik <275 · isotonik 275–295 · hipertonik >295 (Spasovski 2014).
+ * Menyorot kategori pasien — dari osm TERUKUR bila ada, selain itu osm EFEKTIF terhitung.
+ */
+function TonicityScale({ o }: { o: Osm }) {
+  if (isNaN(o.effective) && !o.hasMeasured) return null;
+  const val = o.hasMeasured ? o.measuredOsm : o.effective;
+  const cls = o.hasMeasured ? o.measuredClass : o.calcClass;
+  return (
+    <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-left">
+      <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">Kategori osmolalitas serum</div>
+      <p className="text-[12px] text-slate-600 dark:text-slate-400 mb-2">Pasien: <strong className="font-mono">{fmt(val, 1)} mOsm/kg</strong> ({o.hasMeasured ? 'terukur' : 'efektif terhitung'}) → <strong>{cls}</strong></p>
+      <div className="grid grid-cols-3 gap-2">
+        {TONICITY_SCALE.map(t => {
+          const on = t.key === cls;
+          return (
+            <div key={t.key} className={`rounded-lg p-2 border text-[12px] ${on ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600' : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 opacity-70'}`}>
+              <div className={`font-bold ${on ? 'text-blue-700 dark:text-blue-300' : 'text-slate-700 dark:text-slate-300'}`}>{on ? '▶ ' : ''}{t.label}</div>
+              <div className="font-mono font-bold text-[14px] text-slate-800 dark:text-slate-100">{t.range}</div>
+              <div className="text-[11px] leading-snug text-slate-600 dark:text-slate-400 mt-1">{t.causes}</div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-[11px] italic text-slate-500 dark:text-slate-400 mt-2">Satuan mOsm/kg. Osm terhitung &lt;275 tetap perlu konfirmasi (osmol tak terukur & pseudohiponatremia tidak terdeteksi rumus) — osm terukur &lt;275 selalu hipotonik (Spasovski 2014).</p>
+    </div>
+  );
+}
+
 export function NatriumResult(p: Props) {
   const { r } = p;
   if (r.type === 'hipo') return <HypoNa {...p} r={r} />;
@@ -77,6 +112,7 @@ export function NatriumResult(p: Props) {
       <InfoBox tone="emerald" title={`✅ Na ${fmt(r.calcN, 1)} mEq/L — dalam rentang normal`}>
         {r.hasHyper ? `Na terukur ${p.na} terkoreksi glukosa ${p.glu} mg/dL menjadi ${fmt(r.calcN, 1)} mEq/L.` : 'Tidak perlu koreksi.'}
       </InfoBox>
+      {r.hasHyper && <TonicityScale o={r.osm} />}
       <SaveToHistoryButton module="elektrolit" label="Koreksi Elektrolit — NA" className="w-full" inputs={p.saveInputs} summary={`Na: ${p.na} mEq/L — normal`} />
     </div>
   );
@@ -136,6 +172,7 @@ function HypoNa({ r, na, glu, ureum, ureaUnit, sex, age, onset, naSeverity, odsF
   return (
     <div className="space-y-4">
       <TonicityBanner o={o} na={na} />
+      <TonicityScale o={o} />
       {/* ① HASIL DASAR */}
       <div className="w-full bg-cyan-50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-900/30 rounded-2xl p-5 text-left">
         <div className="text-[12px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-400 mb-1">① Hasil Dasar · Hiponatremia biokimia {r.bioClass} · gejala {naSeverity} · Na {fmt(r.calcN, 1)} → {fmt(r.tgt, 1)} (24 jam)</div>
@@ -300,6 +337,7 @@ function HyperNa({ r, na, glu, ureum, ureaUnit, sex, age, onset, saveInputs }: P
       </div>
 
       <CalcSteps tone="red" title="🧮 Langkah Dasar — dari input ke defisit air" steps={basic} />
+      <TonicityScale o={r.osm} />
 
       {/* ② CARA PEMBERIAN */}
       <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
