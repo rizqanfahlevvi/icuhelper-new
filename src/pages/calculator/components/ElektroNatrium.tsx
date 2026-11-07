@@ -12,9 +12,11 @@ interface Props {
 }
 
 const glucoseStep = (r: NaResult, na: string, glu: string): CalcStep => ({
-  label: 'Langkah 0 — Koreksi Na terhadap hiperglikemia (Katz/Hillier):',
-  formula: `Na terkoreksi = Na + 1.6 × (glukosa − 100) ÷ 100\n= ${na} + 1.6 × (${glu} − 100) ÷ 100 = ${fmt(r.calcN, 1)} mEq/L`,
-  note: 'Glukosa menarik air keluar sel sehingga Na terukur rendah "palsu"; semua perhitungan memakai Na terkoreksi.',
+  label: 'Langkah 0 — Koreksi Na terhadap hiperglikemia:',
+  formula: `Na terkoreksi = Na + 1.6 × (glukosa − 100) ÷ 100   (Katz 1973)\n= ${na} + 1.6 × (${glu} − 100) ÷ 100 = ${fmt(r.calcN, 1)} mEq/L\nPembanding Hillier 1999: faktor 2.4 → ${fmt(r.naHillier24, 1)}${r.glucose > 400 ? ` · faktor 4.0 (glukosa >400) → ${fmt(r.naHillier40, 1)}` : ''} mEq/L`,
+  note: r.glucose > 400
+    ? `Glukosa >400: faktor 1.6 kemungkinan MENGECILKAN koreksi — Na sebenarnya bisa ${fmt(r.calcN, 1)}–${fmt(r.naHillier40, 1)} mEq/L. Perhitungan memakai 1.6 (konvensi); pertimbangkan rentang ini sebelum memutuskan kategori & terapi.`
+    : 'Glukosa menarik air keluar sel sehingga Na terukur rendah "palsu". Perhitungan memakai faktor 1.6 (sampai glukosa 400 masih sesuai menurut Hillier 1999); rentang di atas sebagai pembanding.',
 });
 const tbwStep = (r: NaResult, sex: string, age: string): CalcStep => ({
   label: 'Langkah 1 — Total Body Water (TBW):',
@@ -129,14 +131,14 @@ function HypoNa({ r, na, glu, ureum, ureaUnit, sex, age, onset, naSeverity, odsF
     tbwStep(r, sex, age),
     { label: `Langkah 2 — Target kenaikan Na 24 jam (${onset === 'akut' ? 'akut' : 'kronik'}):`, formula: `ΔNa = +${fmt(r.d, 1)} mEq/L (anjuran ${r.lim.goalLo}–${r.lim.goalHi}; batas ${r.lim.limit24}${r.highOdsRisk ? ', risiko ODS tinggi' : ''})\nNa target 24 jam = ${fmt(r.calcN, 1)} + ${fmt(r.d, 1)} = ${fmt(r.tgt, 1)} mEq/L`, note: onset === 'akut' ? 'Onset akut (<48 jam) terdokumentasi: otak belum beradaptasi → risiko ODS rendah; bahaya utama edema serebri.' : 'Kronik/tidak tahu: otak sudah beradaptasi → kecepatan dibatasi untuk mencegah ODS.' },
     { label: 'Langkah 3 — Defisit Na untuk target 24 jam:', formula: `Defisit = TBW × ΔNa = ${fmt(r.tbw, 1)} × ${fmt(r.d, 1)} = ${fmt(r.deficit, 0)} mEq`, note: 'Jumlah Na yang menaikkan seluruh air tubuh sebesar ΔNa — inilah yang dikejar hari ini.' },
-    { label: 'Langkah 4 — Konteks: defisit total ke 140:', formula: `Defisit total = TBW × (140 − Na) = ${fmt(r.tbw, 1)} × (140 − ${fmt(r.calcN, 1)}) = ${fmt(r.totalDeficit, 0)} mEq\nPada +${fmt(Math.min(r.rise, r.lim.limit24), 0)} mEq/L/hari → ≥${r.daysTo140} hari`, note: 'Rumus "defisit natrium" klasik ini TIDAK diberikan sekaligus — memberikannya dalam 24 jam akan melampaui batas ODS. Dipakai hanya untuk memahami besarnya masalah.' },
+    { label: 'Langkah 4 — Konteks: defisit total ke 140:', formula: `Defisit total = TBW × (140 − Na) = ${fmt(r.tbw, 1)} × (140 − ${fmt(r.calcN, 1)}) = ${fmt(r.totalDeficit, 0)} mEq\nHari-1 ≤ +${fmt(Math.min(r.rise, r.lim.limit24), 0)}, hari berikutnya ≤ +${fmt(Math.min(r.rise, r.lim.limitNext24), 0)} mEq/L → ≥${r.daysTo140} hari`, note: 'Rumus "defisit natrium" klasik ini TIDAK diberikan sekaligus — memberikannya dalam 24 jam akan melampaui batas ODS. Dipakai hanya untuk memahami besarnya masalah.' },
   );
 
   // ② Cara pemberian — estimasi NaCl 3% (koreksi lambat)
   const give: CalcStep[] = [
     { label: 'Langkah P1 — Volume via metode defisit:', formula: `NaCl 3% = 513 mEq Na/L\nVolume = ${fmt(r.deficit, 0)} ÷ 513 × 1000 = ${fmt(r.v, 0)} mL`, note: 'Batas bawah (tidak memperhitungkan dilusi oleh air yang ikut masuk).' },
     { label: 'Langkah P2 — Volume via Adrogué–Madías:', formula: `ΔNa per 1 L NaCl 3% = (513 − Na) ÷ (TBW + 1)\n= (513 − ${fmt(r.calcN, 1)}) ÷ (${fmt(r.tbw, 1)} + 1) = ${fmt(r.amPerLiter, 1)} mEq/L per L\nVolume = ${fmt(r.d, 1)} ÷ ${fmt(r.amPerLiter, 1)} × 1000 = ${fmt(r.vAM, 0)} mL`, note: 'Memperhitungkan dilusi → batas atas. Bila juga diberi KCl, K ikut menaikkan Na (pakai Na+K infusat).' },
-    { label: 'Langkah P3 — Laju 24 jam:', formula: `Defisit: ${fmt(r.v, 0)} ÷ 24 = ${fmt(r.rate, 1)} mL/jam · Adrogué: ${fmt(r.vAM, 0)} ÷ 24 = ${fmt(r.rateAM, 1)} mL/jam\nBatas laju absolut (setara +0.5 mEq/L/jam) = ${fmt(r.rateMax, 1)} mL/jam`, note: `Kecepatan rata-rata ${fmt(r.d / 24, 2)} mEq/L/jam — jauh di bawah 0.5 mEq/L/jam.` },
+    { label: 'Langkah P3 — Laju 24 jam:', formula: `Defisit: ${fmt(r.v, 0)} ÷ 24 = ${fmt(r.rate, 1)} mL/jam · Adrogué: ${fmt(r.vAM, 0)} ÷ 24 = ${fmt(r.rateAM, 1)} mL/jam\nLaju setara +0.5 mEq/L/jam = ${fmt(r.rateMax, 1)} mL/jam (puncak sesaat, bukan laju 24 jam)`, note: `Kecepatan rata-rata ${fmt(r.d / 24, 2)} mEq/L/jam. Laju +0.5 mEq/L/jam bila dipertahankan 24 jam = +12 mEq/L, MELAMPAUI batas ${r.lim.limit24}/24 jam — total kenaikan 24 jam tetap yang menentukan.` },
   ];
 
   const flow: FlowStep[] = [
@@ -164,7 +166,7 @@ function HypoNa({ r, na, glu, ureum, ureaUnit, sex, age, onset, naSeverity, odsF
           <div className="text-[11px] italic opacity-70">memperhitungkan dilusi</div>
         </div>
       </div>
-      <p className="text-[12px] text-blue-900 dark:text-blue-200">Batas laju absolut <strong>{fmt(r.rateMax, 1)} mL/jam</strong>. Mulai dari estimasi lebih rendah, titrasi dengan Na serial tiap 4–6 jam; vena sentral bila memungkinkan.</p>
+      <p className="text-[12px] text-blue-900 dark:text-blue-200">Laju setara +0.5 mEq/L/jam = <strong>{fmt(r.rateMax, 1)} mL/jam</strong> hanya sebagai puncak sesaat — total 24 jam tetap ≤{r.lim.limit24} mEq/L. Mulai dari estimasi lebih rendah, titrasi dengan Na serial tiap 4–6 jam; vena sentral bila memungkinkan.</p>
       <CalcSteps tone="blue" title="🧮 Rincian volume & laju" steps={give} footer="Kedua rumus estimasi awal — respons nyata dipengaruhi output urin (diuresis air) dan penyebab hiponatremia." />
     </div>
   );

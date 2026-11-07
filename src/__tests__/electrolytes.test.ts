@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   hypoKSeverity, kDeficitRange, kclEmpiricPlan, kAtNormalPh, hyperKSeverity, kProtocol24h,
   correctedCalcium, caMgdlToMmol, caGluconateInfusion, hyperCaSeverity,
-  mgMgdlToMeq, mgso4DoseToTarget, mgMaxDoseGrams, mgInfusionHours,
+  mgMgdlToMeq, mgso4DoseToTarget, mgMaxDoseGrams, mgInfusionHours, mgInfusionAfterBolus,
 } from '../utils/electrolytes';
-import { hypoNaRiseLimits, computeNa, serumOsmolality, tonicityClass, naTonicity, ureumToBun } from '../utils/sodium';
+import { hypoNaRiseLimits, computeNa, serumOsmolality, tonicityClass, naTonicity, ureumToBun, hypoDaysToNa, glucoseCorrectedNa } from '../utils/sodium';
 
 describe('Kalium — hipokalemia', () => {
   it('klasifikasi keparahan (Kardalas 2018)', () => {
@@ -198,5 +198,32 @@ describe('Osmolalitas serum (Na) — hitung manual', () => {
     // hanya terhitung
     expect(naTonicity(118, 110, 40, 'ureum', NaN, NaN).status).toBe('kemungkinan-hipotonik');
     expect(naTonicity(130, 900, 40, 'ureum', NaN, NaN).status).toBe('bukan-hipotonik'); // hiperglikemia: 260 + 50
+  });
+});
+
+describe('Audit — perbaikan', () => {
+  it('hari ke Na 140 memperhitungkan batas hari ke-2 dst. (8/24 jam)', () => {
+    const lim = { limit24: 10, limitNext24: 8 };
+    expect(hypoDaysToNa(110, 10, lim)).toBe(4);   // 10 + 8 + 8 = 26 < 30 → hari ke-4
+    expect(hypoDaysToNa(120.4, 10, lim)).toBe(3); // 19.6: 10 + 8 = 18 → hari ke-3
+    expect(hypoDaysToNa(118, 6, lim)).toBe(4);    // 22: 6+6+6 = 18 → 4
+    expect(hypoDaysToNa(132, 10, lim)).toBe(1);
+    expect(hypoDaysToNa(118, 8, { limit24: 8, limitNext24: 8 })).toBe(3); // 22: 8+8+8
+  });
+  it('koreksi glukosa: 1.6 (Katz) + pembanding Hillier 2.4 / 4.0', () => {
+    const g = glucoseCorrectedNa(125, 600);       // x = 5
+    expect(g.value).toBeCloseTo(133);
+    expect(g.hillier24).toBeCloseTo(137);
+    expect(g.hillier40).toBeCloseTo(145);
+  });
+  it('Mg: bolus 2 g + infus tidak melampaui 1.5 mEq/kg', () => {
+    // 40 kg: batas 7.39 g; kebutuhan 7.0 g → infus maks 5.0 g (7.39 − 2 = 5.39 → 5.0)
+    const a = mgInfusionAfterBolus(7.0, mgMaxDoseGrams(40), true, true);
+    expect(a.infusion).toBe(5);
+    expect(a.total).toBe(7);
+    expect(a.reducedForCap).toBe(true);
+    // 70 kg, kebutuhan 4.5 g → tetap 4.5 g + bolus 2 g = 6.5 ≤ 12.9
+    expect(mgInfusionAfterBolus(4.5, mgMaxDoseGrams(70), true, true)).toEqual({ infusion: 4.5, total: 6.5, reducedForCap: false });
+    expect(mgInfusionAfterBolus(4.5, mgMaxDoseGrams(70), false, true).total).toBe(4.5);
   });
 });

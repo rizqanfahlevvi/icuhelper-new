@@ -46,6 +46,19 @@ export function hypoNaRiseLimits(highOdsRisk: boolean): { goalLo: number; goalHi
     : { goalLo: 4, goalHi: 8, limit24: 10, limitNext24: 8 };
 }
 
+/**
+ * Jumlah hari minimal untuk mencapai Na target bila kenaikan dibatasi: hari-1 ≤ min(target, batas 24 jam
+ * pertama), hari berikutnya ≤ min(target, batas tiap 24 jam berikutnya) (Spasovski 2014).
+ * (Sebelumnya batas hari ke-2 dst. tidak dihitung → jumlah hari kurang 1 bila target >8.)
+ */
+export function hypoDaysToNa(calcN: number, rise: number, lim: { limit24: number; limitNext24: number }, naTarget = 140): number {
+  const total = naTarget - calcN;
+  if (total <= 0) return 0;
+  const first = Math.min(rise, lim.limit24);
+  const next = Math.min(rise, lim.limitNext24);
+  return total <= first ? 1 : 1 + Math.ceil((total - first) / next - 1e-9);
+}
+
 /** Pilihan cairan untuk koreksi hipernatremia beserta kandungan Na (mEq/L). */
 export const NA_FLUIDS: { id: string; label: string; na: number; note: string }[] = [
   { id: 'oral', label: 'Air oral / via NGT', na: 0, note: 'Paling fisiologis bila saluran cerna berfungsi.' },
@@ -83,10 +96,17 @@ export function tonicityClass(osm: number): Tonicity | null {
   return 'hipertonik';
 }
 
-/** Koreksi Na terhadap hiperglikemia (Katz/Hillier): Na + 1.6 × (glukosa − 100)/100 bila glukosa >100 mg/dL. */
-export function glucoseCorrectedNa(na: number, glucoseMgDl: number): { value: number; corrected: boolean } {
-  if (!isNaN(glucoseMgDl) && glucoseMgDl > 100) return { value: na + 1.6 * ((glucoseMgDl - 100) / 100), corrected: true };
-  return { value: na, corrected: false };
+/**
+ * Koreksi Na terhadap hiperglikemia bila glukosa >100 mg/dL: Na + faktor × (glukosa − 100)/100.
+ * Nilai utama memakai faktor 1.6 (Katz, NEJM 1973). Hillier (Am J Med 1999) menemukan rata-rata 2.4,
+ * dan 4.0 lebih sesuai bila glukosa >400 — dikembalikan sebagai pembanding (ditampilkan sebagai rentang).
+ */
+export function glucoseCorrectedNa(na: number, glucoseMgDl: number): { value: number; corrected: boolean; hillier24: number; hillier40: number } {
+  if (!isNaN(glucoseMgDl) && glucoseMgDl > 100) {
+    const x = (glucoseMgDl - 100) / 100;
+    return { value: na + 1.6 * x, corrected: true, hillier24: na + 2.4 * x, hillier40: na + 4.0 * x };
+  }
+  return { value: na, corrected: false, hillier24: na, hillier40: na };
 }
 
 export interface NaInput {
@@ -140,7 +160,7 @@ export function computeNa(i: NaInput) {
   const tbw = i.weightKg * tbwF;
   const naT = 140;
   const osm = naTonicity(i.na, i.glucose, i.urea ?? NaN, i.ureaUnit ?? 'ureum', i.measuredOsm ?? NaN, i.naDirect ?? NaN);
-  const base = { naMeasured: i.na, calcN, hasHyper: g.corrected, tbwF, tbw, w: i.weightKg, osm };
+  const base = { naMeasured: i.na, calcN, hasHyper: g.corrected, naHillier24: g.hillier24, naHillier40: g.hillier40, glucose: i.glucose, tbwF, tbw, w: i.weightKg, osm };
 
   if (calcN < 135) {
     const odsAuto = calcN <= 105;
@@ -160,7 +180,7 @@ export function computeNa(i: NaInput) {
       bioClass: calcN < 125 ? 'berat (<125)' : calcN < 130 ? 'sedang (125–129)' : 'ringan (130–134)',
       deficit, v, rate: v / 24, vAM, rateAM: vAM / 24, amPerLiter,
       rateMax: (0.5 * tbw * 1000) / 513,            // mL/jam NaCl 3% setara +0.5 mEq/L/jam (metode defisit)
-      totalDeficit, daysTo140: Math.ceil((naT - calcN) / Math.min(rise, lim.limit24)),
+      totalDeficit, daysTo140: hypoDaysToNa(calcN, rise, lim, naT),
     };
   }
   if (calcN > 145) {

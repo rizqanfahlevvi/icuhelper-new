@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { CalcSteps, type CalcStep } from '../../../components/ui/CalcSteps';
 import { Accordion } from '../../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
-import { mgMgdlToMeq, mgMgdlToMmol, mgso4DoseToTarget, mgInfusionHours, MEQ_PER_G_MGSO4, MG_RISE_MEQ_PER_G } from '../../../utils/electrolytes';
+import { mgMgdlToMeq, mgMgdlToMmol, mgso4DoseToTarget, mgInfusionHours, mgInfusionAfterBolus, MEQ_PER_G_MGSO4, MG_RISE_MEQ_PER_G } from '../../../utils/electrolytes';
 import { TargetField, ToggleList, useToggleSet, StrategyFlow, InfoBox, RefLine, Disclaimer, fmt, type FlowStep } from './ElektroUI';
 
 const MG_SX = ['Aritmia / torsades / hemodinamik tidak stabil', 'Kejang / tetani', 'Hipokalemia atau hipokalsemia refrakter'];
@@ -65,7 +65,10 @@ export function MagnesiumResult({ s, mg, egfr, bw }: { s: MagnesiumState; mg: st
   const symptomatic = s.sx.size > 0;
   const iv = mmol < 0.5 || symptomatic;
   const dose = mgso4DoseToTarget(mv, tgt, w);
-  const hrs = mgInfusionHours(dose.grams);
+  // Bolus darurat 2 g ikut dihitung dalam batas 1.5 mEq/kg (Hansen 2018).
+  const plan = mgInfusionAfterBolus(dose.grams, dose.maxGrams, urgent, w > 0);
+  const inf = plan.infusion;
+  const hrs = mgInfusionHours(inf);
   const hrsText = hrs.max ? `${hrs.min}–${hrs.max}` : `>${hrs.min}`;
   const bodyDefLo = w > 0 ? 1 * w : NaN;   // defisit tubuh 1–2 mEq/kg (Hansen 2018) — konteks
   const bodyDefHi = w > 0 ? 2 * w : NaN;
@@ -92,20 +95,25 @@ export function MagnesiumResult({ s, mg, egfr, bw }: { s: MagnesiumState; mg: st
   // ② Cara pemberian
   const give: CalcStep[] = [];
   if (urgent) give.push({ label: 'Langkah P1 — Bolus darurat:', formula: '2 g MgSO₄ (16 mEq) IV dalam 2–15 menit\n= 10 mL MgSO₄ 20% = 5 mL MgSO₄ 40%', note: 'Untuk aritmia berat/tidak stabil, lalu lanjutkan infus kontinu.' });
-  give.push({ label: `Langkah P${urgent ? 2 : 1} — Volume & durasi infus:`, formula: `${dose.grams} g = ${fmt(dose.grams / 0.2, 1)} mL MgSO₄ 20% = ${fmt(dose.grams / 0.4, 1)} mL MgSO₄ 40%\nDurasi ${hrsText} jam → ${hrs.max ? `${fmt(dose.grams / hrs.max, 2)}–${fmt(dose.grams / hrs.min, 2)}` : `≤${fmt(dose.grams / hrs.min, 2)}`} g/jam`, note: renal ? `eGFR ${eg}: risiko hipermagnesemia — dosis harus disesuaikan & dipantau ketat; tidak ada angka baku (mis. mulai separuh dosis lalu titrasi dengan Mg serial).` : 'Dosis <6 g dalam 8–12 jam; dosis lebih besar >25 jam (Hansen 2018).' });
+  give.push({ label: `Langkah P${urgent ? 2 : 1} — Volume & durasi infus:`, formula: `${urgent ? `Infus = ${plan.reducedForCap ? `batas ${fmt(dose.maxGrams, 1)} − bolus 2 = ${inf} g (kebutuhan ${dose.grams} g dipangkas)` : `${inf} g`} · total bolus + infus = ${plan.total} g\n` : ''}${inf} g = ${fmt(inf / 0.2, 1)} mL MgSO₄ 20% = ${fmt(inf / 0.4, 1)} mL MgSO₄ 40%\nDurasi ${hrsText} jam → ${hrs.max ? `${fmt(inf / hrs.max, 2)}–${fmt(inf / hrs.min, 2)}` : `≤${fmt(inf / hrs.min, 2)}`} g/jam`, note: renal ? `eGFR ${eg}: risiko hipermagnesemia — dosis harus disesuaikan & dipantau ketat; tidak ada angka baku (mis. mulai separuh dosis lalu titrasi dengan Mg serial).` : 'Dosis <6 g dalam 8–12 jam; dosis lebih besar >25 jam (Hansen 2018).' });
 
   const flow: FlowStep[] = [
     { title: 'Konfirmasi & pahami keterbatasan', body: 'Mg serum (0.3% Mg tubuh) bisa normal meski defisit intrasel; hipoalbuminemia menurunkan Mg total palsu. Pasien berisiko + gejala khas dapat diterapi walau Mg normal (Hansen 2018).' },
     { title: `Hitung dasar: Δ ${fmt(dose.deltaMeq, 2)} mEq/L → MgSO₄ ${dose.grams} g`, body: 'Lihat ① Hasil Dasar.', state: 'now' },
     { title: 'Cari penyebab', body: 'GI: diare, NGT, fistula, pankreatitis. Ginjal: diuretik loop, aminoglikosida, cisplatin, siklosporin, diuresis osmotik, cairan NaCl lama. Lain: KAD, alkoholisme, kelaparan, PPI.' },
     { title: 'Darurat: 2 g MgSO₄ IV dalam 2–15 menit', body: 'Untuk aritmia berat / hemodinamik tidak stabil, lalu infus kontinu.', state: urgent ? 'now' : 'skip' },
-    { title: `Rute: ${iv ? `IV ${dose.grams} g MgSO₄ dalam ${hrsText} jam` : 'ORAL'}`, body: iv ? <>Dalam NaCl 0.9%/D5W.{dose.capped && <strong> Dosis dibatasi 1.5 mEq/kg.</strong>}</> : <>Mg ≥0.5 mmol/L tanpa gejala bermakna → suplemen oral (dosis sesuai sediaan). Estimasi IV bila oral tidak mungkin: {dose.grams} g.</>, state: 'now' },
+    { title: `Rute: ${iv ? `IV ${urgent ? `bolus 2 g + infus ${inf} g` : `${inf} g`} MgSO₄ (infus ${hrsText} jam)` : 'ORAL'}`, body: iv ? <>Dalam NaCl 0.9%/D5W.{(dose.capped || plan.reducedForCap) && <strong> Total dibatasi 1.5 mEq/kg{urgent ? ' (termasuk bolus 2 g)' : ''}.</strong>}</> : <>Mg ≥0.5 mmol/L tanpa gejala bermakna → suplemen oral (dosis sesuai sediaan). Estimasi IV bila oral tidak mungkin: {dose.grams} g.</>, state: 'now' },
     { title: 'Sesuaikan dengan fungsi ginjal', body: renal ? <strong>eGFR {eg} — dosis harus dikurangi & dipantau ketat (refleks patela, napas, Mg serial).</strong> : 'Isi eGFR. Gagal ginjal → risiko hipermagnesemia; Mg umumnya tidak dianjurkan kecuali defisiensi berat, dengan dosis disesuaikan.', state: renal ? 'now' : 'todo' },
     { title: 'Pantau & koreksi elektrolit terkait', body: 'Mg ulang (efek penuh 18–30 jam). Hipomagnesemia menyebabkan hipokalemia (kebocoran K ginjal via ROMK) & hipokalsemia (PTH terhambat) — koreksi K & Ca bersamaan.' },
   ];
 
   return (
     <div className="space-y-4">
+      {mv < 1.0 && (
+        <InfoBox tone="amber" title={`Mg ${mv} mg/dL sangat rendah — periksa satuan`}>
+          Kalkulator memakai <strong>mg/dL</strong>. Bila lab melaporkan dalam mmol/L (normal ±0.75–0.95 mmol/L), nilai {mv} bisa jadi normal — kalikan 2.43 untuk mg/dL ({fmt(mv * 2.43, 2)} mg/dL). Dosis di bawah hanya benar bila {mv} memang mg/dL.
+        </InfoBox>
+      )}
       {/* ① HASIL DASAR */}
       <div className="w-full bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-5 text-left">
         <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1">① Hasil Dasar · Hipomagnesemia · Mg {mv} → target {tgt} mg/dL</div>
@@ -135,8 +143,8 @@ export function MagnesiumResult({ s, mg, egfr, bw }: { s: MagnesiumState; mg: st
       <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
       <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
         <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">{iv ? `IV (${mmol < 0.5 ? 'Mg <0.5 mmol/L' : 'bergejala'})` : 'Oral dianjurkan — estimasi IV bila oral tidak mungkin'}</div>
-        <div className="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">{urgent ? '2 g bolus → ' : ''}MgSO₄ {dose.grams} g dalam {hrsText} jam</div>
-        <p className="text-[12px] text-slate-700 dark:text-slate-300">{fmt(dose.grams / 0.2, 1)} mL MgSO₄ 20% · {fmt(dose.grams / 0.4, 1)} mL MgSO₄ 40%{renal ? ' · ⚠ eGFR <30: kurangi & pantau' : ''}</p>
+        <div className="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">{urgent ? '2 g bolus → ' : ''}{inf > 0 ? `MgSO₄ ${inf} g dalam ${hrsText} jam` : 'tanpa infus lanjutan (Mg ≥ target)'}</div>
+        <p className="text-[12px] text-slate-700 dark:text-slate-300">{urgent ? `Total ${plan.total} g · ` : ''}{fmt(inf / 0.2, 1)} mL MgSO₄ 20% · {fmt(inf / 0.4, 1)} mL MgSO₄ 40%{renal ? ' · ⚠ eGFR <30: kurangi & pantau' : ''}</p>
         <CalcSteps tone="slate" title="🧮 Rincian pemberian" steps={give} />
       </div>
       {toxBox}
@@ -151,7 +159,7 @@ export function MagnesiumResult({ s, mg, egfr, bw }: { s: MagnesiumState; mg: st
       </Accordion>
       <RefLine>Hansen BA, Bruserud Ø. Hypomagnesemia in critically ill patients. J Intensive Care 2018;6:21 · Turner J, et al. Endocr Connect 2016;5:G7</RefLine>
       <Disclaimer />
-      {save(`Mg: ${mv} → target ${tgt} mg/dL — Δ ${fmt(dose.deltaMeq, 2)} mEq/L → ${urgent ? '2 g bolus + ' : ''}MgSO₄ ${dose.grams} g ${iv ? 'IV' : '(oral dianjurkan)'} dalam ${hrsText} jam`)}
+      {save(`Mg: ${mv} → target ${tgt} mg/dL — Δ ${fmt(dose.deltaMeq, 2)} mEq/L → ${urgent ? '2 g bolus + ' : ''}MgSO₄ ${inf} g ${iv ? 'IV' : '(oral dianjurkan)'} dalam ${hrsText} jam${urgent ? ` (total ${plan.total} g)` : ''}`)}
     </div>
   );
 }

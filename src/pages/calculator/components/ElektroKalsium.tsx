@@ -60,6 +60,15 @@ export function KalsiumInputs({ s, ca, alb }: { s: KalsiumState; ca: string; alb
 }
 
 export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string; alb: string; bw: string }) {
+  const albN = parseFloat(alb);
+  if (albN > 7) {
+    // Albumin >7 g/dL tidak fisiologis → hampir pasti diisi dalam g/L (mis. 35 g/L = 3.5 g/dL).
+    return (
+      <InfoBox tone="amber" title={`Albumin ${alb} — periksa satuan`}>
+        Kalkulator memakai albumin dalam <strong>g/dL</strong>. Nilai {alb} tampaknya dalam g/L — isi {fmt(albN / 10, 1)} g/dL. Dengan nilai g/L, Ca terkoreksi akan bernilai negatif dan tidak bermakna.
+      </InfoBox>
+    );
+  }
   const { corr, usedAlb } = corrOf(ca, alb);
   if (!(corr > 0)) return null;
   const w = parseFloat(bw);
@@ -73,12 +82,16 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
   );
 
   const corrStep: CalcStep = usedAlb
-    ? { label: 'Langkah 1 — Ca terkoreksi albumin (Payne):', formula: `Ca terkoreksi = Ca + 0.8 × (4.0 − albumin)\n= ${ca} + 0.8 × (4.0 − ${alb}) = ${fmt(corr, 2)} mg/dL`, note: 'Albumin mengikat ±40% Ca; tiap 1 g/dL albumin di bawah 4.0 membuat Ca total tampak turun ±0.8 mg/dL. Hanya perkiraan — bila tersedia, gunakan Ca ion terukur.' }
+    ? { label: 'Langkah 1 — Ca terkoreksi albumin (Payne):', formula: `Ca terkoreksi = Ca + 0.8 × (4.0 − albumin)\n= ${ca} + 0.8 × (4.0 − ${alb}) = ${fmt(corr, 2)} mg/dL`, note: 'Albumin mengikat ±40% Ca; tiap 1 g/dL albumin di bawah 4.0 membuat Ca total tampak turun ±0.8 mg/dL. Di ICU koreksi ini TIDAK akurat: Payne hanya mengenali 5–15% pasien yang benar-benar hipokalsemia menurut Ca ion (Dickerson 2004; Özdemir 2026) — gunakan Ca ion terukur bila ada.' }
     : { label: 'Langkah 1 — Ca total (albumin tidak diisi):', formula: `Ca = ${ca} mg/dL (tanpa koreksi albumin)`, note: 'Isi albumin agar Ca dikoreksi — hipoalbuminemia membuat Ca total tampak rendah palsu.' };
   const mmolStep = (note?: string): CalcStep => ({ label: 'Langkah 2 — Konversi ke mmol/L:', formula: `${fmt(corr, 2)} ÷ 4.008 = ${fmt(mmol, 2)} mmol/L`, note });
 
+  // Ca ion terukur mengalahkan Ca terkoreksi (rujukan iCa 1.12–1.32 mmol/L; Dickerson 2004).
+  const icaHigh = hasIca && iv > 1.32;
+  const icaNormal = hasIca && iv >= 1.12 && iv <= 1.32;
+
   // ── Hiperkalsemia ──
-  if (corr > 10.5) {
+  if ((corr > 10.5 && !hasIca) || icaHigh) {
     const sev = hyperCaSeverity(corr);
     const sevText = { ringan: 'Ringan (<3.0 mmol/L / <12 mg/dL) — sering asimtomatik, biasanya tidak perlu koreksi segera', sedang: 'Sedang (3.0–3.5 mmol/L / 12–14 mg/dL) — terapi segera biasanya diindikasikan, terutama bila bergejala', berat: 'BERAT (>3.5 mmol/L / >14 mg/dL) — koreksi URGEN: risiko disritmia & koma' }[sev];
     const flow: FlowStep[] = [
@@ -96,6 +109,7 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
           <div className="text-[12px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1">① Hasil Dasar · Hiperkalsemia {sev}</div>
           <div className="font-mono text-2xl font-bold text-red-700 dark:text-red-300">Ca terkoreksi: {fmt(corr, 2)} mg/dL</div>
           <p className="text-[12px] text-red-800/80 dark:text-red-300/80">= {fmt(mmol, 2)} mmol/L · {sevText}</p>
+          {icaHigh && <p className="text-[12px] font-semibold text-red-800 dark:text-red-300 mt-1">Dikonfirmasi Ca ion {iv} mmol/L (&gt;1.32).{corr <= 10.5 ? ' Ca terkoreksi tampak normal — derajat berdasarkan Ca terkoreksi mungkin meremehkan.' : ''}</p>}
         </div>
         <CalcSteps tone="red" title="🧮 Langkah Dasar — dari input ke derajat hiperkalsemia" steps={[corrStep, mmolStep('Ambang SfE: <3.0 mmol/L ringan · 3.0–3.5 sedang · >3.5 berat.')]} />
 
@@ -115,11 +129,24 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
   }
 
   const icaLow = hasIca && iv < 1.12;
+  if (icaNormal) {
+    const disagree = corr < 8.5 || corr > 10.5;
+    return (
+      <div className="space-y-3">
+        <InfoBox tone="emerald" title={`✅ Ca ion ${iv} mmol/L — normal`}>
+          {disagree
+            ? <>Ca terkoreksi albumin {fmt(corr, 2)} mg/dL tampak {corr < 8.5 ? 'rendah' : 'tinggi'}, tetapi Ca ion (fraksi aktif) normal → <strong>gangguan kalsium tidak terbukti</strong>; jangan memberi Ca IV / terapi hiperkalsemia hanya berdasarkan Ca terkoreksi. Koreksi albumin sering keliru pada pasien kritis (Dickerson 2004; Özdemir 2026).</>
+            : `Ca terkoreksi ${fmt(corr, 2)} mg/dL juga normal.`}
+        </InfoBox>
+        {save(`Ca ion ${iv} mmol/L normal (Ca terkoreksi ${fmt(corr, 2)} mg/dL)`)}
+      </div>
+    );
+  }
   if (corr >= 8.5 && !icaLow) {
     return (
       <div className="space-y-3">
         <InfoBox tone="emerald" title={`✅ Ca terkoreksi ${fmt(corr, 2)} mg/dL — dalam rentang normal`}>
-          {hasIca ? `Ca ion ${iv} mmol/L juga normal.` : 'Pada pasien kritis, konfirmasi dengan Ca ion bila tersedia.'}
+          Ca terkoreksi normal <strong>tidak menyingkirkan</strong> hipokalsemia pada pasien kritis: di ICU, koreksi albumin hanya mengenali 15% pasien yang hipokalsemia menurut Ca ion (Özdemir 2026, n=250). Periksa Ca ion bila status kalsium memengaruhi tata laksana.
         </InfoBox>
         {save(`Ca terkoreksi ${fmt(corr, 2)} mg/dL — normal`)}
       </div>
@@ -212,7 +239,7 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
         </ul>
       </Accordion>
 
-      <RefLine>Turner J, Gittoes N, Selby P. SfE Endocrine Emergency Guidance: acute hypocalcaemia. Endocr Connect 2016;5:G7 · Payne RB. BMJ 1973</RefLine>
+      <RefLine>Turner J, Gittoes N, Selby P. SfE Endocrine Emergency Guidance: acute hypocalcaemia. Endocr Connect 2016;5:G7 · Payne RB. BMJ 1973 · Dickerson RN. JPEN 2004;28:133 · Özdemir E. PLoS One 2026;21:e0354233</RefLine>
       <Disclaimer />
       {save(`Ca terkoreksi ${fmt(corr, 2)} mg/dL (Δ ${fmt(delta, 2)} ke ${tgt}) — hipokalsemia ${severe ? 'berat' : 'ringan'}${severe ? `; bolus 10–20 mL + infus ${rate} mL/jam` : '; oral'}`)}
     </div>

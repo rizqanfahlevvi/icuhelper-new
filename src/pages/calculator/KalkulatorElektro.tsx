@@ -404,6 +404,7 @@ export default function KalkulatorElektro() {
               tab === 'na' ? rangeWarning(parseFloat(na), 100, 180, 'Na', ' mEq/L') : null,
               tab === 'k' ? rangeWarning(parseFloat(k), 1.5, 9, 'K', ' mEq/L') : null,
               tab === 'ca' ? rangeWarning(parseFloat(ca), 4, 18, 'Ca', ' mg/dL') : null,
+              tab === 'ca' ? rangeWarning(parseFloat(alb), 1, 6, 'Albumin', ' g/dL') : null,
               tab === 'mg' ? rangeWarning(parseFloat(mg), 0.5, 6, 'Mg', ' mg/dL') : null,
             ]} />}
             {shown && tab === 'k' && <KaliumResult s={kState} k={k} ph={ph} gds={gdsK} bw={bw} />}

@@ -155,6 +155,18 @@ export function mgso4DoseToTarget(currentMgDl: number, targetMgDl: number, weigh
   return { deltaMeq, rawGrams, grams, capped, maxGrams };
 }
 
+/**
+ * Bila bolus darurat 2 g diberikan (aritmia/tidak stabil), total bolus + infus tidak boleh melampaui batas
+ * 1.5 mEq/kg (Hansen 2018): infus = min(kebutuhan, batas − 2 g), dibulatkan ke bawah per 0.5 g.
+ */
+export const MG_BOLUS_G = 2;
+export function mgInfusionAfterBolus(needGrams: number, maxGrams: number, urgent: boolean, weightKnown: boolean): { infusion: number; total: number; reducedForCap: boolean } {
+  if (!urgent) return { infusion: needGrams, total: needGrams, reducedForCap: false };
+  const room = weightKnown ? Math.max(0, Math.floor((maxGrams - MG_BOLUS_G) * 2 + 1e-9) / 2) : Infinity;
+  const infusion = Math.min(needGrams, room);
+  return { infusion, total: infusion + MG_BOLUS_G, reducedForCap: infusion < needGrams };
+}
+
 /** Durasi infus (Hansen 2018): dosis <6 g dalam 8–12 jam; dosis lebih besar >25 jam. */
 export function mgInfusionHours(grams: number): { min: number; max: number | null } {
   return grams < 6 ? { min: 8, max: 12 } : { min: 25, max: null };
