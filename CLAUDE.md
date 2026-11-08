@@ -29,13 +29,19 @@ React 19 (route lazy-loaded) · Vite 6 · Tailwind CSS v4 (via `@tailwindcss/vit
 
 ## State (Zustand)
 - `usePatientStore` — `weightKg`, `heightCm`, `gender` (`''`/`'L'`/`'P'`), daftar `patients`, `activePatientId`. Persist ke IndexedDB.
-- `useClinicalStore` — `data.na`, `data.cl`, `data.hco3`, `data.albumin`, `data.k`, `data.glukosa`, `data.ph`, `data.rr`, `data.peep`, `data.spo2`, `data.pao2`, dll. Persist ke localStorage.
+- `useClinicalStore` — "data kerja" klinis pasien aktif (`data`, `updatedAt` cap waktu per variabel, `ownerId`). Persist ke localStorage (v1).
+- **Registri variabel = `src/utils/clinicalVariables.ts`** (kunci, label, satuan KANONIK, grup). Menambah variabel pasien baru → tambah di registri (form "Lengkapi Data Pasien" otomatis ikut). Satuan kanonik: kreatinin mg/dL, `ureum` = urea mg/dL (BUN = ÷2,14), FiO₂ **persen**, gas darah = **arteri** mmHg, `glukosa` = GDS (kunci `gds` sudah dihapus).
+- **Konteks pasien = `src/store/patientContextSync.ts`**: ganti pasien → data kerja DIGANTI snapshot (bukan digabung); tutup/hapus → dikosongkan; perubahan otomatis tersimpan ke snapshot pasien aktif; BB/TB/usia/JK dicerminkan dua arah. Jangan memanggil `clinicalStore.setFields(snapshot)` / `clearStore()` manual saat ganti pasien — cukup `setActivePatient(id)`.
 - `useSettingsStore` — font, tema, haptics. `useHistoryStore` — riwayat kalkulasi (maks 30).
 - Catatan gender: patient store pakai `'L'/'P'`; sebagian kalkulator pakai `'m'/'f'` secara lokal — konversi eksplisit.
 
 ## Pola standar kalkulator (ikuti saat menambah/mengubah)
 1. `<ActivePatientBriefCard onAutofill={...} />` — props: `onAutofill`, `title` (opsional). **Bukan** `patientName`.
-2. `<UnifiedSyncBanner fields={syncFields} />` — sinkron nilai lab dari clinical store.
+2. `<UnifiedSyncBanner fields={syncFields} />` — sinkron dua arah dengan data pasien. Aturan `SyncField`:
+   - `value` WAJIB dalam satuan kanonik store; bila input memakai satuan lain, konversi pakai `src/utils/clinicalUnits.ts` dan isi `rawValue` dengan angka mentah (agar ganti satuan tidak mem-publish angka yang ditafsir ulang). Tombol ganti satuan harus MENGONVERSI angka yang sudah diisi.
+   - Kirim `value: ''` untuk nilai yang tidak boleh ditulis ke kunci tsb (mis. sampel VBG untuk kunci gas arteri, SaO₂ AGD untuk `spo2`).
+   - `importOnly: true` untuk nilai kondisi-uji yang bukan kondisi pasien (mis. RR saat SBT).
+   - Jangan memberi nilai default buatan ke input pasien (BB 70, suhu 37, usia 50) — kosongkan dan tampilkan asumsi secara eksplisit bila perlu.
 3. Auto-load nilai dari store di `useEffect(..., [])` saat mount.
 4. **`<CalcSteps>`** (`src/components/ui/CalcSteps.tsx`) — WAJIB untuk setiap hasil yang menghasilkan angka: tiap langkah = rumus + **substitusi angka pasien** + hasil + catatan. Untuk skoring: rincian kontribusi poin per parameter.
 5. `<SaveToHistoryButton module=... label=... inputs=... summary=... />`.
