@@ -9,6 +9,7 @@ import { InputWarning } from '../../components/ui/InputWarning';
 import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { basalBolusPlan, glucoseGramsEstimate, type InsulinCondition, type MealStatus } from '../../utils/insulin';
 
 export default function KalkulatorInsulin() {
   const patient = usePatientStore();
@@ -69,46 +70,32 @@ export default function KalkulatorInsulin() {
     }
   };
 
+  // TDD awal: RABBIT-2 (0,4 U/kg GDS 140–200; 0,5 U/kg GDS 201–400), RABBIT-2 Surgery (0,3 U/kg
+  // usia ≥70 / kreatinin ≥2,0). Pasien kritis → insulin IV (ADA). Logika di utils/insulin.ts.
   const calcBBC = () => {
     const w = parseFloat(bb);
     const g = parseFloat(gds);
     const t = parseFloat(target) || 150;
-    if (!w || !g) return null;
-
-    if (g < 70) {
-       return { 
-         error: true, 
-         msg: `GDS ${g} mg/dL — HIPOGLIKEMIA! Tatalaksana hipo dulu: D40% 25 mL IV bolus. STOP semua insulin.` 
-       };
+    const r = basalBolusPlan({
+      weightKg: w, gds: g, target: t, prevTdd: parseFloat(tddPrev),
+      meals: makan as MealStatus, cond: kondisi as InsulinCondition,
+    });
+    if (!r) return null;
+    if (r.kind === 'hypo') {
+      return { error: true as const, iv: false, msg: `GDS ${g} mg/dL — HIPOGLIKEMIA! Tatalaksana hipo dulu: D40% 25 mL IV bolus. STOP semua insulin.` };
     }
-
-    const tPrev = parseFloat(tddPrev);
-    let doseFactor = 0.5;
-    if (kondisi === 'ginjal' || kondisi === 'lansia' || kondisi === 'kritis') doseFactor = 0.3;
-    else if (kondisi === 'steroid') doseFactor = 0.6;
-
-    let tdd = (!isNaN(tPrev) && tPrev > 0) ? tPrev : Math.round(w * doseFactor);
-    let basal = Math.round(tdd * 0.5);
-    let bolusTotal = tdd - basal;
-
-    let mealCount = makan === 'makan' ? 3 : makan === 'sebagian' ? 2 : 0;
-    let bolusPerMeal = mealCount > 0 ? Math.round((bolusTotal / mealCount) * 10) / 10 : 0;
-
-    let cf = Math.round(1800 / tdd);
-    let correctionRaw = (g - t) / cf;
-    let correction = Math.max(0, Math.round(correctionRaw * 10) / 10);
-
-    let totalNow = mealCount > 0 ? Math.round((bolusPerMeal + correction) * 10) / 10 : correction;
-
-    let warnings = [];
-    if (kondisi === 'steroid') warnings.push('Steroid: pertimbangkan NPH pagi jika steroid 1x pagi.');
-    if (kondisi === 'ginjal') warnings.push('GFR <30/HD: eliminasi insulin lambat — mulai dosis rendah.');
-    if (kondisi === 'kritis') warnings.push('Pasien ICU: pertimbangkan insulin infus IV.');
-    if (kondisi === 'lansia') warnings.push('Lansia: target lebih longgar (160–180) dianjurkan.');
-    if (mealCount === 0) warnings.push('Pasien puasa/NPO: bolus makan distop, hanya basal + koreksi.');
-    if (g > 350) warnings.push('GDS >350: pertimbangkan insulin infus IV.');
-
-    return { error: false, tdd, basal, bolusPerMeal, cf, correction, totalNow, mealCount, warnings, tPrev, doseFactor, w, g, t };
+    if (r.kind === 'needsIv') {
+      return { error: true as const, iv: true, msg: `${r.factor.source} Untuk transisi IV→SC, isi "TDD Sblmnya" dengan total kebutuhan insulin IV 24 jam terakhir.` };
+    }
+    return {
+      error: false as const,
+      tdd: r.tdd, basal: r.basal, bolusPerMeal: r.bolusPerMeal, cf: r.cf, correction: r.correction,
+      totalNow: r.totalNow, mealCount: r.mealCount, warnings: r.warnings,
+      tPrev: r.fromPrev ? r.tdd : 0,
+      doseFactor: r.factor?.factor ?? 0,
+      factorSource: r.factor?.source ?? '',
+      w, g, t,
+    };
   };
 
   const bbcRes = mode === 'bbc' ? calcBBC() : null;
@@ -143,7 +130,8 @@ export default function KalkulatorInsulin() {
     else { lvl = 1; lvlLbl = 'Level 1 — Alert'; lvlCls = 'text-amber-500 bg-amber-500/10 border-amber-500/20'; }
 
     let delta = Math.max(t - g, 30);
-    let glucG = Math.round(delta * 0.2 * w / 100 * 10) / 10;
+    // Estimasi praktis (tidak tersumber guideline) — lihat utils/insulin.ts
+    let glucG = glucoseGramsEstimate(delta, w);
     
     let volD40 = Math.round(glucG / 0.4 * 10) / 10;
     let volD20 = Math.round(glucG / 0.2 * 10) / 10;
@@ -221,9 +209,9 @@ export default function KalkulatorInsulin() {
                       <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e=>setKondisi(e.target.value)}>
                         <option value="normal">Tidak ada</option>
                         <option value="steroid">Terapi steroid</option>
-                        <option value="ginjal">GFR &lt;30 / HD</option>
-                        <option value="lansia">Lansia (&gt;70 th)</option>
-                        <option value="kritis">Kritis (ICU)</option>
+                        <option value="ginjal">Kreatinin ≥2,0 / GFR &lt;30 / HD</option>
+                        <option value="lansia">Lansia (≥70 th)</option>
+                        <option value="kritis">Kritis (ICU) → insulin IV</option>
                       </select>
                     </div>
                   </>
@@ -234,9 +222,15 @@ export default function KalkulatorInsulin() {
              {mode === 'bbc' && bbcRes && (
                <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
                  {bbcRes.error ? (
-                   <div className="bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/30 p-4 rounded-xl font-bold flex gap-3 text-[14px] shadow-sm">
-                     <AlertTriangle className="w-5 h-5 shrink-0" /> {bbcRes.msg}
-                   </div>
+                   bbcRes.iv ? (
+                     <div className="bg-amber-50 dark:bg-amber-900/10 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/30 p-4 rounded-xl font-semibold flex gap-3 text-[14px] shadow-sm">
+                       <AlertTriangle className="w-5 h-5 shrink-0" /> {bbcRes.msg}
+                     </div>
+                   ) : (
+                     <div className="bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/30 p-4 rounded-xl font-bold flex gap-3 text-[14px] shadow-sm">
+                       <AlertTriangle className="w-5 h-5 shrink-0" /> {bbcRes.msg}
+                     </div>
+                   )
                  ) : (
                    <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4">
                       
@@ -255,7 +249,7 @@ export default function KalkulatorInsulin() {
                           <div className="text-[10px] font-medium opacity-60 text-slate-600 dark:text-slate-400">{bbcRes.tPrev ? 'Dari input' : `${bbcRes.w}kg × ${bbcRes.doseFactor}`}</div>
                         </div>
                         <div className="bg-slate-50 dark:bg-[#2C2C2E] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
-                          <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Basal Malam</div>
+                          <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Basal 1×/hari</div>
                           <div className="text-xl font-bold text-slate-800 dark:text-slate-200">{bbcRes.basal} <span className="font-normal text-[12px] opacity-70">u</span></div>
                         </div>
                         <div className="bg-slate-50 dark:bg-[#2C2C2E] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
@@ -289,11 +283,11 @@ export default function KalkulatorInsulin() {
                                 : `TDD = BB × faktor = ${bbcRes.w} × ${bbcRes.doseFactor} = ${bbcRes.tdd} unit/hari`,
                               note: bbcRes.tPrev
                                 ? 'TDD dari riwayat lebih akurat daripada estimasi berbasis BB.'
-                                : `Faktor ${bbcRes.doseFactor}: 0.3 untuk risiko hipoglikemia (CKD/lansia/kritis), 0.5 standar, 0.6 saat steroid.`,
+                                : bbcRes.factorSource,
                             },
                             {
                               label: 'Langkah 2 — Basal (50% TDD):',
-                              formula: `Basal = ${bbcRes.tdd} × 0.5 = ${bbcRes.basal} unit (long-acting, malam)`,
+                              formula: `Basal = ${bbcRes.tdd} × 0.5 = ${bbcRes.basal} unit (long-acting, 1×/hari pada jam yang sama)`,
                             },
                             {
                               label: 'Langkah 3 — Bolus prandial (50% TDD dibagi jumlah makan):',
@@ -304,7 +298,7 @@ export default function KalkulatorInsulin() {
                             {
                               label: 'Langkah 4 — Correction Factor (aturan 1800):',
                               formula: `CF = 1800 ÷ TDD = 1800 ÷ ${bbcRes.tdd} = ${bbcRes.cf} mg/dL per unit`,
-                              note: '1 unit insulin rapid menurunkan GDS sekitar CF mg/dL (aturan 1800, insulin analog).',
+                              note: '1 unit insulin rapid menurunkan GDS sekitar CF mg/dL — aturan 1800 = heuristik praktis (insulin analog), bukan hasil RCT.',
                             },
                             {
                               label: 'Langkah 5 — Dosis koreksi saat ini:',
@@ -429,7 +423,7 @@ export default function KalkulatorInsulin() {
                        <span className="text-slate-600 dark:text-slate-400">Glukosa dibutuhkan</span>
                        <span className="font-bold text-lg text-blue-600 dark:text-blue-400">{hipoRes.glucG.toFixed(1)} g</span>
                      </div>
-                     <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">Formula: Δ × 0.2 × BB / 100</div>
+                     <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">Estimasi praktis: Δ × 0,2 × BB / 100 (tidak tersumber guideline)</div>
                    </div>
 
                    {route === 'iv' && (
@@ -480,7 +474,7 @@ export default function KalkulatorInsulin() {
                        {
                          label: 'Langkah 2 — Gram glukosa yang dibutuhkan:',
                          formula: `Glukosa = Δ × 0.2 × BB ÷ 100\n= ${hipoRes.delta.toFixed(1)} × 0.2 × ${hipoBb} ÷ 100 = ${hipoRes.glucG.toFixed(1)} g`,
-                         note: 'Aturan praktis: ~0.2 g glukosa per kgBB menaikkan GDS ~100 mg/dL (volume distribusi glukosa).',
+                         note: 'ESTIMASI PRAKTIS (tidak tersumber guideline): asumsi volume distribusi glukosa ±0,2 L/kg → 0,2 g/kg menaikkan GDS ±100 mg/dL. Titrasi dengan GDS ulang 15 menit.',
                        },
                        {
                          label: 'Langkah 3 — Konversi ke volume dekstrosa:',
@@ -513,12 +507,12 @@ export default function KalkulatorInsulin() {
 
       <Accordion title="📖 Teori & Referensi: Terapi Insulin & Hipoglikemia">
         <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
-          <li><strong className="text-slate-800 dark:text-slate-200">Basal-Bolus-Correction (BBC):</strong> Regimen insulin fisiologis terfavorit untuk pasien DM di ruang rawat inap. Komponennya: (1) Basal untuk glukosa puasa (50% dari TDD), (2) Prandial/Bolus untuk mengatasi beban makanan (50% dibagi 3 makan), dan (3) Koreksional untuk hiperglikemia persisten berdasar sensitivitas (1800/TDD). TDD (Total Daily Dose) awal bervariasi dari 0.2 unit/kg (risiko hipoglikemi/CKD) hingga 0.5 unit/kg (DM kronis/obesitas).</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Basal-Bolus-Correction (BBC):</strong> Regimen insulin fisiologis terfavorit untuk pasien DM di ruang rawat inap. Komponennya: (1) Basal untuk glukosa puasa (50% dari TDD), (2) Prandial/Bolus untuk mengatasi beban makanan (50% dibagi 3 makan), dan (3) Koreksional untuk hiperglikemia persisten berdasar sensitivitas (aturan 1800/TDD — heuristik). TDD awal (RABBIT-2, pasien DM tipe 2 non-ICU): 0,4 U/kg/hari bila GDS 140–200 mg/dL, 0,5 U/kg/hari bila 201–400 mg/dL; diturunkan ke 0,3 U/kg/hari pada usia ≥70 tahun dan/atau kreatinin ≥2,0 mg/dL (RABBIT-2 Surgery). Pasien kritis: insulin infus IV (ADA).</li>
           <li><strong className="text-slate-800 dark:text-slate-200">Sliding Scale (Koreksional Independen):</strong> Penggunaan regimen reaktif (hanya memberikan insulin saat gula sudah tinggi). Menurut panduan ADA terbaru, penggunaan Sliding Scale secara independen untuk jangka panjang sangat tidak disarankan karena mencetuskan fluktuasi glukosa yang buruk, namun bisa digunakan sementara.</li>
           <li><strong className="text-slate-800 dark:text-slate-200">Manajemen Hipoglikemia:</strong> Rule of 15: Berikan 15g karbohidrat simpleks (jika pasien sadar) dan cek ulang GDS 15 menit kemudian. Untuk pasien tidak sadar (Koma Hipoglikemik), berikan Dekstrosa IV bolus cepat (D40% sebanyak 25-50 mL atau 1-2 flakon).</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 American Diabetes Association (ADA) Standards of Medical Care in Diabetes; PERKENI KONSENSUS PENGELOLAAN DIABETES MELITUS.
+          📚 Umpierrez GE et al. (RABBIT 2). Diabetes Care 2007;30:2181–6 · Umpierrez GE et al. (RABBIT 2 Surgery). Diabetes Care 2011;34:256–61 · American Diabetes Association. Standards of Care in Diabetes — Diabetes Care in the Hospital (diperbarui tiap tahun) · PERKENI. Konsensus Pengelolaan dan Pencegahan Diabetes Melitus Tipe 2 di Indonesia.
         </div>
       </Accordion>
 
