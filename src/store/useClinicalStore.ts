@@ -24,7 +24,7 @@ export interface ClinicalData {
   trombosit?: string;       // 10^3/µL
   glukosa?: string;         // mg/dL
   gcs?: string;             // total score (3-15)
-  fio2?: string;            // % (21 - 100)
+  fio2?: string;            // % (21 - 100) — modul yang memakai fraksi (ABG, APACHE) WAJIB konversi saat sync (utils/abg: fio2ToPercentString / fio2FromStoreString)
   rr?: string;              // n/menit
   hr?: string;              // bpm
   systolic?: string;        // mmHg

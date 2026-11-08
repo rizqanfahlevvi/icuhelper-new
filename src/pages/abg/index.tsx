@@ -8,6 +8,7 @@ import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { fio2ToPercentString, fio2FromStoreString } from '../../utils/abg';
 
 export default function AbgPage() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -30,7 +31,8 @@ export default function AbgPage() {
       { key: 'cl' as const, label: 'Klorida', value: abgInputs.cl, setter: (val: string) => setAbgInputs(prev => ({ ...prev, cl: val })), unit: 'mEq/L' },
       { key: 'albumin' as const, label: 'Albumin', value: abgInputs.alb, setter: (val: string) => setAbgInputs(prev => ({ ...prev, alb: val })), unit: 'g/dL' },
       { key: 'rr' as const, label: 'RR', value: abgInputs.rr, setter: (val: string) => setAbgInputs(prev => ({ ...prev, rr: val })), unit: 'x/menit' },
-      { key: 'fio2' as const, label: 'FiO2', value: abgInputs.fio2Direct, setter: (val: string) => setAbgInputs(prev => ({ ...prev, fio2Direct: val, fio2Mode: 'direct' })), unit: '%' },
+      // Clinical store menyimpan FiO₂ dalam PERSEN (21–100); ABG memakai fraksi → konversi dua arah.
+      { key: 'fio2' as const, label: 'FiO2', value: abgInputs.fio2Mode === 'direct' ? fio2ToPercentString(abgInputs.fio2Direct) : '', setter: (val: string) => setAbgInputs(prev => ({ ...prev, fio2Direct: fio2FromStoreString(val), fio2Mode: 'direct' })), unit: '%' },
     ];
   }, [abgInputs]);
 

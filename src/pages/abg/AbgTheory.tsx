@@ -25,7 +25,7 @@ export default function AbgTheory() {
                 <tr className="border-b border-border/50"><td className="p-2">BE (Base Excess)</td><td className="p-2">-2 s/d +2</td><td className="p-2">mEq/L</td></tr>
                 <tr className="border-b border-border/50"><td className="p-2">SpO₂ / SaO₂</td><td className="p-2">95–100%</td><td className="p-2">—</td></tr>
                 <tr className="border-b border-border/50"><td className="p-2">Laktat</td><td className="p-2">&lt;2.0</td><td className="p-2">mmol/L</td></tr>
-                <tr className="border-b border-border/50"><td className="p-2">Anion Gap</td><td className="p-2">8–12 (corrected 10–14)</td><td className="p-2">mEq/L</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2">Anion Gap</td><td className="p-2">8–12 (sesuaikan dengan rentang lab; koreksi albumin acuan 4,0 g/dL)</td><td className="p-2">mEq/L</td></tr>
               </tbody>
             </table>
           </div>

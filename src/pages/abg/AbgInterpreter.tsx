@@ -1,4 +1,5 @@
-import { Activity, Beaker, Dna, Info, CheckCircle2 } from 'lucide-react';
+import { Beaker, Dna, Info, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { AgUpperNormalField } from '../../components/ui/AgUpperNormalField';
 import { AbgInputs } from './types';
 import { useAbgCalculator } from './useAbgCalculator';
 
@@ -167,7 +168,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                   value={inputs.fio2Direct} 
                   onChange={e => updateInput('fio2Direct', e.target.value)}
                   className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
-                  placeholder="0.21 - 1.00" 
+                  placeholder="0.21–1.0 / 21–100%" 
                 />
               </div>
             ) : (
@@ -223,6 +224,9 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                <input type="number" placeholder="RR" value={inputs.rr} onChange={e=>updateInput('rr',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
                <input type="number" placeholder="MAP" value={inputs.mapV} onChange={e=>updateInput('mapV',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
             </div>
+            <div className="pt-2 mt-1 border-t border-slate-200 dark:border-slate-700">
+              <AgUpperNormalField />
+            </div>
           </div>
         </div>
       </div>
@@ -237,6 +241,22 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           </div>
           
           <div className="p-4 sm:p-5 space-y-4">
+            {calcResult.inputError && (
+              <div className="p-4 rounded-xl border bg-destructive/10 border-destructive/30 text-destructive flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div className="text-[13px] font-bold">{calcResult.inputError}</div>
+              </div>
+            )}
+
+            {calcResult.warnings.length > 0 && (
+              <div className="p-4 rounded-xl border bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 space-y-1.5">
+                <div className="text-[11px] font-bold uppercase tracking-widest flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5" /> Periksa Input</div>
+                <ul className="list-disc pl-5 space-y-1">
+                  {calcResult.warnings.map((w, i) => <li key={i} className="text-[12px] font-medium">{w}</li>)}
+                </ul>
+              </div>
+            )}
+
             {calcResult.step1 && (
               <div className={`p-4 rounded-xl border ${calcResult.step1.cls}`}>
                 <div className="text-[11px] font-bold uppercase tracking-widest opacity-80 mb-1">Langkah 1 — Status pH</div>
@@ -250,6 +270,11 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 <div className={`p-4 rounded-xl border ${calcResult.step2Primer.cls}`}>
                   <div className="text-[11px] font-bold uppercase tracking-widest opacity-80 mb-1">Langkah 2 — Gangguan Primer</div>
                   <div className="font-extrabold text-sm text-[var(--label-primary)]">{calcResult.step2Primer.interp}</div>
+                  {calcResult.step2Primer.notes.length > 0 && (
+                    <ul className="mt-2 space-y-1 list-disc pl-4">
+                      {calcResult.step2Primer.notes.map((n, i) => <li key={i} className="text-[12px] text-amber-600 dark:text-amber-400 font-medium">{n}</li>)}
+                    </ul>
+                  )}
                 </div>
               )}
 
@@ -287,7 +312,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
 
             {calcResult.step6Oksigenasi && (
               <div className={`p-4 rounded-xl border ${calcResult.step6Oksigenasi.cls}`}>
-                <div className="text-[11px] font-bold uppercase tracking-widest text-[#007AFF] dark:text-[#0A84FF] opacity-90 mb-2">Langkah 6 — Oksigenasi & Gagal Napas</div>
+                <div className="text-[11px] font-bold uppercase tracking-widest text-[var(--sys-blue)] opacity-90 mb-2">Langkah 6 — Oksigenasi & Gagal Napas</div>
                 <div className="space-y-2">
                   {calcResult.step6Oksigenasi.items.map((item, idx) => (
                     <div key={idx} className="text-[13px] leading-relaxed">

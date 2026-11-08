@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { AbgInputs } from './types';
 import { Calculator, AlertTriangle } from 'lucide-react';
-import { bicarbDeficit, bicarbSpaceFernandez, recommendBicarbFactor } from '../../utils/acidBase';
+import {
+  bicarbDeficit, bicarbSpaceFernandez, recommendBicarbFactor,
+  anionGap, deltaRatio, normalizeAgUpper, DELTA_BAND_LABEL, DELTA_RATIO_CAUTION, AG_ALBUMIN_NORMAL_G_DL,
+} from '../../utils/acidBase';
+import { useSettingsStore } from '../../store/settingsStore';
+import { AgUpperNormalField } from '../../components/ui/AgUpperNormalField';
 
 interface Props {
   abgInputs: AbgInputs;
@@ -9,6 +14,7 @@ interface Props {
 
 export default function AcidBaseCorrection({ abgInputs }: Props) {
   const [activeTab, setActiveTab] = useState(1);
+  const agUpper = normalizeAgUpper(useSettingsStore(s => s.agUpperNormal));
 
   // Tab 1 state
   const [bb, setBb] = useState('');
@@ -248,21 +254,24 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
       );
     }
 
-    const ag = n - (c + h);
-    const albCorr = !isNaN(a) ? (a - 4.0) * 2.5 : 0;
-    const agCorr = ag - albCorr;
-    const agHigh = agCorr > 16;
-    
+    const agRes = anionGap(n, c, h, isNaN(a) ? null : a, agUpper);
+    if (!agRes) return null;
+    const ag = agRes.ag;
+    const agCorr = agRes.effective;
+    const agHigh = agRes.high;
+
     let ddHtml = null;
     if (agHigh) {
-      const dd = (agCorr - 12) / (24 - h);
+      const dd = deltaRatio(agCorr, h, agRes.upper);
       ddHtml = (
          <div className="p-4 border border-indigo-200 bg-indigo-50 dark:border-indigo-500/20 dark:bg-indigo-500/10 rounded-xl mt-3">
            <div className="font-bold text-sm mb-1 text-indigo-800 dark:text-indigo-400">Delta-Delta Ratio</div>
-           <div className="text-xl font-black text-[var(--label-primary)] mb-1">{dd.toFixed(2)}</div>
+           <div className="text-xl font-black text-[var(--label-primary)] mb-1">{dd.ratio !== null ? dd.ratio.toFixed(2) : 'tidak terdefinisi'}</div>
            <div className="text-xs font-medium text-indigo-700 dark:text-indigo-300">
-             {dd < 0.4 ? '< 0.4 → NAGMA lebih dominan' : dd <= 0.8 ? '0.4-0.8 → HAGMA + NAGMA campuran' : dd <= 2.0 ? '0.8-2.0 → HAGMA murni' : '> 2.0 → + Alkalosis Metabolik'}
+             {dd.ratio !== null && dd.band ? DELTA_BAND_LABEL[dd.band] : `HCO₃⁻ ${h} ≥ 24 meski AG naik → pola HAGMA + alkalosis metabolik bersamaan`}
            </div>
+           <div className="text-[11px] font-mono text-slate-500 mt-2">Δ/Δ = (AG{agRes.agCorr !== null ? ' terkoreksi' : ''} − {agRes.upper}) ÷ (24 − HCO₃⁻) = ({agCorr.toFixed(1)} − {agRes.upper}) ÷ (24 − {h})</div>
+           <div className="text-[11px] text-slate-500 mt-1">{DELTA_RATIO_CAUTION}</div>
          </div>
       );
     }
@@ -277,14 +286,21 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
         </div>
         
         <div className={`p-4 border rounded-xl ${agHigh ? 'bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700/50'}`}>
-           <div className={`font-bold text-sm mb-1 ${agHigh ? 'text-rose-600 dark:text-rose-400' : 'text-primary'}`}>Anion Gap {isNaN(a) ? '' : '(Terkoreksi)'}</div>
+           <div className={`font-bold text-sm mb-1 ${agHigh ? 'text-rose-600 dark:text-rose-400' : 'text-primary'}`}>Anion Gap {agRes.agCorr !== null ? '(Terkoreksi)' : ''}</div>
            <div className="text-2xl font-black text-[var(--label-primary)] mb-1">{agCorr.toFixed(1)} mEq/L <span className="text-sm font-bold text-[var(--label-secondary)]">{agHigh ? '↑ HAGMA' : 'Normal'}</span></div>
            <div className="text-[11px] font-mono text-slate-500 font-medium mt-2 border-t border-slate-200 dark:border-slate-700/50 pt-2">
-             AG = {n} − ({c} + {h}) = {ag.toFixed(1)} {!isNaN(a) && `| Koreksi alb: ${agCorr.toFixed(1)}`}
+             AG = {n} − ({c} + {h}) = {ag.toFixed(1)} {agRes.agCorr !== null && `| AG + 2,5 × (${AG_ALBUMIN_NORMAL_G_DL.toFixed(1)} − ${a}) = ${agRes.agCorr.toFixed(1)}`} · batas atas normal {agRes.upper}
            </div>
+           {agRes.albuminSuspectUnit && (
+             <div className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-2">Albumin {a} &gt; 7 g/dL — kemungkinan satuan g/L (35 g/L = 3,5 g/dL). Koreksi albumin tidak dihitung.</div>
+           )}
         </div>
         
         {ddHtml}
+
+        <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/60 dark:bg-slate-800/40">
+          <AgUpperNormalField />
+        </div>
 
         <div className="p-4 border border-slate-200 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-800/50 rounded-xl">
            <div className="font-bold text-sm mb-1 text-[var(--label-secondary)]">Strong Ion Difference (SID simpel)</div>

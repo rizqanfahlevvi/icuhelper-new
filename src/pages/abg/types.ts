@@ -1,3 +1,5 @@
+import { resolveDirectFio2, estimateLowFlowFio2 } from '../../utils/abg';
+
 export interface AbgInputs {
   ph: string;
   pco2: string;
@@ -29,27 +31,8 @@ export const defaultAbgInputs: AbgInputs = {
   spo2Source: 'pulse', fio2Mode: 'direct'
 };
 
+/** FiO₂ efektif (fraksi) — lihat resolveDirectFio2/estimateLowFlowFio2 di utils/abg.ts. */
 export const getFio2Value = (inputs: AbgInputs): number | null => {
-  if (inputs.fio2Mode === 'direct') {
-    return parseFloat(inputs.fio2Direct) || null;
-  }
-  const device = inputs.fio2Device;
-  const flow = parseFloat(inputs.fio2Flow);
-  if (device.startsWith('venturi')) {
-    return parseInt(device.replace('venturi', '')) / 100;
-  }
-  if (!isNaN(flow)) {
-    if (device === 'nasal') return Math.min(0.21 + 0.04 * flow, 0.44);
-    if (device === 'simple') {
-      if (flow <= 6) return 0.35;
-      if (flow >= 10) return 0.60;
-      return 0.35 + (flow - 6) * 0.0625;
-    }
-    if (device === 'nrm') {
-      if (flow <= 10) return 0.80;
-      if (flow >= 15) return 0.95;
-      return 0.80 + (flow - 10) * 0.03;
-    }
-  }
-  return null;
-}
+  if (inputs.fio2Mode === 'direct') return resolveDirectFio2(inputs.fio2Direct).value;
+  return estimateLowFlowFio2(inputs.fio2Device, parseFloat(inputs.fio2Flow));
+};

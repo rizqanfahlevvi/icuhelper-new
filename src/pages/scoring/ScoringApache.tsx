@@ -4,6 +4,7 @@ import { Accordion } from '../../components/ui/Accordion';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { fio2ToPercentString, fio2FromStoreString } from '../../utils/abg';
 
 export default function ScoringApache() {
   const [age, setAge] = useState('');
@@ -243,7 +244,8 @@ export default function ScoringApache() {
       { key: 'map' as const, label: 'MAP', value: map, setter: setMap, unit: 'mmHg' },
       { key: 'hr' as const, label: 'HR', value: hr, setter: setHr, unit: 'x/menit' },
       { key: 'rr' as const, label: 'RR', value: rr, setter: setRr, unit: 'x/menit' },
-      { key: 'fio2' as const, label: 'FiO2', value: fio2, setter: setFio2, unit: '%' },
+      // Clinical store menyimpan FiO₂ dalam PERSEN; APACHE memakai fraksi → konversi dua arah.
+      { key: 'fio2' as const, label: 'FiO2', value: fio2ToPercentString(fio2), setter: (val: string) => setFio2(fio2FromStoreString(val)), unit: '%' },
       { key: 'pao2' as const, label: 'PaO2', value: pao2, setter: setPao2, unit: 'mmHg' },
       { key: 'pco2' as const, label: 'PaCO2', value: paco2, setter: setPaco2, unit: 'mmHg' },
       { key: 'ph' as const, label: 'pH', value: ph, setter: setPh, unit: '' },

@@ -84,7 +84,7 @@ export default function TeoriAGD() {
               <p className="text-[12px] text-muted-foreground">Hyperalimentation, Acetazolamide, Renal tubular acidosis, Diarrhea, Uretero-pelvic shunt, Post-hypocapnia.</p>
             </div>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-3 italic">*Catatan: Bila albumin rendah, hitung Corrected Anion Gap: AG terukur + 2.5(4.5 - Albumin pasien).</p>
+          <p className="text-[11px] text-muted-foreground mt-3 italic">*Catatan: Bila albumin rendah, hitung Corrected Anion Gap: AG terukur + 2.5 × (4.0 − Albumin pasien [g/dL]). Acuan 4,0 g/dL dipakai seragam di seluruh kalkulator ICU Helper; batas atas AG normal dapat disesuaikan dengan lab RS.</p>
         </Accordion>
 
         <Accordion title="🫁 Evaluasi Oksigenasi">

@@ -1,38 +1,26 @@
 import { describe, it, expect } from 'vitest';
 
-// ── Anion Gap ──────────────────────────────────────────────────────────────
-function calcAG(na: number, cl: number, hco3: number) {
-  return na - (cl + hco3);
-}
-function calcCorrectedAG(ag: number, albumin: number) {
-  return ag + 2.5 * (4.4 - albumin);
-}
-function calcDeltaRatio(effectiveAG: number, hco3: number) {
-  const deltaHCO3 = 24 - hco3;
-  if (deltaHCO3 === 0) return null;
-  return (effectiveAG - 12) / deltaHCO3;
-}
+// ── Anion Gap (memakai util bersama — albumin acuan 4,0 g/dL) ─────────────
+import { anionGap, deltaRatio } from '../utils/acidBase';
 
 describe('Anion Gap', () => {
   it('normal: Na 140, Cl 104, HCO3 24 → AG 12', () => {
-    expect(calcAG(140, 104, 24)).toBe(12);
+    expect(anionGap(140, 104, 24)!.ag).toBe(12);
   });
   it('high AG: Na 140, Cl 100, HCO3 16 → AG 24', () => {
-    expect(calcAG(140, 100, 16)).toBe(24);
+    expect(anionGap(140, 100, 16)!.ag).toBe(24);
   });
-  it('corrected AG with hypoalbuminemia 2 g/dL', () => {
-    const ag = calcAG(140, 104, 24); // 12
-    expect(calcCorrectedAG(ag, 2)).toBeCloseTo(12 + 2.5 * (4.4 - 2), 5); // 18
+  it('corrected AG with hypoalbuminemia 2 g/dL → 12 + 2.5 × (4.0 − 2) = 17', () => {
+    expect(anionGap(140, 104, 24, 2)!.agCorr).toBeCloseTo(17, 5);
   });
-  it('delta ratio normal range 0.8-2.0 for pure high AG acidosis', () => {
-    // Classic DKA: high AG, bicarb low
-    const ag = calcAG(140, 100, 10); // 30
-    const dr = calcDeltaRatio(ag, 10);
-    expect(dr).toBeGreaterThanOrEqual(0.8);
-    expect(dr).toBeLessThanOrEqual(2.0);
+  it('delta ratio 0.8-2.0 for pure high AG acidosis (classic DKA)', () => {
+    const r = anionGap(140, 100, 10)!; // AG 30
+    const d = deltaRatio(r.effective, 10);
+    expect(d.ratio).toBeGreaterThanOrEqual(0.8);
+    expect(d.ratio).toBeLessThanOrEqual(2.0);
   });
   it('delta ratio avoids division by zero when HCO3 = 24', () => {
-    expect(calcDeltaRatio(12, 24)).toBeNull();
+    expect(deltaRatio(12, 24).ratio).toBeNull();
   });
 });
 

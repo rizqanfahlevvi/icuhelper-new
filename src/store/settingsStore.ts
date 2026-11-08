@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { Dispatch } from 'react';
 
 export type FontFamily = 'lexend' | 'inter' | 'roboto' | 'jetbrains' | 'system' | 'poppins' | 'montserrat' | 'plus-jakarta' | 'outfit' | 'space-grotesk' | 'fira-code' | 'quicksand';
 export type FontWeight = number; // -100 to 150 (offset from standard weights)
@@ -14,6 +15,8 @@ interface SettingsState {
   readingMode: boolean; // High Contrast Reading Mode
   soundEnabled: boolean;
   vibrationEnabled: boolean;
+  /** Batas atas Anion Gap normal sesuai lab RS (mEq/L). Default 12. Dipakai ABG, tab AG, Kalkulator AG. */
+  agUpperNormal: number;
   
   setFontFamily: (fontFamily: FontFamily) => void;
   setFontScale: (scale: number) => void;
@@ -23,6 +26,7 @@ interface SettingsState {
   setReadingMode: (enabled: boolean) => void;
   setSoundEnabled: (enabled: boolean) => void;
   setVibrationEnabled: (enabled: boolean) => void;
+  setAgUpperNormal: Dispatch<number>;
   
   resetSettings: () => void;
 }
@@ -36,6 +40,7 @@ const defaultSettings = {
   readingMode: false,
   soundEnabled: true,
   vibrationEnabled: true,
+  agUpperNormal: 12,
 };
 
 export const useSettingsStore = create<SettingsState>()(
@@ -51,6 +56,7 @@ export const useSettingsStore = create<SettingsState>()(
       setReadingMode: (readingMode) => set({ readingMode }),
       setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
       setVibrationEnabled: (vibrationEnabled) => set({ vibrationEnabled }),
+      setAgUpperNormal: (agUpperNormal) => set({ agUpperNormal }),
       
       resetSettings: () => set(defaultSettings),
     }),
