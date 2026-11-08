@@ -72,32 +72,64 @@ export default function AbgTheory() {
         <p className="text-[11px] opacity-80 text-orange-700 dark:text-orange-300 italic">📚 Albert MS, Dell RB, Winters RW. Ann Intern Med 1967 (Winter) · Narins RG, Emmett M. Medicine 1980 · Berend K, de Vries APJ, Gans ROB. NEJM 2014</p>
       </Accordion>
 
-      <Accordion title="📖 P/F Ratio, A-a Gradient, OI & ROX Index">
-        <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">P/F Ratio (PaO₂/FiO₂)</h3>
-        <div className="overflow-x-auto mb-4 w-full">
-          <div className="min-w-[400px] p-3 pt-0">
+      <Accordion title="📖 Kategori Gagal Napas (Tipe 1–4)">
+        <div className="overflow-x-auto mb-3 w-full">
+          <div className="min-w-[440px] p-3 pt-0">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
                 <tr>
-                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">P/F Ratio</th>
-                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Klasifikasi</th>
-                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Keterangan</th>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Tipe</th>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Kriteria AGD</th>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Mekanisme / contoh</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border/50"><td className="p-2">≥400</td><td className="p-2 text-success">Normal</td><td className="p-2">Oksigenasi adekuat</td></tr>
-                <tr className="border-b border-border/50"><td className="p-2">300–400</td><td className="p-2 text-success">Hipoksemia ringan</td><td className="p-2">Waspada</td></tr>
-                <tr className="border-b border-border/50"><td className="p-2">200–300</td><td className="p-2 text-warning">ARDS Mild</td><td className="p-2">PEEP ≥5 cmH₂O</td></tr>
-                <tr className="border-b border-border/50"><td className="p-2">100–200</td><td className="p-2 text-destructive">ARDS Moderate</td><td className="p-2">Lung-protective wajib</td></tr>
-                <tr className="border-b border-border/50"><td className="p-2">&lt;100</td><td className="p-2 text-destructive">ARDS Severe</td><td className="p-2">Prone, ECMO pertimbangkan</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2 font-semibold">Tipe 1 — hipoksemik</td><td className="p-2">PaO₂ &lt;60 mmHg, PaCO₂ normal/rendah. Bila sudah ber-O₂: P/F ≤300</td><td className="p-2">V/Q mismatch, shunt: pneumonia, ARDS, edema paru</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2 font-semibold">Tipe 2 — hiperkapnik</td><td className="p-2">PaCO₂ &gt;45 mmHg dengan pH &lt;7,35 (akut). Kronik: PaCO₂ tinggi, pH normal, HCO₃⁻ naik</td><td className="p-2">Hipoventilasi: PPOK, asma berat, neuromuskular, depresi napas</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2 font-semibold">Tipe 3 — perioperatif*</td><td className="p-2">Seperti tipe 1</td><td className="p-2">Atelektasis pasca-anestesi/operasi</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2 font-semibold">Tipe 4 — hipoperfusi*</td><td className="p-2">Tidak ditentukan dari AGD</td><td className="p-2">Syok: hipoperfusi otot napas</td></tr>
               </tbody>
             </table>
           </div>
         </div>
+        <ul className="list-disc pl-5 space-y-1 text-[12px] text-muted-foreground mb-2">
+          <li><strong className="text-foreground">Akut vs kronik vs akut-pada-kronik</strong> (tipe 2) dibedakan dari HCO₃⁻ terhadap harapan kompensasi: sesuai akut (0,1 × ΔPaCO₂), sesuai kronik (0,35 × ΔPaCO₂), atau di antaranya.</li>
+          <li>A-a gradient normal pada tipe 2 → hipoventilasi murni; A-a meningkat → ada komponen parenkim.</li>
+          <li>BTS/ICS 2016: pH &lt;7,35 & PaCO₂ &gt;6,5 kPa (≈49 mmHg) yang menetap setelah terapi medis optimal = ambang memulai NIV pada eksaserbasi PPOK.</li>
+          <li>*Tipe 3 & 4 adalah klasifikasi mekanistik tambahan yang tidak dipakai semua literatur.</li>
+        </ul>
+        <p className="text-[11px] opacity-80 text-orange-700 dark:text-orange-300 italic">📚 Mirabile VS et al. Respiratory Failure in Adults. StatPearls (NBK526127) · Davidson AC et al. BTS/ICS guideline. Thorax 2016 · Frat JP et al. NEJM 2015 (FLORALI, ambang AHRF P/F ≤300)</p>
+      </Accordion>
+
+      <Accordion title="📖 P/F, S/F & Definisi ARDS (Berlin 2012 · Global 2023)">
+        <div className="overflow-x-auto mb-3 w-full">
+          <div className="min-w-[440px] p-3 pt-0">
+            <table className="w-full text-left border-collapse text-[12px]">
+              <thead>
+                <tr>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Kategori</th>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">P/F (mmHg)</th>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">S/F (Global, SpO₂ ≤97%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-border/50"><td className="p-2 text-amber-600 dark:text-amber-400">Ringan</td><td className="p-2">&gt;200 – ≤300</td><td className="p-2">&gt;235 – ≤315</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2 text-destructive">Sedang</td><td className="p-2">&gt;100 – ≤200</td><td className="p-2">&gt;148 – ≤235</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2 text-destructive">Berat</td><td className="p-2">≤100</td><td className="p-2">≤148</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <ul className="list-disc pl-5 space-y-1 text-[12px] text-muted-foreground mb-3">
+          <li><strong className="text-foreground">Berlin 2012:</strong> PEEP/CPAP ≥5 cmH₂O; NIV/CPAP hanya untuk kategori ringan, kategori sedang/berat mensyaratkan ventilasi invasif. S/F tidak dipakai.</li>
+          <li><strong className="text-foreground">Global 2023:</strong> grading hanya untuk pasien terintubasi (P/F atau S/F). Non-intubasi: P/F ≤300 atau S/F ≤315 dengan HFNC ≥30 L/menit atau NIV/CPAP ≥5 cmH₂O (tanpa grading). Fasilitas terbatas: tanpa syarat PEEP, flow, atau alat; USG paru boleh untuk opasitas bilateral.</li>
+          <li>Keduanya mensyaratkan onset ≤1 minggu, opasitas bilateral, dan hipoksemia yang tidak sepenuhnya dijelaskan gagal jantung/kelebihan cairan. P/F normal ≥400; 300–400 di bawah normal tetapi bukan ARDS.</li>
+          <li>P/F dengan FiO₂ hasil estimasi alat low-flow hanya perkiraan kasar.</li>
+        </ul>
 
         <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">A-a Gradient (Alveolar-arterial O₂ Difference)</h3>
-        <p className="text-[12px] text-muted-foreground mb-1"><strong className="text-foreground">PAO₂ = FiO₂ × (Patm − PH₂O) − PaCO₂/RQ</strong></p>
-        <p className="text-[12px] text-muted-foreground mb-2">Pada udara ruang: PAO₂ = 150 − PaCO₂/0.8<br/><strong>A-a gradient = PAO₂ − PaO₂</strong> · Normal: (Usia/4 + 4) atau ≤10 mmHg (muda)</p>
+        <p className="text-[12px] text-muted-foreground mb-1"><strong className="text-foreground">PAO₂ = FiO₂ × (Patm − PH₂O) − PaCO₂/RQ</strong> (Patm 760 di permukaan laut, PH₂O 47, RQ 0,8)</p>
+        <p className="text-[12px] text-muted-foreground mb-2">Pada udara ruang: PAO₂ ≈ 150 − PaCO₂/0,8 · <strong>A-a = PAO₂ − PaO₂</strong> · Perkiraan normal udara ruang ≈ usia/4 + 4. Pada FiO₂ lebih tinggi A-a normal ikut melebar → gunakan P/F.</p>
         <div className="overflow-x-auto mb-4 w-full">
           <div className="min-w-[400px] p-3 pt-0">
             <table className="w-full text-left border-collapse text-[12px]">
@@ -118,27 +150,30 @@ export default function AbgTheory() {
           </div>
         </div>
 
-        <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">ROX Index (untuk HFNC)</h3>
-        <p className="text-[12px] text-muted-foreground mb-2"><strong className="text-foreground">ROX = (SpO₂/FiO₂) / RR spontan</strong></p>
+        <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Oxygenation Index (OI)</h3>
+        <p className="text-[12px] text-muted-foreground mb-4"><strong className="text-foreground">OI = Paw × FiO₂ × 100 / PaO₂</strong> — Paw = tekanan jalan napas rerata dari ventilator (bukan MAP arteri). Tidak ada ambang dewasa baku; ambang yang beredar berasal dari pediatri/neonatus → pakai untuk tren.</p>
+
+        <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">ROX Index (khusus HFNC)</h3>
+        <p className="text-[12px] text-muted-foreground mb-2"><strong className="text-foreground">ROX = (SpO₂/FiO₂) / RR</strong> — divalidasi pada pneumonia dengan HFNC; ambang bergantung waktu sejak HFNC dimulai.</p>
         <div className="overflow-x-auto mb-3 w-full">
           <div className="min-w-[400px] p-3 pt-0">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
                 <tr>
-                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">ROX</th>
-                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Interpretasi</th>
-                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Aksi</th>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Jam ke-</th>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Risiko rendah</th>
+                  <th className="p-2 border-b border-border font-semibold text-muted-foreground">Risiko gagal tinggi</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border/50"><td className="p-2">≥4.88</td><td className="p-2 text-success">HFNC sukses</td><td className="p-2">Lanjutkan HFNC</td></tr>
-                <tr className="border-b border-border/50"><td className="p-2">3.85–4.88</td><td className="p-2 text-warning">Borderline</td><td className="p-2">Evaluasi ketat 2-6 jam</td></tr>
-                <tr className="border-b border-border/50"><td className="p-2">&lt;3.85</td><td className="p-2 text-destructive">Risiko gagal tinggi</td><td className="p-2">Pertimbangkan intubasi</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2">2</td><td className="p-2 text-emerald-600 dark:text-emerald-400">≥4,88</td><td className="p-2 text-destructive">&lt;2,85</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2">6</td><td className="p-2 text-emerald-600 dark:text-emerald-400">≥4,88</td><td className="p-2 text-destructive">&lt;3,47</td></tr>
+                <tr className="border-b border-border/50"><td className="p-2">12</td><td className="p-2 text-emerald-600 dark:text-emerald-400">≥4,88</td><td className="p-2 text-destructive">&lt;3,85</td></tr>
               </tbody>
             </table>
           </div>
         </div>
-        <p className="text-[11px] opacity-80 text-orange-700 dark:text-orange-300 italic">📚 ARDSNet. NEJM 2000 · Berlin Definition. JAMA 2012 · Roca O et al. AJRCCM 2019 (ROX)</p>
+        <p className="text-[11px] opacity-80 text-orange-700 dark:text-orange-300 italic">📚 ARDS Definition Task Force. JAMA 2012 (Berlin) · Matthay MA et al. AJRCCM 2024 (Global) · ARDSNet. NEJM 2000 · Roca O et al. AJRCCM 2019 (ROX)</p>
       </Accordion>
     </div>
   );

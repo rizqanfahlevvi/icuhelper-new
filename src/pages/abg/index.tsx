@@ -15,9 +15,10 @@ export default function AbgPage() {
   const [abgInputs, setAbgInputs] = useState<AbgInputs>(defaultAbgInputs);
   const isFav = isFavorite('/abg');
 
-  const handleAutofill = (data: any) => {
-    // Just a placeholder, as ABG inputs don't have weight/age fields directly in the AbgInputs schema
-    // and AcidBaseCorrection manages weight locally inside its component right now.
+  // Autofill dari pasien aktif: usia (untuk perkiraan A-a gradient normal).
+  const handleAutofill = (data: { weightKg: string; temp?: string; age?: string; gender?: string }) => {
+    const age = data.age;
+    if (age) setAbgInputs(prev => ({ ...prev, age }));
   };
 
   const syncFields = useMemo(() => {
@@ -31,6 +32,8 @@ export default function AbgPage() {
       { key: 'cl' as const, label: 'Klorida', value: abgInputs.cl, setter: (val: string) => setAbgInputs(prev => ({ ...prev, cl: val })), unit: 'mEq/L' },
       { key: 'albumin' as const, label: 'Albumin', value: abgInputs.alb, setter: (val: string) => setAbgInputs(prev => ({ ...prev, alb: val })), unit: 'g/dL' },
       { key: 'rr' as const, label: 'RR', value: abgInputs.rr, setter: (val: string) => setAbgInputs(prev => ({ ...prev, rr: val })), unit: 'x/menit' },
+      { key: 'peep' as const, label: 'PEEP', value: abgInputs.peep, setter: (val: string) => setAbgInputs(prev => ({ ...prev, peep: val })), unit: 'cmH₂O' },
+      { key: 'age' as const, label: 'Usia', value: abgInputs.age, setter: (val: string) => setAbgInputs(prev => ({ ...prev, age: val })), unit: 'tahun' },
       // Clinical store menyimpan FiO₂ dalam PERSEN (21–100); ABG memakai fraksi → konversi dua arah.
       { key: 'fio2' as const, label: 'FiO2', value: abgInputs.fio2Mode === 'direct' ? fio2ToPercentString(abgInputs.fio2Direct) : '', setter: (val: string) => setAbgInputs(prev => ({ ...prev, fio2Direct: fio2FromStoreString(val), fio2Mode: 'direct' })), unit: '%' },
     ];

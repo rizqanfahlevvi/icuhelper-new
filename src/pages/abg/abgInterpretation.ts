@@ -10,6 +10,10 @@ import {
 import {
   anionGap, deltaRatio, DELTA_BAND_LABEL, DELTA_RATIO_CAUTION, AG_ALBUMIN_NORMAL_G_DL, AG_UPPER_NORMAL_DEFAULT,
 } from '../../utils/acidBase';
+import {
+  RespSupport, SUPPORT_LABEL, ARDS_OTHER_CRITERIA, classifyRespFailure, pfLabel, ardsOxygenation,
+  aaGradient, interpretAa, isRoomAir, expectedAaRoomAir, roxIndex, interpretRox, ardsnetLowPeep, RespFailureType,
+} from '../../utils/oxygenation';
 
 export interface OxResult {
   label: string;
@@ -29,7 +33,9 @@ export interface AbgResultData {
   step3Kompensasi: { detail: string; cls: string } | null;
   step4Ag: { high: boolean; interp: string; detail: string; ddNote?: string; cls: string; corr: boolean } | null;
   step5Laktat: { interp: string; detail: string; cls: string } | null;
-  step6Oksigenasi: { items: OxResult[]; cls: string } | null;
+  /** Kategori gagal napas (tipe 1/2, akut/kronik). */
+  respFailure: { type: RespFailureType; title: string; details: string[]; cls: string } | null;
+  step6Oksigenasi: { items: OxResult[]; cls: string; notes: string[] } | null;
   saran: string[];
   mgmt: { judul: string; color: string; isi: string[]; ref: string }[];
   analysis: AcidBaseAnalysis | null;
@@ -51,6 +57,12 @@ const TEXT_RED = 'text-destructive';
 const TEXT_AMBER = 'text-amber-600 dark:text-amber-400';
 const TEXT_EMERALD = 'text-emerald-600 dark:text-emerald-400';
 const PRIMARY_CLS = 'bg-primary/10 border-primary/20 text-foreground';
+const TEXT_TONE: Record<Tone, string> = { red: TEXT_RED, amber: TEXT_AMBER, emerald: TEXT_EMERALD, slate: 'text-foreground' };
+
+function numOrNull(raw: string): number | null {
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n : null;
+}
 
 const DEVICE_LABEL: Record<string, string> = {
   nasal: 'Nasal Cannula', simple: 'Simple Mask', nrm: 'NRM', venturi24: 'Venturi 24%',
@@ -64,7 +76,7 @@ function emptyResult(): AbgResultData {
   return {
     inputError: null, warnings: [],
     step1: null, step2Primer: null, step2KompStatus: null, step3Kompensasi: null,
-    step4Ag: null, step5Laktat: null, step6Oksigenasi: null, saran: [], mgmt: [], analysis: null,
+    step4Ag: null, step5Laktat: null, respFailure: null, step6Oksigenasi: null, saran: [], mgmt: [], analysis: null,
   };
 }
 
@@ -197,56 +209,89 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
     };
   }
 
-  // LANGKAH 6: OKSIGENASI (ambang belum diubah — dijadwalkan Fase 3)
-  if (!isNaN(po2) || fio2 !== null || !isNaN(spo2)) {
-    const oxItems: OxResult[] = [];
-    if (!isNaN(po2) && fio2 !== null) {
-      const pf = po2 / fio2;
-      const pfClass = pf >= 400 ? 'Normal' : pf >= 300 ? 'Hipoksemia ringan' : pf >= 200 ? 'ARDS Mild' : pf >= 100 ? 'ARDS Moderate' : 'ARDS Severe';
-      const pfColor = pf >= 300 ? TEXT_EMERALD : pf >= 200 ? TEXT_AMBER : TEXT_RED;
-      oxItems.push({ label: 'P/F Ratio', value: pf.toFixed(0) + (fio2Res.estimated ? ' (FiO₂ estimasi)' : ''), interp: pfClass, colorClass: pfColor });
+  // LANGKAH 6: GAGAL NAPAS & OKSIGENASI (Fase 3 — utils/oxygenation.ts)
+  const support: RespSupport = inputs.fio2Mode === 'lowflow' ? 'udara' : inputs.support;
+  const peep = numOrNull(inputs.peep);
+  const hfnoFlow = numOrNull(inputs.hfnoFlow);
+  const age = numOrNull(inputs.age);
+  const pao2 = isNaN(po2) ? null : po2;
+  const spo2v = isNaN(spo2) ? null : spo2;
 
-      const pao2calc = (fio2 * (760 - 47)) - (pco2 / 0.8);
-      const aaGrad = pao2calc - po2;
+  const rf = classifyRespFailure({ ph: pH, pco2, hco3, pao2, fio2, fio2Estimated: fio2Res.estimated, kondisi });
+  result.respFailure = { type: rf.type, title: rf.title, details: rf.details, cls: TONE_CLS[rf.tone] };
+
+  if (pao2 !== null || fio2 !== null || spo2v !== null) {
+    const oxItems: OxResult[] = [];
+    const notes: string[] = [];
+    const pf = pao2 !== null && fio2 !== null ? pao2 / fio2 : null;
+    if (pf !== null) {
+      const l = pfLabel(pf);
+      oxItems.push({ label: 'P/F Ratio', value: pf.toFixed(0) + (fio2Res.estimated ? ' (FiO₂ estimasi)' : ''), interp: l.text, colorClass: TEXT_TONE[l.tone] });
+    }
+    const ox = pf !== null || (spo2v !== null && fio2 !== null)
+      ? ardsOxygenation({ pf, spo2: spo2v, fio2, support, peep, hfnoFlow, fio2Estimated: fio2Res.estimated })
+      : null;
+    if (ox && ox.sf !== null) {
       oxItems.push({
-        label: 'A-a Gradient',
-        value: `${aaGrad.toFixed(0)} mmHg (normal <20)`,
-        interp: aaGrad > 20 ? 'MENINGKAT (V/Q mismatch/shunt)' : 'Normal (hipoventilasi murni jika hipoksemia ada)',
+        label: 'S/F Ratio', value: ox.sf.toFixed(0),
+        interp: !ox.sfValid ? 'Tidak dipakai untuk klasifikasi (SpO₂ >97%)' : ox.sf <= 315 ? '≤315 — ambang hipoksemia ARDS (Global 2023)' : '>315 — di atas ambang ARDS',
+        colorClass: ox.sfValid && ox.sf <= 315 ? TEXT_RED : 'text-foreground',
+      });
+    }
+    if (ox && ox.meetsOxygenation) {
+      notes.push(`Dukungan napas: ${SUPPORT_LABEL[support]}${peep !== null && (support === 'niv' || support === 'invasif') ? `, PEEP ${peep}` : ''}${hfnoFlow !== null && support === 'hfno' ? `, flow ${hfnoFlow} L/m` : ''}.`);
+      notes.push(ox.berlin, ox.global, ARDS_OTHER_CRITERIA);
+      if (kondisi === 'cardiac') notes.push('Kondisi edema paru kardiogenik: ARDS hanya bila hipoksemia TIDAK sepenuhnya dijelaskan gagal jantung/kelebihan cairan.');
+    }
+
+    if (pao2 !== null && fio2 !== null) {
+      const aa = aaGradient(fio2, pco2, pao2);
+      const ai = interpretAa(aa, fio2, age);
+      const normalTxt = isRoomAir(fio2) && age !== null ? ` (perkiraan normal ≤${expectedAaRoomAir(age).toFixed(1)})` : '';
+      oxItems.push({ label: 'A-a Gradient', value: `${aa.toFixed(0)} mmHg${normalTxt}`, interp: ai.text, colorClass: TEXT_TONE[ai.tone] });
+      notes.push('A-a: PAO₂ = FiO₂ × (760 − 47) − PaCO₂/0,8 — asumsi tekanan barometrik permukaan laut; perkiraan normal udara ruang ≈ usia/4 + 4.');
+    }
+    if (pao2 !== null && fio2 !== null && !isNaN(mapV)) {
+      const oi = (mapV * fio2 * 100) / pao2;
+      oxItems.push({
+        label: 'OI (Paw)', value: `${mapV} × ${fio2.toFixed(2)} × 100 ÷ ${pao2} = ${oi.toFixed(1)}`,
+        interp: 'Tidak ada ambang dewasa baku — pakai untuk tren (makin tinggi makin berat); ambang OI yang beredar berasal dari populasi pediatri/neonatus',
         colorClass: 'text-foreground',
       });
     }
-    if (!isNaN(po2) && fio2 !== null && !isNaN(mapV)) {
-      const oi = (mapV * fio2 * 100) / po2;
-      oxItems.push({
-        label: 'OI',
-        value: oi.toFixed(1),
-        interp: oi < 5 ? 'Ringan' : oi < 25 ? 'Moderate' : oi < 40 ? 'Berat' : 'Sangat Berat — ECMO?',
-        colorClass: 'text-foreground',
-      });
+    if (spo2v !== null && fio2 !== null && !isNaN(rr)) {
+      if (support === 'hfno') {
+        const rox = roxIndex(spo2v, fio2, rr);
+        const ri = interpretRox(rox, inputs.roxHour);
+        oxItems.push({
+          label: 'ROX Index',
+          value: `(${spo2v}/${fio2.toFixed(2)})/${rr} = ${rox.toFixed(2)}${inputs.roxHour ? ` · jam ke-${inputs.roxHour}` : ''} [${spo2Source}]`,
+          interp: ri.text, colorClass: TEXT_TONE[ri.tone],
+        });
+        notes.push('ROX divalidasi pada pneumonia dengan HFNC (Roca 2019).');
+        if (pco2 > 45) notes.push('ROX hanya memakai SpO₂, FiO₂, dan RR — TIDAK menilai hiperkapnia/asidosis. Jangan pakai ROX "risiko rendah" untuk menunda NIV/intubasi pada gagal napas tipe 2.');
+      } else {
+        notes.push('ROX tidak dihitung — hanya divalidasi pada pasien dengan HFNC (pilih dukungan napas "HFNC").');
+      }
     }
-    if (!isNaN(spo2) && fio2 !== null && !isNaN(rr)) {
-      const rox = (spo2 / fio2) / rr;
-      const roxColor = rox >= 4.88 ? TEXT_EMERALD : rox >= 3.85 ? TEXT_AMBER : TEXT_RED;
-      const roxInterp = rox >= 4.88 ? 'Risiko HFNC gagal RENDAH' : rox >= 3.85 ? 'Intermediate — evaluasi ketat' : 'Risiko HFNC gagal TINGGI → pertimbangkan intubasi';
-      oxItems.push({
-        label: 'ROX Index',
-        value: `(${spo2}/FiO₂${fio2.toFixed(2)})/RR${rr} = ${rox.toFixed(2)} [sumber: ${spo2Source}]`,
-        interp: roxInterp,
-        colorClass: roxColor,
-      });
-    }
-    if (oxItems.length > 0) {
-      result.step6Oksigenasi = { items: oxItems, cls: PRIMARY_CLS };
+    if (oxItems.length > 0 || notes.length > 0) {
+      result.step6Oksigenasi = { items: oxItems, cls: PRIMARY_CLS, notes };
     }
   }
 
   // KONSIDERASI KLINIS
-  // (Ambang PEEP/klasifikasi P/F masih dijadwalkan Fase 3 — di sini hanya rujukan ECMO/NMB/hiperkapnia yang dikoreksi.)
-  if (!isNaN(po2) && fio2 !== null && kondisi !== 'cardiac') {
-    const pf = po2 / fio2;
-    if (pf < 100) result.saran.push('P/F <100 (ARDS Severe): ↑ PEEP 13–18, prone jika P/F <150, pertimbangkan NMB pada ARDS berat dini, ECMO-VV sesuai kriteria EOLIA (lihat kartu ARDS)');
-    else if (pf < 200) result.saran.push('P/F 100–200 (ARDS Moderate): ↑ PEEP 8–13, FiO₂ 0.4–0.7, prone bila P/F <150 (FiO₂ ≥0,6, PEEP ≥5)');
-    else if (pf < 300) result.saran.push('P/F 200–300 (ARDS Mild): PEEP 5–8, FiO₂ titrasi, evaluasi ventilasi lung-protective');
+  // PEEP: heuristik lama (5–8 / 8–13 / 13–18) diganti tabel PEEP rendah ARDSNet + catatan ATS 2024.
+  if (pao2 !== null && fio2 !== null && kondisi !== 'cardiac') {
+    const pf = pao2 / fio2;
+    if (pf <= 300) {
+      if (support === 'invasif') {
+        const tbl = ardsnetLowPeep(fio2);
+        result.saran.push(`Ventilasi invasif, P/F ${pf.toFixed(0)}: kombinasi PEEP/FiO₂ tabel PEEP rendah ARDSNet untuk FiO₂ ${fio2.toFixed(2)} → PEEP ${tbl ?? '—'} cmH₂O${pf <= 200 ? '. ARDS sedang–berat: ATS 2024 menyarankan strategi PEEP lebih tinggi TANPA recruitment maneuver berkepanjangan (tabel PEEP tinggi ARDSNet / protokol RS)' : ''}`);
+      } else {
+        result.saran.push(`P/F ${pf.toFixed(0)} ≤300 tanpa ventilasi invasif: pantau ketat tanda kelelahan napas & kebutuhan intubasi${support === 'hfno' ? '; nilai ROX pada jam ke-2, 6, dan 12' : ''}`);
+      }
+      if (pf < 150) result.saran.push('P/F <150: prone ≥16 jam/hari (FiO₂ ≥0,6, PEEP ≥5 — PROSEVA); NMB opsional pada ARDS berat dini; ECMO-VV sesuai kriteria EOLIA (lihat kartu ARDS)');
+    }
   }
   if (pH < 7.25 && pco2 > 50) result.saran.push('Asidosis respiratorik berat: ↑ RR (maks 35) lalu VT bertahap dengan memantau Pplat; NaHCO₃ hanya opsi bila pH <7,15 meski ventilasi sudah optimal (algoritma ARDSNet)');
   if (pco2 < 35 && pH > 7.45) result.saran.push('Alkalosis respiratorik: ↓ RR (bertahap), cek dead space, pastikan tidak ada pain/agitasi yang meningkatkan drive');

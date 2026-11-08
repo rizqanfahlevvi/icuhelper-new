@@ -1,4 +1,5 @@
 import { resolveDirectFio2, estimateLowFlowFio2 } from '../../utils/abg';
+import type { RespSupport, RoxHour } from '../../utils/oxygenation';
 
 export interface AbgInputs {
   ph: string;
@@ -21,6 +22,16 @@ export interface AbgInputs {
   albUnit: 'g/dL' | 'mg/dL';
   spo2Source: 'pulse' | 'abg';
   fio2Mode: 'direct' | 'lowflow';
+  /** Dukungan napas saat AGD diambil (menentukan kelayakan klasifikasi ARDS & ROX). */
+  support: RespSupport;
+  /** PEEP/EPAP (cmH₂O) — NIV/CPAP atau ventilasi invasif. */
+  peep: string;
+  /** Flow HFNC (L/menit). */
+  hfnoFlow: string;
+  /** Usia (tahun) — untuk perkiraan A-a gradient normal. */
+  age: string;
+  /** Jam ke- sejak mulai HFNC (ambang ROX bergantung waktu). */
+  roxHour: RoxHour;
 }
 
 export const defaultAbgInputs: AbgInputs = {
@@ -28,7 +39,8 @@ export const defaultAbgInputs: AbgInputs = {
   fio2Direct: '', fio2Device: 'nasal', fio2Flow: '',
   mapV: '', na: '', cl: '', alb: '', laktat: '', rr: '',
   kondisi: 'umum', paco2Unit: 'mmHg', albUnit: 'g/dL',
-  spo2Source: 'pulse', fio2Mode: 'direct'
+  spo2Source: 'pulse', fio2Mode: 'direct',
+  support: 'udara', peep: '', hfnoFlow: '', age: '', roxHour: ''
 };
 
 /** FiO₂ efektif (fraksi) — lihat resolveDirectFio2/estimateLowFlowFio2 di utils/abg.ts. */

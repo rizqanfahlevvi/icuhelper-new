@@ -1,5 +1,6 @@
 import { Beaker, Dna, Info, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { AgUpperNormalField } from '../../components/ui/AgUpperNormalField';
+import { SUPPORT_LABEL, RespSupport } from '../../utils/oxygenation';
 import { AbgInputs } from './types';
 import { useAbgCalculator } from './useAbgCalculator';
 
@@ -15,6 +16,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
   };
 
   const calcResult = useAbgCalculator(inputs);
+  const effectiveSupport: RespSupport = inputs.fio2Mode === 'lowflow' ? 'udara' : inputs.support;
 
   return (
     <div className="space-y-6">
@@ -162,13 +164,14 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
             </div>
             
             {inputs.fio2Mode === 'direct' ? (
-              <div className="flex justify-end mt-2">
+              <div className="flex items-center justify-end gap-2 mt-2">
+                <span className="text-[11px] text-slate-500">fraksi, atau persen 21–100</span>
                 <input 
                   type="number" step="0.01" 
                   value={inputs.fio2Direct} 
                   onChange={e => updateInput('fio2Direct', e.target.value)}
                   className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
-                  placeholder="0.21–1.0 / 21–100%" 
+                  placeholder="0.21–1.0" 
                 />
               </div>
             ) : (
@@ -197,6 +200,47 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
             )}
           </div>
 
+          <div className="flex flex-col px-4 py-3 gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Dukungan Napas</span>
+              <select
+                value={effectiveSupport}
+                disabled={inputs.fio2Mode === 'lowflow'}
+                onChange={e => updateInput('support', e.target.value)}
+                className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all w-full max-w-[220px] appearance-none disabled:opacity-60"
+              >
+                {(Object.keys(SUPPORT_LABEL) as RespSupport[]).map(k => <option key={k} value={k}>{SUPPORT_LABEL[k]}</option>)}
+              </select>
+            </div>
+            {inputs.fio2Mode === 'lowflow' && (
+              <p className="text-[11px] text-slate-500">Mode low-flow → dukungan napas dianggap O₂ low-flow.</p>
+            )}
+            {effectiveSupport === 'hfno' && (
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">Flow</span>
+                <input type="number" value={inputs.hfnoFlow} onChange={e => updateInput('hfnoFlow', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="L/m" />
+                <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">Jam ke-</span>
+                <select value={inputs.roxHour} onChange={e => updateInput('roxHour', e.target.value)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white text-[13px]">
+                  <option value="">—</option>
+                  <option value="2">2</option>
+                  <option value="6">6</option>
+                  <option value="12">12</option>
+                </select>
+              </div>
+            )}
+            {(effectiveSupport === 'niv' || effectiveSupport === 'invasif') && (
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">PEEP/EPAP</span>
+                <input type="number" value={inputs.peep} onChange={e => updateInput('peep', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="cmH₂O" />
+                <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400" title="Mean airway pressure dari ventilator — bukan MAP arteri">Paw</span>
+                <input type="number" value={inputs.mapV} onChange={e => updateInput('mapV', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="cmH₂O" />
+              </div>
+            )}
+            {(effectiveSupport === 'niv' || effectiveSupport === 'invasif') && (
+              <p className="text-[11px] text-slate-500 text-right">Paw = tekanan jalan napas rerata dari ventilator (untuk OI) — bukan MAP arteri.</p>
+            )}
+          </div>
+
           <div className="flex items-center justify-between px-4 py-3 gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Kondisi Utama</span>
             <select 
@@ -222,7 +266,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                <input type="number" placeholder="Alb" value={inputs.alb} onChange={e=>updateInput('alb',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
                <input type="number" placeholder="Lakt" value={inputs.laktat} onChange={e=>updateInput('laktat',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
                <input type="number" placeholder="RR" value={inputs.rr} onChange={e=>updateInput('rr',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <input type="number" placeholder="MAP" value={inputs.mapV} onChange={e=>updateInput('mapV',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
+               <input type="number" placeholder="Usia (th)" value={inputs.age} onChange={e=>updateInput('age',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
             </div>
             <div className="pt-2 mt-1 border-t border-slate-200 dark:border-slate-700">
               <AgUpperNormalField />
@@ -310,9 +354,19 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
               </div>
             )}
 
+            {calcResult.respFailure && (
+              <div className={`p-4 rounded-xl border ${calcResult.respFailure.cls}`}>
+                <div className="text-[11px] font-bold uppercase tracking-widest opacity-80 mb-1">Langkah 6 — Kategori Gagal Napas</div>
+                <div className="font-extrabold text-sm text-[var(--label-primary)]">{calcResult.respFailure.title}</div>
+                <ul className="mt-1.5 space-y-1 list-disc pl-4">
+                  {calcResult.respFailure.details.map((d, i) => <li key={i} className="text-[12px] opacity-90">{d}</li>)}
+                </ul>
+              </div>
+            )}
+
             {calcResult.step6Oksigenasi && (
               <div className={`p-4 rounded-xl border ${calcResult.step6Oksigenasi.cls}`}>
-                <div className="text-[11px] font-bold uppercase tracking-widest text-[var(--sys-blue)] opacity-90 mb-2">Langkah 6 — Oksigenasi & Gagal Napas</div>
+                <div className="text-[11px] font-bold uppercase tracking-widest text-[var(--sys-blue)] opacity-90 mb-2">Langkah 6b — Oksigenasi</div>
                 <div className="space-y-2">
                   {calcResult.step6Oksigenasi.items.map((item, idx) => (
                     <div key={idx} className="text-[13px] leading-relaxed">
@@ -322,6 +376,11 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                     </div>
                   ))}
                 </div>
+                {calcResult.step6Oksigenasi.notes.length > 0 && (
+                  <ul className="mt-3 pt-2 border-t border-primary/20 space-y-1 list-disc pl-4">
+                    {calcResult.step6Oksigenasi.notes.map((n, i) => <li key={i} className="text-[12px] text-[var(--label-secondary)]">{n}</li>)}
+                  </ul>
+                )}
               </div>
             )}
 
