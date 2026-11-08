@@ -30,3 +30,19 @@ export function infusionRateMlH(unit: InfusionUnit, dose: number, weightKg: numb
       return weightKg > 0 ? (dose * weightKg * 60) / conc : NaN;
   }
 }
+
+/** Posisi dosis terhadap rentang lazim [min, max] (inklusif). */
+export function doseRangeStatus(dose: number, range: readonly [number, number]): 'low' | 'high' | 'ok' {
+  if (dose < range[0]) return 'low';
+  if (dose > range[1]) return 'high';
+  return 'ok';
+}
+
+/**
+ * Propofol: label FDA — jangan melebihi 4 mg/kg/jam (≈66,7 mcg/kg/mnt) kecuali manfaat > risiko;
+ * risiko Propofol Infusion Syndrome (PRIS) meningkat di atas dosis ini, terutama >48 jam.
+ */
+export const PROPOFOL_PRIS_MCG_KG_MIN = (4 * 1000) / 60;
+export function propofolAbovePrisThreshold(mcgKgMin: number): boolean {
+  return mcgKgMin > PROPOFOL_PRIS_MCG_KG_MIN;
+}

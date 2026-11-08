@@ -9,7 +9,8 @@ import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
-import { infusionRateMlH, isFlatUnit, type InfusionUnit } from '../../utils/infusion';
+import { infusionRateMlH, isFlatUnit, doseRangeStatus, propofolAbovePrisThreshold, type InfusionUnit } from '../../utils/infusion';
+import { InputWarning } from '../../components/ui/InputWarning';
 
 const PUMP_CATEGORIES = {
   sedasi:      [['fentanyl','Fentanyl'],['morphin','Morfin'],['midazolam','Midazolam'],['propofol','Propofol 1%'],['dexmed','Dexmedetomidine'],['thiopental','Thiopental (Tiopol)']],
@@ -19,26 +20,28 @@ const PUMP_CATEGORIES = {
   lainnya:     [['atrakurium','Atrakurium'],['cisatrakurium','Cisatrakurium'],['nitrogliserin','Nitrogliserin']]
 };
 
-const PUMP_INFO: Record<string, {info:string, unit:InfusionUnit, conc:number}> = {
+// range = rentang dosis lazim yang tercantum di info (dipakai untuk peringatan non-blocking).
+const PUMP_INFO: Record<string, {info:string, unit:InfusionUnit, conc:number, range: readonly [number, number]}> = {
   // Fentanyl dosis FLAT per jam (PADIS; DB obat app: 25–100 mcg/jam). Dulu salah satuan "mcg/kg/jam" → laju ×BB.
-  fentanyl:     { info:'Dosis: 25–100 mcg/jam (dosis flat, bukan per kgBB; toleransi opioid hingga 200 mcg/jam). Syringe: 500 mcg dalam 50 mL NaCl = 10 mcg/mL.', unit:'mcg/jam', conc:10 },
-  morphin:      { info:'Dosis: 20–80 mcg/kg/jam. Syringe: 20 mg dalam 20 mL NaCl = 1 mg/mL.', unit:'mcg/kg/jam', conc:1000 },
-  midazolam:    { info:'Dosis: 0.02–0.1 mg/kg/jam. Syringe: 50 mg dalam 50 mL NaCl = 1 mg/mL.', unit:'mg/kg/jam', conc:1 },
-  propofol:     { info:'Dosis: 5–80 mcg/kg/mnt. Syringe: Propofol 1% (10 mg/mL) langsung pakai.', unit:'mcg/kg/mnt', conc:10000 },
-  dexmed:       { info:'Dosis: 0.2–1.4 mcg/kg/jam. Syringe: 200 mcg dalam 50 mL NaCl = 4 mcg/mL.', unit:'mcg/kg/jam', conc:4 },
-  thiopental:   { info:'Dosis drip: 1–5 mg/kg/jam. Syringe: 500 mg dalam 50 mL NaCl = 10 mg/mL.', unit:'mg/kg/jam', conc:10 },
-  norepinef:    { info:'Dosis: 0.01–1 mcg/kg/mnt. Syringe: 4 mg dalam 50 mL D5% = 80 mcg/mL.', unit:'mcg/kg/mnt', conc:80 },
-  epinefrin:    { info:'Dosis: 0.01–1 mcg/kg/mnt. Syringe: 4 mg dalam 50 mL D5% = 80 mcg/mL.', unit:'mcg/kg/mnt', conc:80 },
-  dopamin:      { info:'Dosis: 2–20 mcg/kg/mnt. Syringe: 200 mg dalam 50 mL NaCl = 4000 mcg/mL.', unit:'mcg/kg/mnt', conc:4000 },
-  dobutamin:    { info:'Dosis: 2–20 mcg/kg/mnt. Syringe: 250 mg dalam 50 mL NaCl = 5000 mcg/mL.', unit:'mcg/kg/mnt', conc:5000 },
-  vasopressin:  { info:'Dosis: 0.01–0.04 units/mnt. Syringe: 20 unit dalam 100 mL NaCl = 0.2 unit/mL.', unit:'units/mnt', conc:0.2 },
-  phenylephrine:{ info:'Dosis: 0.05–6 mcg/kg/mnt. Syringe: 10 mg dalam 100 mL NaCl = 100 mcg/mL.', unit:'mcg/kg/mnt', conc:100 },
-  amiodarone:   { info:'Maintenance: 0.5–1 mg/mnt. Syringe: 450 mg dalam 250 mL D5% = 1.8 mg/mL.', unit:'mg/mnt', conc:1.8 },
-  lidokain:     { info:'Dosis: 1–4 mg/mnt. Syringe: 1000 mg dalam 500 mL D5% = 2 mg/mL.', unit:'mg/mnt', conc:2 },
-  furosemide:   { info:'Dosis drip: 5–20 mg/jam. Syringe: 100 mg dalam 100 mL NaCl 0.9% = 1 mg/mL.', unit:'mg/jam', conc:1 },
-  atrakurium:   { info:'Dosis: 5–12 mcg/kg/mnt. Syringe: 250 mg dalam 50 mL NaCl = 5 mg/mL.', unit:'mcg/kg/mnt', conc:5000 },
-  cisatrakurium:{ info:'Dosis: 1–3 mcg/kg/mnt. Syringe: 20 mg dalam 20 mL NaCl = 1 mg/mL.', unit:'mcg/kg/mnt', conc:1000 },
-  nitrogliserin:{ info:'Dosis: 10–200 mcg/mnt. Syringe: 50 mg dalam 50 mL D5% = 1 mg/mL.', unit:'mcg/mnt', conc:1000 }
+  fentanyl:     { info:'Dosis: 25–100 mcg/jam (dosis flat, bukan per kgBB; toleransi opioid hingga 200 mcg/jam). Syringe: 500 mcg dalam 50 mL NaCl = 10 mcg/mL.', unit:'mcg/jam', conc:10, range:[25, 100] },
+  morphin:      { info:'Dosis: 20–80 mcg/kg/jam. Syringe: 20 mg dalam 20 mL NaCl = 1 mg/mL.', unit:'mcg/kg/jam', conc:1000, range:[20, 80] },
+  midazolam:    { info:'Dosis: 0.02–0.1 mg/kg/jam. Syringe: 50 mg dalam 50 mL NaCl = 1 mg/mL.', unit:'mg/kg/jam', conc:1, range:[0.02, 0.1] },
+  // Label FDA/PAD 2013: sedasi ICU 5–50 mcg/kg/mnt (0,3–3 mg/kg/jam); >4 mg/kg/jam ↑ risiko PRIS. Dulu tertulis 5–80.
+  propofol:     { info:'Dosis: 5–50 mcg/kg/mnt (0,3–3 mg/kg/jam). Hindari >4 mg/kg/jam (≈67 mcg/kg/mnt), terutama >48 jam — risiko PRIS. Syringe: Propofol 1% (10 mg/mL) langsung pakai.', unit:'mcg/kg/mnt', conc:10000, range:[5, 50] },
+  dexmed:       { info:'Dosis: 0.2–1.4 mcg/kg/jam. Syringe: 200 mcg dalam 50 mL NaCl = 4 mcg/mL.', unit:'mcg/kg/jam', conc:4, range:[0.2, 1.4] },
+  thiopental:   { info:'Dosis drip: 1–5 mg/kg/jam. Syringe: 500 mg dalam 50 mL NaCl = 10 mg/mL.', unit:'mg/kg/jam', conc:10, range:[1, 5] },
+  norepinef:    { info:'Dosis: 0.01–1 mcg/kg/mnt. Syringe: 4 mg dalam 50 mL D5% = 80 mcg/mL.', unit:'mcg/kg/mnt', conc:80, range:[0.01, 1] },
+  epinefrin:    { info:'Dosis: 0.01–1 mcg/kg/mnt. Syringe: 4 mg dalam 50 mL D5% = 80 mcg/mL.', unit:'mcg/kg/mnt', conc:80, range:[0.01, 1] },
+  dopamin:      { info:'Dosis: 2–20 mcg/kg/mnt. Syringe: 200 mg dalam 50 mL NaCl = 4000 mcg/mL.', unit:'mcg/kg/mnt', conc:4000, range:[2, 20] },
+  dobutamin:    { info:'Dosis: 2–20 mcg/kg/mnt. Syringe: 250 mg dalam 50 mL NaCl = 5000 mcg/mL.', unit:'mcg/kg/mnt', conc:5000, range:[2, 20] },
+  vasopressin:  { info:'Dosis: 0.01–0.04 units/mnt. Syringe: 20 unit dalam 100 mL NaCl = 0.2 unit/mL.', unit:'units/mnt', conc:0.2, range:[0.01, 0.04] },
+  phenylephrine:{ info:'Dosis: 0.05–6 mcg/kg/mnt. Syringe: 10 mg dalam 100 mL NaCl = 100 mcg/mL.', unit:'mcg/kg/mnt', conc:100, range:[0.05, 6] },
+  amiodarone:   { info:'Maintenance: 0.5–1 mg/mnt. Syringe: 450 mg dalam 250 mL D5% = 1.8 mg/mL.', unit:'mg/mnt', conc:1.8, range:[0.5, 1] },
+  lidokain:     { info:'Dosis: 1–4 mg/mnt. Syringe: 1000 mg dalam 500 mL D5% = 2 mg/mL.', unit:'mg/mnt', conc:2, range:[1, 4] },
+  furosemide:   { info:'Dosis drip: 5–20 mg/jam. Syringe: 100 mg dalam 100 mL NaCl 0.9% = 1 mg/mL.', unit:'mg/jam', conc:1, range:[5, 20] },
+  atrakurium:   { info:'Dosis: 5–12 mcg/kg/mnt. Syringe: 250 mg dalam 50 mL NaCl = 5 mg/mL.', unit:'mcg/kg/mnt', conc:5000, range:[5, 12] },
+  cisatrakurium:{ info:'Dosis: 1–3 mcg/kg/mnt. Syringe: 20 mg dalam 20 mL NaCl = 1 mg/mL.', unit:'mcg/kg/mnt', conc:1000, range:[1, 3] },
+  nitrogliserin:{ info:'Dosis: 10–200 mcg/mnt. Syringe: 50 mg dalam 50 mL D5% = 1 mg/mL.', unit:'mcg/mnt', conc:1000, range:[10, 200] }
 };
 
 export default function KalkulatorPump() {
@@ -92,7 +95,15 @@ export default function KalkulatorPump() {
     const duration = (v / rateMlH).toFixed(1);
     const isFlatDose = isFlatUnit(unit);
 
-    setResult({ rate: rateMlH.toFixed(2), duration, unit, isFlatDose, info: info.info, b, d, v, drug, conc });
+    const warnings: string[] = [];
+    const st = doseRangeStatus(d, info.range);
+    if (st !== 'ok') {
+      warnings.push(`Dosis ${d} ${unit} ${st === 'high' ? 'MELEBIHI' : 'di bawah'} rentang lazim yang tercantum (${info.range[0]}–${info.range[1]} ${unit}) — periksa ulang angka, satuan, dan indikasi.`);
+    }
+    if (drug === 'propofol' && propofolAbovePrisThreshold(d)) {
+      warnings.push(`Propofol ${d} mcg/kg/mnt = ${(d * 60 / 1000).toFixed(1)} mg/kg/jam (>4 mg/kg/jam) — risiko Propofol Infusion Syndrome (PRIS) meningkat, terutama >48 jam. Pantau laktat, CK, trigliserida, EKG; pertimbangkan sedatif tambahan/alternatif.`);
+    }
+    setResult({ rate: rateMlH.toFixed(2), duration, unit, isFlatDose, info: info.info, b, d, v, drug, conc, warnings });
   };
 
   const info = PUMP_INFO[drug];
@@ -177,6 +188,10 @@ export default function KalkulatorPump() {
         </div>
       )}
 
+      {result && result.warnings?.length > 0 && (
+        <div className="mt-4"><InputWarning messages={result.warnings} /></div>
+      )}
+
       {result && (
         <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
@@ -224,7 +239,7 @@ export default function KalkulatorPump() {
                     note: 'Siapkan syringe pengganti sebelum habis agar tidak ada jeda pada obat vasoaktif.',
                   },
                 ]}
-                footer="Titrasi ke efek klinis (MAP, sedasi, HR), bukan ke angka laju semata. Pastikan konsentrasi sesuai resep pengenceran unit Anda."
+                footer="Titrasi ke efek klinis (MAP, sedasi, HR), bukan ke angka laju semata. Pastikan konsentrasi sesuai resep pengenceran unit Anda. Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis atau keputusan DPJP."
               />
             </div>
 

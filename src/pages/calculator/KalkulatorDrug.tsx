@@ -109,7 +109,8 @@ export default function KalkulatorDrug() {
     // Obat Emergensi
     drugs.push({ cat: 'Obat Emergensi & Resusitasi', n: 'Epinefrin Push', d: 10, u: 'mcg', note: 'Untuk syok paska intubasi (10-20 mcg IV push tiap 1-2 mnt).' });
     drugs.push({ cat: 'Obat Emergensi & Resusitasi', n: 'Efedrin', d: 5, u: 'mg', note: 'Untuk hipotensi dengan bradikardia (5-10 mg IV push).' });
-    drugs.push({ cat: 'Obat Emergensi & Resusitasi', n: 'Atropin', d: 0.5, u: 'mg', note: 'Untuk bradikardia simptomatik (0.5 mg IV push tiap 3-5 mnt).' });
+    // AHA 2020 (bradikardia dewasa): atropin 1 mg IV bolus, ulang tiap 3–5 mnt, maks 3 mg. Dulu 0,5 mg (rekomendasi lama).
+    drugs.push({ cat: 'Obat Emergensi & Resusitasi', n: 'Atropin', d: 1, u: 'mg', note: 'Bradikardia simtomatik: 1 mg IV bolus, ulang tiap 3–5 mnt, maks 3 mg (AHA 2020).' });
 
     setResRsi({ drugs });
   };

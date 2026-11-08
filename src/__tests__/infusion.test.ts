@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { infusionRateMlH, isFlatUnit } from '../utils/infusion';
+import { infusionRateMlH, isFlatUnit, doseRangeStatus, propofolAbovePrisThreshold, PROPOFOL_PRIS_MCG_KG_MIN } from '../utils/infusion';
 
 describe('Laju syringe pump', () => {
   it('HOTFIX fentanyl: 50 mcg/jam flat, 10 mcg/mL → 5 mL/jam (tidak dikali BB)', () => {
@@ -20,5 +20,20 @@ describe('Laju syringe pump', () => {
   it('input tidak valid → NaN', () => {
     expect(infusionRateMlH('mcg/kg/mnt', 0.1, 0, 80)).toBeNaN();
     expect(infusionRateMlH('mg/jam', 0, 70, 1)).toBeNaN();
+  });
+});
+
+
+describe('Rentang dosis & ambang PRIS propofol', () => {
+  it('status rentang inklusif', () => {
+    expect(doseRangeStatus(5, [5, 50])).toBe('ok');
+    expect(doseRangeStatus(50, [5, 50])).toBe('ok');
+    expect(doseRangeStatus(4, [5, 50])).toBe('low');
+    expect(doseRangeStatus(60, [5, 50])).toBe('high');
+  });
+  it('4 mg/kg/jam = 66,67 mcg/kg/mnt; 70 → di atas ambang, 50 → tidak', () => {
+    expect(PROPOFOL_PRIS_MCG_KG_MIN).toBeCloseTo(66.67, 2);
+    expect(propofolAbovePrisThreshold(70)).toBe(true);
+    expect(propofolAbovePrisThreshold(50)).toBe(false);
   });
 });
