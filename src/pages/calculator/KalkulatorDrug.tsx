@@ -126,11 +126,11 @@ export default function KalkulatorDrug() {
 
     // Analgesia First
     if (icuPain === 'mild') {
-      drugs.push({ cat: 'Analgesia (Nyeri)', n: 'Fentanyl Drip', v: 25, u: 'mcg/kg/jam', note: 'Dosis rendah untuk CPOT/NRS ringan.' });
+      drugs.push({ cat: 'Analgesia (Nyeri)', n: 'Fentanyl Drip', v: 25, u: 'mcg/jam (flat)', note: `Dosis rendah untuk CPOT/NRS ringan (≈ ${(25 / w).toFixed(2)} mcg/kg/jam). Dosis FLAT per jam, bukan per kgBB.` });
     } else if (icuPain === 'moderate') {
-      drugs.push({ cat: 'Analgesia (Nyeri)', n: 'Fentanyl Drip', v: 50, u: 'mcg/kg/jam', note: 'Dosis sedang untuk CPOT/NRS sedang.' });
+      drugs.push({ cat: 'Analgesia (Nyeri)', n: 'Fentanyl Drip', v: 50, u: 'mcg/jam (flat)', note: `Dosis sedang untuk CPOT/NRS sedang (≈ ${(50 / w).toFixed(2)} mcg/kg/jam). Dosis FLAT per jam, bukan per kgBB.` });
     } else {
-      drugs.push({ cat: 'Analgesia (Nyeri)', n: 'Fentanyl Drip', v: 75, u: 'mcg/kg/jam', note: 'Dosis tinggi untuk nyeri hebat.' });
+      drugs.push({ cat: 'Analgesia (Nyeri)', n: 'Fentanyl Drip', v: 75, u: 'mcg/jam (flat)', note: `Dosis tinggi untuk nyeri hebat (≈ ${(75 / w).toFixed(2)} mcg/kg/jam). Dosis FLAT per jam, bukan per kgBB; titrasi sesuai CPOT.` });
       drugs.push({ cat: 'Analgesia (Nyeri)', n: 'Ketamine Drip', v: 0.1, u: 'mg/kg/jam', note: 'Adjuvan (0.1-0.2 mg/kg/jam) nyeri refrakter opioid.' });
     }
 

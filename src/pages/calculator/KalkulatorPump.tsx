@@ -9,6 +9,7 @@ import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
+import { infusionRateMlH, isFlatUnit, type InfusionUnit } from '../../utils/infusion';
 
 const PUMP_CATEGORIES = {
   sedasi:      [['fentanyl','Fentanyl'],['morphin','Morfin'],['midazolam','Midazolam'],['propofol','Propofol 1%'],['dexmed','Dexmedetomidine'],['thiopental','Thiopental (Tiopol)']],
@@ -18,8 +19,9 @@ const PUMP_CATEGORIES = {
   lainnya:     [['atrakurium','Atrakurium'],['cisatrakurium','Cisatrakurium'],['nitrogliserin','Nitrogliserin']]
 };
 
-const PUMP_INFO: Record<string, {info:string, unit:string, conc:number}> = {
-  fentanyl:     { info:'Dosis: 25–200 mcg/kg/jam. Syringe: 500 mcg dalam 50 mL NaCl = 10 mcg/mL.', unit:'mcg/kg/jam', conc:10 },
+const PUMP_INFO: Record<string, {info:string, unit:InfusionUnit, conc:number}> = {
+  // Fentanyl dosis FLAT per jam (PADIS; DB obat app: 25–100 mcg/jam). Dulu salah satuan "mcg/kg/jam" → laju ×BB.
+  fentanyl:     { info:'Dosis: 25–100 mcg/jam (dosis flat, bukan per kgBB; toleransi opioid hingga 200 mcg/jam). Syringe: 500 mcg dalam 50 mL NaCl = 10 mcg/mL.', unit:'mcg/jam', conc:10 },
   morphin:      { info:'Dosis: 20–80 mcg/kg/jam. Syringe: 20 mg dalam 20 mL NaCl = 1 mg/mL.', unit:'mcg/kg/jam', conc:1000 },
   midazolam:    { info:'Dosis: 0.02–0.1 mg/kg/jam. Syringe: 50 mg dalam 50 mL NaCl = 1 mg/mL.', unit:'mg/kg/jam', conc:1 },
   propofol:     { info:'Dosis: 5–80 mcg/kg/mnt. Syringe: Propofol 1% (10 mg/mL) langsung pakai.', unit:'mcg/kg/mnt', conc:10000 },
@@ -84,20 +86,11 @@ export default function KalkulatorPump() {
 
     const unit = info.unit;
     const conc = info.conc;
-    let rateMlH = 0;
-
-    if (unit === 'mg/jam') {
-      rateMlH = d / conc;
-    } else if (unit === 'mg/mnt' || unit === 'mcg/mnt' || unit === 'units/mnt') {
-      rateMlH = (d * 60) / conc;
-    } else if (unit === 'mcg/kg/jam' || unit === 'mg/kg/jam') {
-      rateMlH = (d * b) / conc;
-    } else {
-      rateMlH = (d * b * 60) / conc;
-    }
+    const rateMlH = infusionRateMlH(unit, d, b, conc);
+    if (!Number.isFinite(rateMlH)) return;
 
     const duration = (v / rateMlH).toFixed(1);
-    const isFlatDose = (unit === 'mg/jam' || unit === 'mg/mnt' || unit === 'mcg/mnt' || unit === 'units/mnt');
+    const isFlatDose = isFlatUnit(unit);
 
     setResult({ rate: rateMlH.toFixed(2), duration, unit, isFlatDose, info: info.info, b, d, v, drug, conc });
   };
@@ -216,7 +209,7 @@ export default function KalkulatorPump() {
                     label: 'Langkah 2 — Laju infus (mL/jam):',
                     formula: (() => {
                       const u = result.unit;
-                      if (u === 'mg/jam') return `Laju = dosis ÷ konsentrasi\n= ${result.d} ÷ ${result.conc} = ${result.rate} mL/jam`;
+                      if (u === 'mg/jam' || u === 'mcg/jam') return `Laju = dosis ÷ konsentrasi\n= ${result.d} ÷ ${result.conc} = ${result.rate} mL/jam`;
                       if (u === 'mg/mnt' || u === 'mcg/mnt' || u === 'units/mnt') return `Laju = dosis × 60 ÷ konsentrasi\n= ${result.d} × 60 ÷ ${result.conc} = ${result.rate} mL/jam`;
                       if (u === 'mcg/kg/jam' || u === 'mg/kg/jam') return `Laju = dosis × BB ÷ konsentrasi\n= ${result.d} × ${result.b} ÷ ${result.conc} = ${result.rate} mL/jam`;
                       return `Laju = dosis × BB × 60 ÷ konsentrasi\n= ${result.d} × ${result.b} × 60 ÷ ${result.conc} = ${result.rate} mL/jam`;
