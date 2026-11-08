@@ -6,6 +6,11 @@ import { Accordion } from '../../components/ui/Accordion';
 import { Activity, Beaker, Brain, HeartPulse, Wind, Droplets, AlertTriangle, Calculator, Info } from 'lucide-react';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
+import {
+  sofaRespFromPf, sofaRespFromSf, sofaCoag, sofaLiver, sofaCns, sofaRenalCreatinine, sofaRenalUrine,
+  normalizeFio2, ferreiraMortality, ferreiraTier, FERREIRA_INITIAL_SOFA, SF_SPO2_RELIABLE_MAX, SF_THRESHOLDS,
+  type SofaRiskTier,
+} from '../../utils/sofa';
 
 interface OrganScore {
   organ: string;
@@ -27,7 +32,17 @@ interface SofaResult {
   baseline: number | null;
   pfRatio: number | null;
   sfRatio: number | null;
+  /** Peringatan validitas (mis. S/F dengan SpO₂ >97%, FiO₂ di luar rentang). */
+  notes: string[];
 }
+
+const TIER_STYLE: Record<SofaRiskTier, { label: string; color: string }> = {
+  rendah: { label: 'Risiko Rendah', color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' },
+  sedang: { label: 'Risiko Sedang', color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800' },
+  tinggi: { label: 'Risiko Tinggi', color: 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' },
+  sangatTinggi: { label: 'Risiko Sangat Tinggi', color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' },
+};
+const PARTIAL_STYLE = 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700';
 
 const CategoryHeader = ({ icon: Icon, title, tooltip }: { icon: any; title: string; tooltip: React.ReactNode }) => {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -115,40 +130,42 @@ export default function ScoringSofa() {
     let currPf: number | null = null;
     let currSf: number | null = null;
 
-    const fio2Dec = fio2Mode === 'persen' ? parseFloat(fio2Persen) / 100 : parseFloat(fio2Desimal);
+    const notes: string[] = [];
+    const fio2Raw = parseFloat(fio2Mode === 'persen' ? fio2Persen : fio2Desimal);
+    const fio2Dec = normalizeFio2(fio2Raw, fio2Mode);
+    if (Number.isFinite(fio2Raw) && fio2Dec === null) {
+      notes.push(`FiO₂ ${fio2Raw}${fio2Mode === 'persen' ? '%' : ''} di luar rentang 21–100% — komponen respirasi tidak dihitung.`);
+    }
+    const support = ventMekanik === 'ya';
 
-    if (!isNaN(fio2Dec) && fio2Dec > 0) {
+    if (fio2Dec !== null) {
       if (!useSpO2 && pao2 !== '') {
         const pa = parseFloat(pao2);
-        if (!isNaN(pa)) {
+        if (!isNaN(pa) && pa > 0) {
           currPf = pa / fio2Dec;
-          respDetail = `P/F = ${Math.round(currPf)} (VM: ${ventMekanik === 'ya' ? 'Ya' : 'Tdk'})`;
-          if (currPf >= 400) respScore = 0;
-          else if (currPf >= 300) respScore = 1;
-          else if (currPf >= 200) respScore = 2;
-          else if (currPf >= 100) respScore = ventMekanik === 'ya' ? 3 : 2;
-          else respScore = ventMekanik === 'ya' ? 4 : 2;
+          respScore = sofaRespFromPf(currPf, support);
+          respDetail = `P/F = ${Math.round(currPf)} · dukungan napas: ${support ? 'ya' : 'tidak'}`;
+          if (currPf < 200 && !support) notes.push('P/F <200 tanpa dukungan napas → maksimal 2 poin (poin 3–4 mensyaratkan ventilasi invasif/NIV).');
         }
       } else if (useSpO2 && spo2 !== '') {
         const sp = parseFloat(spo2);
-        if (!isNaN(sp)) {
+        if (!isNaN(sp) && sp > 0 && sp <= 100) {
           currSf = sp / fio2Dec;
-          respDetail = `S/F = ${Math.round(currSf)} (VM: ${ventMekanik === 'ya' ? 'Ya' : 'Tdk'})`;
-          if (currSf > 315) respScore = 0;
-          else if (currSf > 264) respScore = 1;
-          else if (currSf > 221) respScore = 2;
-          else respScore = ventMekanik === 'ya' ? 3 : 2;
+          respScore = sofaRespFromSf(currSf, support);
+          respDetail = `S/F = ${Math.round(currSf)} (pengganti P/F, Pandharipande 2009) · dukungan napas: ${support ? 'ya' : 'tidak'}`;
+          if (sp > SF_SPO2_RELIABLE_MAX) notes.push(`SpO₂ ${sp}% (>${SF_SPO2_RELIABLE_MAX}%) berada di bagian datar kurva disosiasi — S/F tidak andal; gunakan AGD bila memungkinkan.`);
+          if (fio2Dec <= 0.21 && sp >= 98) notes.push('Pada udara ruang S/F maksimal ±476 (<512), sehingga metode S/F tidak bisa memberi 0 poin — keterbatasan yang diketahui dari tabel Pandharipande.');
         }
       }
     }
 
     if (respScore !== null) {
       total += respScore;
-      organScores.push({ organ: 'Respirasi (PaO₂/FiO₂)', icon: 'Wind', detail: respDetail, score: respScore, skipped: false });
+      organScores.push({ organ: useSpO2 ? 'Respirasi (SpO₂/FiO₂)' : 'Respirasi (PaO₂/FiO₂)', icon: 'Wind', detail: respDetail, score: respScore, skipped: false });
     } else {
       isPartial = true;
-      skippedOrgans.push('Respirasi (PaO₂/FiO₂)');
-      organScores.push({ organ: 'Respirasi (PaO₂/FiO₂)', icon: 'Wind', detail: 'Tidak tersedia — tidak dihitung', score: null, skipped: true });
+      skippedOrgans.push('Respirasi');
+      organScores.push({ organ: 'Respirasi', icon: 'Wind', detail: 'Tidak tersedia — tidak dihitung', score: null, skipped: true });
     }
 
     // --- 2. Koagulasi ---
@@ -156,16 +173,12 @@ export default function ScoringSofa() {
     let pltDetail = '';
     if (trombosit !== '') {
       const plt = parseFloat(trombosit);
-      if (!isNaN(plt)) {
+      if (!isNaN(plt) && plt >= 0) {
         pltDetail = `PLT ${plt} ×10³/μL`;
-        if (plt >= 150) pltScore = 0;
-        else if (plt >= 100) pltScore = 1;
-        else if (plt >= 50) pltScore = 2;
-        else if (plt >= 20) pltScore = 3;
-        else pltScore = 4;
+        pltScore = sofaCoag(plt);
       }
     }
-    
+
     if (pltScore !== null) {
       total += pltScore;
       organScores.push({ organ: 'Koagulasi (Trombosit)', icon: 'Droplets', detail: pltDetail, score: pltScore, skipped: false });
@@ -180,16 +193,12 @@ export default function ScoringSofa() {
     let bilDetail = '';
     if (bilirubin !== '') {
       const bil = parseFloat(bilirubin);
-      if (!isNaN(bil)) {
+      if (!isNaN(bil) && bil >= 0) {
         bilDetail = `Bil ${bil} mg/dL`;
-        if (bil < 1.2) bilScore = 0;
-        else if (bil <= 1.9) bilScore = 1;
-        else if (bil <= 5.9) bilScore = 2;
-        else if (bil <= 11.9) bilScore = 3;
-        else bilScore = 4;
+        bilScore = sofaLiver(bil);
       }
     }
-    
+
     if (bilScore !== null) {
       total += bilScore;
       organScores.push({ organ: 'Hepar (Bilirubin total)', icon: 'Beaker', detail: bilDetail, score: bilScore, skipped: false });
@@ -207,11 +216,12 @@ export default function ScoringSofa() {
       const cvLabels: Record<number, string> = {
         0: 'MAP ≥70 mmHg',
         1: 'MAP <70 mmHg',
-        2: 'Dopamin ≤5 atau Dobutamin',
-        3: 'Dopamin 5.1–15 / Epi ≤0.1 / NE ≤0.1',
-        4: 'Dopamin >15 / Epi >0.1 / NE >0.1'
+        2: 'Dopamin ≤5 atau dobutamin (dosis apa pun)',
+        3: 'Dopamin >5 / Epi ≤0,1 / NE ≤0,1',
+        4: 'Dopamin >15 / Epi >0,1 / NE >0,1'
       };
       cvDetail = cvLabels[cvScore] || '';
+      if (cvScore >= 2) cvDetail += ' (µg/kg/menit, ≥1 jam)';
     }
 
     if (cvScore !== null) {
@@ -227,15 +237,10 @@ export default function ScoringSofa() {
     let cnsScore: number | null = null;
     let cnsDetail = '';
     if (gcs !== '') {
-      const g = parseInt(gcs, 10);
-      if (!isNaN(g)) {
-        cnsDetail = `GCS ${g}`;
-        if (g === 15) cnsScore = 0;
-        else if (g >= 13) cnsScore = 1;
-        else if (g >= 10) cnsScore = 2;
-        else if (g >= 6) cnsScore = 3;
-        else cnsScore = 4;
-      }
+      const g = parseFloat(gcs);
+      cnsScore = sofaCns(g);
+      if (cnsScore !== null) cnsDetail = `GCS ${g}`;
+      else notes.push(`GCS ${gcs} tidak valid (harus bilangan bulat 3–15) — komponen SSP tidak dihitung.`);
     }
 
     if (cnsScore !== null) {
@@ -252,33 +257,27 @@ export default function ScoringSofa() {
     let uoScore: number | null = null;
     let crDetail = '';
     let uoDetail = '';
-    
+
     if (kreatinin !== '') {
       const cr = parseFloat(kreatinin);
-      if (!isNaN(cr)) {
+      if (!isNaN(cr) && cr > 0) {
         crDetail = `Cr ${cr} mg/dL`;
-        if (cr < 1.2) crScore = 0;
-        else if (cr <= 1.9) crScore = 1;
-        else if (cr <= 3.4) crScore = 2;
-        else if (cr <= 4.9) crScore = 3;
-        else crScore = 4;
+        crScore = sofaRenalCreatinine(cr);
       }
     }
     if (urineOutput !== '') {
       const uo = parseFloat(urineOutput);
-      if (!isNaN(uo)) {
+      if (!isNaN(uo) && uo >= 0) {
         uoDetail = `UO ${uo} mL/24j`;
-        if (uo >= 500) uoScore = 0;
-        else if (uo >= 200) uoScore = 3;
-        else uoScore = 4;
+        uoScore = sofaRenalUrine(uo);
       }
     }
-    
+
     let renScore: number | null = null;
     let renDetail = '';
     if (crScore !== null && uoScore !== null) {
       renScore = Math.max(crScore, uoScore);
-      renDetail = `${crDetail} + ${uoDetail}`;
+      renDetail = `${crDetail} + ${uoDetail} (diambil yang terberat)`;
     } else if (crScore !== null) {
       renScore = crScore;
       renDetail = crDetail;
@@ -289,35 +288,19 @@ export default function ScoringSofa() {
 
     if (renScore !== null) {
       total += renScore;
-      organScores.push({ organ: 'Renal (Kreatinin + UO)', icon: 'Activity', detail: renDetail, score: renScore, skipped: false });
+      organScores.push({ organ: 'Renal (Kreatinin / UO)', icon: 'Activity', detail: renDetail, score: renScore, skipped: false });
     } else {
       isPartial = true;
       skippedOrgans.push('Renal');
-      organScores.push({ organ: 'Renal (Kreatinin + UO)', icon: 'Activity', detail: 'Tidak tersedia — tidak dihitung', score: null, skipped: true });
+      organScores.push({ organ: 'Renal (Kreatinin / UO)', icon: 'Activity', detail: 'Tidak tersedia — tidak dihitung', score: null, skipped: true });
     }
 
-    // --- Mortality Calculation ---
-    let mortalityText = '';
-    let mortalityCategory = '';
-    let mortalityColor = '';
-    
-    if (total <= 6) {
-      mortalityText = '< 10%';
-      mortalityCategory = 'Risiko Rendah';
-      mortalityColor = 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800';
-    } else if (total <= 9) {
-      mortalityText = '15–20%';
-      mortalityCategory = 'Risiko Sedang';
-      mortalityColor = 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800';
-    } else if (total <= 12) {
-      mortalityText = '40–50%';
-      mortalityCategory = 'Risiko Tinggi';
-      mortalityColor = 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800';
-    } else {
-      mortalityText = '> 80%';
-      mortalityCategory = 'Risiko Sangat Tinggi';
-      mortalityColor = 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800';
-    }
+    // --- Mortalitas (Ferreira 2001, SOFA awal) — hanya untuk skor LENGKAP ---
+    const band = ferreiraMortality(total);
+    const tier = TIER_STYLE[ferreiraTier(total)];
+    const mortalityText = isPartial ? '' : band.mortality;
+    const mortalityCategory = isPartial ? 'Skor parsial — mortalitas tidak diinterpretasi' : tier.label;
+    const mortalityColor = isPartial ? PARTIAL_STYLE : tier.color;
 
     // --- Delta SOFA ---
     let delta: number | null = null;
@@ -342,13 +325,14 @@ export default function ScoringSofa() {
       baseline: baselineVal,
       pfRatio: currPf,
       sfRatio: currSf,
+      notes,
     });
     
     useHistoryStore.getState().addEntry(
       'scoring_sofa',
       `SOFA: ${total}`,
       { pao2, fio2Mode, fio2Desimal, fio2Persen, spo2, ventMekanik, trombosit, bilirubin, cvVal, gcs, kreatinin, urineOutput, sofaBaseline },
-      `Skor Total: ${total} - ${mortalityText}`
+      isPartial ? `Skor parsial ${total} (${skippedOrgans.length} organ kosong)` : `Skor Total: ${total} — mortalitas (Ferreira, SOFA awal) ${mortalityText}`
     );
   };
 
@@ -394,7 +378,7 @@ export default function ScoringSofa() {
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 mb-6 flex items-start gap-3">
           <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800 dark:text-blue-300">
-            <strong>Semua parameter opsional.</strong> Kosongkan input yang tidak tersedia. SOFA parsial akan dihitung secara otomatis.
+            <strong>Gunakan nilai terburuk dalam 24 jam</strong> untuk tiap parameter. Parameter yang tidak tersedia boleh dikosongkan — skor menjadi <strong>parsial</strong> (minimal) dan mortalitas tidak ditampilkan.
           </p>
         </div>
 
@@ -412,8 +396,9 @@ export default function ScoringSofa() {
                     <li>P/F &ge; 400: <strong>0</strong></li>
                     <li>P/F 300–399: <strong>1</strong></li>
                     <li>P/F 200–299: <strong>2</strong></li>
-                    <li>P/F 100–199 &amp; VM: <strong>3</strong></li>
-                    <li>P/F &lt; 100 &amp; VM: <strong>4</strong></li>
+                    <li>P/F 100–199 + dukungan napas: <strong>3</strong></li>
+                    <li>P/F &lt; 100 + dukungan napas: <strong>4</strong></li>
+                    <li className="list-none -ml-4 pt-1 opacity-80">S/F (bila tanpa AGD): ≥512 → 0 · 357–511 → 1 · 214–356 → 2 · 89–213 → 3* · &lt;89 → 4*</li>
                   </ul>
                 } 
               />
@@ -476,9 +461,14 @@ export default function ScoringSofa() {
                     Gunakan SpO₂ (jika AGD tidak tersedia)
                   </label>
                 </div>
+                {useSpO2 && (
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-2">
+                    Ambang S/F Pandharipande 2009. Tidak andal bila SpO₂ &gt;{SF_SPO2_RELIABLE_MAX}% — titrasi O₂ ke SpO₂ ≤{SF_SPO2_RELIABLE_MAX}% atau gunakan AGD.
+                  </p>
+                )}
 
                 <div>
-                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Ventilasi Mekanik (Invasif / NIV)</label>
+                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Dukungan napas (ventilasi invasif / NIV)</label>
                   <select className={selectClass} value={ventMekanik} onChange={(e) => setVentMekanik(e.target.value as any)}>
                     <option value="">-- Pilih --</option>
                     <option value="ya">Ya</option>
@@ -572,7 +562,7 @@ export default function ScoringSofa() {
                   <option value="3">Dopamin 5.1–15 / Epinefrin ≤ 0.1 / NE ≤ 0.1</option>
                   <option value="4">Dopamin &gt; 15 / Epinefrin &gt; 0.1 / NE &gt; 0.1</option>
                 </select>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Dosis dalam μg/kg/menit (dosis untuk MAP ≥ 65)</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Dosis µg/kg/menit, diberikan ≥1 jam (Vincent 1996). Pakai dukungan tertinggi dalam 24 jam; vasopresin/agen lain dikonversi ke ekuivalen norepinefrin (Lambden 2019).</p>
               </div>
             </div>
 
@@ -601,6 +591,7 @@ export default function ScoringSofa() {
                   placeholder="Contoh: 15"
                   min="3" max="15"
                 />
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Pasien tersedasi: pakai GCS terakhir sebelum intubasi/sedasi; bila tidak ada, isi 15 (Lambden 2019).</p>
               </div>
             </div>
 
@@ -687,7 +678,11 @@ export default function ScoringSofa() {
             <div className="w-full md:w-px h-px md:h-12 bg-current opacity-20"></div>
             <div className="text-left w-full md:w-auto">
               <div className="font-bold text-lg">{result.mortalityCategory}</div>
-              <div className="text-sm opacity-90 mt-0.5">Mortalitas ICU estimasi {result.mortalityText}</div>
+              {!result.isPartial ? (
+                <div className="text-sm opacity-90 mt-0.5">Mortalitas menurut SOFA awal: {result.mortalityText} <span className="opacity-75">(Ferreira 2001)</span></div>
+              ) : (
+                <div className="text-sm opacity-90 mt-0.5">Lengkapi semua organ untuk interpretasi mortalitas.</div>
+              )}
               {result.isPartial && (
                 <div className="text-xs font-medium mt-1 flex items-center gap-1.5 opacity-90">
                   <AlertTriangle className="w-3.5 h-3.5" /> {result.skippedOrgans.length} parameter dilewati
@@ -749,6 +744,15 @@ export default function ScoringSofa() {
             </div>
           )}
 
+          {result.notes.length > 0 && (
+            <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl mb-6 flex items-start gap-3 text-amber-800 dark:text-amber-300">
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+              <ul className="text-sm space-y-1 list-disc pl-4">
+                {result.notes.map((n, i) => <li key={i}>{n}</li>)}
+              </ul>
+            </div>
+          )}
+
           {result.isPartial && (
             <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 mb-6 flex items-start gap-3 text-slate-700 dark:text-slate-300">
               <AlertTriangle className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
@@ -764,8 +768,8 @@ export default function ScoringSofa() {
             <div>[2] Singer M et al. (Sepsis-3) JAMA 2016;315:801</div>
             <div>[3] Ferreira FL et al. JAMA 2001;286:1754</div>
             <div>[4] Lambden S et al. Crit Care 2019;23:374</div>
-            <div>[5] Evans L et al. (SSC 2024) ICM 2024;50:744</div>
-            <div>[6] Pandharipande PP et al. Crit Care Med 2023 (SpO₂/FiO₂)</div>
+            <div>[5] Evans L et al. (SSC 2021) Intensive Care Med 2021;47:1181</div>
+            <div>[6] Pandharipande PP et al. Crit Care Med 2009;37:1317 (SpO₂/FiO₂)</div>
           </div>
         </div>
       )}
@@ -867,20 +871,22 @@ export default function ScoringSofa() {
                 </table>
               </div>
               <div className="bg-slate-50 dark:bg-slate-800/30 p-2 text-[11px] text-slate-500 border-t border-slate-100 dark:border-slate-800/50">
-                *Skor 3–4 respirasi membutuhkan ventilasi mekanik (invasif atau NIV) [2,3]<br/>
-                DA=Dopamine, DOB=Dobutamine, E=Epinefrin, NE=Norepinefrin (μg/kg/mnt)
+                *Skor 3–4 respirasi mensyaratkan dukungan napas (ventilasi invasif/NIV) [1,4]<br/>
+                DA=Dopamin, DOB=Dobutamin, E=Epinefrin, NE=Norepinefrin (µg/kg/menit, ≥1 jam) [1]
               </div>
             </div>
           </div>
 
           <div>
             <strong className="text-slate-900 dark:text-slate-100 block mb-1">SpO₂/FiO₂ sebagai Substitusi PaO₂/FiO₂</strong>
-            (jika AGD tidak tersedia) [6]:
+            (jika AGD tidak tersedia) [6]. Diturunkan dari regresi log(P/F) = 0,48 + 0,78·log(S/F) pada data SpO₂ ≤98%:
             <ul className="list-disc pl-5 mt-1 space-y-1">
-              <li>S/F ≤ 315 → setara P/F ≤ 300 (SOFA skor ≥1)</li>
-              <li>S/F ≤ 264 → setara P/F ≤ 200 (SOFA skor ≥2)</li>
-              <li>S/F ≤ 221 → setara P/F ≤ 150 (SOFA skor ≥3 jika VM)</li>
+              <li>S/F &lt; {SF_THRESHOLDS.p1} ≙ P/F &lt; 400 → 1 poin</li>
+              <li>S/F &lt; {SF_THRESHOLDS.p2} ≙ P/F &lt; 300 → 2 poin</li>
+              <li>S/F &lt; {SF_THRESHOLDS.p3} ≙ P/F &lt; 200 → 3 poin (dengan dukungan napas)</li>
+              <li>S/F &lt; {SF_THRESHOLDS.p4} ≙ P/F &lt; 100 → 4 poin (dengan dukungan napas)</li>
             </ul>
+            <p className="mt-1 text-xs opacity-80">Keterbatasan: SpO₂ &gt;97% tidak andal; pada udara ruang S/F maksimal ±476 sehingga 0 poin tidak tercapai. Lambden 2019 menilai bukti S/F belum cukup untuk menggantikan AGD [4].</p>
           </div>
 
           <div>
@@ -889,27 +895,17 @@ export default function ScoringSofa() {
               <table className="w-full min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-xs text-left">
                 <thead className="bg-slate-50 dark:bg-slate-800/50">
                   <tr className="text-slate-600 dark:text-slate-400">
-                    <th className="px-3 py-2 font-semibold">SOFA Total</th>
-                    <th className="px-3 py-2 font-semibold">Mortalitas ICU (estimasi)</th>
+                    <th className="px-3 py-2 font-semibold">SOFA awal</th>
+                    <th className="px-3 py-2 font-semibold">Mortalitas (Ferreira 2001)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-900">
-                  <tr>
-                    <td className="px-3 py-2 font-medium">0–6</td>
-                    <td className="px-3 py-2">&lt; 10%</td>
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-2 font-medium">7–9</td>
-                    <td className="px-3 py-2">15–20%</td>
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-2 font-medium">10–12</td>
-                    <td className="px-3 py-2">40–50%</td>
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-2 font-medium">≥13</td>
-                    <td className="px-3 py-2">&gt; 80%</td>
-                  </tr>
+                  {FERREIRA_INITIAL_SOFA.map((b) => (
+                    <tr key={b.range}>
+                      <td className="px-3 py-2 font-medium">{b.range}</td>
+                      <td className="px-3 py-2">{b.mortality}</td>
+                    </tr>
+                  ))}
                   <tr className="bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-300">
                     <td className="px-3 py-2 font-medium">Δ SOFA ≥2</td>
                     <td className="px-3 py-2">→ Kriteria Sepsis-3 (jika ada infeksi)</td>
@@ -917,7 +913,7 @@ export default function ScoringSofa() {
                 </tbody>
               </table>
               <div className="bg-slate-50 dark:bg-slate-800/30 p-2 text-[11px] text-slate-500 border-t border-slate-100 dark:border-slate-800/50">
-                PENTING: Hanya 4 range ini yang validated. Jangan interpolasi nilai granular di antaranya [3,4].
+                Kohort 352 pasien ICU di satu pusat (Belgia, 1999) — gambaran kasar, bukan prediksi individual. SOFA tertinggi dan tren ΔSOFA 48 jam lebih prediktif daripada skor awal [3].
               </div>
             </div>
           </div>
@@ -933,7 +929,7 @@ export default function ScoringSofa() {
 
           <div>
             <strong className="text-slate-900 dark:text-slate-100 block mb-1">Delta-SOFA [3,5]</strong>
-            ΔSOFA pada 48 jam pertama lebih prediktif daripada nilai absolut; ΔSOFA meningkat = prognosis buruk independen dari skor awal. Gunakan untuk monitoring respons terapi harian. SSC 2024 merekomendasikan evaluasi SOFA serial sebagai bagian monitoring sepsis [5].
+            Pada Ferreira 2001, skor yang naik dalam 48 jam pertama berkaitan dengan mortalitas ≥50% terlepas dari skor awal, sedangkan skor yang turun berkaitan dengan mortalitas lebih rendah [3]. Penilaian serial (nilai terburuk per 24 jam) membantu memantau respons terapi [4].
           </div>
 
           <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-6 text-xs text-slate-500 dark:text-slate-400 space-y-1.5">
@@ -941,8 +937,8 @@ export default function ScoringSofa() {
             <div>[2] Singer M, Deutschman CS, Seymour CW, et al. JAMA 2016;315(8):801–810.</div>
             <div>[3] Ferreira FL, Bota DP, Bross A, Mélot C, Vincent JL. JAMA 2001;286(14):1754–1758.</div>
             <div>[4] Lambden S, Laterre PF, Levy MM, Francois B. Crit Care 2019;23:374.</div>
-            <div>[5] Evans L, Rhodes A, Alhazzani W, et al. Intensive Care Med 2024;50:744–777.</div>
-            <div>[6] Pandharipande PP, Shintani AK, Hagerman HE, et al. Crit Care Med 2023.</div>
+            <div>[5] Evans L, Rhodes A, Alhazzani W, et al. Surviving Sepsis Campaign 2021. Intensive Care Med 2021;47:1181–1247.</div>
+            <div>[6] Pandharipande PP, Shintani AK, Hagerman HE, et al. Crit Care Med 2009;37(4):1317–1321.</div>
             <div>[7] Seymour CW, Liu VX, Iwashyna TJ, et al. JAMA 2016;315(8):762–774.</div>
           </div>
         </div>
