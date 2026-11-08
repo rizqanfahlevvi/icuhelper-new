@@ -288,3 +288,55 @@ describe('Fase 2 — isi tatalaksana sesuai referensi', () => {
     }
   });
 });
+
+describe('Fase 4 — VBG, kPa PaO₂, CalcSteps, osmolar gap, AG urin', () => {
+  it('VBG: pH arteri ≈ pH vena + 0,03 dipakai untuk interpretasi; oksigenasi dari PO₂ vena tidak dihitung', () => {
+    const r = run({ sampleType: 'vena', ph: '7.32', pco2: '30', hco3: '15', po2: '40', fio2Direct: '0.21', spo2: '95' });
+    expect(r.isVbg).toBe(true);
+    expect(r.step1!.detail).toContain('pH vena = 7.32 → pH arteri ≈ 7.35');
+    expect(r.warnings.join(' ')).toContain('Byrne 2014');
+    expect(r.step6Oksigenasi!.items.find(i => i.label === 'P/F Ratio')).toBeUndefined();
+    expect(r.step6Oksigenasi!.items.find(i => i.label === 'S/F Ratio')).toBeDefined();
+    expect(r.respFailure!.type).toBe('tidak-dinilai');
+  });
+  it('VBG: kartu koreksi respiratorik tidak muncul walau PvCO₂ tinggi', () => {
+    const r = run({ sampleType: 'vena', ph: '7.22', pco2: '60', hco3: '24' });
+    expect(r.mgmt.map(m => m.judul)).not.toContain('Koreksi Asidosis Respiratorik');
+    expect(r.saran.join(' ')).toContain('konfirmasi dengan AGD arteri');
+  });
+  it('kPa: PaO₂ ikut dikonversi (8 kPa = 60 mmHg)', () => {
+    const r = run({ ph: '7.40', pco2: '5.33', paco2Unit: 'kPa', hco3: '24', po2: '8', fio2Direct: '0.21' });
+    const pf = r.step6Oksigenasi!.items.find(i => i.label === 'P/F Ratio')!;
+    expect(parseFloat(pf.value)).toBeCloseTo(286, 0); // 8 × 7,5006 = 60,0 → /0,21
+    expect(r.respFailure!.type).toBe('tidak');      // 60,0 ≥ 60
+  });
+  it('CalcSteps berisi substitusi angka pasien (H-H, Winter, AG)', () => {
+    const r = run({ ph: '7.26', pco2: '23', hco3: '10', na: '135', cl: '100' });
+    const blob = JSON.stringify(r.calcSteps);
+    expect(blob).toContain('0,0307 × 23');
+    expect(blob).toContain('Winter: 1,5 × 10 + 8');
+    expect(blob).toContain('135 − (100 + 10) = 25.0');
+  });
+});
+
+import { osmolarGap, urineAnionGap } from '../utils/acidBase';
+
+describe('Osmolar gap & AG urin', () => {
+  it('OG: Na 140, glukosa 90, ureum 30 → hitung 280 + 5 + 5 = 290; terukur 310 → OG 20 (meningkat)', () => {
+    const r = osmolarGap(310, 140, 90, 30, 'ureum')!;
+    expect(r.calculated).toBeCloseTo(290, 6);
+    expect(r.gap).toBeCloseTo(20, 6);
+    expect(r.high).toBe(true);
+  });
+  it('OG dengan BUN: 2×140 + 90/18 + 14/2,8 = 290', () => {
+    expect(osmolarGap(295, 140, 90, 14, 'bun')!.gap).toBeCloseTo(5, 6);
+    expect(osmolarGap(295, 140, 90, 14, 'bun')!.high).toBe(false);
+    expect(osmolarGap(NaN, 140, 90, 14, 'bun')).toBeNull();
+  });
+  it('UAG: negatif → GI; positif → RTA distal (Batlle 1988)', () => {
+    expect(urineAnionGap(20, 30, 80)!.uag).toBe(-30);
+    expect(urineAnionGap(20, 30, 80)!.interp).toContain('GI');
+    expect(urineAnionGap(50, 30, 60)!.interp).toContain('RTA');
+    expect(urineAnionGap(NaN, 30, 60)).toBeNull();
+  });
+});

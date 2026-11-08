@@ -361,3 +361,14 @@ export function analyzeAcidBase(ph: number, pco2: number, hco3: number, be: numb
 
   return { phStatus: st, primaries, concurrent, disorders, evals, primaryText, compStatus, compNote, notes };
 }
+
+// ── VBG (gas darah vena perifer) ─────────────────────────────────────────────
+// Byrne AL et al. Respirology 2014;19:168 (meta-analisis 18 studi, 1768 subjek):
+//   pH arteri rata-rata 0,03 lebih tinggi dari pH vena (IK95% 0,029–0,038) → dapat dipakai;
+//   PCO₂ vena TIDAK sebanding (interval prediksi bias −10,7 s/d +2,4 mmHg);
+//   PO₂ vena tidak sebanding (arteri ≈36,9 mmHg lebih tinggi, variabilitas besar).
+export const VBG_PH_OFFSET = 0.03;
+
+export function arterialPhFromVenous(phVenous: number): number {
+  return phVenous + VBG_PH_OFFSET;
+}

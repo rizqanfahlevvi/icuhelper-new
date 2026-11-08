@@ -1,3 +1,4 @@
+import { serumOsmolality, UreaUnit } from './sodium';
 // Util perhitungan asam-basa (fungsi murni, mudah dites).
 // Rujukan: Kraut JA, Madias NE. Nat Rev Nephrol 2012 · Adrogué HJ, Madias NE. NEJM 1998
 // · Fernandez PC, Cohen RM, Feldman GM. Kidney Int 1989;36:747 (ruang distribusi bikarbonat)
@@ -158,4 +159,49 @@ export function hclPlan(weightKg: number, hco3Actual: number, hco3Target: number
     maxRateMlH: maxRateMeqH / HCL_01N_MEQ_PER_ML,
     minHours: doseMeq / maxRateMeqH,
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OSMOLAR GAP — petunjuk alkohol toksik pada HAGMA (Kraut JA, Kurtz I. CJASN 2008;3:208:
+// kenaikan AG dan osmolal gap bersamaan = petunjuk penting, tetapi salah satunya bisa tidak
+// ada tergantung waktu sampel). Ambang ">10 mOsm/kg" = rujukan umum (sesuaikan dengan lab).
+// Osmolalitas hitung memakai serumOsmolality() (2Na + glukosa/18 + ureum/6 atau BUN/2,8).
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const OSMOLAR_GAP_HIGH = 10;
+
+export interface OsmolarGapResult {
+  calculated: number;
+  gap: number;
+  high: boolean;
+}
+
+export function osmolarGap(measured: number, na: number, glucoseMgDl: number, urea: number, unit: UreaUnit): OsmolarGapResult | null {
+  if (![measured, na, glucoseMgDl, urea].every(Number.isFinite)) return null;
+  const calc = serumOsmolality(na, glucoseMgDl, urea, unit).total;
+  if (!Number.isFinite(calc)) return null;
+  const gap = measured - calc;
+  return { calculated: calc, gap, high: gap > OSMOLAR_GAP_HIGH };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AG URIN — Batlle DC et al. NEJM 1988;318:594: UAG = Na⁺ + K⁺ − Cl⁻ urin, indeks kasar
+// NH₄⁺ urin pada asidosis hiperkloremik (NAGMA). Negatif → kehilangan bikarbonat GI
+// (diare); positif → gangguan asidifikasi distal (RTA distal, hipoaldosteronisme).
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface UrineAgResult {
+  uag: number;
+  interp: string;
+}
+
+export function urineAnionGap(uNa: number, uK: number, uCl: number): UrineAgResult | null {
+  if (![uNa, uK, uCl].every(Number.isFinite)) return null;
+  const uag = uNa + uK - uCl;
+  const interp = uag < 0
+    ? 'Negatif → ekskresi NH₄⁺ ginjal baik → curigai kehilangan bikarbonat GI (diare)'
+    : uag > 0
+      ? 'Positif → ekskresi NH₄⁺ terganggu → curigai gangguan asidifikasi distal (RTA distal / hipoaldosteronisme)'
+      : 'Nol → tidak informatif';
+  return { uag, interp };
 }

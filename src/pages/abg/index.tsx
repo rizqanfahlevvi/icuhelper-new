@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { usePatientStore } from '../../store/usePatientStore';
+import { calcIbw } from '../../utils/anthropometry';
 import AbgInterpreter from './AbgInterpreter';
 import AcidBaseCorrection from './AcidBaseCorrection';
 import AbgTheory from './AbgTheory';
@@ -13,12 +15,24 @@ import { fio2ToPercentString, fio2FromStoreString } from '../../utils/abg';
 export default function AbgPage() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [abgInputs, setAbgInputs] = useState<AbgInputs>(defaultAbgInputs);
+  const patientWeight = usePatientStore(s => s.weightKg);
+  const patientHeight = usePatientStore(s => s.heightCm);
+  const patientGender = usePatientStore(s => s.gender);
+  const [weightOverride, setWeightOverride] = useState('');
+  // BB untuk kalkulator koreksi: dari autofill/pasien aktif. BBI (Devine) hanya bila TB & jenis kelamin ada.
+  const weightForCorrection = weightOverride || patientWeight || '';
+  const ibwForCorrection = useMemo(() => {
+    const h = parseFloat(patientHeight);
+    if (!(h > 0) || (patientGender !== 'L' && patientGender !== 'P')) return '';
+    return calcIbw(h, patientGender === 'P').toFixed(1);
+  }, [patientHeight, patientGender]);
   const isFav = isFavorite('/abg');
 
-  // Autofill dari pasien aktif: usia (untuk perkiraan A-a gradient normal).
+  // Autofill dari pasien aktif: usia (A-a gradient normal) & BB (kalkulator koreksi).
   const handleAutofill = (data: { weightKg: string; temp?: string; age?: string; gender?: string }) => {
     const age = data.age;
     if (age) setAbgInputs(prev => ({ ...prev, age }));
+    if (data.weightKg) setWeightOverride(data.weightKg);
   };
 
   const syncFields = useMemo(() => {
@@ -65,7 +79,7 @@ export default function AbgPage() {
       <UnifiedSyncBanner fields={syncFields} />
 
       <AbgInterpreter inputs={abgInputs} setInputs={setAbgInputs} />
-      <AcidBaseCorrection abgInputs={abgInputs} />
+      <AcidBaseCorrection abgInputs={abgInputs} patientWeight={weightForCorrection} patientIbw={ibwForCorrection} />
       <AbgTheory />
     </div>
   );

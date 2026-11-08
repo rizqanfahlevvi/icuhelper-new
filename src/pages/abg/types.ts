@@ -32,6 +32,8 @@ export interface AbgInputs {
   age: string;
   /** Jam ke- sejak mulai HFNC (ambang ROX bergantung waktu). */
   roxHour: RoxHour;
+  /** Jenis sampel: arteri (ABG) atau vena perifer (VBG). */
+  sampleType: 'arteri' | 'vena';
 }
 
 export const defaultAbgInputs: AbgInputs = {
@@ -40,7 +42,7 @@ export const defaultAbgInputs: AbgInputs = {
   mapV: '', na: '', cl: '', alb: '', laktat: '', rr: '',
   kondisi: 'umum', paco2Unit: 'mmHg', albUnit: 'g/dL',
   spo2Source: 'pulse', fio2Mode: 'direct',
-  support: 'udara', peep: '', hfnoFlow: '', age: '', roxHour: ''
+  support: 'udara', peep: '', hfnoFlow: '', age: '', roxHour: '', sampleType: 'arteri'
 };
 
 /** FiO₂ efektif (fraksi) — lihat resolveDirectFio2/estimateLowFlowFio2 di utils/abg.ts. */

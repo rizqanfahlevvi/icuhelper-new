@@ -7,6 +7,16 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import {
+  RespSupport, SUPPORT_LABEL, ARDS_OTHER_CRITERIA, pfLabel, ardsOxygenation, classifyRespFailure,
+} from '../../utils/oxygenation';
+import { hco3FromHH, Tone } from '../../utils/abg';
+
+// Disamakan dengan modul ABG (utils/oxygenation.ts): klasifikasi Berlin 2012 + Global 2023,
+// gagal napas tipe 1/2 (StatPearls; tipe 2 = PaCO₂ >45 DENGAN pH <7,35), OI tanpa ambang dewasa.
+const TONE_TEXT: Record<Tone, string> = {
+  red: 'text-red-500', amber: 'text-amber-500', emerald: 'text-green-500', slate: 'text-slate-500',
+};
 
 export default function KalkulatorPF() {
   const patient = usePatientStore();
@@ -24,6 +34,9 @@ export default function KalkulatorPF() {
   const [spo2, setSpo2] = useState('');
   const [pplat, setPplat] = useState('');
   const [peep, setPeep] = useState('');
+  const [support, setSupport] = useState<RespSupport>('udara');
+  const [hfnoFlow, setHfnoFlow] = useState('');
+  const [ph, setPh] = useState('');
   const [paco2, setPaco2] = useState('');
   const [result, setResult] = useState<any>(null);
 
@@ -33,6 +46,7 @@ export default function KalkulatorPF() {
     if (clinicalStore.data.spo2) setSpo2(clinicalStore.data.spo2);
     if (clinicalStore.data.peep) setPeep(clinicalStore.data.peep);
     if (clinicalStore.data.pco2) setPaco2(clinicalStore.data.pco2);
+    if (clinicalStore.data.ph) setPh(clinicalStore.data.ph);
     if (clinicalStore.data.fio2) {
       setFio2DirectMode('percent');
       setFio2(clinicalStore.data.fio2);
@@ -45,13 +59,15 @@ export default function KalkulatorPF() {
     { key: 'spo2' as const, label: 'SpO₂', value: spo2, setter: setSpo2, unit: '%' },
     { key: 'peep' as const, label: 'PEEP', value: peep, setter: setPeep, unit: 'cmH₂O' },
     { key: 'pco2' as const, label: 'PaCO₂', value: paco2, setter: setPaco2, unit: 'mmHg' },
-  ], [pao2, spo2, peep, paco2]);
+    { key: 'ph' as const, label: 'pH', value: ph, setter: setPh, unit: '' },
+  ], [pao2, spo2, peep, paco2, ph]);
 
   const handleAutofill = (data: any) => {
     if (clinicalStore.data.pao2) setPao2(clinicalStore.data.pao2);
     if (clinicalStore.data.spo2) setSpo2(clinicalStore.data.spo2);
     if (clinicalStore.data.peep) setPeep(clinicalStore.data.peep);
     if (clinicalStore.data.pco2) setPaco2(clinicalStore.data.pco2);
+    if (clinicalStore.data.ph) setPh(clinicalStore.data.ph);
     if (clinicalStore.data.fio2) {
       setFio2DirectMode('percent');
       setFio2(clinicalStore.data.fio2);
@@ -148,20 +164,25 @@ export default function KalkulatorPF() {
     setFio2Error('');
 
     const pf = o2 / f;
-    let pfClass, pfColor;
+    const lbl = pfLabel(pf);
+    const pfClass = lbl.text;
+    const pfColor = TONE_TEXT[lbl.tone];
     const peepVal = parseFloat(peep);
     const meetsBeepCriteria = !isNaN(peepVal) && peepVal >= 5;
-    if (pf >= 400) { pfClass = 'Normal'; pfColor = 'text-green-500'; }
-    else if (pf >= 300) { pfClass = 'Hipoksemia Ringan'; pfColor = 'text-teal-500'; }
-    else if (pf >= 200) { pfClass = meetsBeepCriteria ? 'ARDS Mild (Berlin)' : 'P/F ≤300 (ARDS Mild — butuh PEEP ≥5)'; pfColor = 'text-amber-500'; }
-    else if (pf >= 100) { pfClass = meetsBeepCriteria ? 'ARDS Moderate (Berlin)' : 'P/F ≤200 (ARDS Moderate — butuh PEEP ≥5)'; pfColor = 'text-orange-500'; }
-    else { pfClass = meetsBeepCriteria ? 'ARDS Severe (Berlin)' : 'P/F ≤100 (ARDS Severe — butuh PEEP ≥5)'; pfColor = 'text-red-500'; }
+    const effSupport: RespSupport = fio2Mode === 'lowflow' ? 'udara' : support;
+    const fio2Estimated = fio2Mode === 'lowflow' && !device.startsWith('venturi');
+    const hfFlow = parseFloat(hfnoFlow);
+    const ox = ardsOxygenation({
+      pf: isPao2Estimated ? null : pf, spo2: isNaN(s) ? null : s, fio2: f, support: effSupport,
+      peep: isNaN(peepVal) ? null : peepVal, hfnoFlow: isNaN(hfFlow) ? null : hfFlow, fio2Estimated,
+    });
 
     let oiRes = null;
     if (m && o2 && f) {
       const oi = (m * f * 100) / o2;
-      const oiClass = oi < 5 ? 'Ringan' : oi < 25 ? 'Moderate' : oi < 40 ? 'Berat' : 'Sangat Berat (ECMO)';
-      const oiColor = oi < 5 ? 'text-green-500' : oi < 25 ? 'text-amber-500' : 'text-red-500';
+      // Tidak ada ambang OI dewasa baku (ambang 4/8/16 = pediatri PALICC; >40 = neonatus) → tren.
+      const oiClass = 'Tidak ada ambang dewasa baku — pakai untuk tren';
+      const oiColor = 'text-blue-500';
       oiRes = { val: oi.toFixed(1), cls: oiClass, col: oiColor };
     }
 
@@ -179,18 +200,25 @@ export default function KalkulatorPF() {
       osiRes = { val: osi.toFixed(1) };
     }
 
-    let failType = null;
+    let failType: { t: string; d: string[]; c: string } | null = null;
     if (pCO2) {
-      if (pCO2 > 50) {
-        failType = { t: 'Tipe II (Hiperkapnik)', d: 'Kegagalan ventilasi. PaCO₂ > 50 mmHg.', c: 'text-red-500' };
-      } else if (pf < 300 || o2 < 60) {
-        failType = { t: 'Tipe I (Hipoksemik)', d: 'Kegagalan oksigenasi tanpa retensi CO₂.', c: 'text-amber-500' };
+      const phVal = parseFloat(ph);
+      const pao2ForRf = isPao2Estimated ? null : o2;
+      if (!isNaN(phVal)) {
+        const rf = classifyRespFailure({ ph: phVal, pco2: pCO2, hco3: hco3FromHH(phVal, pCO2), pao2: pao2ForRf, fio2: f, fio2Estimated });
+        failType = { t: rf.title, d: [...rf.details], c: TONE_TEXT[rf.tone] };
+      } else if (pCO2 > 45) {
+        failType = { t: 'Hiperkapnia (PaCO₂ >45) — isi pH untuk menentukan gagal napas tipe 2', d: ['Tipe 2 (StatPearls): PaCO₂ >45 mmHg DENGAN pH <7,35; pH normal + HCO₃⁻ naik = tipe 2 kronik.'], c: 'text-amber-500' };
       } else {
-        failType = { t: 'Bukan Tipe I/II yang jelas', d: 'Oksigenasi baik, PaCO₂ normal/rendah.', c: 'text-green-500' };
+        const rf = classifyRespFailure({ ph: NaN, pco2: pCO2, hco3: NaN, pao2: pao2ForRf, fio2: f, fio2Estimated });
+        failType = { t: rf.title, d: [...rf.details], c: TONE_TEXT[rf.tone] };
       }
+      if (isPao2Estimated) failType.d.push('PaO₂ diestimasi dari SpO₂ — tipe 1 tidak dinilai dari estimasi; konfirmasi dengan AGD.');
+      if (!isNaN(phVal) && !isNaN(pCO2)) failType.d.push(`HCO₃⁻ dihitung dari pH & PaCO₂ (Henderson–Hasselbalch) = ${hco3FromHH(phVal, pCO2).toFixed(1)} mmol/L untuk membedakan akut/kronik.`);
     }
 
-    setResult({ pf: pf.toFixed(1), pfClass, pfColor, o2, isPao2Estimated, meetsBeepCriteria, f, oiRes, dpRes, osiRes, failType });
+    setResult({ pf: pf.toFixed(1), pfClass, pfColor, o2, isPao2Estimated, meetsBeepCriteria, f, oiRes, dpRes, osiRes, failType,
+      berlin: ox.berlin, global: ox.global, meetsOxygenation: ox.meetsOxygenation, sf: ox.sf, sfValid: ox.sfValid, supportLabel: SUPPORT_LABEL[effSupport] });
   };
 
   return (
@@ -298,8 +326,29 @@ export default function KalkulatorPF() {
             )}
           </div>
 
+          <div className="flex flex-col px-4 py-3 gap-2">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Dukungan Napas</span>
+              <select
+                value={fio2Mode === 'lowflow' ? 'udara' : support}
+                disabled={fio2Mode === 'lowflow'}
+                onChange={e => setSupport(e.target.value as RespSupport)}
+                className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white text-[13px] w-full max-w-[220px] disabled:opacity-60"
+              >
+                {(Object.keys(SUPPORT_LABEL) as RespSupport[]).map(k => <option key={k} value={k}>{SUPPORT_LABEL[k]}</option>)}
+              </select>
+            </div>
+            {fio2Mode !== 'lowflow' && support === 'hfno' && (
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">Flow HFNC</span>
+                <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white text-[14px]" placeholder="L/m" value={hfnoFlow} onChange={e => setHfnoFlow(e.target.value)} />
+              </div>
+            )}
+            <p className="text-[11px] text-slate-500">Menentukan kelayakan klasifikasi ARDS (Berlin butuh PEEP/CPAP ≥5; Global 2023 menerima HFNC ≥30 L/m).</p>
+          </div>
+
           <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">MAP Ventilator</span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0" title="Mean airway pressure dari ventilator — bukan MAP arteri">Paw (tekanan jalan napas rerata)</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="14" value={map} onChange={e => setMap(e.target.value)} />
               <span className="text-[11px] font-semibold text-slate-500 w-12 text-left">cmH₂O</span>
@@ -351,6 +400,14 @@ export default function KalkulatorPF() {
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mmHg</span>
             </div>
           </div>
+
+          <div className="flex items-center justify-between px-4 py-3 gap-4">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">pH ABG</span>
+            <div className="flex-1 flex items-center justify-end gap-2">
+              <input type="number" step="0.01" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional (tipe 2)" value={ph} onChange={e => setPh(e.target.value)} />
+              <span className="text-xs font-semibold text-slate-500 w-10 text-left"></span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -368,12 +425,20 @@ export default function KalkulatorPF() {
             <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">
               PaO₂ {result.o2.toFixed(1)}{result.isPao2Estimated && <span className="text-[11px] text-amber-500 ml-1">(estimasi dari SpO₂)</span>} ÷ FiO₂ {result.f.toFixed(2)}
             </div>
-            {!result.meetsBeepCriteria && result.pf < 300 && (
-              <div className="mt-1 text-[11px] text-amber-600 dark:text-amber-400">⚠ Kriteria Berlin memerlukan PEEP ≥5 cmH₂O untuk konfirmasi ARDS</div>
+            {result.sf !== null && (
+              <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">S/F = {result.sf.toFixed(0)}{!result.sfValid && <span className="text-[11px] text-amber-500 ml-1">(tidak dipakai — SpO₂ &gt;97%)</span>}</div>
+            )}
+            {result.meetsOxygenation && (
+              <ul className="mt-2 space-y-1 list-disc pl-4 text-[12px] text-slate-700 dark:text-slate-300">
+                <li>Dukungan napas: {result.supportLabel}{result.meetsBeepCriteria ? `, PEEP ${peep}` : ''}</li>
+                <li>{result.berlin}</li>
+                <li>{result.global}</li>
+                <li className="text-amber-600 dark:text-amber-400">{ARDS_OTHER_CRITERIA}</li>
+              </ul>
             )}
             <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 italic text-center">
               ARDS Definition Task Force. <em>JAMA</em> 2012;307:2526–2533 ·
-              Matthay MA et al. <em>AJRCCM</em> 2023;207(4):374–393
+              Matthay MA et al. <em>AJRCCM</em> 2024;209:37–47
             </p>
           </div>
 
@@ -381,7 +446,7 @@ export default function KalkulatorPF() {
             <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
               <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.oiRes.col}`}>Oxygenation Index (OI)</div>
               <div className="text-xl font-bold text-slate-900 dark:text-white mb-1">{result.oiRes.val} — {result.oiRes.cls}</div>
-              <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">OI = (MAP {map} × FiO₂ {result.f} × 100) / PaO₂ {result.o2.toFixed(1)}</div>
+              <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">OI = (Paw {map} × FiO₂ {result.f} × 100) / PaO₂ {result.o2.toFixed(1)}</div>
             </div>
           )}
 
@@ -400,7 +465,7 @@ export default function KalkulatorPF() {
             <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
               <div className="text-[12px] uppercase tracking-wider font-bold mb-1 text-blue-500">OSI (SpO₂-based OI)</div>
               <div className="text-xl font-bold text-slate-900 dark:text-white mb-1">OSI = {result.osiRes.val}</div>
-              <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">OSI = (MAP {map} × FiO₂ {result.f.toFixed(2)} × 100) / SpO₂ {spo2}%</div>
+              <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">OSI = (Paw {map} × FiO₂ {result.f.toFixed(2)} × 100) / SpO₂ {spo2}%</div>
             </div>
           )}
 
@@ -408,7 +473,9 @@ export default function KalkulatorPF() {
             <div className={`bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm ${result.failType.c}`}>
               <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.failType.c}`}>Tipe Gagal Napas</div>
               <div className="text-xl font-bold mb-1">{result.failType.t}</div>
-              <div className="text-[13px] font-medium opacity-80">{result.failType.d} (PaCO₂ = {paco2} mmHg)</div>
+              <ul className="list-disc pl-4 space-y-0.5">
+                {result.failType.d.map((d: string, i: number) => <li key={i} className="text-[13px] font-medium opacity-80">{d}</li>)}
+              </ul>
             </div>
           )}
 
@@ -419,19 +486,17 @@ export default function KalkulatorPF() {
                 {
                   label: 'Langkah 1 — Rasio P/F:',
                   formula: `P/F = PaO₂ ÷ FiO₂ = ${result.o2.toFixed(1)}${result.isPao2Estimated ? ' (estimasi dari SpO₂)' : ''} ÷ ${result.f.toFixed(2)} = ${result.pf}`,
-                  note: `${result.pfClass}. Ambang Berlin: ≤300 ringan · ≤200 sedang · ≤100 berat.`,
+                  note: `${result.pfClass}. Ambang ARDS: ≤300 ringan · ≤200 sedang · ≤100 berat.`,
                 },
                 {
-                  label: 'Langkah 2 — Syarat kriteria Berlin:',
-                  formula: result.meetsBeepCriteria
-                    ? `PEEP = ${peep} cmH₂O ≥ 5 → kriteria ARDS terpenuhi`
-                    : `PEEP < 5 cmH₂O (atau kosong) → klasifikasi ARDS belum dapat dikonfirmasi`,
-                  note: 'Definisi Berlin mensyaratkan PEEP/CPAP ≥5 cmH₂O.',
+                  label: 'Langkah 2 — Klasifikasi oksigenasi ARDS:',
+                  formula: result.meetsOxygenation ? `${result.berlin}\n${result.global}` : 'P/F >300 (dan S/F >315 atau tidak valid) → di atas ambang hipoksemia ARDS',
+                  note: 'Berlin: PEEP/CPAP ≥5 (NIV/CPAP hanya kategori ringan). Global 2023: S/F boleh (SpO₂ ≤97%), HFNC ≥30 L/m; kriteria lain (onset, opasitas bilateral, bukan kardiak) tetap wajib.',
                 },
                 ...(result.oiRes ? [{
                   label: 'Langkah 3 — Oxygenation Index (OI):',
-                  formula: `OI = (MAP × FiO₂ × 100) ÷ PaO₂ = (${map} × ${result.f.toFixed(2)} × 100) ÷ ${result.o2.toFixed(1)} = ${result.oiRes.val}`,
-                  note: `${result.oiRes.cls}. OI memperhitungkan tekanan jalan napas — berguna pada anak & pertimbangan ECMO.`,
+                  formula: `OI = (Paw × FiO₂ × 100) ÷ PaO₂ = (${map} × ${result.f.toFixed(2)} × 100) ÷ ${result.o2.toFixed(1)} = ${result.oiRes.val}`,
+                  note: `${result.oiRes.cls}. Ambang OI yang beredar berasal dari pediatri/neonatus.`,
                 }] : []),
                 ...(result.dpRes ? [{
                   label: `Langkah ${result.oiRes ? 4 : 3} — Driving Pressure:`,
@@ -447,7 +512,7 @@ export default function KalkulatorPF() {
             <SaveToHistoryButton
               module="pf_ratio"
               label={`P/F Ratio: ${result.pf} (${result.pfClass})`}
-              inputs={{ pao2, fio2Mode, fio2, device, flow, map, spo2Source, spo2, pplat, peep, paco2 }}
+              inputs={{ pao2, fio2Mode, fio2, device, flow, map, spo2Source, spo2, pplat, peep, paco2, ph, support, hfnoFlow }}
               summary={`P/F: ${result.pf} (${result.pfClass}) · PaO₂: ${result.o2.toFixed(1)} · FiO₂: ${result.f.toFixed(2)}${result.dpRes ? ` · DP: ${result.dpRes.val}` : ''}`}
               className="w-full bg-blue-600 hover:bg-blue-700"
             />
@@ -483,7 +548,7 @@ export default function KalkulatorPF() {
                   <tr className="bg-slate-50/50 dark:bg-[#242426]">
                     <td className="px-3 py-2 font-semibold text-red-600 dark:text-red-400 whitespace-nowrap">Tipe II<br/><span className="text-[10px] font-normal text-slate-500">Hiperkapnik</span></td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Kegagalan pompa ventilasi, hipoventilasi alveolar</td>
-                    <td className="px-3 py-2 text-slate-700 dark:text-slate-300">PaCO₂ &gt;50 mmHg<br/>pH &lt;7.35<br/>A-a gradient normal</td>
+                    <td className="px-3 py-2 text-slate-700 dark:text-slate-300">PaCO₂ &gt;45 mmHg dengan pH &lt;7,35 (akut)<br/>Kronik: pH normal, HCO₃⁻ naik<br/>A-a gradient normal</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Eksaserbasi PPOK, Asma berat, Overdosis opioid, MG crisis</td>
                   </tr>
                   <tr className="bg-white dark:bg-[#1C1C1E]">
@@ -533,16 +598,16 @@ export default function KalkulatorPF() {
                   </tr>
                   <tr className="bg-slate-50/50 dark:bg-[#242426]">
                     <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">PEEP minimal</td>
-                    <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400" colSpan={3}>≥5 cmH₂O (semua kategori)</td>
+                    <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400" colSpan={3}>PEEP/CPAP ≥5 cmH₂O (Berlin: CPAP/NIV hanya kategori ringan; sedang–berat butuh ventilasi invasif)</td>
                   </tr>
                   <tr className="bg-white dark:bg-[#1C1C1E]">
-                    <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">OI ekuivalen</td>
-                    <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">4–8</td>
-                    <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">8–16</td>
-                    <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">&gt;16</td>
+                    <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">S/F (Global 2023, terintubasi, SpO₂ ≤97%)</td>
+                    <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">&gt;235–≤315</td>
+                    <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">&gt;148–≤235</td>
+                    <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">≤148</td>
                   </tr>
                   <tr className="bg-slate-50/50 dark:bg-[#242426]">
-                    <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">Mortalitas 28-hari</td>
+                    <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">Mortalitas (Berlin 2012)</td>
                     <td className="px-3 py-2 text-center text-amber-600 dark:text-amber-400 font-bold">~27%</td>
                     <td className="px-3 py-2 text-center text-orange-600 dark:text-orange-400 font-bold">~32%</td>
                     <td className="px-3 py-2 text-center text-red-600 dark:text-red-400 font-bold">~45%</td>
@@ -576,33 +641,29 @@ export default function KalkulatorPF() {
                   </tr>
                   <tr className="bg-slate-50/50 dark:bg-[#242426]">
                     <td className="px-3 py-2 font-semibold">PEEP</td>
-                    <td className="px-3 py-2 text-center">5–8</td>
-                    <td className="px-3 py-2 text-center">8–13</td>
-                    <td className="px-3 py-2 text-center">13–18 cmH₂O</td>
+                    <td className="px-3 py-2 text-center" colSpan={3}>Kombinasi PEEP/FiO₂ tabel ARDSNet; sedang–berat: PEEP lebih tinggi tanpa recruitment maneuver berkepanjangan (ATS 2024)</td>
                   </tr>
                   <tr className="bg-white dark:bg-[#1C1C1E]">
                     <td className="px-3 py-2 font-semibold">Prone positioning</td>
                     <td className="px-3 py-2 text-center">Tidak rutin</td>
-                    <td className="px-3 py-2 text-center">Pertimbangkan &gt;12 j/hr</td>
-                    <td className="px-3 py-2 text-center font-bold text-red-600 dark:text-red-400">≥16 j/hr ✓</td>
+                    <td className="px-3 py-2 text-center">Bila P/F &lt;150 (FiO₂ ≥0,6, PEEP ≥5)</td>
+                    <td className="px-3 py-2 text-center font-bold text-red-600 dark:text-red-400">≥16 j/hari (PROSEVA; ESICM 2023)</td>
                   </tr>
                   <tr className="bg-slate-50/50 dark:bg-[#242426]">
                     <td className="px-3 py-2 font-semibold">NMBA (Cisatrakurium)</td>
                     <td className="px-3 py-2 text-center">Tidak</td>
-                    <td className="px-3 py-2 text-center">Jika asinkron berat</td>
-                    <td className="px-3 py-2 text-center">Selektif — 48j awal</td>
+                    <td className="px-3 py-2 text-center">Opsional bila P/F &lt;150</td>
+                    <td className="px-3 py-2 text-center">15 mg bolus → 37,5 mg/jam 48 j (ACURASYS); ATS 2024 kondisional</td>
                   </tr>
                   <tr className="bg-white dark:bg-[#1C1C1E]">
                     <td className="px-3 py-2 font-semibold">Target SpO₂</td>
-                    <td className="px-3 py-2 text-center">92–96%</td>
-                    <td className="px-3 py-2 text-center">88–95%</td>
-                    <td className="px-3 py-2 text-center">88–92%</td>
+                    <td className="px-3 py-2 text-center" colSpan={3}>SpO₂ 88–95% / PaO₂ 55–80 mmHg (ARDSNet)</td>
                   </tr>
                   <tr className="bg-slate-50/50 dark:bg-[#242426]">
                     <td className="px-3 py-2 font-semibold">ECMO VV</td>
                     <td className="px-3 py-2 text-center">Tidak</td>
-                    <td className="px-3 py-2 text-center">Tidak (kecuali refrakter)</td>
-                    <td className="px-3 py-2 text-center font-bold">P/F &lt;80 + OI &gt;25</td>
+                    <td className="px-3 py-2 text-center">Tidak</td>
+                    <td className="px-3 py-2 text-center font-bold">Kriteria EOLIA: P/F &lt;50 &gt;3 j, &lt;80 &gt;6 j, atau pH &lt;7,25 + PaCO₂ ≥60 &gt;6 j</td>
                   </tr>
                 </tbody>
               </table>
@@ -639,21 +700,21 @@ export default function KalkulatorPF() {
                   <tr>
                     <th className="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">Indeks</th>
                     <th className="px-3 py-2 text-center font-bold text-slate-700 dark:text-slate-300">Formula</th>
-                    <th className="px-3 py-2 text-center font-bold text-slate-700 dark:text-slate-300">Threshold ECMO</th>
+                    <th className="px-3 py-2 text-center font-bold text-slate-700 dark:text-slate-300">Ambang dewasa</th>
                     <th className="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">Catatan</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                   <tr className="bg-white dark:bg-[#1C1C1E]">
                     <td className="px-3 py-2 font-semibold">OI</td>
-                    <td className="px-3 py-2 text-center font-mono text-[11px]">MAP × FiO₂ × 100 / PaO₂</td>
-                    <td className="px-3 py-2 text-center font-bold text-red-600 dark:text-red-400">&gt;25</td>
+                    <td className="px-3 py-2 text-center font-mono text-[11px]">Paw × FiO₂ × 100 / PaO₂</td>
+                    <td className="px-3 py-2 text-center">Tidak baku (ambang pediatri/neonatus) — tren</td>
                     <td className="px-3 py-2">Mempertimbangkan MAP — lebih akurat dari P/F pada MV</td>
                   </tr>
                   <tr className="bg-slate-50/50 dark:bg-[#242426]">
                     <td className="px-3 py-2 font-semibold">OSI</td>
-                    <td className="px-3 py-2 text-center font-mono text-[11px]">MAP × FiO₂ × 100 / SpO₂</td>
-                    <td className="px-3 py-2 text-center font-bold text-orange-600 dark:text-orange-400">&gt;16</td>
+                    <td className="px-3 py-2 text-center font-mono text-[11px]">Paw × FiO₂ × 100 / SpO₂</td>
+                    <td className="px-3 py-2 text-center">Tidak baku — tren</td>
                     <td className="px-3 py-2">Non-invasif — cocok jika ABG tidak tersedia (SpO₂ &lt;97%)</td>
                   </tr>
                 </tbody>
@@ -669,7 +730,9 @@ export default function KalkulatorPF() {
             <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Referensi</h3>
             <ol className="space-y-1 list-decimal pl-4 text-[12px] text-slate-600 dark:text-slate-400">
               <li>ARDS Definition Task Force, Ranieri VM et al. <em>JAMA</em> 2012;307(23):2526–2533. doi:10.1001/jama.2012.5669</li>
-              <li>Matthay MA, Arabi Y, Arroliga AC, et al. <em>Am J Respir Crit Care Med</em> 2023;207(4):374–393. doi:10.1164/rccm.202208-1533SO</li>
+              <li>Matthay MA, Arabi Y, Arroliga AC, et al. A New Global Definition of Acute Respiratory Distress Syndrome. <em>Am J Respir Crit Care Med</em> 2024;209(1):37–47. doi:10.1164/rccm.202303-0558WS</li>
+              <li>Mirabile VS, Shebl E, Sankari A, Burns B. Respiratory Failure in Adults. StatPearls (NBK526127).</li>
+              <li>Papazian L, et al. (ACURASYS). <em>N Engl J Med</em> 2010;363:1107–1116 · Combes A, et al. (EOLIA). <em>N Engl J Med</em> 2018;378:1965–1975 · Qadir N, et al. (ATS). <em>Am J Respir Crit Care Med</em> 2024;209:24–36</li>
               <li>ESICM Taskforce on ARDS. <em>Intensive Care Med</em> 2023. doi:10.1007/s00134-023-07050-7</li>
               <li>ARDSNet. <em>N Engl J Med</em> 2000;342:1301–1308. doi:10.1056/NEJM200005043421801</li>
               <li>Amato MB, Meade MO, Slutsky AS, et al. <em>N Engl J Med</em> 2015;372:747–755. doi:10.1056/NEJMsa1410639</li>

@@ -6,6 +6,7 @@ import {
   KPA_TO_MMHG, Tone, Disorder, AcidBaseAnalysis, HhCheck, Fio2Resolution,
   HCO3_LOW, HCO3_HIGH, PCO2_LOW, PCO2_HIGH,
   validateCore, analyzeAcidBase, hhCheck, resolveDirectFio2, estimateLowFlowFio2,
+  arterialPhFromVenous, VBG_PH_OFFSET, DISORDER_LABEL,
 } from '../../utils/abg';
 import {
   anionGap, deltaRatio, DELTA_BAND_LABEL, DELTA_RATIO_CAUTION, AG_ALBUMIN_NORMAL_G_DL, AG_UPPER_NORMAL_DEFAULT,
@@ -39,6 +40,10 @@ export interface AbgResultData {
   saran: string[];
   mgmt: { judul: string; color: string; isi: string[]; ref: string }[];
   analysis: AcidBaseAnalysis | null;
+  /** Rincian rumus + substitusi angka pasien (pola CalcSteps). */
+  calcSteps: { label: string; formula: string; note?: string }[];
+  /** true bila sampel vena (VBG). */
+  isVbg: boolean;
 }
 
 export interface AbgOptions {
@@ -77,6 +82,7 @@ function emptyResult(): AbgResultData {
     inputError: null, warnings: [],
     step1: null, step2Primer: null, step2KompStatus: null, step3Kompensasi: null,
     step4Ag: null, step5Laktat: null, respFailure: null, step6Oksigenasi: null, saran: [], mgmt: [], analysis: null,
+    calcSteps: [], isVbg: false,
   };
 }
 
@@ -100,17 +106,28 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
   if (isNaN(rawPh) || isNaN(rawPco2) || isNaN(hco3)) return null;
 
   const result = emptyResult();
-  const pH = rawPh;
+  const isVbg = inputs.sampleType === 'vena';
+  result.isVbg = isVbg;
+  const phMeasured = rawPh;
+  // VBG: pH arteri ≈ pH vena + 0,03 (Byrne 2014) — dipakai untuk interpretasi, ditampilkan eksplisit.
+  const pH = isVbg ? Math.round(arterialPhFromVenous(rawPh) * 1000) / 1000 : rawPh;
   const paco2Unit = inputs.paco2Unit;
   const pco2 = paco2Unit === 'kPa' ? rawPco2 * KPA_TO_MMHG : rawPco2;
+  const steps: AbgResultData['calcSteps'] = [];
 
-  const coreError = validateCore(pH, pco2, hco3);
+  const coreError = validateCore(phMeasured, pco2, hco3);
   if (coreError) {
     result.inputError = coreError;
     return result;
   }
 
-  const po2 = parseFloat(inputs.po2);
+  // PaO₂ ikut satuan gas (mmHg/kPa). Pada VBG, PO₂ vena tidak dipakai untuk oksigenasi.
+  const po2Raw = parseFloat(inputs.po2);
+  const po2Conv = paco2Unit === 'kPa' ? po2Raw * KPA_TO_MMHG : po2Raw;
+  const po2 = isVbg ? NaN : po2Conv;
+  if (isVbg) {
+    result.warnings.push(`Mode VBG (vena perifer): pH vena ${phMeasured} → perkiraan pH arteri ${pH.toFixed(2)} (+${VBG_PH_OFFSET}; Byrne 2014). PCO₂ vena TIDAK dapat menggantikan PaCO₂ (interval prediksi bias −10,7 s/d +2,4 mmHg) → kesimpulan respiratorik/kompensasi hanya perkiraan. PO₂ vena tidak dipakai untuk oksigenasi — gunakan SpO₂ (S/F). Konfirmasi dengan AGD arteri bila keputusan bergantung pada komponen respiratorik.`);
+  }
   const beRaw = parseFloat(inputs.be);
   const be: number | null = Number.isFinite(beRaw) ? beRaw : null;
   const spo2 = parseFloat(inputs.spo2);
@@ -130,11 +147,20 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
 
   const spo2Source = inputs.spo2Source === 'pulse' ? 'SpO₂ (Pulse Ox)' : 'SaO₂ (ABG)';
   const paco2Label = paco2Unit === 'kPa' ? `${(pco2 / KPA_TO_MMHG).toFixed(1)} kPa (= ${pco2.toFixed(0)} mmHg)` : `${pco2.toFixed(0)} mmHg`;
+  const pco2Name = isVbg ? 'PvCO₂' : 'PaCO₂';
 
   // ── Cek konsistensi Henderson–Hasselbalch ──────────────────────────────────
-  const hh = hhCheck(pH, pco2, hco3);
+  const hh = hhCheck(phMeasured, pco2, hco3);
+  steps.push({
+    label: 'Langkah 1 — Konsistensi Henderson–Hasselbalch',
+    formula: `HCO₃⁻ hitung = 0,0307 × ${pco2Name} × 10^(pH − 6,1)\n= 0,0307 × ${fmt1(pco2)} × 10^(${phMeasured} − 6,1) = ${fmt1(hh.hco3Calc)} mmol/L (input ${hco3})`,
+    note: hh.consistent ? 'Konsisten (dalam toleransi pembulatan input + 1 mmol/L).' : 'TIDAK konsisten — cek salah ketik atau sumber HCO₃⁻.',
+  });
+  if (isVbg) {
+    steps.push({ label: 'Konversi VBG', formula: `pH arteri ≈ pH vena + ${VBG_PH_OFFSET} = ${phMeasured} + ${VBG_PH_OFFSET} = ${pH.toFixed(2)}`, note: 'Byrne 2014 (meta-analisis). PCO₂ & PO₂ vena tidak dikonversi karena tidak sebanding.' });
+  }
   if (!hh.consistent) {
-    result.warnings.push(`Cek Henderson–Hasselbalch: HCO₃⁻ yang dihitung dari pH ${pH} & PaCO₂ ${pco2.toFixed(0)} = ${fmt1(hh.hco3Calc)} mmol/L, sedangkan input ${hco3} (pH yang sesuai dengan input = ${hh.phCalc.toFixed(2)}). Selisih melebihi toleransi pembulatan — cek salah ketik, atau HCO₃⁻ berasal dari sampel/pemeriksaan lain (mis. tCO₂ kimia darah). Interpretasi di bawah bisa tidak valid.`);
+    result.warnings.push(`Cek Henderson–Hasselbalch: HCO₃⁻ yang dihitung dari pH ${phMeasured} & ${pco2Name} ${pco2.toFixed(0)} = ${fmt1(hh.hco3Calc)} mmol/L, sedangkan input ${hco3} (pH yang sesuai dengan input = ${hh.phCalc.toFixed(2)}). Selisih melebihi toleransi pembulatan — cek salah ketik, atau HCO₃⁻ berasal dari sampel/pemeriksaan lain (mis. tCO₂ kimia darah). Interpretasi di bawah bisa tidak valid.`);
   }
 
   // LANGKAH 1: STATUS pH
@@ -152,7 +178,7 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
   }
   result.step1 = {
     status: phStatusText, cls: phCls, hh,
-    detail: `pH = ${pH} · PaCO₂ = ${paco2Label} · HCO₃⁻ = ${hco3} mmol/L · BE = ${be === null ? '— (tidak diisi)' : `${be} mEq/L`}${!isNaN(alb) ? ` · Albumin = ${inputs.albUnit === 'mg/dL' ? (alb * 1000).toFixed(0) + ' mg/dL' : alb.toFixed(1) + ' g/dL'}` : ''} · HCO₃⁻ hitung (H-H) = ${fmt1(hh.hco3Calc)}`,
+    detail: `${isVbg ? `pH vena = ${phMeasured} → pH arteri ≈ ${pH.toFixed(2)}` : `pH = ${pH}`} · ${pco2Name} = ${paco2Label} · HCO₃⁻ = ${hco3} mmol/L · BE = ${be === null ? '— (tidak diisi)' : `${be} mEq/L`}${!isNaN(alb) ? ` · Albumin = ${inputs.albUnit === 'mg/dL' ? (alb * 1000).toFixed(0) + ' mg/dL' : alb.toFixed(1) + ' g/dL'}` : ''} · HCO₃⁻ hitung (H-H) = ${fmt1(hh.hco3Calc)}`,
   };
 
   // LANGKAH 2–3: GANGGUAN PRIMER, STATUS KOMPENSASI, EVALUASI KOMPENSASI
@@ -161,12 +187,21 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
   const has = (d: Disorder) => ab.disorders.includes(d);
   const acidosis = pH < 7.35, alkalosis = pH > 7.45;
 
+  const step2Notes = isVbg ? [...ab.notes, 'VBG: komponen respiratorik dinilai dari PCO₂ vena — hanya perkiraan; konfirmasi AGD arteri.'] : ab.notes;
   result.step2Primer = {
-    interp: ab.primaryText, cls: PRIMARY_CLS, notes: ab.notes,
+    interp: ab.primaryText, cls: PRIMARY_CLS, notes: step2Notes,
     detail: `pH ${pH < 7.40 ? '<7.40 (condong asam)' : pH > 7.40 ? '>7.40 (condong basa)' : '= 7.40'} · PaCO₂ = ${pco2.toFixed(0)} mmHg (N:35–45) · HCO₃⁻ = ${hco3} (N:22–26) · BE = ${be === null ? '—' : be}`,
   };
   result.step2KompStatus = { interp: ab.compStatus.text, cls: TONE_CLS[ab.compStatus.tone] };
-  result.step3Kompensasi = { detail: ab.compNote.text, cls: TONE_CLS[ab.compNote.tone] };
+  const vbgCompCaveat = ' Selisih PCO₂ vena–arteri bervariasi lebar (Byrne 2014), sehingga kesimpulan kompensasi/gangguan respiratorik bersamaan dari PvCO₂ bisa keliru — konfirmasi AGD arteri.';
+  result.step3Kompensasi = { detail: isVbg ? `[Perkiraan — PCO₂ vena] ${ab.compNote.text}${vbgCompCaveat}` : ab.compNote.text, cls: isVbg ? TONE_CLS.amber : TONE_CLS[ab.compNote.tone] };
+  ab.evals.forEach(e => {
+    steps.push({
+      label: `Langkah 3 — Harapan kompensasi untuk ${DISORDER_LABEL[e.primary]}`,
+      formula: e.expected.map(x => `${x.component === 'PaCO₂' && isVbg ? 'PCO₂' : x.component} harapan (${x.label}) = ${fmt1(x.value)} ± ${String(x.tol).replace('.', ',')} → aktual ${x.component === 'PaCO₂' ? `${fmt1(pco2)}${isVbg ? ' (PvCO₂)' : ''}` : hco3}`).join('\n'),
+      note: isVbg ? `[Perkiraan — PvCO₂] ${e.text}` : e.text,
+    });
+  });
 
   // LANGKAH 4: ANION GAP
   const albForAg = !isNaN(alb) ? alb : null;
@@ -190,6 +225,17 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
       }
     }
 
+    {
+      const lines = [`AG = Na − (Cl + HCO₃⁻) = ${na} − (${cl} + ${hco3}) = ${fmt1(agRes.ag)} mEq/L`];
+      if (agRes.agCorr !== null) lines.push(`AG terkoreksi = AG + 2,5 × (${AG_ALBUMIN_NORMAL_G_DL.toFixed(1)} − albumin) = ${fmt1(agRes.ag)} + 2,5 × (${AG_ALBUMIN_NORMAL_G_DL.toFixed(1)} − ${alb}) = ${fmt1(agRes.agCorr)} mEq/L`);
+      if (agRes.high) {
+        const dd = deltaRatio(agRes.effective, hco3, agRes.upper);
+        lines.push(dd.ratio !== null
+          ? `Δ ratio = (AG${agRes.agCorr !== null ? ' terkoreksi' : ''} − ${agRes.upper}) ÷ (24 − HCO₃⁻) = (${fmt1(agRes.effective)} − ${agRes.upper}) ÷ (24 − ${hco3}) = ${dd.ratio.toFixed(2)}`
+          : `Δ ratio: 24 − ${hco3} ≤ 0 → tidak terdefinisi`);
+      }
+      steps.push({ label: 'Langkah 4 — Anion gap & delta ratio', formula: lines.join('\n'), note: `Batas atas AG normal ${agRes.upper} (dapat diatur). ${agRes.high ? DELTA_RATIO_CAUTION : ''}`.trim() });
+    }
     result.step4Ag = {
       high: agHigh, corr: agRes.agCorr !== null,
       interp: agNote,
@@ -217,8 +263,15 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
   const pao2 = isNaN(po2) ? null : po2;
   const spo2v = isNaN(spo2) ? null : spo2;
 
-  const rf = classifyRespFailure({ ph: pH, pco2, hco3, pao2, fio2, fio2Estimated: fio2Res.estimated, kondisi });
-  result.respFailure = { type: rf.type, title: rf.title, details: rf.details, cls: TONE_CLS[rf.tone] };
+  if (isVbg) {
+    const d = ['Tipe 1 butuh PaO₂ arteri; tipe 2 butuh PaCO₂ arteri — keduanya tidak dapat diganti nilai vena (Byrne 2014).'];
+    if (pco2 > 45) d.push(`PvCO₂ ${fmt1(pco2)} >45 mmHg — curigai hiperkapnia; konfirmasi dengan AGD arteri.`);
+    if (spo2v !== null) d.push(`SpO₂ ${spo2v}% dapat dipakai untuk S/F & ROX (bila HFNC).`);
+    result.respFailure = { type: 'tidak-dinilai', title: 'Kategori gagal napas tidak dapat dipastikan dari VBG', details: d, cls: TONE_CLS.slate };
+  } else {
+    const rf = classifyRespFailure({ ph: pH, pco2, hco3, pao2, fio2, fio2Estimated: fio2Res.estimated, kondisi });
+    result.respFailure = { type: rf.type, title: rf.title, details: rf.details, cls: TONE_CLS[rf.tone] };
+  }
 
   if (pao2 !== null || fio2 !== null || spo2v !== null) {
     const oxItems: OxResult[] = [];
@@ -227,6 +280,7 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
     if (pf !== null) {
       const l = pfLabel(pf);
       oxItems.push({ label: 'P/F Ratio', value: pf.toFixed(0) + (fio2Res.estimated ? ' (FiO₂ estimasi)' : ''), interp: l.text, colorClass: TEXT_TONE[l.tone] });
+      steps.push({ label: 'Langkah 6 — Rasio P/F', formula: `P/F = PaO₂ ÷ FiO₂ = ${fmt1(pao2 as number)} ÷ ${(fio2 as number).toFixed(2)} = ${pf.toFixed(0)}`, note: `${l.text}${fio2Res.estimated ? ' · FiO₂ hasil estimasi alat low-flow' : ''}` });
     }
     const ox = pf !== null || (spo2v !== null && fio2 !== null)
       ? ardsOxygenation({ pf, spo2: spo2v, fio2, support, peep, hfnoFlow, fio2Estimated: fio2Res.estimated })
@@ -237,6 +291,7 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
         interp: !ox.sfValid ? 'Tidak dipakai untuk klasifikasi (SpO₂ >97%)' : ox.sf <= 315 ? '≤315 — ambang hipoksemia ARDS (Global 2023)' : '>315 — di atas ambang ARDS',
         colorClass: ox.sfValid && ox.sf <= 315 ? TEXT_RED : 'text-foreground',
       });
+      steps.push({ label: 'Langkah 6 — Rasio S/F', formula: `S/F = SpO₂ ÷ FiO₂ = ${spo2v} ÷ ${(fio2 as number).toFixed(2)} = ${ox.sf.toFixed(0)}`, note: 'Valid untuk definisi Global 2023 hanya bila SpO₂ ≤97%.' });
     }
     if (ox && ox.meetsOxygenation) {
       notes.push(`Dukungan napas: ${SUPPORT_LABEL[support]}${peep !== null && (support === 'niv' || support === 'invasif') ? `, PEEP ${peep}` : ''}${hfnoFlow !== null && support === 'hfno' ? `, flow ${hfnoFlow} L/m` : ''}.`);
@@ -249,6 +304,11 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
       const ai = interpretAa(aa, fio2, age);
       const normalTxt = isRoomAir(fio2) && age !== null ? ` (perkiraan normal ≤${expectedAaRoomAir(age).toFixed(1)})` : '';
       oxItems.push({ label: 'A-a Gradient', value: `${aa.toFixed(0)} mmHg${normalTxt}`, interp: ai.text, colorClass: TEXT_TONE[ai.tone] });
+      steps.push({
+        label: 'Langkah 6 — A-a gradient',
+        formula: `PAO₂ = FiO₂ × (760 − 47) − PaCO₂ ÷ 0,8 = ${fio2.toFixed(2)} × 713 − ${fmt1(pco2)} ÷ 0,8 = ${fmt1(fio2 * 713 - pco2 / 0.8)}\nA-a = PAO₂ − PaO₂ = ${fmt1(fio2 * 713 - pco2 / 0.8)} − ${fmt1(pao2)} = ${fmt1(aa)} mmHg${age !== null ? `\nNormal (udara ruang) ≈ usia/4 + 4 = ${age}/4 + 4 = ${expectedAaRoomAir(age).toFixed(1)}` : ''}`,
+        note: ai.text,
+      });
       notes.push('A-a: PAO₂ = FiO₂ × (760 − 47) − PaCO₂/0,8 — asumsi tekanan barometrik permukaan laut; perkiraan normal udara ruang ≈ usia/4 + 4.');
     }
     if (pao2 !== null && fio2 !== null && !isNaN(mapV)) {
@@ -258,6 +318,7 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
         interp: 'Tidak ada ambang dewasa baku — pakai untuk tren (makin tinggi makin berat); ambang OI yang beredar berasal dari populasi pediatri/neonatus',
         colorClass: 'text-foreground',
       });
+      steps.push({ label: 'Langkah 6 — Oxygenation Index', formula: `OI = Paw × FiO₂ × 100 ÷ PaO₂ = ${mapV} × ${fio2.toFixed(2)} × 100 ÷ ${fmt1(pao2)} = ${oi.toFixed(1)}` });
     }
     if (spo2v !== null && fio2 !== null && !isNaN(rr)) {
       if (support === 'hfno') {
@@ -268,12 +329,14 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
           value: `(${spo2v}/${fio2.toFixed(2)})/${rr} = ${rox.toFixed(2)}${inputs.roxHour ? ` · jam ke-${inputs.roxHour}` : ''} [${spo2Source}]`,
           interp: ri.text, colorClass: TEXT_TONE[ri.tone],
         });
+        steps.push({ label: 'Langkah 6 — ROX index', formula: `ROX = (SpO₂ ÷ FiO₂) ÷ RR = (${spo2v} ÷ ${fio2.toFixed(2)}) ÷ ${rr} = ${rox.toFixed(2)}`, note: ri.text });
         notes.push('ROX divalidasi pada pneumonia dengan HFNC (Roca 2019).');
         if (pco2 > 45) notes.push('ROX hanya memakai SpO₂, FiO₂, dan RR — TIDAK menilai hiperkapnia/asidosis. Jangan pakai ROX "risiko rendah" untuk menunda NIV/intubasi pada gagal napas tipe 2.');
       } else {
         notes.push('ROX tidak dihitung — hanya divalidasi pada pasien dengan HFNC (pilih dukungan napas "HFNC").');
       }
     }
+    if (isVbg && !isNaN(po2Raw)) notes.unshift('PO₂ vena diabaikan — tidak sebanding dengan PaO₂ (Byrne 2014); P/F, A-a, dan OI tidak dihitung.');
     if (oxItems.length > 0 || notes.length > 0) {
       result.step6Oksigenasi = { items: oxItems, cls: PRIMARY_CLS, notes };
     }
@@ -293,8 +356,8 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
       if (pf < 150) result.saran.push('P/F <150: prone ≥16 jam/hari (FiO₂ ≥0,6, PEEP ≥5 — PROSEVA); NMB opsional pada ARDS berat dini; ECMO-VV sesuai kriteria EOLIA (lihat kartu ARDS)');
     }
   }
-  if (pH < 7.25 && pco2 > 50) result.saran.push('Asidosis respiratorik berat: ↑ RR (maks 35) lalu VT bertahap dengan memantau Pplat; NaHCO₃ hanya opsi bila pH <7,15 meski ventilasi sudah optimal (algoritma ARDSNet)');
-  if (pco2 < 35 && pH > 7.45) result.saran.push('Alkalosis respiratorik: ↓ RR (bertahap), cek dead space, pastikan tidak ada pain/agitasi yang meningkatkan drive');
+  if (!isVbg && pH < 7.25 && pco2 > 50) result.saran.push('Asidosis respiratorik berat: ↑ RR (maks 35) lalu VT bertahap dengan memantau Pplat; NaHCO₃ hanya opsi bila pH <7,15 meski ventilasi sudah optimal (algoritma ARDSNet)');
+  if (!isVbg && pco2 < 35 && pH > 7.45) result.saran.push('Alkalosis respiratorik: ↓ RR (bertahap), cek dead space, pastikan tidak ada pain/agitasi yang meningkatkan drive');
   if (has('asidosis-metabolik') && be !== null && be < -5) result.saran.push('Asidosis metabolik: koreksi penyebab primer (sepsis, hipovolemia, DKA). NaHCO₃ bukan terapi rutin — lihat kartu Koreksi Asidosis Metabolik (BICAR-ICU, BICARICU-2)');
   if (pH > 7.50 && hco3 > 30) result.saran.push('Alkalosis metabolik: koreksi hipokalemia, hipokloremia; hentikan diuretik; KCl replacement');
   if (kondisi === 'copd' && pco2 > 55) result.saran.push('PPOK: TARGET PaCO₂ = baseline pasien, bukan normocapnia! Koreksi bertahap — risiko alkalosis metabolik berat');
@@ -307,8 +370,10 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
   // ── Isi kartu diperbarui Fase 2 (2026-11) — setiap angka bersumber; lihat `ref` tiap kartu.
   const metAcidCard = has('asidosis-metabolik') && hco3 < HCO3_LOW;
   const metAlkCard = has('alkalosis-metabolik') && hco3 > HCO3_HIGH;
-  const respAcidCard = has('asidosis-respiratorik') && pco2 > PCO2_HIGH && acidosis;
-  const respAlkCard = has('alkalosis-respiratorik') && pco2 < PCO2_LOW && alkalosis;
+  // VBG: kartu koreksi respiratorik tidak ditampilkan (PCO₂ vena tidak sebanding PaCO₂).
+  const respAcidCard = !isVbg && has('asidosis-respiratorik') && pco2 > PCO2_HIGH && acidosis;
+  const respAlkCard = !isVbg && has('alkalosis-respiratorik') && pco2 < PCO2_LOW && alkalosis;
+  if (isVbg && (pco2 > PCO2_HIGH || pco2 < PCO2_LOW)) result.saran.push('VBG: PCO₂ vena di luar rentang — kartu koreksi respiratorik tidak ditampilkan; konfirmasi dengan AGD arteri sebelum mengubah ventilasi.');
   const pfNow = !isNaN(po2) && fio2 !== null ? po2 / fio2 : null;
   const laktatTxt = isNaN(laktat) ? '?' : laktat.toFixed(1);
 
@@ -483,5 +548,6 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
     });
   }
 
+  result.calcSteps = steps;
   return result;
 }

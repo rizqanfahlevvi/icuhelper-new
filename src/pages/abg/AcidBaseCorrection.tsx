@@ -1,19 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AbgInputs } from './types';
 import { Calculator, AlertTriangle } from 'lucide-react';
 import {
   bicarbDeficit, bicarbSpaceFernandez, recommendBicarbFactor,
   anionGap, deltaRatio, normalizeAgUpper, DELTA_BAND_LABEL, DELTA_RATIO_CAUTION, AG_ALBUMIN_NORMAL_G_DL, hclPlan,
+  osmolarGap, urineAnionGap, OSMOLAR_GAP_HIGH,
 } from '../../utils/acidBase';
+import type { UreaUnit } from '../../utils/sodium';
 import { K_DEFICIT_FACTOR } from '../../utils/electrolytes';
 import { useSettingsStore } from '../../store/settingsStore';
 import { AgUpperNormalField } from '../../components/ui/AgUpperNormalField';
 
 interface Props {
   abgInputs: AbgInputs;
+  /** BB aktual pasien aktif (kg) — prefill tab KCl/HCl. */
+  patientWeight?: string;
+  /** BBI Devine dari TB & jenis kelamin pasien aktif — prefill tab NaHCO₃. */
+  patientIbw?: string;
 }
 
-export default function AcidBaseCorrection({ abgInputs }: Props) {
+export default function AcidBaseCorrection({ abgInputs, patientWeight = '', patientIbw = '' }: Props) {
   const [activeTab, setActiveTab] = useState(1);
   const agUpper = normalizeAgUpper(useSettingsStore(s => s.agUpperNormal));
 
@@ -26,6 +32,10 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
 
   // Tab 2 state
   const [bb2, setBb2] = useState('');
+
+  // Prefill BB/BBI dari pasien aktif — hanya bila kolom masih kosong (tidak menimpa isian manual).
+  useEffect(() => { if (patientIbw) setBb(prev => prev || patientIbw); }, [patientIbw]);
+  useEffect(() => { if (patientWeight) setBb2(prev => prev || patientWeight); }, [patientWeight]);
   const [hco3act2, setHco3act2] = useState('');
   const [k, setK] = useState('');
   const [urineCl, setUrineCl] = useState('');
@@ -42,6 +52,14 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
   const [cl4, setCl4] = useState('');
   const [hco3act4, setHco3act4] = useState('');
   const [alb4, setAlb4] = useState('4.0');
+  // Osmolar gap & AG urin (tab 4)
+  const [osmMeas, setOsmMeas] = useState('');
+  const [glu4, setGlu4] = useState('');
+  const [urea4, setUrea4] = useState('');
+  const [ureaUnit4, setUreaUnit4] = useState<UreaUnit>('ureum');
+  const [uNa, setUNa] = useState('');
+  const [uK, setUK] = useState('');
+  const [uClU, setUClU] = useState('');
 
   const importData = () => {
     if (activeTab === 1) {
@@ -79,7 +97,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">BBI (kg)</label>
+            <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">BBI (kg){patientIbw && bb === patientIbw ? ' · dari TB pasien' : ''}</label>
             <input type="number" value={bb} onChange={e=>setBb(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" placeholder="e.g. 60" />
           </div>
           <div className="space-y-1.5">
@@ -263,7 +281,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
     );
   };
 
-  const renderTab4 = () => {
+  const renderAgSection = () => {
     const n = parseFloat(na4);
     const c = parseFloat(cl4);
     const h = parseFloat(hco3act4);
@@ -338,6 +356,70 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
     );
   };
 
+  const renderOsmGap = () => {
+    const og = osmolarGap(parseFloat(osmMeas), parseFloat(na4), parseFloat(glu4), parseFloat(urea4), ureaUnit4);
+    return (
+      <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/60 dark:bg-slate-800/40 space-y-3">
+        <div className="font-bold text-sm text-[var(--label-primary)]">Osmolar Gap (petunjuk alkohol toksik pada HAGMA)</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Osm terukur</label><input type="number" value={osmMeas} onChange={e=>setOsmMeas(e.target.value)} placeholder="mOsm/kg" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Glukosa</label><input type="number" value={glu4} onChange={e=>setGlu4(e.target.value)} placeholder="mg/dL" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">{ureaUnit4 === 'bun' ? 'BUN' : 'Ureum'}</label><input type="number" value={urea4} onChange={e=>setUrea4(e.target.value)} placeholder="mg/dL" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Satuan</label>
+            <select value={ureaUnit4} onChange={e=>setUreaUnit4(e.target.value as UreaUnit)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0">
+              <option value="ureum">Ureum</option>
+              <option value="bun">BUN</option>
+            </select>
+          </div>
+        </div>
+        {isNaN(parseFloat(na4)) && <div className="text-[11px] text-slate-500">Isi Na⁺ di atas untuk menghitung osmolalitas.</div>}
+        {og && (
+          <div className="space-y-1">
+            <div className={`text-xl font-black ${og.high ? 'text-rose-600 dark:text-rose-400' : 'text-[var(--label-primary)]'}`}>OG = {og.gap.toFixed(1)} mOsm/kg {og.high ? '↑ MENINGKAT' : '(tidak meningkat)'}</div>
+            <div className="text-[11px] font-mono text-slate-500">Osm hitung = 2 × {na4} + {glu4}/18 + {urea4}/{ureaUnit4 === 'bun' ? '2,8' : '6'} = {og.calculated.toFixed(1)} · OG = {osmMeas} − {og.calculated.toFixed(1)}</div>
+            <div className="text-xs font-medium text-[var(--label-secondary)]">
+              {og.high
+                ? `OG >${OSMOLAR_GAP_HIGH} (ambang umum; sesuaikan lab): bersama HAGMA curigai metanol/etilen glikol; etanol, manitol, dan ketoasidosis alkoholik juga menaikkan OG.`
+                : 'OG tidak meningkat TIDAK menyingkirkan intoksikasi — pada fase lanjut alkohol sudah dimetabolisme menjadi asam (AG naik, OG turun).'}
+            </div>
+          </div>
+        )}
+        <div className="text-[10px] text-amber-600 dark:text-amber-400 font-mono font-bold">📚 Kraut JA, Kurtz I. CJASN 2008 (alkohol toksik: AG & OG bisa tidak naik bersamaan tergantung waktu)</div>
+      </div>
+    );
+  };
+
+  const renderUag = () => {
+    const u = urineAnionGap(parseFloat(uNa), parseFloat(uK), parseFloat(uClU));
+    return (
+      <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/60 dark:bg-slate-800/40 space-y-3">
+        <div className="font-bold text-sm text-[var(--label-primary)]">AG Urin (untuk NAGMA / asidosis hiperkloremik)</div>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Na⁺ urin</label><input type="number" value={uNa} onChange={e=>setUNa(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">K⁺ urin</label><input type="number" value={uK} onChange={e=>setUK(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Cl⁻ urin</label><input type="number" value={uClU} onChange={e=>setUClU(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+        </div>
+        {u && (
+          <div className="space-y-1">
+            <div className="text-xl font-black text-[var(--label-primary)]">UAG = {u.uag.toFixed(0)} mEq/L</div>
+            <div className="text-[11px] font-mono text-slate-500">UAG = Na⁺ + K⁺ − Cl⁻ (urin) = {uNa} + {uK} − {uClU}</div>
+            <div className="text-xs font-medium text-[var(--label-secondary)]">{u.interp}</div>
+            <div className="text-[11px] text-slate-500">Indeks kasar NH₄⁺ urin — anion tak terukur di urin (mis. keton) dapat membuat UAG positif walau NH₄⁺ tinggi.</div>
+          </div>
+        )}
+        <div className="text-[10px] text-amber-600 dark:text-amber-400 font-mono font-bold">📚 Batlle DC et al. NEJM 1988;318:594</div>
+      </div>
+    );
+  };
+
+  const renderTab4 = () => (
+    <div className="space-y-5">
+      {renderAgSection()}
+      {renderOsmGap()}
+      {renderUag()}
+    </div>
+  );
+
   return (
     <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm w-full mt-6">
       <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800">
@@ -355,7 +437,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
           <button onClick={() => setActiveTab(1)} className={`flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 1 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>🧪 NaHCO₃</button>
           <button onClick={() => setActiveTab(2)} className={`flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 2 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>⚗️ KCl / HCl</button>
           <button onClick={() => setActiveTab(3)} className={`flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 3 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>📐 Kompensasi</button>
-          <button onClick={() => setActiveTab(4)} className={`flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 4 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>🔬 AG + Δ/Δ</button>
+          <button onClick={() => setActiveTab(4)} className={`flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 4 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>🔬 AG · OG · UAG</button>
         </div>
 
         <div className="p-4 sm:p-5">

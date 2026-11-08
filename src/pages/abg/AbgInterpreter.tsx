@@ -1,6 +1,23 @@
 import { Beaker, Dna, Info, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { AgUpperNormalField } from '../../components/ui/AgUpperNormalField';
 import { SUPPORT_LABEL, RespSupport } from '../../utils/oxygenation';
+import { CalcSteps } from '../../components/ui/CalcSteps';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import type { AbgResultData } from './abgInterpretation';
+
+/** Ringkasan satu baris untuk riwayat. */
+function historySummary(inputs: AbgInputs, r: AbgResultData): string {
+  const parts = [
+    `${r.isVbg ? 'VBG' : 'ABG'} pH ${inputs.ph} · ${r.isVbg ? 'PvCO₂' : 'PaCO₂'} ${inputs.pco2} ${inputs.paco2Unit} · HCO₃ ${inputs.hco3}`,
+    r.analysis?.primaryText ?? '',
+    r.analysis?.compNote.text ?? '',
+    r.step4Ag ? r.step4Ag.interp : '',
+    r.respFailure && r.respFailure.type !== 'tidak-dinilai' ? r.respFailure.title : '',
+  ];
+  const pf = r.step6Oksigenasi?.items.find(i => i.label === 'P/F Ratio');
+  if (pf) parts.push(`P/F ${pf.value}`);
+  return parts.filter(Boolean).join(' · ');
+}
 import { AbgInputs } from './types';
 import { useAbgCalculator } from './useAbgCalculator';
 
@@ -28,6 +45,29 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
         </h2>
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 w-full shadow-sm">
+          <div className="flex flex-col px-4 py-3 gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Jenis Sampel</span>
+              <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
+                <button
+                  className={`px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType !== 'vena' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
+                  onClick={() => updateInput('sampleType', 'arteri')}
+                >
+                  🩸 Arteri (ABG)
+                </button>
+                <button
+                  className={`px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType === 'vena' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
+                  onClick={() => updateInput('sampleType', 'vena')}
+                >
+                  💧 Vena (VBG)
+                </button>
+              </div>
+            </div>
+            {inputs.sampleType === 'vena' && (
+              <p className="text-[11px] text-amber-600 dark:text-amber-400">VBG: pH dikonversi (pH arteri ≈ pH vena + 0,03). PCO₂ vena hanya perkiraan; PO₂ vena tidak dipakai (Byrne 2014).</p>
+            )}
+          </div>
+
           
           <div className="flex items-center justify-between px-4 py-3 gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">pH</span>
@@ -43,7 +83,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           </div>
 
           <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaCO₂</span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{inputs.sampleType === 'vena' ? 'PvCO₂' : 'PaCO₂'}</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input 
                 type="number" 
@@ -76,7 +116,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           </div>
 
           <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaO₂</span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{inputs.sampleType === 'vena' ? 'PvO₂ (diabaikan)' : 'PaO₂'}</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input 
                 type="number" step="1" 
@@ -85,7 +125,13 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
                 placeholder="80–100" 
               />
-              <span className="text-[11px] font-semibold text-slate-500 w-8 text-left">mmHg</span>
+              <button
+                onClick={() => updateInput('paco2Unit', inputs.paco2Unit === 'mmHg' ? 'kPa' : 'mmHg')}
+                className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0"
+                title="Satuan gas (berlaku untuk PaCO₂ & PaO₂)"
+              >
+                {inputs.paco2Unit}
+              </button>
             </div>
           </div>
           
@@ -395,6 +441,13 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
               </div>
             )}
 
+            {calcResult.calcSteps.length > 0 && (
+              <CalcSteps
+                steps={calcResult.calcSteps}
+                footer={`Rumus dengan angka pasien ini — interpretasikan bersama klinis.${calcResult.isVbg ? ' Sampel VBG: komponen respiratorik hanya perkiraan.' : ''}`}
+              />
+            )}
+
             {calcResult.mgmt.length > 0 && (
               <div className="p-4 rounded-xl border bg-card border-border mt-4 space-y-4">
                 <div className="text-[11px] font-bold uppercase tracking-widest mb-3">Langkah 7 — Tatalaksana Asam-Basa</div>
@@ -410,6 +463,16 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
               </div>
             )}
             
+            {calcResult.analysis && (
+              <SaveToHistoryButton
+                module="abg"
+                label={`${calcResult.isVbg ? 'VBG' : 'ABG'}: ${calcResult.analysis.primaryText}`.slice(0, 120)}
+                inputs={{ ...inputs }}
+                summary={historySummary(inputs, calcResult)}
+                className="w-full"
+              />
+            )}
+
             <div className="flex items-start gap-2 mt-4 p-3 bg-amber-500/10 rounded-xl text-[11px] text-amber-800 dark:text-amber-200 border border-amber-500/20">
               <Info className="w-4 h-4 flex-shrink-0 text-amber-500 mt-0.5" />
               <p><strong>⚠ Disclaimer Klinis:</strong> Interpretasi ABG ini adalah panduan sistematis berbasis algoritma standar. Keputusan klinis tetap berdasarkan kondisi pasien secara keseluruhan dan kebijakan institusi.</p>
