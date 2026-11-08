@@ -4,7 +4,8 @@ import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
-import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
+import { calcIbw } from '../../utils/anthropometry';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -33,12 +34,20 @@ export default function KalkulatorVentilatorAdv() {
     if (clinicalStore.data.pao2) setPao2(clinicalStore.data.pao2);
   }, []);
 
-  const syncFields = useMemo(() => [
-    { key: 'rr' as const, label: 'Respiratory Rate', value: rr, setter: setRr, unit: 'x/menit' },
-    { key: 'peep' as const, label: 'PEEP', value: peep, setter: setPeep, unit: 'cmH₂O' },
-    { key: 'spo2' as const, label: 'SpO₂', value: spo2, setter: setSpo2, unit: '%' },
-    { key: 'pao2' as const, label: 'PaO₂', value: pao2, setter: setPao2, unit: 'mmHg' },
-  ], [rr, peep, spo2, pao2]);
+  const syncFields = useMemo<SyncField[]>(() => [
+    { key: 'rr', label: 'RR', value: rr, setter: setRr, unit: 'x/menit' },
+    { key: 'peep', label: 'PEEP', value: peep, setter: setPeep, unit: 'cmH₂O' },
+    { key: 'fio2', label: 'FiO₂', value: fio2, setter: setFio2, unit: '%' },
+    { key: 'spo2', label: 'SpO₂', value: spo2, setter: setSpo2, unit: '%' },
+    { key: 'pao2', label: 'PaO₂', value: pao2, setter: setPao2, unit: 'mmHg' },
+  ], [rr, peep, fio2, spo2, pao2]);
+
+  // IBW/PBW (Devine) dari TB & JK pasien aktif — ditawarkan, tidak diisi diam-diam.
+  const patientPbw = useMemo(() => {
+    const h = parseFloat(patient.heightCm);
+    if (!(h > 0) || (patient.gender !== 'L' && patient.gender !== 'P')) return '';
+    return calcIbw(h, patient.gender === 'P').toFixed(1);
+  }, [patient.heightCm, patient.gender]);
 
   const handleAutofill = (data: any) => {
     if (clinicalStore.data.rr) setRr(clinicalStore.data.rr);
@@ -191,6 +200,11 @@ export default function KalkulatorVentilatorAdv() {
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">IBW (kg)</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ibw} onChange={e=>setIbw(e.target.value)} />
+              {patientPbw && ibw !== patientPbw && (
+                <button type="button" onClick={() => setIbw(patientPbw)} className="shrink-0 text-[11px] font-semibold text-[var(--accent)] hover:underline whitespace-nowrap">
+                  PBW pasien {patientPbw}
+                </button>
+              )}
             </div>
           </div>
           <div className="flex items-center justify-between px-4 py-3 gap-4">

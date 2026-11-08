@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Activity, Wind, ListCheck, CheckCircle2, AlertTriangle, Star } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
+import { usePatientStore } from '../../store/usePatientStore';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
+import { calcIbw } from '../../utils/anthropometry';
 
 export default function WeaningIndex() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -18,6 +22,21 @@ export default function WeaningIndex() {
   const [result, setResult] = useState<any>(null);
 
   const isFav = isFavorite('/weaning');
+
+  // VT spontan dinilai per kg BB PREDIKSI (PBW/IBW, Devine) — bukan BB aktual.
+  const patientHeight = usePatientStore((st) => st.heightCm);
+  const patientGender = usePatientStore((st) => st.gender);
+  const patientPbw = useMemo(() => {
+    const h = parseFloat(patientHeight);
+    if (!(h > 0) || (patientGender !== 'L' && patientGender !== 'P')) return '';
+    return calcIbw(h, patientGender === 'P').toFixed(1);
+  }, [patientHeight, patientGender]);
+
+  // RR saat SBT: impor saja (nilai uji tidak ditulis balik ke tanda vital pasien).
+  // PEEP SBT sengaja TIDAK disinkron: setelan uji (≈5) bukan setelan ventilator pasien.
+  const syncFields = useMemo<SyncField[]>(() => [
+    { key: 'rr', label: 'RR', value: rr, setter: setRr, unit: 'x/menit', importOnly: true },
+  ], [rr]);
 
   const calculateRSBI = () => {
     const rrNum = parseFloat(rr);
@@ -91,6 +110,9 @@ export default function WeaningIndex() {
         />
       </div>
 
+      <ActivePatientBriefCard />
+      <UnifiedSyncBanner fields={syncFields} />
+
       {/* SECTION 1: Kalkulator RSBI */}
       <section className="bg-card border border-border shadow-sm rounded-2xl p-5 md:p-6 overflow-hidden relative">
         <h2 className="text-xl font-bold flex items-center gap-2 mb-2">
@@ -112,8 +134,17 @@ export default function WeaningIndex() {
               <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 400" value={vt} onChange={e => setVt(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">BB / IBW (kg)</label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 65" value={bb} onChange={e => setBb(e.target.value)} />
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">BB Prediksi / PBW (kg)</label>
+              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 61.4" value={bb} onChange={e => setBb(e.target.value)} />
+              {patientPbw && bb !== patientPbw && (
+                <button
+                  type="button"
+                  onClick={() => setBb(patientPbw)}
+                  className="mt-1.5 text-[11px] font-semibold text-[var(--accent)] hover:underline"
+                >
+                  Gunakan PBW pasien: {patientPbw} kg (TB {patientHeight} cm, {patientGender})
+                </button>
+              )}
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1 block">MV (Menit Volume, L/mnt)</label>

@@ -16,7 +16,10 @@ export interface Patient {
   heightCm: string;
   createdAt: string;
   mrsDate?: string;
+  /** Snapshot data klinis/lab pasien (kunci: utils/clinicalVariables.ts). */
   clinicalData?: Record<string, string>;
+  /** Cap waktu (epoch ms) pembaruan terakhir per variabel di clinicalData. */
+  clinicalUpdatedAt?: Record<string, number>;
 }
 
 export interface PatientData {
@@ -44,7 +47,8 @@ interface PatientState extends PatientData {
   updatePatient: (id: string, updates: Partial<Patient>) => void;
   deletePatient: (id: string) => void;
   setActivePatient: (id: string | null) => void;
-  saveActivePatientClinicalData: (clinicalData: Record<string, string>) => void;
+  /** Simpan snapshot klinis ke pasien tertentu (dipanggil otomatis oleh store/patientContextSync.ts). */
+  savePatientClinicalData: (id: string, clinicalData: Record<string, string>, clinicalUpdatedAt: Record<string, number>) => void;
 }
 
 const initialPatientData: PatientData = {
@@ -143,7 +147,7 @@ export const usePatientStore = create<PatientState>()(
         if (!found) return state;
 
         // Extract patient properties
-        const { id: _, createdAt: __, clinicalData: ___, ...patientData } = found;
+        const { id: _, createdAt: __, clinicalData: ___, clinicalUpdatedAt: ____, ...patientData } = found;
 
         return {
           ...state,
@@ -152,16 +156,18 @@ export const usePatientStore = create<PatientState>()(
         };
       }),
 
-      saveActivePatientClinicalData: (clinicalData) => set((state) => {
-        if (!state.activePatientId) return state;
-
-        const updatedPatients = state.patients.map((p) =>
-          p.id === state.activePatientId ? { ...p, clinicalData } : p
-        );
-
-        return {
-          patients: updatedPatients,
-        };
+      savePatientClinicalData: (id, clinicalData, clinicalUpdatedAt) => set((state) => {
+        let changed = false;
+        const updatedPatients = state.patients.map((p) => {
+          if (p.id !== id) return p;
+          if (
+            JSON.stringify(p.clinicalData ?? {}) === JSON.stringify(clinicalData) &&
+            JSON.stringify(p.clinicalUpdatedAt ?? {}) === JSON.stringify(clinicalUpdatedAt)
+          ) return p;
+          changed = true;
+          return { ...p, clinicalData, clinicalUpdatedAt };
+        });
+        return changed ? { patients: updatedPatients } : state;
       }),
     }),
     {

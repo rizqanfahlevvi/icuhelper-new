@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AlertTriangle, Activity } from 'lucide-react';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
+import { UnifiedSyncBanner, type SyncField } from '../../../components/UnifiedSyncBanner';
 
 export function RenalAkiStaging() {
   const [baselineScr, setBaselineScr] = useState('');
@@ -10,6 +11,12 @@ export function RenalAkiStaging() {
   const [weight, setWeight] = useState('');
   
   const [res, setRes] = useState<any>(null);
+
+  const syncFields = useMemo<SyncField[]>(() => [
+    { key: 'creatinineBaseline', label: 'SCr basal', value: baselineScr, setter: setBaselineScr, unit: 'mg/dL' },
+    { key: 'creatinine', label: 'SCr saat ini', value: currentScr, setter: setCurrentScr, unit: 'mg/dL' },
+    { key: 'weight', label: 'BB', value: weight, setter: setWeight, unit: 'kg' },
+  ], [baselineScr, currentScr, weight]);
 
   const calculate = () => {
     const bScr = parseFloat(baselineScr);
@@ -52,6 +59,7 @@ export function RenalAkiStaging() {
 
   return (
     <div className="flex flex-col gap-4 animate-in fade-in duration-300">
+      <UnifiedSyncBanner fields={syncFields} />
       <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <div className="p-3 text-[12px] font-bold text-slate-500 uppercase tracking-wide">Kriteria Serum Kreatinin</div>
         <div className="flex items-center justify-between px-4 py-3 gap-4">

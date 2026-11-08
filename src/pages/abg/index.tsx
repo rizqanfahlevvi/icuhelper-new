@@ -7,7 +7,8 @@ import AbgTheory from './AbgTheory';
 import { AbgInputs, defaultAbgInputs } from './types';
 import { Star, Droplet } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
-import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
+import { albuminGdlFromMgdl, albuminMgdlFromGdl, kpaFromMmHg, mmHgFromKpa } from '../../utils/clinicalUnits';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { fio2ToPercentString, fio2FromStoreString } from '../../utils/abg';
@@ -35,21 +36,45 @@ export default function AbgPage() {
     if (data.weightKg) setWeightOverride(data.weightKg);
   };
 
-  const syncFields = useMemo(() => {
+  // Sinkron ke data pasien dalam SATUAN KANONIK store (mmHg, g/dL, FiO₂ %).
+  // Gas darah VENA tidak pernah ditulis ke kunci arteri (ph/pco2/pao2/hco3/be) —
+  // PvO₂ ≈ 40 mmHg yang terbaca sebagai PaO₂ akan memalsukan P/F, SOFA, & APACHE.
+  const syncFields = useMemo<SyncField[]>(() => {
+    const set = (k: keyof AbgInputs) => (val: string) => setAbgInputs(prev => ({ ...prev, [k]: val }));
+    const kpa = abgInputs.paco2Unit === 'kPa';
+    const gasToStore = (v: string) => (kpa ? mmHgFromKpa(v) : v);
+    const gasFromStore = (v: string) => (kpa ? kpaFromMmHg(v) : v);
+    const albMg = abgInputs.albUnit === 'mg/dL';
+    const isArterial = abgInputs.sampleType !== 'vena';
+
+    const arterial: SyncField[] = isArterial ? [
+      { key: 'ph', label: 'pH', value: abgInputs.ph, setter: set('ph'), unit: '' },
+      { key: 'pco2', label: 'PaCO₂', value: gasToStore(abgInputs.pco2), rawValue: abgInputs.pco2, setter: (v: string) => set('pco2')(gasFromStore(v)), unit: 'mmHg' },
+      { key: 'pao2', label: 'PaO₂', value: gasToStore(abgInputs.po2), rawValue: abgInputs.po2, setter: (v: string) => set('po2')(gasFromStore(v)), unit: 'mmHg' },
+      { key: 'hco3', label: 'HCO₃⁻', value: abgInputs.hco3, setter: set('hco3'), unit: 'mmol/L' },
+      { key: 'be', label: 'BE', value: abgInputs.be, setter: set('be'), unit: 'mEq/L' },
+    ] : [];
+
     return [
-      { key: 'ph' as const, label: 'pH', value: abgInputs.ph, setter: (val: string) => setAbgInputs(prev => ({ ...prev, ph: val })), unit: '' },
-      { key: 'pco2' as const, label: 'pCO2', value: abgInputs.pco2, setter: (val: string) => setAbgInputs(prev => ({ ...prev, pco2: val })), unit: 'mmHg' },
-      { key: 'pao2' as const, label: 'PaO2', value: abgInputs.po2, setter: (val: string) => setAbgInputs(prev => ({ ...prev, po2: val })), unit: 'mmHg' },
-      { key: 'hco3' as const, label: 'HCO3', value: abgInputs.hco3, setter: (val: string) => setAbgInputs(prev => ({ ...prev, hco3: val })), unit: 'mmol/L' },
-      { key: 'be' as const, label: 'BE', value: abgInputs.be, setter: (val: string) => setAbgInputs(prev => ({ ...prev, be: val })), unit: 'mEq/L' },
-      { key: 'na' as const, label: 'Natrium', value: abgInputs.na, setter: (val: string) => setAbgInputs(prev => ({ ...prev, na: val })), unit: 'mEq/L' },
-      { key: 'cl' as const, label: 'Klorida', value: abgInputs.cl, setter: (val: string) => setAbgInputs(prev => ({ ...prev, cl: val })), unit: 'mEq/L' },
-      { key: 'albumin' as const, label: 'Albumin', value: abgInputs.alb, setter: (val: string) => setAbgInputs(prev => ({ ...prev, alb: val })), unit: 'g/dL' },
-      { key: 'rr' as const, label: 'RR', value: abgInputs.rr, setter: (val: string) => setAbgInputs(prev => ({ ...prev, rr: val })), unit: 'x/menit' },
-      { key: 'peep' as const, label: 'PEEP', value: abgInputs.peep, setter: (val: string) => setAbgInputs(prev => ({ ...prev, peep: val })), unit: 'cmH₂O' },
-      { key: 'age' as const, label: 'Usia', value: abgInputs.age, setter: (val: string) => setAbgInputs(prev => ({ ...prev, age: val })), unit: 'tahun' },
+      ...arterial,
+      { key: 'na', label: 'Na', value: abgInputs.na, setter: set('na'), unit: 'mEq/L' },
+      { key: 'cl', label: 'Cl', value: abgInputs.cl, setter: set('cl'), unit: 'mEq/L' },
+      {
+        key: 'albumin', label: 'Albumin',
+        value: albMg ? albuminGdlFromMgdl(abgInputs.alb) : abgInputs.alb,
+        rawValue: abgInputs.alb,
+        setter: (v: string) => set('alb')(albMg ? albuminMgdlFromGdl(v) : v),
+        unit: 'g/dL',
+      },
+      { key: 'laktat', label: 'Laktat', value: abgInputs.laktat, setter: set('laktat'), unit: 'mmol/L' },
+      // SpO₂ hanya dari pulse oximetry (SaO₂ AGD tidak ditulis ke kunci SpO₂).
+      { key: 'spo2', label: 'SpO₂', value: abgInputs.spo2Source === 'pulse' ? abgInputs.spo2 : '', setter: (v: string) => setAbgInputs(prev => ({ ...prev, spo2: v, spo2Source: 'pulse' })), unit: '%' },
+      { key: 'map', label: 'MAP', value: abgInputs.mapV, setter: set('mapV'), unit: 'mmHg' },
+      { key: 'rr', label: 'RR', value: abgInputs.rr, setter: set('rr'), unit: 'x/menit' },
+      { key: 'peep', label: 'PEEP', value: abgInputs.peep, setter: set('peep'), unit: 'cmH₂O' },
+      { key: 'age', label: 'Usia', value: abgInputs.age, setter: set('age'), unit: 'tahun' },
       // Clinical store menyimpan FiO₂ dalam PERSEN (21–100); ABG memakai fraksi → konversi dua arah.
-      { key: 'fio2' as const, label: 'FiO2', value: abgInputs.fio2Mode === 'direct' ? fio2ToPercentString(abgInputs.fio2Direct) : '', setter: (val: string) => setAbgInputs(prev => ({ ...prev, fio2Direct: fio2FromStoreString(val), fio2Mode: 'direct' })), unit: '%' },
+      { key: 'fio2', label: 'FiO₂', value: abgInputs.fio2Mode === 'direct' ? fio2ToPercentString(abgInputs.fio2Direct) : '', rawValue: abgInputs.fio2Direct, setter: (val: string) => setAbgInputs(prev => ({ ...prev, fio2Direct: fio2FromStoreString(val), fio2Mode: 'direct' })), unit: '%' },
     ];
   }, [abgInputs]);
 

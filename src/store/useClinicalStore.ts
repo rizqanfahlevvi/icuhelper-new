@@ -1,143 +1,104 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import {
+  EMPTY_CLINICAL_DATA,
+  type ClinicalData,
+  type ClinicalKey,
+  type ClinicalTimestamps,
+} from '../utils/clinicalVariables';
+import { LEGACY_OWNER, normalizeLegacyClinicalRecord, stampChanges, toClinicalData } from '../utils/patientContext';
 
-export interface ClinicalData {
-  age?: string;             // tahun
-  gender?: 'm' | 'f' | '';  // m / f
-  weight?: string;          // kg
-  height?: string;          // cm
-  ph?: string;              // pH darah
-  pco2?: string;            // mmHg
-  pao2?: string;            // mmHg
-  hco3?: string;            // mmol/L
-  be?: string;              // mEq/L
-  na?: string;              // mEq/L
-  k?: string;               // mEq/L
-  cl?: string;              // mEq/L
-  ca?: string;              // mg/dL
-  mg?: string;              // mg/dL
-  albumin?: string;         // g/dL
-  creatinine?: string;      // mg/dL
-  ureum?: string;           // mg/dL
-  hb?: string;              // g/dL
-  leukosit?: string;        // 10^3/µL
-  trombosit?: string;       // 10^3/µL
-  glukosa?: string;         // mg/dL
-  gcs?: string;             // total score (3-15)
-  fio2?: string;            // % (21 - 100) — modul yang memakai fraksi (ABG, APACHE) WAJIB konversi saat sync (utils/abg: fio2ToPercentString / fio2FromStoreString)
-  rr?: string;              // n/menit
-  hr?: string;              // bpm
-  systolic?: string;        // mmHg
-  diastolic?: string;       // mmHg
-  map?: string;             // mmHg
-  temp?: string;            // °C
-  peep?: string;            // cmH2O
-  spo2?: string;            // %
-  
-  // Extended Clinical Records
-  diagnosis?: string;       // diagnosis utama
-  hematokrit?: string;      // %
-  mcv?: string;             // fL
-  mch?: string;             // pg
-  mchc?: string;            // g/dL
-  acidUric?: string;        // mg/dL
-  cholesterol?: string;     // mg/dL
-  ldl?: string;             // mg/dL
-  hdl?: string;             // mg/dL
-  trigliserida?: string;    // mg/dL
-  gds?: string;             // mg/dL
-  gdp?: string;             // mg/dL
-  gd2pp?: string;           // mg/dL
-  hba1c?: string;           // %
-  sgot?: string;            // U/L
-  sgpt?: string;            // U/L
-  bilirubinTotal?: string;  // mg/dL
-  bilirubinDirek?: string;  // mg/dL
-  bilirubinIndirek?: string;// mg/dL
-}
+export type { ClinicalData, ClinicalKey, ClinicalTimestamps } from '../utils/clinicalVariables';
 
+/**
+ * "Data kerja" klinis yang dibaca/ditulis semua kalkulator (registri kunci & satuan:
+ * utils/clinicalVariables.ts).
+ *
+ * - `ownerId` = id pasien pemilik data kerja ini (null = sesi tanpa pasien).
+ *   Saat pasien diganti/ditutup, data kerja DIGANTI (bukan digabung) oleh
+ *   store/patientContextSync.ts — mencegah nilai pasien A terbawa ke pasien B.
+ * - `updatedAt` = cap waktu pembaruan per variabel (ditampilkan sebagai umur data).
+ * - Perubahan otomatis disimpan ke snapshot pasien aktif (patientContextSync).
+ */
 interface ClinicalState {
   data: ClinicalData;
-  setField: (key: keyof ClinicalData, value: string) => void;
+  updatedAt: ClinicalTimestamps;
+  ownerId: string | null;
+  setField: (key: ClinicalKey, value: string) => void;
   setFields: (fields: Partial<ClinicalData>) => void;
+  /** Ganti seluruh data kerja (dipakai saat memuat snapshot pasien). */
+  loadSnapshot: (snapshot: { data: Partial<ClinicalData>; updatedAt?: ClinicalTimestamps; ownerId: string | null }) => void;
   clearStore: () => void;
 }
 
-const initialData: ClinicalData = {
-  age: '',
-  gender: '',
-  weight: '',
-  height: '',
-  ph: '',
-  pco2: '',
-  pao2: '',
-  hco3: '',
-  be: '',
-  na: '',
-  k: '',
-  cl: '',
-  ca: '',
-  mg: '',
-  albumin: '',
-  creatinine: '',
-  ureum: '',
-  hb: '',
-  leukosit: '',
-  trombosit: '',
-  glukosa: '',
-  gcs: '',
-  fio2: '',
-  rr: '',
-  hr: '',
-  systolic: '',
-  diastolic: '',
-  map: '',
-  temp: '',
-  
-  // Extended Clinical Records
-  diagnosis: '',
-  hematokrit: '',
-  mcv: '',
-  mch: '',
-  mchc: '',
-  acidUric: '',
-  cholesterol: '',
-  ldl: '',
-  hdl: '',
-  trigliserida: '',
-  gds: '',
-  gdp: '',
-  gd2pp: '',
-  hba1c: '',
-  sgot: '',
-  sgpt: '',
-  bilirubinTotal: '',
-  bilirubinDirek: '',
-  bilirubinIndirek: '',
-};
+interface PersistedClinical {
+  data?: Record<string, string>;
+  updatedAt?: ClinicalTimestamps;
+  ownerId?: string | null;
+}
 
 export const useClinicalStore = create<ClinicalState>()(
   persist(
     (set) => ({
-      data: initialData,
+      data: { ...EMPTY_CLINICAL_DATA },
+      updatedAt: {},
+      ownerId: null,
       setField: (key, value) =>
-        set((state) => ({
-          data: {
-            ...state.data,
-            [key]: value,
-          },
-        })),
+        set((state) => {
+          if ((state.data[key] ?? '') === value) return state;
+          return {
+            data: { ...state.data, [key]: value },
+            updatedAt: stampChanges(state.data, { [key]: value }, state.updatedAt, Date.now()),
+          };
+        }),
       setFields: (fields) =>
-        set((state) => ({
-          data: {
-            ...state.data,
-            ...fields,
-          },
-        })),
-      clearStore: () => set({ data: initialData }),
+        set((state) => {
+          const changed = (Object.keys(fields) as ClinicalKey[]).some((k) => (state.data[k] ?? '') !== (fields[k] ?? ''));
+          if (!changed) return state;
+          return {
+            data: { ...state.data, ...fields },
+            updatedAt: stampChanges(state.data, fields, state.updatedAt, Date.now()),
+          };
+        }),
+      loadSnapshot: ({ data, updatedAt, ownerId }) =>
+        set({
+          data: { ...EMPTY_CLINICAL_DATA, ...data },
+          updatedAt: { ...(updatedAt ?? {}) },
+          ownerId,
+        }),
+      clearStore: () => set({ data: { ...EMPTY_CLINICAL_DATA }, updatedAt: {}, ownerId: null }),
     }),
     {
       name: 'icu-clinical-data',
+      version: 1,
+      partialize: (s) => ({ data: s.data, updatedAt: s.updatedAt, ownerId: s.ownerId }),
+      migrate: (persisted, version) => {
+        const p = (persisted ?? {}) as PersistedClinical;
+        if (version < 1) {
+          // v0: belum ada pemilik data & cap waktu; `gds` terpisah dari `glukosa`.
+          return {
+            data: { ...EMPTY_CLINICAL_DATA, ...toClinicalData(normalizeLegacyClinicalRecord(p.data)) },
+            updatedAt: {},
+            ownerId: LEGACY_OWNER,
+          };
+        }
+        return {
+          data: { ...EMPTY_CLINICAL_DATA, ...toClinicalData(normalizeLegacyClinicalRecord(p.data)) },
+          updatedAt: p.updatedAt ?? {},
+          ownerId: p.ownerId === undefined ? LEGACY_OWNER : p.ownerId,
+        };
+      },
+      merge: (persisted, current) => {
+        // Instalasi baru (tidak ada data tersimpan) → zustand tetap memanggil merge dengan undefined.
+        if (!persisted || typeof persisted !== 'object') return current;
+        const p = persisted as PersistedClinical;
+        return {
+          ...current,
+          data: { ...EMPTY_CLINICAL_DATA, ...toClinicalData(normalizeLegacyClinicalRecord(p.data)) },
+          updatedAt: p.updatedAt ?? {},
+          ownerId: p.ownerId === undefined ? LEGACY_OWNER : p.ownerId,
+        };
+      },
     }
   )
 );

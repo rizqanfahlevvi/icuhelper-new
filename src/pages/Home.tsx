@@ -26,6 +26,7 @@ import {
   Clock,
 } from "lucide-react";
 import { usePatientStore, PatientData } from "../store/usePatientStore";
+import { useClinicalStore } from "../store/useClinicalStore";
 import { useFavoritesStore } from "../store/useFavoritesStore";
 import { useRecentToolsStore } from "../store/useRecentToolsStore";
 import {
@@ -49,8 +50,12 @@ function PatientEditorSheet({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
+  // Reset = tutup pasien aktif (data kerja klinis ikut dikosongkan oleh patientContextSync)
+  // atau, pada sesi tanpa pasien, kosongkan juga data klinis sesi.
   const handleReset = () => {
+    const wasAnonymous = !patient.activePatientId;
     patient.resetPatientData();
+    if (wasAnonymous) useClinicalStore.getState().clearStore();
     onClose();
   };
 

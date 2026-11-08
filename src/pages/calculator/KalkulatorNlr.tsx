@@ -4,7 +4,7 @@ import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
-import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
@@ -43,18 +43,26 @@ export default function KalkulatorNlr() {
     }
   }, []);
 
-  const syncFields = useMemo(() => {
+  const syncFields = useMemo<SyncField[]>(() => {
     const activePlt = mode === 'abs' ? pltA : pltP;
     const activeSetterPlt = mode === 'abs' ? setPltA : setPltP;
 
     const activeWbc = mode === 'abs' ? wbcA : wbcP;
     const activeSetterWbc = mode === 'abs' ? setWbcA : setWbcP;
 
-    return [
-      { key: 'leukosit' as const, label: 'Leukosit (WBC)', value: activeWbc, setter: activeSetterWbc, unit: '10³/µL' },
-      { key: 'trombosit' as const, label: 'Trombosit (PLT)', value: activePlt, setter: activeSetterPlt, unit: '10³/µL' },
+    const base: SyncField[] = [
+      { key: 'leukosit', label: 'Leukosit (WBC)', value: activeWbc, setter: activeSetterWbc, unit: '10³/µL' },
+      { key: 'trombosit', label: 'Trombosit (PLT)', value: activePlt, setter: activeSetterPlt, unit: '10³/µL' },
     ];
-  }, [mode, pltA, pltP, wbcA, wbcP]);
+    // Hitung jenis (%) disimpan di data pasien; mode absolut tidak dipetakan.
+    if (mode !== 'pct') return base;
+    return [
+      ...base,
+      { key: 'neutrofilPct', label: 'Neutrofil', value: neutP, setter: setNeutP, unit: '%' },
+      { key: 'limfositPct', label: 'Limfosit', value: lymphP, setter: setLymphP, unit: '%' },
+      { key: 'monositPct', label: 'Monosit', value: monoP, setter: setMonoP, unit: '%' },
+    ];
+  }, [mode, pltA, pltP, wbcA, wbcP, neutP, lymphP, monoP]);
 
   const handleAutofill = (data: any) => {
     if (clinicalStore.data.leukosit) {

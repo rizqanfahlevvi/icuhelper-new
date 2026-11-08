@@ -5,6 +5,7 @@ import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { usePatientStore } from '../../store/usePatientStore';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { CalcSteps } from '../../components/ui/CalcSteps';
 import { weightPlausibilityWarning } from '../../utils/validation';
 
@@ -67,15 +68,25 @@ export default function KalkulatorBurn() {
   const [selectedPartsFront, setSelectedPartsFront] = useState<Set<PartKey>>(new Set());
   const [selectedPartsBack, setSelectedPartsBack] = useState<Set<PartKey>>(new Set());
   
-  const [localWeight, setLocalWeight] = useState<string>('70');
-  const [localAge, setLocalAge] = useState<number>(30);
+  // Tidak ada nilai default buatan: BB & usia kosong sampai diisi / diambil dari data pasien.
+  const [localWeight, setLocalWeight] = useState<string>('');
+  const [localAge, setLocalAge] = useState<string>('');
   const [factor, setFactor] = useState<string>('2');
   const [hoursElapsed, setHoursElapsed] = useState<string>('');
 
   const handleAutofill = (data: { weightKg: string; heightCm?: string; age?: string; gender?: string }) => {
     if (data.weightKg) setLocalWeight(data.weightKg);
-    if (data.age) setLocalAge(parseInt(data.age, 10) || 30);
+    if (data.age) setLocalAge(data.age);
   };
+
+  const syncFields = useMemo<SyncField[]>(() => [
+    { key: 'weight', label: 'BB', value: localWeight, setter: setLocalWeight, unit: 'kg' },
+    { key: 'age', label: 'Usia', value: localAge, setter: setLocalAge, unit: 'tahun' },
+  ], [localWeight, localAge]);
+
+  const ageNum = parseFloat(localAge);
+  const ageKnown = Number.isFinite(ageNum) && ageNum >= 0;
+  const weightKnown = parseFloat(localWeight) > 0;
 
   const togglePart = (id: PartKey, isFront: boolean) => {
     const setter = isFront ? setSelectedPartsFront : setSelectedPartsBack;
@@ -87,7 +98,8 @@ export default function KalkulatorBurn() {
     });
   };
 
-  const lundBrowder = useMemo(() => getLundBrowderValues(localAge), [localAge]);
+  // Usia kosong → proporsi DEWASA (kolom ≥15 th Lund-Browder), ditampilkan eksplisit di UI.
+  const lundBrowder = useMemo(() => getLundBrowderValues(ageKnown ? ageNum : 15), [ageKnown, ageNum]);
 
   const tbsa = useMemo(() => {
     let total = 0;
@@ -155,6 +167,7 @@ export default function KalkulatorBurn() {
       />
 
       <ActivePatientBriefCard onAutofill={handleAutofill} />
+      <UnifiedSyncBanner fields={syncFields} />
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         
@@ -188,7 +201,9 @@ export default function KalkulatorBurn() {
           <div className="mt-8 flex items-center justify-between w-full bg-red-50 dark:bg-red-900/10 p-5 rounded-2xl border border-red-100 dark:border-red-900/20">
             <div className="space-y-1">
               <span className="text-sm font-semibold text-red-800 dark:text-red-300">Total TBSA</span>
-              <p className="text-xs text-red-600/70 dark:text-red-400/70">Terkalkulasi berdasar usia ({localAge} thn)</p>
+              <p className="text-xs text-red-600/70 dark:text-red-400/70">
+                {ageKnown ? `Terkalkulasi berdasar usia (${localAge} thn)` : 'Usia belum diisi — memakai proporsi dewasa (≥15 th)'}
+              </p>
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-black text-red-600 dark:text-red-400">{tbsa.toFixed(1)}</span>
@@ -212,7 +227,8 @@ export default function KalkulatorBurn() {
                   <input
                     type="number"
                     value={localAge}
-                    onChange={(e) => setLocalAge(parseInt(e.target.value) || 0)}
+                    placeholder="tahun"
+                    onChange={(e) => setLocalAge(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
                   />
                 </div>
@@ -222,6 +238,7 @@ export default function KalkulatorBurn() {
                     <input
                       type="number"
                       value={localWeight}
+                      placeholder="kg"
                       onChange={(e) => setLocalWeight(e.target.value)}
                       className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
                     />
@@ -277,6 +294,11 @@ export default function KalkulatorBurn() {
                 <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/60 text-[12px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
                   <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span>{weightPlausibilityWarning(parseFloat(localWeight))}</span>
+                </div>
+              )}
+              {!weightKnown && (
+                <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2">
+                  Isi berat badan untuk menghitung kebutuhan cairan.
                 </div>
               )}
               <div className="bg-gradient-to-br from-[var(--accent)]/10 to-[var(--accent)]/5 rounded-2xl p-5 border border-[var(--accent)]/20">

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
 import { serumOsmolality, ureumToBun, type UreaUnit } from '../../../utils/sodium';
+import { UnifiedSyncBanner, type SyncField } from '../../../components/UnifiedSyncBanner';
+import { bunFromUreum, ureumFromBun } from '../../../utils/clinicalUnits';
 
 export function RenalOsmolBun() {
   // Osmolalitas
@@ -14,6 +16,28 @@ export function RenalOsmolBun() {
   // BUN:Cr
   const [bunRatio, setBunRatio] = useState('');
   const [scrRatio, setScrRatio] = useState('');
+
+  // Ganti Ureum↔BUN: angka yang sudah diisi ikut dikonversi, bukan ditafsir ulang.
+  const changeUreaUnit = (next: UreaUnit) => {
+    if (next === ureaUnit) return;
+    const conv = (v: string) => (v.trim() === '' ? v : next === 'bun' ? bunFromUreum(v) : ureumFromBun(v));
+    setBun(conv(bun));
+    setBunRatio(conv(bunRatio));
+    setUreaUnit(next);
+  };
+
+  // Store menyimpan UREUM (mg/dL) → konversi bila pengguna memilih BUN.
+  const syncFields = useMemo<SyncField[]>(() => {
+    const toStore = (v: string) => (ureaUnit === 'bun' ? ureumFromBun(v) : v);
+    const fromStore = (v: string) => (ureaUnit === 'bun' ? bunFromUreum(v) : v);
+    return [
+      { key: 'na', label: 'Na', value: sna, setter: setSna, unit: 'mEq/L' },
+      { key: 'glukosa', label: 'GDS', value: glucose, setter: setGlucose, unit: 'mg/dL' },
+      { key: 'ureum', label: 'Ureum', value: toStore(bun), rawValue: bun, setter: (v: string) => setBun(fromStore(v)), unit: 'mg/dL' },
+      { key: 'ureum', label: 'Ureum', value: toStore(bunRatio), rawValue: bunRatio, setter: (v: string) => setBunRatio(fromStore(v)), unit: 'mg/dL' },
+      { key: 'creatinine', label: 'Kreatinin', value: scrRatio, setter: setScrRatio, unit: 'mg/dL' },
+    ];
+  }, [sna, glucose, bun, bunRatio, scrRatio, ureaUnit]);
 
   const calculateOsmol = () => {
     const vNa = parseFloat(sna);
@@ -45,7 +69,7 @@ export function RenalOsmolBun() {
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-300">
-      
+      <UnifiedSyncBanner fields={syncFields} />
       {/* SECTION 1: OSMOLALITAS */}
       <div>
         <h3 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
@@ -63,7 +87,7 @@ export function RenalOsmolBun() {
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
-              <select value={ureaUnit} onChange={e=>setUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
+              <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex items-center justify-between px-4 py-3 gap-4">
@@ -115,7 +139,7 @@ export function RenalOsmolBun() {
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
-              <select value={ureaUnit} onChange={e=>setUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
+              <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex items-center justify-between px-4 py-3 gap-4">

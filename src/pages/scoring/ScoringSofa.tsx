@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
+import { fio2ToPercentString } from '../../utils/abg';
 import { Accordion } from '../../components/ui/Accordion';
 import { Activity, Beaker, Brain, HeartPulse, Wind, Droplets, AlertTriangle, Calculator, Info } from 'lucide-react';
 import { useClinicalStore } from '../../store/useClinicalStore';
@@ -83,6 +85,23 @@ export default function ScoringSofa() {
     if (d.gcs) setGcs(d.gcs);
     if (d.creatinine) setKreatinin(d.creatinine);
   }, []);
+
+  // Sinkron dua arah dengan data pasien (FiO₂ di store = persen).
+  const syncFields = useMemo<SyncField[]>(() => [
+    { key: 'pao2', label: 'PaO₂', value: pao2, setter: setPao2, unit: 'mmHg' },
+    {
+      key: 'fio2', label: 'FiO₂',
+      value: fio2Mode === 'persen' ? fio2Persen : fio2ToPercentString(fio2Desimal),
+      rawValue: fio2Mode === 'persen' ? fio2Persen : fio2Desimal,
+      setter: (v: string) => { setFio2Persen(v); setFio2Mode('persen'); },
+      unit: '%',
+    },
+    { key: 'spo2', label: 'SpO₂', value: spo2, setter: setSpo2, unit: '%' },
+    { key: 'trombosit', label: 'Trombosit', value: trombosit, setter: setTrombosit, unit: '10³/µL' },
+    { key: 'bilirubinTotal', label: 'Bilirubin', value: bilirubin, setter: setBilirubin, unit: 'mg/dL' },
+    { key: 'gcs', label: 'GCS', value: gcs, setter: setGcs },
+    { key: 'creatinine', label: 'Kreatinin', value: kreatinin, setter: setKreatinin, unit: 'mg/dL' },
+  ], [pao2, fio2Mode, fio2Persen, fio2Desimal, spo2, trombosit, bilirubin, gcs, kreatinin]);
 
   const handleCalculate = () => {
     let total = 0;
@@ -359,6 +378,7 @@ export default function ScoringSofa() {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       <ActivePatientBriefCard />
+      <UnifiedSyncBanner fields={syncFields} />
 
       <div className={cardClass}>
         <div className="flex items-center gap-3 mb-2">

@@ -1,4 +1,5 @@
 import { Beaker, Dna, Info, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { kpaFromMmHg, mmHgFromKpa } from '../../utils/clinicalUnits';
 import { AgUpperNormalField } from '../../components/ui/AgUpperNormalField';
 import { SUPPORT_LABEL, RespSupport } from '../../utils/oxygenation';
 import { CalcSteps } from '../../components/ui/CalcSteps';
@@ -30,6 +31,14 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
   const updateInput = (key: keyof AbgInputs, val: string) => {
     const newInputs = { ...inputs, [key]: val };
     setInputs(newInputs as AbgInputs);
+  };
+
+  // Ganti satuan tekanan gas → angka yang sudah diisi IKUT dikonversi (bukan ditafsir ulang:
+  // PaO₂ 70 mmHg tidak boleh mendadak dibaca 70 kPa = 525 mmHg).
+  const togglePressureUnit = () => {
+    const toKpa = inputs.paco2Unit === 'mmHg';
+    const conv = (v: string) => (v.trim() === '' ? v : toKpa ? kpaFromMmHg(v) : mmHgFromKpa(v));
+    setInputs({ ...inputs, paco2Unit: toKpa ? 'kPa' : 'mmHg', pco2: conv(inputs.pco2), po2: conv(inputs.po2) });
   };
 
   const calcResult = useAbgCalculator(inputs);
@@ -93,7 +102,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 placeholder="35–45" 
               />
               <button 
-                onClick={() => updateInput('paco2Unit', inputs.paco2Unit === 'mmHg' ? 'kPa' : 'mmHg')}
+                onClick={togglePressureUnit}
                 className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0"
               >
                 {inputs.paco2Unit}
@@ -126,7 +135,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
                 placeholder="80–100" 
               />
               <button
-                onClick={() => updateInput('paco2Unit', inputs.paco2Unit === 'mmHg' ? 'kPa' : 'mmHg')}
+                onClick={togglePressureUnit}
                 className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0"
                 title="Satuan gas (berlaku untuk PaCO₂ & PaO₂)"
               >

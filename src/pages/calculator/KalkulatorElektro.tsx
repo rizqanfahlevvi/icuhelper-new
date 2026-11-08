@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Accordion } from '../../components/ui/Accordion';
-import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
+import { bunFromUreum, ureumFromBun } from '../../utils/clinicalUnits';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
@@ -92,6 +93,8 @@ export default function KalkulatorElektro() {
     if (parentGender) {
       setSex(parentGender.toLowerCase() === 'p' ? 'f' : 'm');
     }
+    const parentAge = patient.ageYears || clinicalStore.data.age || '';
+    if (parentAge) setAge(parentAge);
 
     if (clinicalStore.data.na) setNa(clinicalStore.data.na);
     if (clinicalStore.data.glukosa) setGlu(clinicalStore.data.glukosa);
@@ -100,27 +103,28 @@ export default function KalkulatorElektro() {
     if (clinicalStore.data.ca) setCa(clinicalStore.data.ca);
     if (clinicalStore.data.albumin) setAlb(clinicalStore.data.albumin);
     if (clinicalStore.data.mg) setMg(clinicalStore.data.mg);
-    if (clinicalStore.data.gds) setGdsK(clinicalStore.data.gds);
+    if (clinicalStore.data.glukosa) setGdsK(clinicalStore.data.glukosa);
     if (clinicalStore.data.ph) {
       setPh(clinicalStore.data.ph);
       setCaPh(clinicalStore.data.ph);
     }
   }, []);
 
-  const handleAutofill = (data: { weightKg: string; gender?: string }) => {
+  const handleAutofill = (data: { weightKg: string; gender?: string; age?: string }) => {
     if (data.weightKg) setBw(data.weightKg);
+    if (data.age) setAge(data.age);
     if (data.gender) {
       setSex(data.gender.toLowerCase() === 'p' ? 'f' : 'm');
     }
     // Pull any available clinically saved data as well
     if (clinicalStore.data.na) setNa(clinicalStore.data.na);
     if (clinicalStore.data.glukosa) setGlu(clinicalStore.data.glukosa);
-    if (clinicalStore.data.ureum) setUreum(clinicalStore.data.ureum);
+    if (clinicalStore.data.ureum) setUreum(ureaUnit === 'bun' ? bunFromUreum(clinicalStore.data.ureum) : clinicalStore.data.ureum);
     if (clinicalStore.data.k) setK(clinicalStore.data.k);
     if (clinicalStore.data.ca) setCa(clinicalStore.data.ca);
     if (clinicalStore.data.albumin) setAlb(clinicalStore.data.albumin);
     if (clinicalStore.data.mg) setMg(clinicalStore.data.mg);
-    if (clinicalStore.data.gds) setGdsK(clinicalStore.data.gds);
+    if (clinicalStore.data.glukosa) setGdsK(clinicalStore.data.glukosa);
     if (clinicalStore.data.ph) {
       setPh(clinicalStore.data.ph);
       setCaPh(clinicalStore.data.ph);
@@ -142,39 +146,54 @@ export default function KalkulatorElektro() {
   const res = shown && tab === 'na' ? naRes : null;
   const calculate = () => setShown(true);
 
-  const syncFields = useMemo(() => {
-    const common = [
-      { key: 'weight' as const, label: 'Weight', value: bw, setter: setBw, unit: 'kg' }
+  // Ganti Ureum↔BUN: angka yang sudah diisi ikut dikonversi (×/÷ 60/28), bukan ditafsir ulang.
+  const changeUreaUnit = (next: UreaUnit) => {
+    if (next === ureaUnit) return;
+    if (ureum.trim() !== '') setUreum(next === 'bun' ? bunFromUreum(ureum) : ureumFromBun(ureum));
+    setUreaUnit(next);
+  };
+
+  // Store: ureum dalam mg/dL (bukan BUN) & glukosa = GDS terkini (satu kunci untuk tab Na & K).
+  const syncFields = useMemo<SyncField[]>(() => {
+    const common: SyncField[] = [
+      { key: 'weight', label: 'BB', value: bw, setter: setBw, unit: 'kg' },
     ];
-    
+
     if (tab === 'na') {
       return [
         ...common,
-        { key: 'na' as const, label: 'Natrium', value: na, setter: setNa, unit: 'mEq/L' },
-        { key: 'glukosa' as const, label: 'Glukosa', value: glu, setter: setGlu, unit: 'mg/dL' },
-        { key: 'ureum' as const, label: 'Ureum', value: ureum, setter: setUreum, unit: 'mg/dL' },
+        { key: 'age', label: 'Usia', value: age, setter: setAge, unit: 'tahun' },
+        { key: 'na', label: 'Natrium', value: na, setter: setNa, unit: 'mEq/L' },
+        { key: 'glukosa', label: 'GDS', value: glu, setter: setGlu, unit: 'mg/dL' },
+        {
+          key: 'ureum', label: 'Ureum',
+          value: ureaUnit === 'bun' ? ureumFromBun(ureum) : ureum,
+          rawValue: ureum,
+          setter: (v: string) => setUreum(ureaUnit === 'bun' ? bunFromUreum(v) : v),
+          unit: 'mg/dL',
+        },
       ];
     } else if (tab === 'k') {
       return [
         ...common,
-        { key: 'k' as const, label: 'Kalium', value: k, setter: setK, unit: 'mEq/L' },
-        { key: 'ph' as const, label: 'pH Arteri', value: ph, setter: setPh, unit: '' },
-        { key: 'gds' as const, label: 'GDS (HiperK)', value: gdsK, setter: setGdsK, unit: 'mg/dL' },
+        { key: 'k', label: 'Kalium', value: k, setter: setK, unit: 'mEq/L' },
+        { key: 'ph', label: 'pH arteri', value: ph, setter: setPh, unit: '' },
+        { key: 'glukosa', label: 'GDS', value: gdsK, setter: setGdsK, unit: 'mg/dL' },
       ];
     } else if (tab === 'ca') {
       return [
         ...common,
-        { key: 'ca' as const, label: 'Kalsium', value: ca, setter: setCa, unit: 'mg/dL' },
-        { key: 'albumin' as const, label: 'Albumin', value: alb, setter: setAlb, unit: 'g/dL' },
-        { key: 'ph' as const, label: 'pH Arteri', value: caPh, setter: setCaPh, unit: '' },
+        { key: 'ca', label: 'Kalsium', value: ca, setter: setCa, unit: 'mg/dL' },
+        { key: 'albumin', label: 'Albumin', value: alb, setter: setAlb, unit: 'g/dL' },
+        { key: 'ph', label: 'pH arteri', value: caPh, setter: setCaPh, unit: '' },
       ];
     } else { // mg
       return [
         ...common,
-        { key: 'mg' as const, label: 'Magnesium', value: mg, setter: setMg, unit: 'mg/dL' },
+        { key: 'mg', label: 'Magnesium', value: mg, setter: setMg, unit: 'mg/dL' },
       ];
     }
-  }, [tab, bw, na, glu, ureum, k, ph, gdsK, ca, alb, caPh, mg]);
+  }, [tab, bw, age, na, glu, ureum, ureaUnit, k, ph, gdsK, ca, alb, caPh, mg]);
 
   // Keparahan diturunkan LIVE dari checklist gejala → hasil ikut berubah tanpa
   // perlu menekan "Hitung Koreksi" lagi saat gejala di-toggle.
@@ -252,7 +271,7 @@ export default function KalkulatorElektro() {
                 <FieldRow label={ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} sub="untuk osmolalitas terhitung">
                   <div className="flex-1 flex items-center justify-end gap-2">
                     <input type="number" value={ureum} onChange={e=>setUreum(e.target.value)} placeholder="Opsional" className={inputCls} />
-                    <select value={ureaUnit} onChange={e=>setUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                       <option value="ureum">Ureum</option>
                       <option value="bun">BUN</option>
                     </select>

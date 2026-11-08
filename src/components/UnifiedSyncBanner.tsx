@@ -1,104 +1,125 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Check, X, RefreshCw } from 'lucide-react';
-import { useClinicalStore, ClinicalData } from '../store/useClinicalStore';
+import { Sparkles, Check, X, CloudCheck, AlertTriangle } from 'lucide-react';
+import { useClinicalStore, type ClinicalData, type ClinicalKey } from '../store/useClinicalStore';
+import { usePatientStore } from '../store/usePatientStore';
+import { formatDataAge, formatDataTimestamp } from '../utils/patientContext';
 
 export interface SyncField {
-  key: keyof ClinicalData;
+  key: ClinicalKey;
   label: string;
+  /**
+   * Nilai lokal dalam SATUAN KANONIK store (lihat utils/clinicalVariables.ts).
+   * Kirim '' bila nilai lokal tidak boleh/tidak bisa dipublikasikan
+   * (mis. sampel vena untuk kunci gas darah arteri).
+   */
   value: string;
+  /**
+   * Nilai mentah seperti yang diketik (satuan tampilan). Wajib diisi bila `value`
+   * hasil konversi satuan: publish hanya terjadi bila nilai MENTAH berubah, sehingga
+   * mengganti pilihan satuan tidak pernah mengirim angka yang ditafsir ulang.
+   */
+  rawValue?: string;
+  /** Terima nilai store (satuan kanonik) → set state lokal; konversi satuan di sini. */
   setter: (val: string) => void;
   unit?: string;
   formatDisplay?: (val: string) => string;
+  /**
+   * true = hanya IMPOR dari data pasien; nilai lokal tidak pernah ditulis balik.
+   * Untuk nilai kondisi-uji yang bukan kondisi pasien sehari-hari (mis. RR saat SBT).
+   */
+  importOnly?: boolean;
 }
 
 interface UnifiedSyncBannerProps {
   fields: SyncField[];
 }
 
+/**
+ * Sinkronisasi dua arah kalkulator ↔ data pasien:
+ * - PUBLISH: hanya nilai yang BERUBAH di kalkulator (diketik/diimpor pengguna) yang
+ *   ditulis ke store → otomatis tersimpan ke pasien aktif (store/patientContextSync).
+ *   Perubahan store (ganti/tutup pasien) tidak pernah memicu publish ulang nilai lama.
+ * - IMPORT: bila store punya nilai berbeda, tampilkan banner konfirmasi
+ *   "Gunakan Data Pasien" lengkap dengan umur data per variabel.
+ */
 export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
-  const { data: storeData, setFields } = useClinicalStore();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const storeData = useClinicalStore((s) => s.data);
+  const updatedAt = useClinicalStore((s) => s.updatedAt);
+  const ownerId = useClinicalStore((s) => s.ownerId);
+  const setFields = useClinicalStore((s) => s.setFields);
+  const patientName = usePatientStore((s) => s.nama);
+  const activePatientId = usePatientStore((s) => s.activePatientId);
 
-  // Track initial values on mount to avoid overwriting the global store with mounting values
-  const initialValuesRef = useRef<{ [key: string]: string }>({});
-  const isMountedRef = useRef(false);
+  const [dismissedFor, setDismissedFor] = useState<string | null | undefined>(undefined);
+  const ownerAtMountRef = useRef<string | null>(ownerId);
+  const prevLocalRef = useRef<Record<string, string>>({});
 
-  // Record initial page values on mount
+  // Publish perubahan lokal → store (bukan perubahan store → lokal).
   useEffect(() => {
-    const vals: { [key: string]: string } = {};
-    fields.forEach((f) => {
-      vals[f.key] = f.value || '';
-    });
-    initialValuesRef.current = vals;
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []); // Run once on mount
-
-  // Check if any local field has been modified by the user since mount,
-  // and publish it to the global store if it's non-empty.
-  useEffect(() => {
-    if (!isMountedRef.current) return;
-
-    const updatesToStore: Partial<ClinicalData> = {};
+    const updates: Partial<Record<ClinicalKey, string>> = {};
     let hasUpdates = false;
-
-    fields.forEach((field) => {
-      const initialVal = initialValuesRef.current[field.key] || '';
-      const currentLocalVal = field.value || '';
-      const currentGlobalVal = storeData[field.key] || '';
-
-      // If the local value is non-empty and has changed from both the initial mount value
-      // and is different from the current global store value, we publish it.
-      if (
-        currentLocalVal !== '' &&
-        currentLocalVal !== initialVal &&
-        currentLocalVal !== currentGlobalVal
-      ) {
-        updatesToStore[field.key] = currentLocalVal as any;
+    const occurrence: Record<string, number> = {};
+    for (const field of fields) {
+      const cur = field.value || '';
+      // Deteksi perubahan memakai nilai mentah (bila ada) → ganti satuan ≠ input baru.
+      const raw = field.rawValue ?? cur;
+      // Kunci yang sama bisa muncul >1 kali (mis. ureum di dua bagian) → lacak per kemunculan.
+      const n = (occurrence[field.key] = (occurrence[field.key] ?? -1) + 1);
+      const slot = `${field.key}#${n}`;
+      const prev = prevLocalRef.current[slot];
+      prevLocalRef.current[slot] = raw;
+      if (prev === undefined || prev === raw || field.importOnly) continue; // observasi pertama / tidak berubah / impor saja
+      if (cur !== '' && cur !== (useClinicalStore.getState().data[field.key] || '')) {
+        updates[field.key] = cur;
         hasUpdates = true;
-        // Keep initial value ref in sync so we don't trigger recursively
-        initialValuesRef.current[field.key] = currentLocalVal;
       }
-    });
-
-    if (hasUpdates) {
-      setFields(updatesToStore);
     }
-  }, [fields, storeData, setFields]);
+    if (hasUpdates) setFields(updates as Partial<ClinicalData>);
+  }, [fields, setFields]);
 
-  // Determine which fields have values in the store that could be imported
-  // because they are different from the current local values.
+  // Kolom yang bisa diimpor: store berisi & berbeda dari nilai lokal (dedup per kunci).
+  const seen = new Set<string>();
   const syncableFields = fields.filter((field) => {
     const globalVal = storeData[field.key] || '';
-    const localVal = field.value || '';
-    // Show sync prompt if store has a value, and it differs from the current local value
-    return globalVal !== '' && globalVal !== localVal;
+    if (globalVal === '' || globalVal === (field.value || '')) return false;
+    if (seen.has(field.key)) return false;
+    seen.add(field.key);
+    return true;
   });
 
   const handleApplyAll = () => {
-    fields.forEach((field) => {
+    for (const field of fields) {
       const globalVal = storeData[field.key] || '';
       if (globalVal !== '' && globalVal !== field.value) {
         field.setter(globalVal);
-        // Also update initial values to match the newly set value
-        initialValuesRef.current[field.key] = globalVal;
+        // Nilai mentah baru belum diketahui (hasil konversi setter) → tandai agar
+        // render berikutnya hanya merekam, tidak mem-publish.
+        for (const slot of Object.keys(prevLocalRef.current)) {
+          if (slot.startsWith(`${field.key}#`)) delete prevLocalRef.current[slot];
+        }
       }
-    });
-    setIsOpen(false);
+    }
+    ownerAtMountRef.current = ownerId;
   };
 
-  const handleDismiss = () => {
-    setIsDismissed(true);
-  };
-
-  // Show banner only if there are syncable fields, and user hasn't dismissed it
+  const hasActivePatient = !!activePatientId && ownerId === activePatientId;
+  const ownerChanged = ownerAtMountRef.current !== ownerId;
+  const isDismissed = dismissedFor !== undefined && dismissedFor === ownerId;
   const showBanner = syncableFields.length > 0 && !isDismissed;
+  const name = patientName || 'pasien aktif';
 
-  if (!showBanner) return null;
+  if (!showBanner) {
+    if (!hasActivePatient || fields.length === 0) return null;
+    return (
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 px-1">
+        <CloudCheck className="w-3.5 h-3.5 shrink-0" />
+        <span className="truncate">
+          Tersinkron dengan data <strong className="font-bold">{name}</strong> — perubahan tersimpan otomatis.
+        </span>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence>
@@ -110,27 +131,38 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
         className="w-full overflow-hidden"
       >
         <div className="bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm relative">
-          <div className="flex items-start gap-2.5">
+          <div className="flex items-start gap-2.5 min-w-0">
             <div className="flex-shrink-0 p-1.5 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400">
-              <Sparkles className="w-4 h-4 animate-pulse" />
+              {ownerChanged && hasActivePatient ? <AlertTriangle className="w-4 h-4" /> : <Sparkles className="w-4 h-4 animate-pulse" />}
             </div>
-            <div>
-              <div className="text-sm font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1">
-                Data Klinis Tersimpan di Memori
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                {hasActivePatient
+                  ? ownerChanged
+                    ? `Pasien aktif berganti → ${name}`
+                    : `Data ${name} tersedia`
+                  : 'Data sesi tersimpan'}
               </div>
-              <div className="text-xs text-amber-700/80 dark:text-amber-400/85 mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 items-center">
-                <span>Gunakan data terinput dari kalkulator sebelumnya:</span>
-                {syncableFields.map((field, idx) => {
+              <div className="text-xs text-amber-700/80 dark:text-amber-400/85 mt-0.5 flex flex-wrap gap-x-2 gap-y-1 items-center">
+                <span>
+                  {ownerChanged && hasActivePatient
+                    ? 'Nilai di kalkulator ini masih dari data sebelumnya. Perbarui dengan:'
+                    : 'Isi kalkulator ini dengan:'}
+                </span>
+                {syncableFields.map((field) => {
                   const globalVal = storeData[field.key] || '';
                   const displayVal = field.formatDisplay
                     ? field.formatDisplay(globalVal)
                     : `${globalVal}${field.unit ? ` ${field.unit}` : ''}`;
+                  const age = formatDataAge(updatedAt[field.key]);
                   return (
                     <span
                       key={field.key}
-                      className="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-200 font-medium text-[11px]"
+                      title={updatedAt[field.key] ? `Diperbarui ${formatDataTimestamp(updatedAt[field.key])}` : undefined}
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-200 font-medium text-[11px]"
                     >
                       {field.label}: {displayVal}
+                      {age && <span className="font-normal opacity-75">· {age}</span>}
                     </span>
                   );
                 })}
@@ -143,12 +175,13 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
               onClick={handleApplyAll}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-amber-600 text-white rounded-xl shadow-sm hover:bg-amber-500 transition-all cursor-pointer active:scale-95"
             >
-              <Check className="w-3.5 h-3.5" /> Gunakan Master Data
+              <Check className="w-3.5 h-3.5" /> {hasActivePatient ? 'Gunakan Data Pasien' : 'Gunakan Data Sesi'}
             </button>
             <button
-              onClick={handleDismiss}
+              onClick={() => setDismissedFor(ownerId)}
               className="p-1.5 rounded-lg border border-amber-500/20 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 transition-colors cursor-pointer"
               title="Abaikan"
+              aria-label="Abaikan"
             >
               <X className="w-3.5 h-3.5" />
             </button>

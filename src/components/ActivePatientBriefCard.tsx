@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { User, ChevronRight, UserPlus, Scale, Activity, Flame, Heart, CheckCircle2 } from 'lucide-react';
 import { usePatientStore } from '../store/usePatientStore';
 import { useClinicalStore } from '../store/useClinicalStore';
+import { formatDataAge } from '../utils/patientContext';
 
 interface ActivePatientBriefCardProps {
   onAutofill?: (data: { weightKg: string; temp?: string; age?: string; gender?: string }) => void;
@@ -18,13 +19,15 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
     if (onAutofill) {
       onAutofill({
         weightKg: patient.weightKg || clinicalStore.data.weight || '',
-        temp: clinicalStore.data.temp || '37.0',
+        // Jangan mengarang suhu: kosong bila belum pernah diisi.
+        temp: clinicalStore.data.temp || '',
         age: patient.ageYears || clinicalStore.data.age || '',
         gender: patient.gender || clinicalStore.data.gender || '',
       });
     }
   };
 
+  // Data kerja klinis ikut dikosongkan otomatis oleh store/patientContextSync.ts.
   const handleClosePatient = () => {
     patient.setActivePatient(null);
   };
@@ -87,6 +90,8 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
   // Count klinis & lab saved
   const activePatientData = patient.patients.find(p => p.id === patient.activePatientId);
   const clinicalVarsCount = activePatientData && activePatientData.clinicalData ? Object.keys(activePatientData.clinicalData).length : 0;
+  const stampValues = Object.values(clinicalStore.updatedAt).filter((t): t is number => typeof t === 'number');
+  const lastUpdateAge = stampValues.length > 0 ? formatDataAge(Math.max(...stampValues)) : '';
 
   return (
     <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 rounded-2xl p-4 lg:p-5 relative overflow-hidden space-y-4 shadow-sm">
@@ -132,7 +137,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
         )}
 
         {patient.mrsDate && dayOfCareLabel && (
-          <span className="bg-[#f0ece1]/50 border border-amber-900/10 text-amber-900/80 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300 font-bold px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5 shadow-xs">
+          <span className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300 font-bold px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5 shadow-xs">
             <Activity className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             {dayOfCareLabel}
             <span className="font-medium opacity-80 ml-0.5">(MRS: {mrsDateLabel})</span>
@@ -145,7 +150,9 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
           Memori Klinis & Lab
         </h5>
         <p className="text-slate-500 dark:text-slate-400 text-[11px] mb-3 font-medium">
-          {clinicalVarsCount} variabel tersimpan otomatis.
+          {patient.activePatientId
+            ? `${clinicalVarsCount} variabel tersimpan otomatis${lastUpdateAge ? ` · terakhir ${lastUpdateAge}` : ''}.`
+            : 'Sesi tanpa pasien — data tidak tersimpan ke daftar pasien.'}
         </p>
 
         <div className="flex flex-row items-center gap-2">

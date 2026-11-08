@@ -49,7 +49,8 @@ export default function KalkulatorKebutuhanCairan() {
 
   // Box 2
   const [rose, setRose] = useState<string | null>(null);
-  const [temp, setTemp] = useState('37.0');
+  // Kosong = normotermi (perhitungan memakai 37 °C, tanpa koreksi demam) — bukan nilai pasien buatan.
+  const [temp, setTemp] = useState('');
   const [vent, setVent] = useState('spontan');
   const [sweat, setSweat] = useState('none');
   const [uoTgt, setUoTgt] = useState('0.5');

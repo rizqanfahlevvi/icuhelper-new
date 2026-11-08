@@ -5,7 +5,7 @@ import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
-import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { ClinicalReport } from '../../components/ui/ClinicalReport';
 import { CalcSteps } from '../../components/ui/CalcSteps';
@@ -24,6 +24,7 @@ import {
   Droplets,
   ActivitySquare
 } from 'lucide-react';
+import { creatinineMgFromUmol, creatinineUmolFromMg } from '../../utils/clinicalUnits';
 import { RenalAkiStaging } from './components/RenalAkiStaging';
 import { RenalHdIndikasi } from './components/RenalHdIndikasi';
 import { RenalOsmolBun } from './components/RenalOsmolBun';
@@ -374,23 +375,33 @@ export default function KalkulatorRenal() {
     }
   };
 
-  const syncFields = useMemo(() => {
+  // Store menyimpan kreatinin dalam mg/dL → konversi bila input memakai µmol/L.
+  // Tab AKI & Osmolalitas punya banner sinkron sendiri di komponennya.
+  const syncFields = useMemo<SyncField[]>(() => {
     if (activeTab === 'gfr_crcl') {
       return [
-        { key: 'age' as const, label: 'Usia', value: age, setter: setAge, unit: 'tahun' },
-        { key: 'gender' as const, label: 'Jenis Kelamin', value: sex, setter: (val: string) => setSex(val === 'f' ? 'f' : 'm'), formatDisplay: (val: string) => val === 'f' ? 'Perempuan' : 'Laki-laki' },
-        { key: 'weight' as const, label: 'Berat Badan', value: weight, setter: setWeight, unit: 'kg' },
-        { key: 'height' as const, label: 'Tinggi Badan', value: height, setter: setHeight, unit: 'cm' },
-        { key: 'creatinine' as const, label: 'Kreatinin Serum', value: scrVal, setter: setScrVal, unit: 'mg/dL' },
-      ];
-    } else {
-      return [
-        { key: 'na' as const, label: 'S-Natrium', value: sna, setter: setSna, unit: 'mEq/L' },
-        { key: 'creatinine' as const, label: 'S-Kreatinin', value: scr, setter: setScr, unit: 'mg/dL' },
-        { key: 'ureum' as const, label: 'S-Ureum', value: sureum, setter: setSureum, unit: 'mg/dL' },
+        { key: 'age', label: 'Usia', value: age, setter: setAge, unit: 'tahun' },
+        { key: 'gender', label: 'Jenis Kelamin', value: sex, setter: (val: string) => setSex(val === 'f' ? 'f' : 'm'), formatDisplay: (val: string) => val === 'f' ? 'Perempuan' : 'Laki-laki' },
+        { key: 'weight', label: 'Berat Badan', value: weight, setter: setWeight, unit: 'kg' },
+        { key: 'height', label: 'Tinggi Badan', value: height, setter: setHeight, unit: 'cm' },
+        {
+          key: 'creatinine', label: 'Kreatinin Serum',
+          value: scrUnit === 'umol' ? creatinineMgFromUmol(scrVal) : scrVal,
+          rawValue: scrVal,
+          setter: (val: string) => setScrVal(scrUnit === 'umol' ? creatinineUmolFromMg(val) : val),
+          unit: 'mg/dL',
+        },
       ];
     }
-  }, [activeTab, age, sex, weight, height, scrVal, sna, scr, sureum]);
+    if (activeTab === 'fena_feurea') {
+      return [
+        { key: 'na', label: 'S-Natrium', value: sna, setter: setSna, unit: 'mEq/L' },
+        { key: 'creatinine', label: 'S-Kreatinin', value: scr, setter: setScr, unit: 'mg/dL' },
+        { key: 'ureum', label: 'S-Ureum', value: sureum, setter: setSureum, unit: 'mg/dL' },
+      ];
+    }
+    return [];
+  }, [activeTab, age, sex, weight, height, scrVal, scrUnit, sna, scr, sureum]);
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">

@@ -10,6 +10,8 @@ import type { UreaUnit } from '../../utils/sodium';
 import { K_DEFICIT_FACTOR } from '../../utils/electrolytes';
 import { useSettingsStore } from '../../store/settingsStore';
 import { AgUpperNormalField } from '../../components/ui/AgUpperNormalField';
+import { useClinicalStore } from '../../store/useClinicalStore';
+import { bunFromUreum } from '../../utils/clinicalUnits';
 
 interface Props {
   abgInputs: AbgInputs;
@@ -61,11 +63,14 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
   const [uK, setUK] = useState('');
   const [uClU, setUClU] = useState('');
 
+  // Impor dari form AGD di atas + data pasien (K, GDS, ureum yang tidak ada di form AGD).
   const importData = () => {
+    const cs = useClinicalStore.getState().data;
     if (activeTab === 1) {
       if (abgInputs.hco3) setHco3act(abgInputs.hco3);
     } else if (activeTab === 2) {
       if (abgInputs.hco3) setHco3act2(abgInputs.hco3);
+      if (cs.k) setK(cs.k);
     } else if (activeTab === 3) {
       if (abgInputs.ph) setPh3(abgInputs.ph);
       if (abgInputs.pco2) setPco23(abgInputs.pco2);
@@ -75,8 +80,10 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
       if (abgInputs.cl) setCl4(abgInputs.cl);
       if (abgInputs.hco3) setHco3act4(abgInputs.hco3);
       if (abgInputs.alb) setAlb4(abgInputs.alb);
+      if (cs.glukosa) setGlu4(cs.glukosa);
+      if (cs.ureum) setUrea4(ureaUnit4 === 'bun' ? bunFromUreum(cs.ureum) : cs.ureum);
     }
-    if (!abgInputs.ph && !abgInputs.pco2 && !abgInputs.hco3 && !abgInputs.na) {
+    if (!abgInputs.ph && !abgInputs.pco2 && !abgInputs.hco3 && !abgInputs.na && !cs.k && !cs.glukosa && !cs.ureum) {
       alert('Belum ada nilai yang diisi. Isi form ABG di atas.');
     }
   };
@@ -442,7 +449,7 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
 
         <div className="p-4 sm:p-5">
           <button onClick={importData} className="w-full flex items-center justify-center gap-2 py-2.5 px-4 mb-5 rounded-xl border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 transition-colors text-[13px] font-extrabold shadow-sm active:scale-[0.98]">
-            ⬇ Import dari ABG Interpreter di atas
+            ⬇ Import dari AGD di atas &amp; data pasien
           </button>
 
           {activeTab === 1 && renderTab1()}

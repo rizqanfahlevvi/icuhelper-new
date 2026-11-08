@@ -245,16 +245,18 @@ export default function ScoringApache() {
       { key: 'hr' as const, label: 'HR', value: hr, setter: setHr, unit: 'x/menit' },
       { key: 'rr' as const, label: 'RR', value: rr, setter: setRr, unit: 'x/menit' },
       // Clinical store menyimpan FiO₂ dalam PERSEN; APACHE memakai fraksi → konversi dua arah.
-      { key: 'fio2' as const, label: 'FiO2', value: fio2ToPercentString(fio2), setter: (val: string) => setFio2(fio2FromStoreString(val)), unit: '%' },
+      { key: 'fio2' as const, label: 'FiO2', value: fio2ToPercentString(fio2), rawValue: fio2, setter: (val: string) => setFio2(fio2FromStoreString(val)), unit: '%' },
       { key: 'pao2' as const, label: 'PaO2', value: pao2, setter: setPao2, unit: 'mmHg' },
       { key: 'pco2' as const, label: 'PaCO2', value: paco2, setter: setPaco2, unit: 'mmHg' },
       { key: 'ph' as const, label: 'pH', value: ph, setter: setPh, unit: '' },
       { key: 'na' as const, label: 'Natrium', value: na, setter: setNa, unit: 'mEq/L' },
       { key: 'k' as const, label: 'Kalium', value: k, setter: setK, unit: 'mEq/L' },
       { key: 'creatinine' as const, label: 'Kreatinin', value: cr, setter: setCr, unit: 'mg/dL' },
-      { key: 'leukosit' as const, label: 'WBC', value: wbc, setter: setWbc, unit: '10^3/µL' },
+      { key: 'leukosit' as const, label: 'WBC', value: wbc, setter: setWbc, unit: '10³/µL' },
+      { key: 'hematokrit' as const, label: 'Ht', value: hct, setter: setHct, unit: '%' },
+      { key: 'gcs' as const, label: 'GCS', value: gcs, setter: setGcs, unit: '' },
     ];
-  }, [age, temp, map, hr, rr, fio2, pao2, paco2, ph, na, k, cr, wbc]);
+  }, [age, temp, map, hr, rr, fio2, pao2, paco2, ph, na, k, cr, wbc, hct, gcs]);
 
   const handleAutofill = (data: any) => {
     if (data.age && typeof setAge !== 'undefined') setAge(data.age);

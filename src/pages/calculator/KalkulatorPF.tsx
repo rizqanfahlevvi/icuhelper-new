@@ -4,13 +4,13 @@ import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
-import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import {
   RespSupport, SUPPORT_LABEL, ARDS_OTHER_CRITERIA, pfLabel, ardsOxygenation, classifyRespFailure,
 } from '../../utils/oxygenation';
-import { hco3FromHH, Tone } from '../../utils/abg';
+import { hco3FromHH, fio2ToPercentString, Tone } from '../../utils/abg';
 
 // Disamakan dengan modul ABG (utils/oxygenation.ts): klasifikasi Berlin 2012 + Global 2023,
 // gagal napas tipe 1/2 (StatPearls; tipe 2 = PaCO₂ >45 DENGAN pH <7,35), OI tanpa ambang dewasa.
@@ -47,6 +47,7 @@ export default function KalkulatorPF() {
     if (clinicalStore.data.peep) setPeep(clinicalStore.data.peep);
     if (clinicalStore.data.pco2) setPaco2(clinicalStore.data.pco2);
     if (clinicalStore.data.ph) setPh(clinicalStore.data.ph);
+    if (clinicalStore.data.map) setMap(clinicalStore.data.map);
     if (clinicalStore.data.fio2) {
       setFio2DirectMode('percent');
       setFio2(clinicalStore.data.fio2);
@@ -54,13 +55,22 @@ export default function KalkulatorPF() {
     }
   }, []);
 
-  const syncFields = useMemo(() => [
-    { key: 'pao2' as const, label: 'PaO₂', value: pao2, setter: setPao2, unit: 'mmHg' },
-    { key: 'spo2' as const, label: 'SpO₂', value: spo2, setter: setSpo2, unit: '%' },
-    { key: 'peep' as const, label: 'PEEP', value: peep, setter: setPeep, unit: 'cmH₂O' },
-    { key: 'pco2' as const, label: 'PaCO₂', value: paco2, setter: setPaco2, unit: 'mmHg' },
-    { key: 'ph' as const, label: 'pH', value: ph, setter: setPh, unit: '' },
-  ], [pao2, spo2, peep, paco2, ph]);
+  // FiO₂ di store = PERSEN; SpO₂ hanya dari pulse oximetry (bukan SaO₂ AGD).
+  const syncFields = useMemo<SyncField[]>(() => [
+    { key: 'pao2', label: 'PaO₂', value: pao2, setter: setPao2, unit: 'mmHg' },
+    {
+      key: 'fio2', label: 'FiO₂',
+      value: fio2Mode === 'direct' ? fio2ToPercentString(fio2) : '',
+      rawValue: fio2,
+      setter: (v: string) => { setFio2DirectMode('percent'); setFio2(v); setFio2Mode('direct'); },
+      unit: '%',
+    },
+    { key: 'spo2', label: 'SpO₂', value: spo2Source === 'pulse' ? spo2 : '', setter: (v: string) => { setSpo2(v); setSpo2Source('pulse'); }, unit: '%' },
+    { key: 'peep', label: 'PEEP', value: peep, setter: setPeep, unit: 'cmH₂O' },
+    { key: 'pco2', label: 'PaCO₂', value: paco2, setter: setPaco2, unit: 'mmHg' },
+    { key: 'ph', label: 'pH', value: ph, setter: setPh, unit: '' },
+    { key: 'map', label: 'MAP', value: map, setter: setMap, unit: 'mmHg' },
+  ], [pao2, fio2, fio2Mode, spo2, spo2Source, peep, paco2, ph, map]);
 
   const handleAutofill = (data: any) => {
     if (clinicalStore.data.pao2) setPao2(clinicalStore.data.pao2);

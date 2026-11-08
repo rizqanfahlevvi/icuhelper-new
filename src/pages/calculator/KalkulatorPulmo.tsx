@@ -4,7 +4,8 @@ import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
-import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
+import { fio2ToPercentString } from '../../utils/abg';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -152,17 +153,17 @@ export default function KalkulatorPulmo() {
     if (cs.albumin) setScAlbumin(parseFloat(cs.albumin) < 3.5);
     if (cs.ph) setScPh(parseFloat(cs.ph) < 7.35);
     if (cs.hr) setScTachy(parseFloat(cs.hr) >= 125);
-    if (cs.rr) {
-      const rr = parseFloat(cs.rr);
-      const a = age ? parseFloat(age) : 50;
-      setScRr(rr >= (a <= 50 ? 25 : 30));
-    }
-    if (cs.pao2 || cs.spo2) {
-      const a = age ? parseFloat(age) : 50;
-      const p2 = parseFloat(cs.pao2 || '100');
-      const s2 = parseFloat(cs.spo2 || '100');
-      if (a <= 50) setScO2(p2 < 70 || s2 <= 93);
-      else setScO2(p2 < 60 || s2 <= 90);
+    // SMART-COP: ambang RR & oksigenasi bergantung usia (≤50 vs >50 th, Charles 2008).
+    // Tanpa usia → kriteria TIDAK dicentang otomatis (tidak menebak usia).
+    const ageNum = parseFloat(age);
+    if (Number.isFinite(ageNum)) {
+      const young = ageNum <= 50;
+      if (cs.rr) setScRr(parseFloat(cs.rr) >= (young ? 25 : 30));
+      const p2 = parseFloat(cs.pao2 || '');
+      const s2 = parseFloat(cs.spo2 || '');
+      const lowPao2 = Number.isFinite(p2) && p2 < (young ? 70 : 60);
+      const lowSpo2 = Number.isFinite(s2) && s2 <= (young ? 93 : 90);
+      if (Number.isFinite(p2) || Number.isFinite(s2)) setScO2(lowPao2 || lowSpo2);
     }
 
     if (age) setAaAge(age);
@@ -176,16 +177,31 @@ export default function KalkulatorPulmo() {
 
   useEffect(() => { handleAutofill(); }, []);
 
-  const syncFields = useMemo(() => [
-    { key: 'ureum' as const, label: 'Ureum', value: ureumMgdl, setter: (v:string) => handleUreumChange(v,'mgdl'), unit: 'mg/dL' },
-    { key: 'rr' as const, label: 'Resp. Rate', value: curbRr, setter: (v:string) => { setCurbRr(v); setPsiRr(v); }, unit: 'x/mnt' },
-    { key: 'systolic' as const, label: 'TD Sistolik', value: curbSbp, setter: (v:string) => { setCurbSbp(v); setPsiSbp(v); }, unit: 'mmHg' },
-    { key: 'diastolic' as const, label: 'TD Diastolik', value: curbDbp, setter: setCurbDbp, unit: 'mmHg' },
-    { key: 'pco2' as const, label: 'PaCO₂', value: aaPaco2, setter: setAaPaco2, unit: 'mmHg' },
-    { key: 'pao2' as const, label: 'PaO₂', value: aaPao2, setter: (v:string) => { setAaPao2(v); setPsiPao2(v); }, unit: 'mmHg' },
-    { key: 'spo2' as const, label: 'SpO₂', value: psiSpo2, setter: (v:string) => { setPsiSpo2(v); }, unit: '%' },
-    { key: 'ph' as const, label: 'pH', value: psiPh, setter: (v:string) => { setPsiPh(v); }, unit: '' },
-  ], [ureumMgdl, curbRr, curbSbp, curbDbp, aaPaco2, aaPao2, psiSpo2, psiPh]);
+  // Satu set variabel pasien untuk semua tool di halaman ini (CURB-65, PSI, SMART-COP, A-a).
+  const syncFields = useMemo<SyncField[]>(() => [
+    { key: 'age', label: 'Usia', value: psiAge, setter: (v: string) => { setCurbAge(v); setPsiAge(v); setScAge(v); setAaAge(v); }, unit: 'tahun' },
+    { key: 'gender', label: 'JK', value: psiSex, setter: (v: string) => setPsiSex(v === 'f' ? 'f' : 'm'), formatDisplay: (v: string) => (v === 'f' ? 'Perempuan' : 'Laki-laki') },
+    { key: 'ureum', label: 'Ureum', value: ureumMgdl, setter: (v: string) => handleUreumChange(v, 'mgdl'), unit: 'mg/dL' },
+    { key: 'rr', label: 'RR', value: curbRr, setter: (v: string) => { setCurbRr(v); setPsiRr(v); }, unit: 'x/menit' },
+    { key: 'systolic', label: 'TDS', value: curbSbp, setter: (v: string) => { setCurbSbp(v); setPsiSbp(v); }, unit: 'mmHg' },
+    { key: 'diastolic', label: 'TDD', value: curbDbp, setter: setCurbDbp, unit: 'mmHg' },
+    { key: 'hr', label: 'HR', value: psiHr, setter: setPsiHr, unit: 'x/menit' },
+    { key: 'temp', label: 'Suhu', value: psiTemp, setter: setPsiTemp, unit: '°C' },
+    { key: 'na', label: 'Na', value: psiNa, setter: setPsiNa, unit: 'mEq/L' },
+    { key: 'glukosa', label: 'GDS', value: psiGlucose, setter: setPsiGlucose, unit: 'mg/dL' },
+    { key: 'hematokrit', label: 'Ht', value: psiHct, setter: setPsiHct, unit: '%' },
+    { key: 'pco2', label: 'PaCO₂', value: aaPaco2, setter: setAaPaco2, unit: 'mmHg' },
+    { key: 'pao2', label: 'PaO₂', value: aaPao2, setter: (v: string) => { setAaPao2(v); setPsiPao2(v); }, unit: 'mmHg' },
+    { key: 'spo2', label: 'SpO₂', value: psiSpo2, setter: setPsiSpo2, unit: '%' },
+    { key: 'ph', label: 'pH', value: psiPh, setter: setPsiPh, unit: '' },
+    {
+      key: 'fio2', label: 'FiO₂',
+      value: fio2ToPercentString(aaFio2Raw),
+      rawValue: aaFio2Raw,
+      setter: (v: string) => { setAaFio2Mode('percent'); setAaFio2Raw(v); },
+      unit: '%',
+    },
+  ], [psiAge, psiSex, ureumMgdl, curbRr, curbSbp, curbDbp, psiHr, psiTemp, psiNa, psiGlucose, psiHct, aaPaco2, aaPao2, psiSpo2, psiPh, aaFio2Raw]);
 
   const atsResult = useMemo(() => {
     const isMajor = atsInvasive || atsShock;
