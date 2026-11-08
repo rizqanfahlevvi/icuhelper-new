@@ -10,31 +10,49 @@ import { InputWarning } from '../../components/ui/InputWarning';
 import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { calcBmi, calcIbw } from '../../utils/anthropometry';
+import {
+  fluidRequirement, fluidOverloadFromBalance, IWL_ML_PER_KG_DAY, SWEAT_EXTRA_ML, FEVER_THRESHOLD_C,
+  type VentMode, type SweatLevel, type FluidRequirementResult,
+} from '../../utils/fluids';
 
-const ROSE_DATA: Record<string, any> = {
+interface RosePhase {
+  label: string; colorText: string; bgBorder: string;
+  /** Arah balans menurut konsep ROSE (Malbrain 2018). */
+  direction: string;
+  /** Contoh rentang praktis — BUKAN ambang dari Malbrain 2018. */
+  target: string; targetMin: number; targetMax: number;
+  desc: string; hint: string;
+}
+
+const ROSE_DATA: Record<string, RosePhase> = {
   R: {
     label: '🔴 Resuscitation', colorText: 'text-red-600 dark:text-red-400', bgBorder: 'border-red-500 bg-red-500/5',
+    direction: 'Positif — cairan diberikan selama masih responsif (fluid-responsive)',
     target: '+500 s/d +1.500 mL/24 jam', targetMin: 500, targetMax: 1500,
-    desc: 'Tujuan: pulihkan perfusi organ, atasi shock. Berikan bolus cairan terukur (250–500 mL kristaloid isotonik) dan nilai ulang setiap pemberian.',
+    desc: 'Tujuan: pulihkan perfusi organ, atasi syok. Berikan bolus/fluid challenge terukur (kristaloid isotonik; volume minimal yang bermakna ≈4 mL/kg) dan nilai ulang respons setiap pemberian.',
     hint: 'Hentikan resusitasi jika tidak ada fluid responsiveness. Positive balance terbatas dan terukur.'
   },
   O: {
     label: '🟠 Optimization', colorText: 'text-orange-600 dark:text-orange-400', bgBorder: 'border-orange-500 bg-orange-500/5',
+    direction: 'Hentikan akumulasi — cairan hanya bila indeks responsivitas masih positif',
     target: '0 s/d +500 mL/24 jam', targetMin: 0, targetMax: 500,
-    desc: 'Tujuan: fine-tune perfusi organ, titrasi vasopresor/inotropik, optimalkan preload.',
-    hint: 'Hindari volume loading berlebih. Gunakan parameter dinamik (PLR, PPV, SVV, IVC). Balance mendekati nol.'
+    desc: 'Tujuan: fine-tune perfusi organ, titrasi vasopresor/inotropik. Pertanyaan kunci fase ini: kapan BERHENTI memberi cairan.',
+    hint: 'Hindari volume loading berlebih. Gunakan parameter dinamik (PLR, PPV, SVV, end-expiratory occlusion).'
   },
   S: {
     label: '🟢 Stabilization', colorText: 'text-emerald-600 dark:text-emerald-400', bgBorder: 'border-emerald-500 bg-emerald-500/5',
+    direction: 'Netral — hanya maintenance + penggantian kehilangan yang berlanjut',
     target: '±0 mL (net zero)', targetMin: -200, targetMax: 300,
-    desc: 'Tujuan: pertahankan organ perfusion dengan cairan maintenance saja.',
-    hint: 'Ganti kehilangan terukur. Prioritas: jangan tambah positive balance. Evaluasi kesiapan Evacuation.'
+    desc: 'Tujuan: cairan hanya untuk maintenance (kehilangan normal ginjal, GI, insensible) dan replacement kehilangan patologis yang berlanjut.',
+    hint: 'Hitung cairan tersembunyi (obat, flush, nutrisi) — bisa >1 L/hari. Bila kebutuhan sudah terpenuhi lewat nutrisi/obat, hentikan cairan maintenance IV.'
   },
   E: {
     label: '🔵 Evacuation', colorText: 'text-blue-600 dark:text-blue-400', bgBorder: 'border-blue-500 bg-blue-500/5',
+    direction: 'Negatif — de-resusitasi (diuretik / ultrafiltrasi)',
     target: '−500 s/d −1.500 mL/24 jam', targetMin: -1500, targetMax: -500,
-    desc: 'Tujuan: mobilisasi dan eliminasi kelebihan cairan. Indikasi: FO >10% BB baseline.',
-    hint: 'Strategi: furosemid IV, pembatasan input, CRRT jika gagal ginjal. Target negative balance bertahap.'
+    desc: 'Tujuan: mobilisasi dan eliminasi kelebihan cairan. Fluid overload didefinisikan ≥10% akumulasi cairan terhadap BB basal.',
+    hint: 'Strategi: furosemid IV, pembatasan input, RRT dengan ultrafiltrasi bila perlu. Hindari terlalu agresif (risiko hipoperfusi) — uji responsivitas preload dapat menjadi batas.'
   }
 };
 
@@ -45,19 +63,20 @@ export default function KalkulatorKebutuhanCairan() {
   // Box 1
   const [bw, setBw] = useState('');
   const [targetMaint, setTargetMaint] = useState('25');
-  const [b1Res, setB1Res] = useState<any>(null);
+  const [b1Res, setB1Res] = useState<{ icuDay: number; icuHr: number; hs: number; diff: number; diffPct: number } | null>(null);
 
   // Box 2
   const [rose, setRose] = useState<string | null>(null);
   // Kosong = normotermi (perhitungan memakai 37 °C, tanpa koreksi demam) — bukan nilai pasien buatan.
   const [temp, setTemp] = useState('');
-  const [vent, setVent] = useState('spontan');
-  const [sweat, setSweat] = useState('none');
+  const [vent, setVent] = useState<VentMode>('spontan');
+  const [sweat, setSweat] = useState<SweatLevel>('none');
+  // Target UO = target PEMANTAUAN, tidak ditambahkan ke kebutuhan cairan.
   const [uoTgt, setUoTgt] = useState('0.5');
   const [ngt, setNgt] = useState('');
   const [drain, setDrain] = useState('');
   const [other, setOther] = useState('');
-  const [b2Res, setB2Res] = useState<any>(null);
+  const [b2Res, setB2Res] = useState<FluidRequirementResult | null>(null);
 
   // Box 3 - Cumulative
   const [cumbalDays, setCumbalDays] = useState(['', '', '', '', '', '', '']);
@@ -121,37 +140,39 @@ export default function KalkulatorKebutuhanCairan() {
     setB1Res({ icuDay, icuHr, hs, diff, diffPct });
   };
 
+  // Pendekatan A (NICE CG174 / Malbrain 2018): total = maintenance + kehilangan ABNORMAL.
+  // IWL dasar & target UO sudah tercakup dalam maintenance → hanya ditampilkan sebagai informasi.
   const calcCorrection = () => {
+    const r = fluidRequirement({
+      weightKg: parseFloat(bw),
+      maintPerKg: parseInt(targetMaint) || 25,
+      tempC: temp === '' ? undefined : parseFloat(temp),
+      vent,
+      sweat,
+      uoTargetMlKgH: parseFloat(uoTgt),
+      ngtMl: parseFloat(ngt),
+      drainMl: parseFloat(drain),
+      otherMl: parseFloat(other),
+    });
+    setB2Res(r);
+  };
+
+  // Catatan NICE CG174 untuk obesitas & volume besar (butuh TB; BBI butuh JK).
+  const niceNotes = (totalMl: number | null): string[] => {
+    const notes: string[] = [];
     const w = parseFloat(bw);
-    const tm = parseFloat(temp) || 37;
-    const ut = parseFloat(uoTgt) || 0.5;
-    const n = parseFloat(ngt) || 0;
-    const d = parseFloat(drain) || 0;
-    const o = parseFloat(other) || 0;
-
-    if (!w) return;
-
-    const t = parseInt(targetMaint) || 25;
-    const maint = w * t;
-
-    let iwlBase;
-    if (vent === 'ventilator') iwlBase = w * 6.5;
-    else if (vent === 'hfnc') iwlBase = w * 9;
-    else iwlBase = w * 12;
-
-    let tempCorr = 0;
-    const tDelta = tm - 37.5;
-    if (tDelta > 0) tempCorr = maint * 0.10 * tDelta;
-
-    const sMap: any = { none: 0, mild: 200, moderate: 500, severe: 900 };
-    const sweatCorr = sMap[sweat] || 0;
-
-    const iwlTotal = iwlBase + tempCorr + sweatCorr;
-    const uoDay = ut * w * 24;
-
-    const total = maint + iwlTotal + uoDay + n + d + o;
-
-    setB2Res({ maint, iwlBase, tempCorr, sweatCorr, iwlTotal, uoDay, n, d, o, total });
+    const h = parseFloat(patient.heightCm || '');
+    if (w > 0 && h > 0) {
+      const bmi = calcBmi(w, h);
+      if (bmi >= 30) {
+        const ibwTxt = patient.gender === 'L' || patient.gender === 'P'
+          ? ` (BBI ≈ ${calcIbw(h, patient.gender === 'P').toFixed(1)} kg → ${(calcIbw(h, patient.gender === 'P') * (parseInt(targetMaint) || 25)).toFixed(0)} mL/hari pada ${targetMaint} mL/kg)`
+          : ' (isi jenis kelamin pasien untuk menghitung BBI)';
+        notes.push(`IMT ${bmi.toFixed(1)} kg/m² — NICE CG174: pada pasien obes, resepkan berdasarkan BB ideal${ibwTxt} dengan rentang per-kg bawah; jarang butuh >3 L/hari total.${bmi > 40 ? ' IMT >40 → konsultasikan ke ahli.' : ''}`);
+      }
+    }
+    if (totalMl !== null && totalMl > 2500) notes.push('NICE CG174: meresepkan >2,5 L/hari meningkatkan risiko hiponatremia — pantau Na serum.');
+    return notes;
   };
 
   const calcCumulative = () => {
@@ -187,7 +208,9 @@ export default function KalkulatorKebutuhanCairan() {
         msg = `Balans kumulatif ${cumL.toFixed(1)} L (≥10 L). Berhubungan dengan mortalitas signifikan. Intervensi aktif: furosemid IV kontinu, pertimbangkan CRRT.`;
     }
 
-    setCumbalRes({ history: history.filter(h => h !== null), cumulative, avgBalance, color, label, msg, days: filledDays.length });
+    const baseKg = parseFloat(foDry) || parseFloat(bw);
+    const foPct = fluidOverloadFromBalance(cumulative, baseKg);
+    setCumbalRes({ history: history.filter(h => h !== null), cumulative, avgBalance, color, label, msg, days: filledDays.length, foPct, baseKg });
   };
 
   const calcFluidOverload = () => {
@@ -215,7 +238,7 @@ export default function KalkulatorKebutuhanCairan() {
     } else if (foPercent < 15) {
         color = 'text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-800'; label = 'Overload Sedang (FO 10–15%) ⚠️';
         msg = 'Melebihi threshold 10% — indikasi fase Evacuation aktif. Pertimbangkan diuretik furosemid IV.';
-        hint = '→ Masuk fase 🔵 E (Evacuation). Target balans negatif −500 s/d −1.500 mL/hari.';
+        hint = '→ Masuk fase 🔵 E (Evacuation). Contoh target praktis: balans negatif −500 s/d −1.500 mL/hari.';
     } else {
         color = 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-800'; label = 'Overload Berat (FO ≥15%) 🚨';
         msg = 'Overload berat — risiko edema paru, ARDS, disfungsi organ. Intervensi segera diperlukan.';
@@ -239,7 +262,7 @@ export default function KalkulatorKebutuhanCairan() {
         msg = 'Pertimbangkan pembatasan input dan evaluasi kebutuhan diuretik.';
     } else if (balance >= -500) {
         color = 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-800'; label = 'Balance Netral / Euvolemia';
-        msg = 'Fluid balance dalam rentang target (–500 s/d +1.000 mL). Pertahankan.';
+        msg = 'Fluid balance dalam rentang pedoman praktis (–500 s/d +1.000 mL). Sesuaikan dengan fase ROSE.';
     } else if (balance >= -1500) {
         color = 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-800'; label = 'Balance Negatif (De-resusitasi)';
         msg = 'Balance negatif ringan-sedang — dapat diterima pada fase Evacuation.';
@@ -285,10 +308,10 @@ export default function KalkulatorKebutuhanCairan() {
               value={targetMaint} 
               onChange={e => setTargetMaint(e.target.value)}
             >
-              <option value="20">20 mL/kg/hari (Restriksi)</option>
-              <option value="25">25 mL/kg/hari (Standar)</option>
-              <option value="30">30 mL/kg/hari (Liberal)</option>
-              <option value="35">35 mL/kg/hari (Tinggi)</option>
+              <option value="20">20 mL/kg/hari (rendah: lansia/rapuh, ginjal, jantung)</option>
+              <option value="25">25 mL/kg/hari (NICE batas bawah)</option>
+              <option value="30">30 mL/kg/hari (NICE batas atas)</option>
+              <option value="35">35 mL/kg/hari (di atas rentang NICE)</option>
             </select>
           </div>
         </div>
@@ -307,7 +330,7 @@ export default function KalkulatorKebutuhanCairan() {
               </h2>
               <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 grid grid-cols-2">
                 <div className="p-4 flex flex-col items-center justify-center text-center bg-blue-50/50 dark:bg-blue-900/10">
-                  <div className="text-[12px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1">Restriksi Rasional</div>
+                  <div className="text-[12px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1">Maintenance (NICE)</div>
                   <div className="font-mono text-2xl font-bold text-blue-700 dark:text-blue-300">
                     {b1Res.icuDay.toFixed(0)} <span className="text-[11px] font-sans font-medium text-blue-600/70 dark:text-blue-400/70">mL/hari</span>
                   </div>
@@ -326,9 +349,9 @@ export default function KalkulatorKebutuhanCairan() {
                   tone="blue"
                   steps={[
                     {
-                      label: 'Langkah 1 — Restriksi rasional ICU (NICE/CLASSIC):',
+                      label: 'Langkah 1 — Maintenance dewasa (NICE CG174):',
                       formula: `Basal = target × BB = ${targetMaint} × ${bw} = ${b1Res.icuDay.toFixed(0)} mL/hari\nLaju = ${b1Res.icuDay.toFixed(0)} ÷ 24 = ${b1Res.icuHr.toFixed(1)} mL/jam`,
-                      note: 'NICE: 25-30 mL/kg/hari untuk maintenance dewasa; pasien ICU cenderung lebih restriktif (CLASSIC trial).',
+                      note: 'NICE: 25–30 mL/kg/hari air; pertimbangkan 20–25 mL/kg/hari pada lansia/rapuh, gangguan ginjal, gagal jantung, malnutrisi/risiko refeeding. Sudah mencakup kehilangan normal (urine + IWL).',
                     },
                     {
                       label: 'Langkah 2 — Pembanding Holliday-Segar (4-2-1):',
@@ -341,9 +364,10 @@ export default function KalkulatorKebutuhanCairan() {
                       note: `Selisih vs restriksi ICU: ${b1Res.diff.toFixed(0)} mL (${b1Res.diffPct}%) — Holliday-Segar dirancang untuk pediatri/pasien stabil, cenderung berlebih untuk dewasa kritis.`,
                     },
                   ]}
-                  footer="Ini baru maintenance basal — kebutuhan total (IWL, demam, output ekstra) dihitung di bagian Faktor Koreksi di bawah."
+                  footer="Ini baru maintenance basal — tambahan untuk kehilangan abnormal (demam, diaforesis, NGT/drain) dihitung di bagian Faktor Koreksi di bawah."
                 />
               </div>
+              <div className="mt-3"><InputWarning messages={niceNotes(null)} /></div>
               <div className="mt-3">
                 <SaveToHistoryButton
                   module="cairan_basal"
@@ -381,8 +405,9 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
           {rose && (
             <div className={`p-3 rounded-xl border text-sm ${ROSE_DATA[rose].bgBorder} ${ROSE_DATA[rose].colorText}`}>
-              <div className="font-bold mb-1">Target Balans: {ROSE_DATA[rose].target}</div>
+              <div className="font-bold mb-1">Arah balans: {ROSE_DATA[rose].direction}</div>
               <p className="text-[12px] opacity-90 leading-relaxed">{ROSE_DATA[rose].desc}</p>
+              <p className="text-[11px] opacity-80 leading-relaxed mt-1">Contoh rentang praktis: {ROSE_DATA[rose].target} — bukan ambang baku dari Malbrain 2018.</p>
             </div>
           )}
         </div>
@@ -403,10 +428,10 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
 
           <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Status Ventilasi</span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Status Ventilasi <span className="font-normal text-slate-500">(info IWL)</span></span>
             <select 
               className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
-              value={vent} onChange={e => setVent(e.target.value)}
+              value={vent} onChange={e => setVent(e.target.value as VentMode)}
             >
               <option value="spontan">Napas spontan</option>
               <option value="ventilator">Ventilator mekanik</option>
@@ -418,17 +443,17 @@ export default function KalkulatorKebutuhanCairan() {
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Diaphoresis</span>
             <select 
               className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
-              value={sweat} onChange={e => setSweat(e.target.value)}
+              value={sweat} onChange={e => setSweat(e.target.value as SweatLevel)}
             >
               <option value="none">Tidak ada</option>
-              <option value="mild">Ringan (+200 mL)</option>
-              <option value="moderate">Sedang (+500 mL)</option>
-              <option value="severe">Berat (+900 mL)</option>
+              <option value="mild">Ringan (+{SWEAT_EXTRA_ML.mild} mL, estimasi)</option>
+              <option value="moderate">Sedang (+{SWEAT_EXTRA_ML.moderate} mL, estimasi)</option>
+              <option value="severe">Berat (+{SWEAT_EXTRA_ML.severe} mL, estimasi)</option>
             </select>
           </div>
 
           <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target UO</span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target UO <span className="font-normal text-slate-500">(pantau)</span></span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input 
                 type="number" step="0.1"
@@ -442,7 +467,7 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
 
           <div className="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-[#1C1C1E]">
-            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-300 select-none">Output Ekstra (mL/hari)</span>
+            <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-300 select-none">Kehilangan Abnormal Terukur (mL/hari)</span>
           </div>
 
           <div className="flex items-center justify-between px-4 py-3 gap-4">
@@ -490,14 +515,16 @@ export default function KalkulatorKebutuhanCairan() {
               <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
                 <div className="p-4 bg-slate-50 dark:bg-[#2C2C2E]">
                   <div className="space-y-1.5 mb-2">
-                    <div className="flex justify-between text-[13px] text-slate-700 dark:text-slate-300"><span>Maintenance Basal</span><span className="font-mono text-slate-700 dark:text-slate-300">{b2Res.maint.toFixed(0)} mL</span></div>
-                    <div className="flex justify-between text-[13px] text-slate-700 dark:text-slate-300"><span>IWL Base</span><span className="font-mono text-slate-700 dark:text-slate-300">{b2Res.iwlBase.toFixed(0)} mL</span></div>
-                    {b2Res.tempCorr > 0 && <div className="flex justify-between text-[13px] font-medium text-slate-700 dark:text-slate-200"><span>Koreksi Suhu</span><span className="font-mono text-amber-500">+{b2Res.tempCorr.toFixed(0)} mL</span></div>}
-                    {b2Res.sweatCorr > 0 && <div className="flex justify-between text-[13px] font-medium text-slate-700 dark:text-slate-200"><span>Diaphoresis</span><span className="font-mono text-amber-500">+{b2Res.sweatCorr.toFixed(0)} mL</span></div>}
-                    <div className="flex justify-between text-[13px] text-slate-700 dark:text-slate-300"><span>Target UO</span><span className="font-mono text-slate-700 dark:text-slate-300">{b2Res.uoDay.toFixed(0)} mL</span></div>
-                    {(b2Res.n > 0 || b2Res.d > 0 || b2Res.o > 0) && (
-                      <div className="flex justify-between text-[13px] font-medium border-t border-slate-200 dark:border-slate-700 pt-2 mt-2 text-slate-700 dark:text-slate-200"><span>Output Ekstra</span><span className="font-mono">{(b2Res.n + b2Res.d + b2Res.o).toFixed(0)} mL</span></div>
+                    <div className="flex justify-between text-[13px] text-slate-700 dark:text-slate-300"><span>Maintenance (termasuk urine & IWL normal)</span><span className="font-mono text-slate-700 dark:text-slate-300">{b2Res.maint.toFixed(0)} mL</span></div>
+                    {b2Res.feverExtra > 0 && <div className="flex justify-between text-[13px] font-medium text-slate-700 dark:text-slate-200"><span>+ Demam (estimasi)</span><span className="font-mono text-amber-600 dark:text-amber-400">+{b2Res.feverExtra.toFixed(0)} mL</span></div>}
+                    {b2Res.sweatExtra > 0 && <div className="flex justify-between text-[13px] font-medium text-slate-700 dark:text-slate-200"><span>+ Diaforesis (estimasi)</span><span className="font-mono text-amber-600 dark:text-amber-400">+{b2Res.sweatExtra.toFixed(0)} mL</span></div>}
+                    {b2Res.measuredLosses > 0 && (
+                      <div className="flex justify-between text-[13px] font-medium text-slate-700 dark:text-slate-200"><span>+ Kehilangan abnormal terukur</span><span className="font-mono">+{b2Res.measuredLosses.toFixed(0)} mL</span></div>
                     )}
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 text-[11.5px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Tidak dijumlahkan (sudah tercakup maintenance): IWL dasar ≈ {b2Res.iwlBaseInfo.toFixed(0)} mL/hari (estimasi).
+                    {b2Res.uoTargetMlH !== null && <> Target UO ≥ {b2Res.uoTargetMlH.toFixed(0)} mL/jam (≈ {b2Res.uoTargetMlDay?.toFixed(0)} mL/hari) — target pemantauan, bukan cairan tambahan.</>}
                   </div>
                 </div>
                 
@@ -507,42 +534,54 @@ export default function KalkulatorKebutuhanCairan() {
                     {b2Res.total.toFixed(0)} <span className="text-[14px] text-indigo-500/70 font-sans font-medium">mL/hari</span>
                   </div>
                   <div className="text-[13px] text-indigo-600/80 dark:text-indigo-400/80 font-medium mt-1">Rate infus tunggal: {(b2Res.total/24).toFixed(1)} mL/jam</div>
-                  <div className="text-[11px] text-indigo-600/70 dark:text-indigo-400/70 font-medium mt-1">Total per kgBB: {(b2Res.total/parseFloat(bw)).toFixed(1)} mL/kg/hari</div>
+                  <div className="text-[11px] text-indigo-600/70 dark:text-indigo-400/70 font-medium mt-1">Total per kgBB: {b2Res.perKgDay.toFixed(1)} mL/kg/hari</div>
                 </div>
               </div>
               <div className="mt-3">
                 <CalcSteps
                   tone="blue"
-                  steps={[
-                    {
-                      label: 'Langkah 1 — Maintenance basal:',
-                      formula: `Maintenance = ${targetMaint} mL/kg × ${bw} kg = ${b2Res.maint.toFixed(0)} mL/hari`,
-                    },
-                    {
-                      label: 'Langkah 2 — Insensible Water Loss (IWL):',
-                      formula: `IWL dasar = ${vent === 'ventilator' ? '6.5' : vent === 'hfnc' ? '9' : '12'} mL/kg × ${bw} = ${b2Res.iwlBase.toFixed(0)} mL` +
-                        (b2Res.tempCorr > 0 ? `\n+ Demam: 10% maintenance per °C di atas 37.5 = +${b2Res.tempCorr.toFixed(0)} mL` : '') +
-                        (b2Res.sweatCorr > 0 ? `\n+ Diaphoresis = +${b2Res.sweatCorr.toFixed(0)} mL` : '') +
-                        `\nIWL total = ${b2Res.iwlTotal.toFixed(0)} mL`,
-                      note: 'Ventilator menurunkan IWL (gas sudah dilembapkan); napas spontan ~12 mL/kg/hari.',
-                    },
-                    {
-                      label: 'Langkah 3 — Penggantian urine output target:',
-                      formula: `UO = ${uoTgt} mL/kg/jam × ${bw} kg × 24 = ${b2Res.uoDay.toFixed(0)} mL/hari`,
-                    },
-                    ...((b2Res.n > 0 || b2Res.d > 0 || b2Res.o > 0) ? [{
-                      label: 'Langkah 4 — Output ekstra terukur:',
-                      formula: `NGT ${b2Res.n} + drain ${b2Res.d} + lainnya ${b2Res.o} = ${(b2Res.n + b2Res.d + b2Res.o).toFixed(0)} mL`,
-                    }] : []),
-                    {
-                      label: `Langkah ${(b2Res.n > 0 || b2Res.d > 0 || b2Res.o > 0) ? 5 : 4} — Total kebutuhan 24 jam:`,
-                      formula: `Total = ${b2Res.maint.toFixed(0)} + ${b2Res.iwlTotal.toFixed(0)} + ${b2Res.uoDay.toFixed(0)}${(b2Res.n + b2Res.d + b2Res.o) > 0 ? ` + ${(b2Res.n + b2Res.d + b2Res.o).toFixed(0)}` : ''} = ${b2Res.total.toFixed(0)} mL/hari\nLaju = ${b2Res.total.toFixed(0)} ÷ 24 = ${(b2Res.total / 24).toFixed(1)} mL/jam`,
-                      note: 'Kurangi input lain yang sudah berjalan (obat drip, nutrisi enteral/TPN) dari laju infus tunggal ini.',
-                    },
-                  ]}
+                  steps={(() => {
+                    const r = b2Res;
+                    const hasExtra = r.feverExtra > 0 || r.sweatExtra > 0;
+                    const hasLoss = r.measuredLosses > 0;
+                    const parts = [r.maint, ...(r.feverExtra > 0 ? [r.feverExtra] : []), ...(r.sweatExtra > 0 ? [r.sweatExtra] : []), ...(hasLoss ? [r.measuredLosses] : [])];
+                    let n = 1;
+                    return [
+                      {
+                        label: `Langkah ${n++} — Maintenance (NICE CG174):`,
+                        formula: `Maintenance = ${targetMaint} mL/kg × ${bw} kg = ${r.maint.toFixed(0)} mL/hari`,
+                        note: 'Sudah mencakup kehilangan normal: urine obligat + insensible water loss (Malbrain 2018: maintenance menutup kehilangan normal ginjal, GI, insensible).',
+                      },
+                      ...(hasExtra ? [{
+                        label: `Langkah ${n++} — Tambahan demam / diaforesis (estimasi praktis):`,
+                        formula: [
+                          r.feverExtra > 0 ? `Demam: ${r.maint.toFixed(0)} × 10% × (${temp} − ${FEVER_THRESHOLD_C}) = +${r.feverExtra.toFixed(0)} mL` : '',
+                          r.sweatExtra > 0 ? `Diaforesis (${sweat === 'mild' ? 'ringan' : sweat === 'moderate' ? 'sedang' : 'berat'}) = +${r.sweatExtra.toFixed(0)} mL` : '',
+                        ].filter(Boolean).join('\n'),
+                        note: 'Konstanta (10%/°C di atas 37,5 °C; diaforesis 200/500/900 mL) = estimasi praktis, tidak tersumber guideline — validasi dengan balans & BB harian.',
+                      }] : []),
+                      ...(hasLoss ? [{
+                        label: `Langkah ${n++} — Kehilangan abnormal terukur (replacement):`,
+                        formula: `NGT ${r.ngt} + drain ${r.drain} + lainnya ${r.other} = ${r.measuredLosses.toFixed(0)} mL`,
+                        note: 'Ganti sesuai volume DAN komposisi cairan yang hilang (NICE CG174; mis. cairan lambung kaya klorida).',
+                      }] : []),
+                      {
+                        label: `Langkah ${n++} — Total kebutuhan 24 jam:`,
+                        formula: `Total = ${parts.map(v => v.toFixed(0)).join(' + ')} = ${r.total.toFixed(0)} mL/hari\nLaju = ${r.total.toFixed(0)} ÷ 24 = ${r.rateMlH.toFixed(1)} mL/jam`,
+                        note: 'Kurangi input lain yang sudah berjalan (obat drip, flush, nutrisi enteral/TPN) — cairan "tersembunyi" bisa >1 L/hari (Malbrain 2018).',
+                      },
+                      {
+                        label: 'Tidak dijumlahkan (mencegah hitung ganda):',
+                        formula: `IWL dasar ≈ ${IWL_ML_PER_KG_DAY[vent]} mL/kg × ${bw} kg = ${r.iwlBaseInfo.toFixed(0)} mL/hari (estimasi; bagian dari maintenance)` +
+                          (r.uoTargetMlH !== null ? `\nTarget UO = ${uoTgt} mL/kg/jam × ${bw} kg = ${r.uoTargetMlH.toFixed(0)} mL/jam (target pemantauan)` : ''),
+                        note: 'Versi lama menambahkan IWL dan target UO di atas maintenance sehingga kebutuhan terhitung ganda (≈2× lipat).',
+                      },
+                    ];
+                  })()}
                   footer="Estimasi kebutuhan — sesuaikan dengan fase ROSE, balans harian aktual, dan status volume klinis."
                 />
               </div>
+              <div className="mt-3"><InputWarning messages={niceNotes(b2Res.total)} /></div>
               <div className="mt-3">
                 <SaveToHistoryButton
                   module="total_cairan"
@@ -594,7 +633,13 @@ export default function KalkulatorKebutuhanCairan() {
             <div className={`p-4 rounded-xl border ${cumbalRes.color}`}>
               <div className="font-bold mb-1 text-sm">{cumbalRes.label}</div>
               <div className="text-2xl font-bold font-mono my-2">{cumbalRes.cumulative >= 0 ? '+' : ''}{cumbalRes.cumulative} mL</div>
-              <p className="text-[12px] opacity-90 leading-relaxed mb-3">{cumbalRes.msg}</p>
+              <p className="text-[12px] opacity-90 leading-relaxed mb-1">{cumbalRes.msg}</p>
+              {cumbalRes.foPct !== null && (
+                <p className="text-[12px] font-semibold leading-relaxed mb-1">
+                  Akumulasi cairan = {(cumbalRes.cumulative / 1000).toFixed(2)} L ÷ {cumbalRes.baseKg} kg × 100 = {cumbalRes.foPct.toFixed(1)}%{cumbalRes.foPct >= 10 ? ' → memenuhi definisi fluid overload (≥10%)' : ''}
+                </p>
+              )}
+              <p className="text-[11px] opacity-75 leading-relaxed mb-3">Ambang 2/5/10 L = pedoman praktis (bukan ambang baku). Definisi fluid overload: akumulasi ≥10% BB basal (Bouchard 2009; Malbrain 2018).</p>
               
               <div className="space-y-1.5 pt-3 border-t border-black/10 dark:border-white/10">
                 {cumbalRes.history.map((h: any) => (
@@ -672,6 +717,7 @@ export default function KalkulatorKebutuhanCairan() {
               </div>
               <p className="text-[12px] opacity-90 leading-relaxed font-medium mb-1">{foRes.msg}</p>
               <p className="text-[11px] opacity-80 leading-relaxed">{foRes.hint}</p>
+              <p className="text-[11px] opacity-70 leading-relaxed mt-1">Ambang 10% tersumber (Bouchard 2009: FO &gt;10% kenaikan BB dari basal berhubungan independen dengan mortalitas pada AKI); batas 5% & 15% = pembagian praktis.</p>
               <div className="mt-4">
                 <SaveToHistoryButton 
                   module="fluid_overload" 
@@ -764,13 +810,14 @@ export default function KalkulatorKebutuhanCairan() {
               </div>
 
               <p className="text-[12px] opacity-90 leading-relaxed font-medium mb-1">{fbRes.msg}</p>
+              <p className="text-[11px] opacity-75 leading-relaxed">Kategori &gt;2 L / 1–2 L / −500 s/d +1.000 mL = pedoman praktis. Malbrain 2018: balans harian positif yang menetap berhubungan dengan mortalitas lebih tinggi; dua hari berturut-turut balans negatif pada minggu pertama ICU merupakan prediktor kesintasan.</p>
 
               {rose && (
                 <div className={`mt-3 p-2 rounded border text-[11px] ${ROSE_DATA[rose].bgBorder} ${ROSE_DATA[rose].colorText}`}>
-                  Fase saat ini: <strong>{ROSE_DATA[rose].label}</strong> (Target: {ROSE_DATA[rose].target})<br/>
+                  Fase saat ini: <strong>{ROSE_DATA[rose].label}</strong> — arah: {ROSE_DATA[rose].direction}<br/>
                   {fbRes.balance >= ROSE_DATA[rose].targetMin && fbRes.balance <= ROSE_DATA[rose].targetMax 
-                    ? <span className="font-bold">✓ Sesuai target fase.</span> 
-                    : <span className="font-bold">✗ Di luar target fase.</span>}
+                    ? <span className="font-bold">✓ Dalam contoh rentang praktis ({ROSE_DATA[rose].target}).</span> 
+                    : <span className="font-bold">✗ Di luar contoh rentang praktis ({ROSE_DATA[rose].target}) — nilai klinis.</span>}
                 </div>
               )}
               
@@ -790,15 +837,21 @@ export default function KalkulatorKebutuhanCairan() {
 
       <Accordion title="📖 Teori & Referensi: Terapi Cairan & IWL">
         <ul className="pl-4 space-y-2 list-disc text-slate-600 dark:text-slate-400 text-sm">
-          <li><strong className="text-slate-800 dark:text-slate-200">ROSE Concept:</strong> 4 fase resusitasi cairan menurut Malbrain et al. (2018): Resuscitation, Optimization, Stabilization, dan Evacuation. Setiap fase memiliki target balans cairan yang berbeda.</li>
-          <li><strong className="text-slate-800 dark:text-slate-200">Maintenance Cairan:</strong> Panduan NICE menyarankan 25-30 mL/kg/hari untuk Maintenance pasien dewasa normal. Pada ICU (CLASSIC trial), restriksi lebih baik.</li>
-          <li><strong className="text-slate-800 dark:text-slate-200">Fluid Overload:</strong> FO &gt;10% berhubungan dengan mortalitas (Sutherland et al., 2010). Segera inisiasi fase Evacuation.</li>
-          <li><strong className="text-slate-800 dark:text-slate-200">Cumulative Balance:</strong> Balans positif berkepanjangan meningkatkan mortalitas (Sakr et al., 2017).</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Konsep ROSE:</strong> 4 fase terapi cairan (Malbrain 2018): Resuscitation, Optimization, Stabilization, Evacuation — tiap fase menuntut sikap berbeda, menjawab 4 pertanyaan: kapan mulai cairan, kapan berhenti, kapan mulai de-resusitasi, kapan berhenti de-resusitasi. Rentang mL per fase di aplikasi ini adalah contoh praktis, bukan ambang dari makalah tersebut.</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Maintenance:</strong> NICE CG174: 25–30 mL/kg/hari air, ±1 mmol/kg/hari K⁺, Na⁺, Cl⁻, dan 50–100 g/hari glukosa; pertimbangkan 20–25 mL/kg/hari pada lansia/rapuh, gangguan ginjal, gagal jantung, malnutrisi/risiko refeeding. Pasien obes: pakai BB ideal, jarang butuh &gt;3 L/hari. &gt;2,5 L/hari meningkatkan risiko hiponatremia.</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Tanpa hitung ganda:</strong> maintenance sudah menutup kehilangan normal (urine + IWL). Yang ditambahkan hanya kehilangan abnormal yang berlanjut (replacement), idealnya sesuai volume dan komposisinya.</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Restriktif vs standar:</strong> CLASSIC (2022, syok septik di ICU) — mortalitas 90 hari 42,3% vs 42,1% (tidak berbeda); CLOVERS (2023, hipotensi akibat sepsis) — 14,0% vs 14,9% (tidak berbeda). Restriksi aman tetapi tidak terbukti menurunkan mortalitas.</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Fluid overload:</strong> akumulasi &gt;10% dari BB basal berhubungan independen dengan mortalitas pada AKI (Bouchard 2009, PICARD; OR kematian 2,07 saat inisiasi dialisis).</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Balans kumulatif:</strong> balans lebih positif meningkatkan risiko kematian pada sepsis (Sakr 2017).</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Estimasi praktis (tidak tersumber guideline):</strong> IWL 12 / 9 / 6,5 mL/kg/hari (spontan / HFNC-NIV / ventilator), diaforesis +200 / 500 / 900 mL, demam +10% maintenance per °C di atas 37,5 °C.</li>
         </ul>
         <div className="mt-4 p-4 bg-slate-100 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[11px] text-slate-500 dark:text-slate-400 italic">
-          [1] Malbrain MLNG et al. Ann Intensive Care. 2018;8(1):66. <br/>
-          [2] NICE CG174 Intravenous fluid therapy in adults. <br/>
-          [3] CLASSIC trial, N Engl J Med. 2022.
+          [1] Malbrain MLNG et al. Principles of fluid management and stewardship in septic shock. Ann Intensive Care 2018;8:66. <br/>
+          [2] NICE CG174. Intravenous fluid therapy in adults in hospital (2013, diperbarui 2017). <br/>
+          [3] Meyhoff TS et al. (CLASSIC). N Engl J Med 2022;386:2459–70. <br/>
+          [4] Shapiro NI et al. (CLOVERS). N Engl J Med 2023;388:499–510. <br/>
+          [5] Bouchard J et al. Kidney Int 2009;76:422–7. <br/>
+          [6] Sakr Y et al. Crit Care Med 2017;45:386–94.
         </div>
       </Accordion>
     </div>
