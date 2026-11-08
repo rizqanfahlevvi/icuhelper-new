@@ -3,6 +3,7 @@ import {
   sofaRespFromPf, sofaRespFromSf, sofaCoag, sofaLiver, sofaCns, sofaRenalCreatinine, sofaRenalUrine,
   normalizeFio2, ferreiraMortality,
 } from '../utils/sofa';
+import { computeApache, apacheOxyPao2, apacheAaDo2, apacheMortalityNonop, apacheCr } from '../utils/apache';
 
 describe('SOFA — respirasi P/F (Vincent 1996)', () => {
   it('ambang 400/300/200/100; poin 3–4 hanya dengan dukungan napas', () => {
@@ -91,5 +92,61 @@ describe('SOFA — mortalitas Ferreira 2001 (SOFA awal)', () => {
     [0, '0%'], [1, '0%'], [3, '6,4%'], [5, '20,2%'], [6, '21,5%'], [9, '33,3%'], [11, '50,0%'], [12, '>90%'], [20, '>90%'],
   ])('SOFA %i → %s', (total, mort) => {
     expect(ferreiraMortality(total).mortality).toBe(mort);
+  });
+});
+
+
+describe('APACHE II (Knaus 1985)', () => {
+  it('PaO₂ tepat 61 dengan FiO₂ <0,5 → +1 (dulu +3)', () => {
+    expect(apacheOxyPao2(61)).toBe(1);
+    expect(apacheOxyPao2(70)).toBe(1);
+    expect(apacheOxyPao2(71)).toBe(0);
+    expect(apacheOxyPao2(60)).toBe(3);
+    expect(apacheOxyPao2(54)).toBe(4);
+  });
+
+  it('FiO₂ kosong → oksigenasi TIDAK dihitung (tidak diasumsikan 21%)', () => {
+    const r = computeApache({ pao2: 50, chronic: 'none' });
+    expect(r.breakdown.find((b) => b.label.startsWith('Oksigenasi'))).toBeUndefined();
+    expect(r.missing.some((m) => m.includes('FiO₂'))).toBe(true);
+  });
+
+  it('FiO₂ ≥0,5 tanpa PaCO₂ → oksigenasi ditandai kosong', () => {
+    const r = computeApache({ pao2: 80, fio2: 60, chronic: 'none' });
+    expect(r.missing.some((m) => m.includes('PaCO₂'))).toBe(true);
+  });
+
+  it('A-aDO₂ manual: FiO₂ 0,6 · PaCO₂ 40 · PaO₂ 80 → 0,6×713 − 50 − 80 = 297,8 → +2', () => {
+    expect(apacheAaDo2(0.6, 40, 80)).toBeCloseTo(297.8, 1);
+    const r = computeApache({ pao2: 80, paco2: 40, fio2: 0.6, chronic: 'none' });
+    expect(r.breakdown.find((b) => b.label.startsWith('Oksigenasi'))?.pts).toBe(2);
+  });
+
+  it('kreatinin ganda saat gagal ginjal akut', () => {
+    expect(apacheCr(2.5, false)).toBe(3);
+    expect(apacheCr(2.5, true)).toBe(6);
+    expect(apacheCr(4.0, true)).toBe(8);
+  });
+
+  it('contoh lengkap dihitung manual: APS 19 + usia 5 = 24', () => {
+    // Suhu 39,2 (+3) · MAP 65 (+2) · HR 125 (+2) · RR 30 (+1) · FiO₂ 0,4 PaO₂ 65 (+1)
+    // pH 7,28 (+2) · Na 132 (0) · K 3,2 (+1) · Cr 1,6 (+2) · Ht 28 (+2) · WBC 18 (+1) · GCS 13 (+2)
+    // APS = 3+2+2+1+1+2+0+1+2+2+1+2 = 19 · usia 68 (+5) · tanpa kronik (0) → total 24
+    const r = computeApache({
+      temp: 39.2, map: 65, hr: 125, rr: 30, fio2: 0.4, pao2: 65, ph: 7.28, na: 132, k: 3.2,
+      cr: 1.6, hct: 28, wbc: 18, gcs: 13, age: 68, chronic: 'none',
+    });
+    expect(r.aps).toBe(19);
+    expect(r.agePts).toBe(5);
+    expect(r.total).toBe(24);
+    expect(r.filled).toBe(12);
+    expect(apacheMortalityNonop(r.total).mortality).toBe('~40%');
+  });
+
+  it('penyakit kronik: non-operatif/darurat 5, elektif 2', () => {
+    expect(computeApache({ chronic: 'nonop' }).chronicPts).toBe(5);
+    expect(computeApache({ chronic: 'emergency' }).chronicPts).toBe(5);
+    expect(computeApache({ chronic: 'elective' }).chronicPts).toBe(2);
+    expect(computeApache({ chronic: 'none' }).chronicPts).toBe(0);
   });
 });

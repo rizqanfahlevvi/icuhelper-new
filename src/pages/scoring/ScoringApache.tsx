@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { computeApache, apacheMortalityNonop, APACHE_MORTALITY_NONOP } from '../../utils/apache';
 import { Activity, Stethoscope } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
@@ -30,209 +31,20 @@ export default function ScoringApache() {
   const [wbc, setWbc] = useState('');
 
   const calculateScore = () => {
-    let aps = 0;
-    // Rincian kontribusi per-parameter (untuk transparansi langkah demi langkah)
-    const breakdown: { label: string; value: string; pts: number }[] = [];
-    let _prev = 0;
-    const rec = (label: string, value: string) => {
-      breakdown.push({ label, value, pts: aps - _prev });
-      _prev = aps;
+    const num = (v: string) => (v.trim() === '' ? undefined : parseFloat(v));
+    const r = computeApache({
+      temp: num(temp), map: num(map), hr: num(hr), rr: num(rr),
+      fio2: num(fio2), pao2: num(pao2), paco2: num(paco2), ph: num(ph),
+      na: num(na), k: num(k), cr: num(cr), aki: aki === 'yes',
+      hct: num(hct), wbc: num(wbc), gcs: num(gcs), age: num(age),
+      chronic: hasChronic === 'yes' ? (chronicType as 'nonop' | 'emergency' | 'elective') : 'none',
+    });
+    const band = apacheMortalityNonop(r.total);
+    return {
+      total: r.total, aps: r.aps, ageScore: r.agePts, chronScore: r.chronicPts,
+      breakdown: r.breakdown, filled: r.filled, missing: r.missing, notes: r.notes,
+      mort: band.mortality, complete: r.filled === 12,
     };
-
-    // 1. Temp
-    const t = parseFloat(temp);
-    if (!isNaN(t)) {
-      if (t >= 41) aps += 4;
-      else if (t >= 39) aps += 3;
-      else if (t >= 38.5) aps += 1;
-      else if (t >= 36) aps += 0;
-      else if (t >= 34) aps += 1;
-      else if (t >= 32) aps += 2;
-      else if (t >= 30) aps += 3;
-      else aps += 4;
-      rec('Suhu', `${t} °C`);
-    }
-
-    // 2. MAP
-    const m = parseFloat(map);
-    if (!isNaN(m)) {
-      if (m >= 160) aps += 4;
-      else if (m >= 130) aps += 3;
-      else if (m >= 110) aps += 2;
-      else if (m >= 70) aps += 0;
-      else if (m >= 50) aps += 2;
-      else aps += 4;
-      rec('MAP', `${m} mmHg`);
-    }
-
-    // 3. HR
-    const h = parseFloat(hr);
-    if (!isNaN(h)) {
-      if (h >= 180) aps += 4;
-      else if (h >= 140) aps += 3;
-      else if (h >= 110) aps += 2;
-      else if (h >= 70) aps += 0;
-      else if (h >= 55) aps += 2;
-      else if (h >= 40) aps += 3;
-      else aps += 4;
-      rec('Heart Rate', `${h} x/menit`);
-    }
-
-    // 4. RR
-    const r = parseFloat(rr);
-    if (!isNaN(r)) {
-      if (r >= 50) aps += 4;
-      else if (r >= 35) aps += 3;
-      else if (r >= 25) aps += 1;
-      else if (r >= 12) aps += 0;
-      else if (r >= 10) aps += 1;
-      else if (r >= 6) aps += 2;
-      else aps += 4;
-      rec('Respiratory Rate', `${r} x/menit`);
-    }
-
-    // 5. Oxygenation
-    const f = isNaN(parseFloat(fio2)) ? 0.21 : parseFloat(fio2);
-    const pa2 = parseFloat(pao2);
-    const pco2 = parseFloat(paco2);
-    if (!isNaN(pa2)) {
-      let fNum = f > 1 ? f / 100 : f; // adapt percentage
-      if (fNum >= 0.5) {
-        if (!isNaN(pco2)) {
-          const aaDO2 = (fNum * (760 - 47)) - (pco2 / 0.8) - pa2;
-          if (aaDO2 >= 500) aps += 4;
-          else if (aaDO2 >= 350) aps += 3;
-          else if (aaDO2 >= 200) aps += 2;
-          else aps += 0;
-          rec('Oksigenasi (A-a gradient, FiO₂≥50%)', `${Math.round((fNum * (760 - 47)) - (pco2 / 0.8) - pa2)} mmHg`);
-        }
-      } else {
-        if (pa2 > 70) aps += 0;
-        else if (pa2 > 61) aps += 1;
-        else if (pa2 >= 55) aps += 3;
-        else aps += 4;
-        rec('Oksigenasi (PaO₂, FiO₂<50%)', `${pa2} mmHg`);
-      }
-    }
-
-    // 6. pH
-    const p = parseFloat(ph);
-    if (!isNaN(p)) {
-      if (p >= 7.7) aps += 4;
-      else if (p >= 7.6) aps += 3;
-      else if (p >= 7.5) aps += 1;
-      else if (p >= 7.33) aps += 0;
-      else if (p >= 7.25) aps += 2;
-      else if (p >= 7.15) aps += 3;
-      else aps += 4;
-      rec('pH arteri', `${p}`);
-    }
-
-    // 7. Sodium
-    const sod = parseFloat(na);
-    if (!isNaN(sod)) {
-      if (sod >= 180) aps += 4;
-      else if (sod >= 160) aps += 3;
-      else if (sod >= 155) aps += 2;
-      else if (sod >= 150) aps += 1;
-      else if (sod >= 130) aps += 0;
-      else if (sod >= 120) aps += 2;
-      else if (sod >= 111) aps += 3;
-      else aps += 4;
-      rec('Natrium', `${sod} mEq/L`);
-    }
-
-    // 8. Potassium
-    const pot = parseFloat(k);
-    if (!isNaN(pot)) {
-      if (pot >= 7) aps += 4;
-      else if (pot >= 6) aps += 3;
-      else if (pot >= 5.5) aps += 1;
-      else if (pot >= 3.5) aps += 0;
-      else if (pot >= 3) aps += 1;
-      else if (pot >= 2.5) aps += 2;
-      else aps += 4;
-      rec('Kalium', `${pot} mEq/L`);
-    }
-
-    // 9. Creatinine
-    const crea = parseFloat(cr);
-    if (!isNaN(crea)) {
-      let pts = 0;
-      if (crea >= 3.5) pts = 4;
-      else if (crea >= 2) pts = 3;
-      else if (crea >= 1.5) pts = 2;
-      else if (crea >= 0.6) pts = 0;
-      else pts = 2;
-      
-      if (aki === 'yes') pts = Math.min(pts * 2, 8);
-      aps += pts;
-      rec(`Kreatinin${aki === 'yes' ? ' (AKI ×2)' : ''}`, `${crea} mg/dL`);
-    }
-
-    // 10. Hematocrit
-    const hc = parseFloat(hct);
-    if (!isNaN(hc)) {
-      if (hc >= 60) aps += 4;
-      else if (hc >= 50) aps += 2;
-      else if (hc >= 46) aps += 1;
-      else if (hc >= 30) aps += 0;
-      else if (hc >= 20) aps += 2;
-      else aps += 4;
-      rec('Hematokrit', `${hc} %`);
-    }
-
-    // 11. WBC
-    const wb = parseFloat(wbc);
-    if (!isNaN(wb)) {
-      if (wb >= 40) aps += 4;
-      else if (wb >= 20) aps += 2;
-      else if (wb >= 15) aps += 1;
-      else if (wb >= 3) aps += 0;
-      else if (wb >= 1) aps += 2;
-      else aps += 4;
-      rec('Leukosit', `${wb} ×10³/µL`);
-    }
-
-    // 12. GCS
-    const g = parseFloat(gcs);
-    if (!isNaN(g)) {
-      aps += (15 - g);
-      rec('GCS (15 − nilai)', `${g}`);
-    }
-
-    // Age Score
-    let ageScore = 0;
-    const a = parseFloat(age);
-    if (!isNaN(a)) {
-      if (a < 45) ageScore = 0;
-      else if (a < 55) ageScore = 2;
-      else if (a < 65) ageScore = 3;
-      else if (a < 75) ageScore = 5;
-      else ageScore = 6;
-    }
-
-    // Chronic Health
-    let chronScore = 0;
-    if (hasChronic === 'yes') {
-      chronScore = chronicType === 'elective' ? 2 : 5;
-    }
-
-    const total = aps + ageScore + chronScore;
-
-    let mort = '~4%';
-    if (total > 34) mort = '~85%';
-    else if (total > 29) mort = '~73%';
-    else if (total > 24) mort = '~55%';
-    else if (total > 19) mort = '~40%';
-    else if (total > 14) mort = '~25%';
-    else if (total > 9) mort = '~15%';
-    else if (total > 4) mort = '~8%';
-
-    if (ageScore > 0 || !isNaN(a)) breakdown.push({ label: 'Usia', value: !isNaN(a) ? `${a} th` : '—', pts: ageScore });
-    if (chronScore > 0) breakdown.push({ label: `Riwayat kronik (${chronicType === 'elective' ? 'bedah elektif' : 'non-operatif/darurat'})`, value: 'Ya', pts: chronScore });
-
-    return { total, aps, ageScore, chronScore, mort, breakdown };
   };
 
   const result = calculateScore();
@@ -282,7 +94,7 @@ export default function ScoringApache() {
          </div>
 
          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-500 p-3 rounded-lg text-sm mb-6">
-            <strong>📌 Catatan:</strong> Isi parameter yang tersedia. Kosongkan parameter yang tidak dicek (skor dihitung dari data yang diisi). Gunakan nilai <strong>terburuk</strong> dalam 24 jam pertama masuk ICU.
+            <strong>📌 Catatan:</strong> Gunakan nilai <strong>terburuk</strong> dalam 24 jam pertama masuk ICU. Parameter yang tidak diukur dihitung 0 poin (dianggap normal), sehingga skor bisa lebih rendah dari sebenarnya — kelengkapan ditampilkan di hasil.
          </div>
 
          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
@@ -410,8 +222,14 @@ export default function ScoringApache() {
                 <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-1">APACHE-II SCORE TOTAL</div>
                 <div className={`text-5xl font-black ${result.total > 15 ? 'text-red-500' : 'text-cyan-500'}`}>{result.total}</div>
                 <div className="text-sm font-medium mt-2">
-                   Estimasi Mortalitas ICU: <span className="text-foreground font-bold">{result.mort}</span>
+                   Mortalitas RS (non-operatif, Knaus 1985): <span className="text-foreground font-bold">{result.mort}</span>
                 </div>
+                <div className={`text-xs mt-1 font-semibold ${result.complete ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                  {result.filled}/12 parameter fisiologis terisi{result.complete ? '' : ' — skor minimal (parameter kosong dihitung 0)'}
+                </div>
+                {chronicType !== 'nonop' && (
+                  <div className="text-[11px] text-muted-foreground mt-1">Pasien pasca-bedah: mortalitas umumnya lebih rendah daripada angka non-operatif ini.</div>
+                )}
               </div>
               <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 w-full md:w-auto text-sm space-y-1">
                  <div className="flex justify-between gap-8">
@@ -432,7 +250,7 @@ export default function ScoringApache() {
                       module="scoring_apache" 
                       label={`APACHE-II: ${result.total}`}
                       inputs={{ age, chronicType, hasChronic, temp, map, hr, rr, gcs, fio2, pao2, paco2, ph, na, k, cr, aki, hct, wbc }}
-                      summary={`Skor Total: ${result.total} (Mortalitas ICU: ${result.mort})`}
+                      summary={`Skor Total: ${result.total} (${result.filled}/12 parameter; mortalitas RS non-operatif ${result.mort})`}
                       className="w-full"
                     />
                  </div>
@@ -454,7 +272,16 @@ export default function ScoringApache() {
                     <span className="font-mono text-cyan-700 dark:text-cyan-300">{result.total}</span>
                   </div>
                 </div>
-                <p className="text-[11px] italic text-slate-500 mt-2">Parameter kosong tidak dihitung. Gunakan nilai terburuk dalam 24 jam pertama. Poin 0 berarti nilai dalam rentang normal.</p>
+                <p className="text-[11px] italic text-slate-500 mt-2">Parameter kosong diberi 0 poin (dianggap normal) sesuai konvensi APACHE II. Gunakan nilai terburuk dalam 24 jam pertama.</p>
+              </div>
+            )}
+
+            {(result.missing.length > 0 || result.notes.length > 0) && (
+              <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-[13px] space-y-1">
+                {result.missing.length > 0 && (
+                  <div><strong>Belum diisi:</strong> {result.missing.join(' · ')}</div>
+                )}
+                {result.notes.map((n, i) => <div key={i}>• {n}</div>)}
               </div>
             )}
          </div>
@@ -463,9 +290,22 @@ export default function ScoringApache() {
       <Accordion title="📖 Teori APACHE-II Score (Knaus et al. 1985)">
         <ul className="pl-4 space-y-1 list-disc text-muted-foreground text-sm">
           <li><strong className="text-foreground">Latar Belakang:</strong> APACHE-II (1985) adalah sistem penilaian keparahan penyakit ICU yang banyak digunakan secara historis. Diperuntukkan untuk prediksi mortalitas populasi, *bukan* keputusan individual.</li>
-          <li><strong className="text-foreground">Keterbatasan:</strong> Dikembangkan dari data 1979-1982 sehingga kalibarsinya secara umum sudah tidak akurat (cenderung overestimasi mortalitas) dibandingkan populasi ICU modern.</li>
-          <li><strong className="text-foreground">Rekomendasi Praktis:</strong> Untuk general ICU mortality dapat dihitung dengan SAPS-3 (skor online terpisah). Untuk monitoring harian disfungsi organ, SOFA Score lebih disarankan karena lebih prediktif untuk mortalitas di era Sepsis-3 (Raith EP et al. 2017).</li>
+          <li><strong className="text-foreground">Keterbatasan:</strong> Dikembangkan dari data 1979–1982; kalibrasinya bergeser pada populasi ICU modern sehingga angka mortalitas hanya gambaran kasar. Tabel di bawah adalah mortalitas <em>rumah sakit</em> menurut rentang skor (kolom non-operatif) tanpa bobot kategori diagnosis yang dipakai persamaan aslinya.</li>
+          <li><strong className="text-foreground">Rekomendasi Praktis:</strong> Untuk pemantauan harian disfungsi organ gunakan SOFA. Pada pasien ICU dengan dugaan infeksi, SOFA lebih akurat secara prognostik dibanding SIRS dan qSOFA (Raith EP et al. 2017).</li>
         </ul>
+        <div className="mt-3 overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
+          <table className="w-full text-xs text-left">
+            <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400">
+              <tr><th className="px-3 py-2 font-semibold">APACHE II</th><th className="px-3 py-2 font-semibold">Mortalitas RS — non-operatif</th></tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-900">
+              {APACHE_MORTALITY_NONOP.map((b) => (
+                <tr key={b.range}><td className="px-3 py-1.5 font-medium">{b.range}</td><td className="px-3 py-1.5">{b.mortality}</td></tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="p-2 text-[11px] text-slate-500 border-t border-slate-100 dark:border-slate-800">Rentang 30–34: sumber sekunder menyebut 73% atau 75%. Pasien pasca-bedah umumnya lebih rendah (kolom pasca-bedah tidak ditampilkan karena belum dapat diverifikasi ke naskah asli).</div>
+        </div>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Knaus WA et al. (APACHE-II original) Crit Care Med 1985;13:818 · Zimmerman JE et al. (APACHE-IV validasi) Crit Care Med 2006;34:1297 · Raith EP et al. (SOFA lebih baik dari APACHE-II era Sepsis-3) JAMA 2017;317:290
         </div>
