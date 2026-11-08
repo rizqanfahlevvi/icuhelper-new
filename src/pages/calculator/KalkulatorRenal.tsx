@@ -38,7 +38,8 @@ export default function KalkulatorRenal() {
 
   // --- TAB 1: GFR & CrCl STATE ---
   const [age, setAge] = useState('');
-  const [sex, setSex] = useState<'m' | 'f'>('m');
+  // Jenis kelamin wajib dipilih (CKD-EPI & Cockcroft-Gault spesifik jenis kelamin) — tanpa default.
+  const [sex, setSex] = useState<'m' | 'f' | ''>('');
   const [weight, setWeight] = useState('');
   const [height, setHeight] = useState('');
   const [scrVal, setScrVal] = useState('');
@@ -188,35 +189,38 @@ export default function KalkulatorRenal() {
       setCrclError('Masukkan berat badan pasien (kg)');
       return;
     }
+    if (!sex) {
+      setCrclError('Pilih jenis kelamin (CKD-EPI & Cockcroft-Gault berbeda untuk laki-laki/perempuan)');
+      return;
+    }
 
-    // Calculate Ideal Body Weight (IBW)
+    // IBW/AdjBW/BSA hanya bila TB diisi — TIDAK ada BBI asumsi (dulu 65/55 kg).
     const hasHeight = !isNaN(heightNum) && heightNum > 0;
-    const ibw = hasHeight
-      ? calcIbw(heightNum, sex === 'f')
-      : (sex === 'm' ? 65 : 55);
+    const ibw = hasHeight ? calcIbw(heightNum, sex === 'f') : null;
 
     // BMI calculation
     const bmi = hasHeight ? calcBmi(weightNum, heightNum) : null;
 
     // Adjusted Body Weight for obese/overweight patients
-    const isObeseOrOverweight = weightNum > 1.2 * ibw || (bmi && bmi >= 25);
-    const adjBw = isObeseOrOverweight ? calcAdjBw(ibw, weightNum) : weightNum;
+    const isObeseOrOverweight = ibw !== null && (weightNum > 1.2 * ibw || (bmi !== null && bmi >= 25));
+    const adjBw = ibw !== null && isObeseOrOverweight ? calcAdjBw(ibw, weightNum) : weightNum;
 
-    // Body Surface Area (BSA) DuBois
-    let bsa = 1.73;
-    if (!isNaN(heightNum) && heightNum > 0) {
-      bsa = 0.007184 * Math.pow(weightNum, 0.425) * Math.pow(heightNum, 0.725);
-    }
+    // Body Surface Area (BSA) DuBois — butuh TB
+    const bsa = hasHeight ? 0.007184 * Math.pow(weightNum, 0.425) * Math.pow(heightNum, 0.725) : null;
 
     // Cockcroft-Gault Calculations
-    const cgActual = ((140 - ageNum) * weightNum) / (72 * scrNum) * (sex === 'f' ? 0.85 : 1.0);
-    const cgIdeal = ((140 - ageNum) * ibw) / (72 * scrNum) * (sex === 'f' ? 0.85 : 1.0);
-    const cgAdjusted = ((140 - ageNum) * adjBw) / (72 * scrNum) * (sex === 'f' ? 0.85 : 1.0);
+    const sexF = sex === 'f' ? 0.85 : 1.0;
+    const cgActual = ((140 - ageNum) * weightNum) / (72 * scrNum) * sexF;
+    const cgIdeal = ibw !== null ? ((140 - ageNum) * ibw) / (72 * scrNum) * sexF : null;
+    const cgAdjusted = ibw !== null ? ((140 - ageNum) * adjBw) / (72 * scrNum) * sexF : null;
 
     // Dose adjustment recommendations based on selected weight
     let cgRecommended = cgActual;
     let weightLabel = 'Actual Body Weight (ABW)';
-    if (weightNum < ibw) {
+    if (ibw === null || cgIdeal === null || cgAdjusted === null) {
+      cgRecommended = cgActual;
+      weightLabel = 'Berat Aktual — isi TB untuk menilai BBI/AdjBW (penting pada pasien obes atau kurus)';
+    } else if (weightNum < ibw) {
       cgRecommended = cgActual;
       weightLabel = 'Berat Aktual (karena pasien Underweight, BB < IBW)';
     } else if (isObeseOrOverweight) {
@@ -236,8 +240,8 @@ export default function KalkulatorRenal() {
 
     const ckdEpiGfr = 142 * Math.pow(minTerm, alpha) * Math.pow(maxTerm, -1.2) * Math.pow(0.9938, ageNum) * sexFactor;
     
-    // Absolute GFR (mL/min) = eGFR * BSA / 1.73
-    const absoluteGfr = ckdEpiGfr * (bsa / 1.73);
+    // Absolute GFR (mL/min) = eGFR * BSA / 1.73 — hanya bila BSA tersedia
+    const absoluteGfr = bsa !== null ? ckdEpiGfr * (bsa / 1.73) : null;
 
     // MDRD 4-variable equation
     const mdrdGfr = 175 * Math.pow(scrNum, -1.154) * Math.pow(ageNum, -0.203) * (sex === 'f' ? 0.742 : 1.0);
@@ -283,16 +287,16 @@ export default function KalkulatorRenal() {
     setCrclResults({
       isPediatric: false,
       cgActual: cgActual.toFixed(1),
-      cgIdeal: cgIdeal.toFixed(1),
-      cgAdjusted: cgAdjusted.toFixed(1),
+      cgIdeal: cgIdeal !== null ? cgIdeal.toFixed(1) : '—',
+      cgAdjusted: cgAdjusted !== null ? cgAdjusted.toFixed(1) : '—',
       cgRecommended: cgRecommended.toFixed(1),
       recommendWeight: weightLabel,
       ckdEpi: ckdEpiGfr.toFixed(1),
-      absoluteGfr: absoluteGfr.toFixed(1),
+      absoluteGfr: absoluteGfr !== null ? absoluteGfr.toFixed(1) : '—',
       mdrd: mdrdGfr.toFixed(1),
-      ibw: ibw.toFixed(1),
-      adjBw: adjBw.toFixed(1),
-      bsa: bsa.toFixed(2),
+      ibw: ibw !== null ? ibw.toFixed(1) : '—',
+      adjBw: ibw !== null ? adjBw.toFixed(1) : '—',
+      bsa: bsa !== null ? bsa.toFixed(2) : '—',
       bmi: bmi ? bmi.toFixed(1) : null,
       stage,
       stageDesc,
@@ -510,9 +514,10 @@ export default function KalkulatorRenal() {
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Jenis Kelamin</span>
                     <select 
                       value={sex}
-                      onChange={e => setSex(e.target.value as 'm' | 'f')}
+                      onChange={e => setSex(e.target.value as 'm' | 'f' | '')}
                       className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
                     >
+                      <option value="">— Pilih —</option>
                       <option value="m">Laki-laki</option>
                       <option value="f">Perempuan</option>
                     </select>
@@ -652,7 +657,7 @@ export default function KalkulatorRenal() {
                     </div>
 
                     <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[#2C2C2E]/30">
-                      <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">KDIGO Stage</div>
+                      <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">Kategori LFG (KDIGO)</div>
                       <div className={`font-mono text-3xl font-black ${crclResults.stageColor}`}>
                         {crclResults.stage}
                       </div>
@@ -660,6 +665,10 @@ export default function KalkulatorRenal() {
                         {crclResults.stageDesc}
                       </div>
                     </div>
+                  </div>
+
+                  <div className="text-[12px] text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 leading-relaxed">
+                    ⚠️ Semua estimasi (CKD-EPI, MDRD, Cockcroft-Gault) mengasumsikan kreatinin <strong>stabil</strong>. Saat AKI/SCr masih berubah, angka ini menyesatkan — nilai tren & urine output. Kategori G hanya mendiagnosis PGK bila menetap &gt;3 bulan.
                   </div>
 
                   <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">

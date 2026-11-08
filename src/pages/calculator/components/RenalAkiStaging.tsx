@@ -1,7 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { AlertTriangle, Activity } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner, type SyncField } from '../../../components/UnifiedSyncBanner';
+import { stageAki, type AkiResult } from '../../../utils/aki';
+
+const STAGE_STYLE: Record<number, { desc: string; color: string }> = {
+  0: { desc: 'Tidak memenuhi kriteria AKI', color: 'text-emerald-600 dark:text-emerald-400' },
+  1: { desc: 'AKI Stage 1', color: 'text-amber-600 dark:text-amber-400' },
+  2: { desc: 'AKI Stage 2', color: 'text-orange-500' },
+  3: { desc: 'AKI Stage 3', color: 'text-red-600 dark:text-red-400' },
+};
 
 export function RenalAkiStaging() {
   const [baselineScr, setBaselineScr] = useState('');
@@ -9,8 +17,9 @@ export function RenalAkiStaging() {
   const [urineOutput, setUrineOutput] = useState('');
   const [urineDuration, setUrineDuration] = useState('');
   const [weight, setWeight] = useState('');
-  
-  const [res, setRes] = useState<any>(null);
+  const [rrt, setRrt] = useState(false);
+
+  const [res, setRes] = useState<(AkiResult & { desc: string; color: string }) | null>(null);
 
   const syncFields = useMemo<SyncField[]>(() => [
     { key: 'creatinineBaseline', label: 'SCr basal', value: baselineScr, setter: setBaselineScr, unit: 'mg/dL' },
@@ -19,42 +28,15 @@ export function RenalAkiStaging() {
   ], [baselineScr, currentScr, weight]);
 
   const calculate = () => {
-    const bScr = parseFloat(baselineScr);
-    const cScr = parseFloat(currentScr);
-    const uo = parseFloat(urineOutput);
-    const uDur = parseFloat(urineDuration);
-    const w = parseFloat(weight);
-
-    if (!cScr && !uo) return;
-
-    let stageScr = 0;
-    if (bScr > 0 && cScr > 0) {
-      const ratio = cScr / bScr;
-      const diff = cScr - bScr;
-      if (cScr >= 4.0 || ratio >= 3) stageScr = 3;
-      else if (ratio >= 2) stageScr = 2;
-      else if (ratio >= 1.5 || diff >= 0.3) stageScr = 1;
-    }
-
-    let stageUo = 0;
-    if (uo >= 0 && uDur > 0 && w > 0) {
-      const mlKgHr = uo / w / uDur;
-      if (mlKgHr < 0.3 && uDur >= 24) stageUo = 3;
-      else if (uo === 0 && uDur >= 12) stageUo = 3;
-      else if (mlKgHr < 0.5 && uDur >= 12) stageUo = 2;
-      else if (mlKgHr < 0.5 && uDur >= 6) stageUo = 1;
-    }
-
-    const finalStage = Math.max(stageScr, stageUo);
-    
-    let desc = '';
-    let color = '';
-    if (finalStage === 3) { desc = 'AKI Stage 3 (Berat)'; color = 'text-red-600 dark:text-red-400'; }
-    else if (finalStage === 2) { desc = 'AKI Stage 2 (Sedang)'; color = 'text-orange-500'; }
-    else if (finalStage === 1) { desc = 'AKI Stage 1 (Ringan)'; color = 'text-yellow-600 dark:text-yellow-500'; }
-    else { desc = 'Tidak memenuhi kriteria AKI'; color = 'text-emerald-600 dark:text-emerald-400'; }
-
-    setRes({ stage: finalStage, desc, color });
+    const num = (v: string) => (v.trim() === '' ? undefined : parseFloat(v));
+    const r = stageAki({
+      baselineScr: num(baselineScr), currentScr: num(currentScr), rrt,
+      uoMl: num(urineOutput), uoHours: num(urineDuration), weightKg: num(weight),
+    });
+    const style = r.stage === null
+      ? { desc: 'Belum dapat dinilai', color: 'text-slate-600 dark:text-slate-300' }
+      : STAGE_STYLE[r.stage];
+    setRes({ ...r, ...style });
   };
 
   return (
@@ -65,17 +47,21 @@ export function RenalAkiStaging() {
         <div className="flex items-center justify-between px-4 py-3 gap-4">
           <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">SCr Baseline</span>
           <div className="flex-1 flex items-center justify-end gap-2">
-            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={baselineScr} onChange={e=>setBaselineScr(e.target.value)} placeholder="opsional" />
+            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={baselineScr} onChange={e=>setBaselineScr(e.target.value)} placeholder="nilai stabil sebelum sakit" />
             <span className="text-xs text-slate-500 w-10">mg/dL</span>
           </div>
         </div>
         <div className="flex items-center justify-between px-4 py-3 gap-4">
           <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">SCr Saat Ini</span>
           <div className="flex-1 flex items-center justify-end gap-2">
-            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={currentScr} onChange={e=>setCurrentScr(e.target.value)} placeholder="wajib bila tak ada UO" />
+            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={currentScr} onChange={e=>setCurrentScr(e.target.value)} placeholder="terbaru" />
             <span className="text-xs text-slate-500 w-10">mg/dL</span>
           </div>
         </div>
+        <label className="flex items-center gap-3 px-4 py-3 cursor-pointer">
+          <input type="checkbox" checked={rrt} onChange={e => setRrt(e.target.checked)} className="w-4 h-4 accent-blue-600" />
+          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Sudah dimulai terapi pengganti ginjal (RRT) → stage 3</span>
+        </label>
       </div>
 
       <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
@@ -111,11 +97,21 @@ export function RenalAkiStaging() {
         <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center mt-2">
           <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2">Klasifikasi KDIGO 2012</div>
           <div className={`text-2xl font-black ${res.color}`}>{res.desc}</div>
+          {res.reasons.length > 0 && (
+            <ul className="mt-3 text-left text-[13px] text-slate-700 dark:text-slate-300 space-y-1 list-disc pl-5">
+              {res.reasons.map((r, i) => <li key={i}>{r}</li>)}
+            </ul>
+          )}
+          {res.notes.length > 0 && (
+            <div className="mt-3 text-left text-[12px] text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 space-y-1">
+              {res.notes.map((n, i) => <div key={i}>• {n}</div>)}
+            </div>
+          )}
           <div className="mt-4">
             <SaveToHistoryButton 
               module="renal_aki" 
               label={res.desc}
-              inputs={{ baselineScr, currentScr, urineOutput, weight, urineDuration }}
+              inputs={{ baselineScr, currentScr, rrt, urineOutput, weight, urineDuration }}
               summary={`Staging AKI KDIGO: ${res.desc}`}
               className="w-full"
             />
