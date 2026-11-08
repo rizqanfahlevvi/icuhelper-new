@@ -69,7 +69,7 @@ export default function AbgTheory() {
           <li><strong className="text-foreground">Kompensasi tidak pernah melampaui normal:</strong> pH tidak kembali normal kecuali ada mixed disorder. Jika pH normal dengan HCO₃⁻ dan PaCO₂ abnormal → kemungkinan mixed disorder saling mengkompensasi.</li>
           <li><strong className="text-foreground">Akut vs Kronik:</strong> PPOK kronik dengan retensi CO₂ sudah terkompensasi (HCO₃⁻ tinggi, pH relatif normal). Jangan agresif normalisasi PaCO₂ — risiko alkalosis metabolik berat post-ventilasi.</li>
         </ul>
-        <p className="text-[11px] opacity-80 text-orange-700 dark:text-orange-300 italic">📚 Winter SD. Ann Intern Med 1967 · Narins RG. Medicine 1980 · Feldman M. NEJM 2015</p>
+        <p className="text-[11px] opacity-80 text-orange-700 dark:text-orange-300 italic">📚 Albert MS, Dell RB, Winters RW. Ann Intern Med 1967 (Winter) · Narins RG, Emmett M. Medicine 1980 · Berend K, de Vries APJ, Gans ROB. NEJM 2014</p>
       </Accordion>
 
       <Accordion title="📖 P/F Ratio, A-a Gradient, OI & ROX Index">
@@ -138,7 +138,7 @@ export default function AbgTheory() {
             </table>
           </div>
         </div>
-        <p className="text-[11px] opacity-80 text-orange-700 dark:text-orange-300 italic">📚 ARDSNet. NEJM 2000 · Berlin Definition. JAMA 2012 · Roca O. AJRCCM 2016 (ROX)</p>
+        <p className="text-[11px] opacity-80 text-orange-700 dark:text-orange-300 italic">📚 ARDSNet. NEJM 2000 · Berlin Definition. JAMA 2012 · Roca O et al. AJRCCM 2019 (ROX)</p>
       </Accordion>
     </div>
   );

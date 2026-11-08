@@ -122,3 +122,40 @@ export function deltaRatio(effectiveAg: number, hco3: number, agNormal: number =
   const band: DeltaBand = ratio < 0.4 ? 'nagma' : ratio < 0.8 ? 'campuran' : ratio <= 2 ? 'murni' : 'alkalosis';
   return { deltaAg, deltaHco3, ratio, band };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HCl untuk alkalosis metabolik berat — keputusan pemilik 2026-11: faktor 0,5 × BB
+// (ruang distribusi bikarbonat ≈ 50% BB). Defisit H⁺ (mEq) = 0,5 × BB × (HCO₃ aktual − HCO₃ target).
+// Laju maksimal 0,2 mEq/kg/jam via vena sentral; larutan 0,1 N (0,1 mEq/mL) — konsentrasi
+// >0,1 N dilaporkan korosif walau lewat CVC. Target HCO₃ TIDAK ada angka baku → diisi klinisi.
+// Rumus tidak memperhitungkan kehilangan asam berlanjut (mis. NGT) → pantau AGD/elektrolit serial.
+// Rujukan: medicalalgorithms.com (H⁺ deficit, faktor 0,5–0,6, laju ≤0,2 mEq/kg/jam) ·
+// GlobalRPh HCl (0,1–0,2 mEq/kg/jam, 0,1 N) · Galla JH. JASN 2000;11:369.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const HCL_SPACE_FACTOR = 0.5;
+export const HCL_MAX_RATE_MEQ_KG_H = 0.2;
+export const HCL_01N_MEQ_PER_ML = 0.1;
+
+export interface HclPlan {
+  doseMeq: number;
+  volume01NmL: number;
+  maxRateMeqH: number;
+  maxRateMlH: number;
+  /** Durasi minimal agar laju ≤ 0,2 mEq/kg/jam. */
+  minHours: number;
+}
+
+export function hclPlan(weightKg: number, hco3Actual: number, hco3Target: number): HclPlan | null {
+  if (!(weightKg > 0) || !Number.isFinite(hco3Actual) || !Number.isFinite(hco3Target)) return null;
+  if (!(hco3Target < hco3Actual)) return null;
+  const doseMeq = HCL_SPACE_FACTOR * weightKg * (hco3Actual - hco3Target);
+  const maxRateMeqH = HCL_MAX_RATE_MEQ_KG_H * weightKg;
+  return {
+    doseMeq,
+    volume01NmL: doseMeq / HCL_01N_MEQ_PER_ML,
+    maxRateMeqH,
+    maxRateMlH: maxRateMeqH / HCL_01N_MEQ_PER_ML,
+    minHours: doseMeq / maxRateMeqH,
+  };
+}

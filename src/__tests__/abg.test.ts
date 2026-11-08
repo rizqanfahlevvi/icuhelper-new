@@ -3,7 +3,7 @@ import {
   analyzeAcidBase, hhCheck, hco3FromHH, validateCore, resolveDirectFio2, estimateLowFlowFio2,
   fio2ToPercentString, fio2FromStoreString,
 } from '../utils/abg';
-import { anionGap, deltaRatio, normalizeAgUpper } from '../utils/acidBase';
+import { anionGap, deltaRatio, normalizeAgUpper, hclPlan } from '../utils/acidBase';
 import { interpretAbg } from '../pages/abg/abgInterpretation';
 import { defaultAbgInputs, AbgInputs } from '../pages/abg/types';
 
@@ -205,5 +205,86 @@ describe('Kelas warna hanya memakai token yang ada (bug audit #10)', () => {
     ];
     const blob = JSON.stringify(samples);
     expect(blob).not.toMatch(/\b(bg|text|border)-(warning|success)\b/);
+  });
+});
+
+describe('Fase 2 — isi tatalaksana sesuai referensi', () => {
+  const blob = (p: Partial<AbgInputs>) => JSON.stringify(run(p).mgmt) + JSON.stringify(run(p).saran);
+  const ardsSevere = { kondisi: 'ards', ph: '7.25', pco2: '55', hco3: '23.5', po2: '60', fio2Direct: '0.8' };
+
+  it('HCl: defisit H⁺ = 0,5 × BB × (HCO₃ aktual − target); laju ≤0,2 mEq/kg/jam', () => {
+    // 0,5 × 60 × (45 − 35) = 300 mEq → 3000 mL HCl 0,1 N; laju maks 12 mEq/jam (120 mL/jam) → ≥25 jam
+    const h = hclPlan(60, 45, 35)!;
+    expect(h.doseMeq).toBeCloseTo(300, 10);
+    expect(h.volume01NmL).toBeCloseTo(3000, 10);
+    expect(h.maxRateMeqH).toBeCloseTo(12, 10);
+    expect(h.maxRateMlH).toBeCloseTo(120, 10);
+    expect(h.minHours).toBeCloseTo(25, 10);
+    expect(hclPlan(60, 45, 45)).toBeNull();
+    expect(hclPlan(60, 45, NaN)).toBeNull();
+    expect(hclPlan(0, 45, 35)).toBeNull();
+  });
+  it('Kartu alkalosis metabolik berat memakai rumus 0,5 × BB (bukan 0,1) dan Cl⁻ URIN', () => {
+    const b = blob({ ph: '7.58', pco2: '50', hco3: '45' });
+    expect(b).toContain('0,5 × BB × (HCO₃ aktual − HCO₃ target)');
+    expect(b).not.toContain('0.1 × BB');
+    expect(b).toContain('Cl⁻ URIN');
+  });
+  it('ARDS berat: cisatrakurium 15 mg bolus (ACURASYS), deksametason DEXA-ARDS 20→10 mg, NNT prone ≈6', () => {
+    const b = blob(ardsSevere);
+    expect(b).toContain('15 mg bolus');
+    expect(b).not.toContain('37.5 mg bolus');
+    expect(b).toContain('20 mg/hari IV hari 1–5 lalu 10 mg/hari');
+    expect(b).toContain('NNT ≈6');
+    expect(b).not.toContain('NNT=8');
+    expect(b).not.toContain('P/F <200–300 per PROSEVA');
+  });
+  it('ECMO memakai kriteria EOLIA (termasuk hiperkapnia), bukan OI >40', () => {
+    const b = blob({ ...ardsSevere, ph: '7.20', pco2: '65', hco3: '24.8', po2: '90', fio2Direct: '0.6' });
+    expect(b).toContain('pH <7,25 dengan PaCO₂ ≥60');
+    expect(blob(ardsSevere)).not.toMatch(/OI >40/);
+  });
+  it('NaHCO₃ mengikuti BICAR-ICU & BICARICU-2 (tidak lagi "TERINDIKASI pH <7.10")', () => {
+    const b = blob({ ph: '7.05', pco2: '25', hco3: '6.8', na: '140', cl: '100' });
+    expect(b).not.toContain('TERINDIKASI (pH <7.10)');
+    expect(b).toContain('BICARICU-2');
+    expect(b).toContain('62,1% vs 61,7%');
+  });
+  it('DKA: dekstrosa saat GDS <250, K⁺ <3,5 tunda insulin, sitasi konsensus 2024', () => {
+    const b = blob({ ph: '7.26', pco2: '23', hco3: '10', na: '135', cl: '100' });
+    expect(b).toContain('GDS <250 mg/dL');
+    expect(b).toContain('K⁺ <3,5 mmol/L: TUNDA insulin');
+    expect(b).toContain('Diabetes Care 2024;47:1257');
+    expect(b).not.toContain('20–40 mEq/jam');
+  });
+  it('Edema paru kardiogenik + laktat tinggi: kartu Sepsis (30 mL/kg) & ARDS tidak muncul otomatis', () => {
+    const t = run({ kondisi: 'cardiac', ph: '7.25', pco2: '30', hco3: '13', na: '138', cl: '100', laktat: '4.5', po2: '60', fio2Direct: '0.6' }).mgmt.map(m => m.judul);
+    expect(t).toContain('Edema Paru Kardiogenik Akut');
+    expect(t).not.toContain('Manajemen Sepsis / Syok Septik (SSC 2021)');
+    expect(t).not.toContain('Manajemen ARDS');
+  });
+  it('Sepsis: target awal MAP 65 (SEPSISPAM), tanpa target ScvO₂', () => {
+    const b = blob({ kondisi: 'sepsis', ph: '7.30', pco2: '30', hco3: '14.5', laktat: '4' });
+    expect(b).toContain('target awal MAP 65');
+    expect(b).not.toContain('≥80 jika riwayat hipertensi');
+    expect(b).not.toContain('ScvO₂ ≥70%');
+  });
+  it('Hiperkapnia permisif mengikuti algoritma ARDSNet (bukan "PaCO₂ hingga 70")', () => {
+    const b = blob(ardsSevere);
+    expect(b).toContain('target pH 7,30–7,45');
+    expect(b).not.toContain('hingga 70 mmHg');
+    expect(b).not.toContain('45–65');
+  });
+  it('Sitasi yang tidak ditemukan/salah sudah diganti', () => {
+    const all = [
+      blob(ardsSevere),
+      blob({ kondisi: 'sepsis', ph: '7.30', pco2: '30', hco3: '14.5', na: '140', cl: '100', laktat: '4' }),
+      blob({ kondisi: 'cardiac', ph: '7.55', pco2: '28', hco3: '24' }),
+      blob({ ph: '7.58', pco2: '50', hco3: '45' }),
+      blob({ ph: '7.26', pco2: '23', hco3: '10', na: '135', cl: '100', laktat: '3' }),
+    ].join(' ');
+    for (const bad of ['Feldman', 'Levy B. Chest', 'Endocr Rev', 'Seifter JL. NEJM 2023', 'Matthay MA. NEJM 2019', 'Mebazaa A. Intensive Care Med 2018', 'Gennari FJ. NEJM 1998', 'Laski ME. Am J Kidney Dis']) {
+      expect(all).not.toContain(bad);
+    }
   });
 });

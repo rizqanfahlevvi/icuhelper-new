@@ -3,8 +3,9 @@ import { AbgInputs } from './types';
 import { Calculator, AlertTriangle } from 'lucide-react';
 import {
   bicarbDeficit, bicarbSpaceFernandez, recommendBicarbFactor,
-  anionGap, deltaRatio, normalizeAgUpper, DELTA_BAND_LABEL, DELTA_RATIO_CAUTION, AG_ALBUMIN_NORMAL_G_DL,
+  anionGap, deltaRatio, normalizeAgUpper, DELTA_BAND_LABEL, DELTA_RATIO_CAUTION, AG_ALBUMIN_NORMAL_G_DL, hclPlan,
 } from '../../utils/acidBase';
+import { K_DEFICIT_FACTOR } from '../../utils/electrolytes';
 import { useSettingsStore } from '../../store/settingsStore';
 import { AgUpperNormalField } from '../../components/ui/AgUpperNormalField';
 
@@ -27,7 +28,8 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
   const [bb2, setBb2] = useState('');
   const [hco3act2, setHco3act2] = useState('');
   const [k, setK] = useState('');
-  const [cl, setCl] = useState('');
+  const [urineCl, setUrineCl] = useState('');
+  const [hco3tgt2, setHco3tgt2] = useState('');
 
   // Tab 3 state
   const [ph3, setPh3] = useState('');
@@ -46,7 +48,6 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
       if (abgInputs.hco3) setHco3act(abgInputs.hco3);
     } else if (activeTab === 2) {
       if (abgInputs.hco3) setHco3act2(abgInputs.hco3);
-      if (abgInputs.cl) setCl(abgInputs.cl);
     } else if (activeTab === 3) {
       if (abgInputs.ph) setPh3(abgInputs.ph);
       if (abgInputs.pco2) setPco23(abgInputs.pco2);
@@ -127,6 +128,7 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
                  <div className="text-2xl font-black text-[var(--label-primary)]">{b.toFixed(0)} mEq</div>
                  <div className="text-sm text-[var(--label-secondary)] font-medium">(= {b.toFixed(0)} mL NaHCO₃ 8.4% IV bolus)</div>
                  <div className="text-xs font-mono text-[var(--label-secondary)] mt-2">Dosis: 1 mEq/kg BB IV bolus. Ulangi tiap 10 menit jika diperlukan.</div>
+                 <div className="mt-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[11px] font-medium text-amber-600 dark:text-amber-400">⚠ AHA 2020: NaHCO₃ RUTIN tidak direkomendasikan pada henti jantung — pertimbangkan hanya pada kondisi khusus (hiperkalemia, overdosis antidepresan trisiklik/penghambat kanal Na).</div>
               </>
             ) : act >= target ? (
               <div className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">HCO₃⁻ aktual ({act}) sudah mencapai target ({target}). Tidak perlu koreksi.</div>
@@ -167,26 +169,30 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
     const b = parseFloat(bb2);
     const act = parseFloat(hco3act2);
     const kal = parseFloat(k);
-    const chl = parseFloat(cl);
+    const uCl = parseFloat(urineCl);
+    const tgt = parseFloat(hco3tgt2);
+    const hcl = hclPlan(b, act, tgt);
+    const inputCls = 'px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0';
+    const labelCls = 'text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider';
 
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">BB (kg)</label>
-            <input type="number" value={bb2} onChange={e=>setBb2(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" placeholder="e.g. 60" />
+            <label className={labelCls}>BB (kg)</label>
+            <input type="number" value={bb2} onChange={e=>setBb2(e.target.value)} className={inputCls} placeholder="e.g. 60" />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">HCO₃ Aktual</label>
-            <input type="number" value={hco3act2} onChange={e=>setHco3act2(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" placeholder="e.g. 38" />
+            <label className={labelCls}>HCO₃ Aktual</label>
+            <input type="number" value={hco3act2} onChange={e=>setHco3act2(e.target.value)} className={inputCls} placeholder="e.g. 38" />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Kalium K⁺</label>
-            <input type="number" value={k} onChange={e=>setK(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" placeholder="e.g. 2.8" />
+            <label className={labelCls}>Kalium K⁺</label>
+            <input type="number" value={k} onChange={e=>setK(e.target.value)} className={inputCls} placeholder="e.g. 2.8" />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Klorida Cl⁻</label>
-            <input type="number" value={cl} onChange={e=>setCl(e.target.value)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" placeholder="e.g. 88" />
+            <label className={labelCls}>Cl⁻ URIN spot</label>
+            <input type="number" value={urineCl} onChange={e=>setUrineCl(e.target.value)} className={inputCls} placeholder="mEq/L" />
           </div>
         </div>
 
@@ -196,31 +202,51 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
                 <div className="p-4 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 text-sm border border-emerald-200 dark:border-emerald-500/20 font-bold rounded-xl">HCO₃⁻ {act} mEq/L ≤ 26. Tidak ada alkalosis metabolik untuk dikoreksi.</div>
              ) : (
                 <>
-                  {!isNaN(chl) && (
-                    <div className={`p-4 border rounded-xl ${chl < 95 ? 'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700/50'}`}>
-                       <div className={`font-bold text-sm mb-1 ${chl < 95 ? 'text-amber-700 dark:text-amber-400' : 'text-primary'}`}>{chl < 95 ? '✅ Chloride-Responsive' : '⚡ Chloride-Resistant'}</div>
-                       <div className="text-xs font-medium text-[var(--label-secondary)]">{chl < 95 ? 'Kemungkinan penyebab: muntah, NG suction, diuretik. Koreksi dengan NaCl isotonis + KCl.' : 'Kemungkinan penyebab: hiperaldosteronisme, Cushing. Tangani penyebab primer.'}</div>
+                  {!isNaN(uCl) ? (
+                    <div className={`p-4 border rounded-xl ${uCl < 20 ? 'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700/50'}`}>
+                       <div className={`font-bold text-sm mb-1 ${uCl < 20 ? 'text-amber-700 dark:text-amber-400' : 'text-primary'}`}>{uCl < 20 ? '✅ Chloride-Responsive (Cl⁻ urin <20)' : '⚡ Chloride-Resistant (Cl⁻ urin ≥20)'}</div>
+                       <div className="text-xs font-medium text-[var(--label-secondary)]">{uCl < 20 ? 'Kemungkinan penyebab: muntah, NG suction, pasca-diuretik. Koreksi dengan NaCl isotonis + KCl.' : 'Kemungkinan penyebab: hiperaldosteronisme, Cushing, Bartter/Gitelman — atau pasien masih dalam efek diuretik (Cl⁻ urin tinggi). Tangani penyebab primer.'}</div>
+                    </div>
+                  ) : (
+                    <div className="p-3 border rounded-xl bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700/50 text-xs font-medium text-[var(--label-secondary)]">
+                      Isi <strong>Cl⁻ urin spot</strong> untuk membedakan chloride-responsive vs resistant. Cl⁻ serum tidak dapat dipakai untuk klasifikasi ini.
                     </div>
                   )}
 
                   {!isNaN(kal) && (
                     <div className={`p-4 border rounded-xl ${kal < 3.5 ? 'bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700/50'}`}>
                        <div className="font-bold text-sm mb-2 text-[var(--label-primary)]">Koreksi KCl IV</div>
-                       <div className="text-xl font-black text-primary mb-1">{4.0 - kal > 0 ? ((4.0 - kal) * 0.4 * b).toFixed(0) + ' mEq' : 'K⁺ cukup'}</div>
-                       {4.0 - kal > 0 && <div className="text-xs font-medium text-[var(--label-secondary)]">Berikan dengan kecepatan ≤20 mEq/jam (perifer) atau ≤40 mEq/jam (sentral).</div>}
-                       <div className="text-[11px] font-mono mt-2 text-slate-500">Defisit K⁺ ≈ (4.0 − {kal}) × 0.4 × {b}</div>
+                       <div className="text-xl font-black text-primary mb-1">{4.0 - kal > 0 ? ((4.0 - kal) * K_DEFICIT_FACTOR * b).toFixed(0) + ' mEq' : 'K⁺ cukup'}</div>
+                       {4.0 - kal > 0 && <div className="text-xs font-medium text-[var(--label-secondary)]">Laju ≤10 mEq/jam via perifer atau ≤20 mEq/jam via sentral (selaras Kalkulator Elektrolit). Rumatan harian & protokol lengkap: Kalkulator Elektrolit → Kalium.</div>}
+                       <div className="text-[11px] font-mono mt-2 text-slate-500">Defisit K⁺ ≈ (4.0 − {kal}) × {K_DEFICIT_FACTOR} × {b}</div>
                     </div>
                   )}
 
                   {act >= 40 && (
-                     <div className="p-4 border border-rose-200 bg-rose-50 dark:border-rose-500/30 dark:bg-rose-500/10 rounded-xl">
-                        <div className="font-bold text-sm text-rose-600 dark:text-rose-400 mb-2">HCl 0.1N — Alkalosis Berat (HCO₃⁻ ≥ 40)</div>
-                        <div className="text-xl font-black text-rose-600 dark:text-rose-400 mb-1">{(0.1 * b * (act - 24)).toFixed(0)} mEq HCl</div>
-                        <div className="text-xs font-medium text-[var(--label-secondary)] mb-2">Berikan via kateter vena sentral dalam 4–24 jam. Monitor pH tiap 4 jam.<br/>HCl 0.1N = 100 mEq/L → butuh <strong className="text-[var(--label-primary)]">{((0.1 * b * (act - 24)) / 0.1).toFixed(0)} mL</strong>.</div>
-                        <div className="text-[11px] font-mono text-slate-500">Rumus: 0.1 × BB × (HCO₃ aktual − 24)</div>
+                     <div className="p-4 border border-rose-200 bg-rose-50 dark:border-rose-500/30 dark:bg-rose-500/10 rounded-xl space-y-2">
+                        <div className="font-bold text-sm text-rose-600 dark:text-rose-400">HCl 0,1 N — Alkalosis Metabolik Berat (HCO₃⁻ ≥ 40)</div>
+                        <div className="text-xs font-medium text-[var(--label-secondary)]">Hanya untuk alkalosis berat/refrakter bergejala (mis. pH &gt;7,55) bila koreksi Cl⁻/K⁺ tidak cukup atau saline dikontraindikasikan.</div>
+                        <div className="flex items-center gap-2">
+                          <label className={labelCls}>Target HCO₃⁻</label>
+                          <input type="number" value={hco3tgt2} onChange={e=>setHco3tgt2(e.target.value)} className="w-24 px-3 py-2 bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none" placeholder="isi" />
+                          <span className="text-[11px] text-slate-500">mEq/L — tidak ada angka baku; koreksi parsial, bukan normalisasi</span>
+                        </div>
+                        {hcl ? (
+                          <>
+                            <div className="text-xl font-black text-rose-600 dark:text-rose-400">{hcl.doseMeq.toFixed(0)} mEq HCl</div>
+                            <div className="text-xs font-medium text-[var(--label-secondary)]">
+                              = <strong className="text-[var(--label-primary)]">{hcl.volume01NmL.toFixed(0)} mL HCl 0,1 N</strong> (0,1 mEq/mL) via kateter vena sentral.<br/>
+                              Laju maks 0,2 mEq/kg/jam = <strong className="text-[var(--label-primary)]">{hcl.maxRateMeqH.toFixed(1)} mEq/jam ({hcl.maxRateMlH.toFixed(0)} mL/jam)</strong> → durasi minimal <strong className="text-[var(--label-primary)]">{hcl.minHours.toFixed(1)} jam</strong>. Pantau AGD & elektrolit serial.
+                            </div>
+                            <div className="text-[11px] font-mono text-slate-500">Defisit H⁺ = 0,5 × BB × (HCO₃ aktual − target) = 0,5 × {b} × ({act} − {tgt}) = {hcl.doseMeq.toFixed(0)} mEq</div>
+                            <div className="text-[11px] text-slate-500">Estimasi saja — tidak memperhitungkan kehilangan asam berlanjut (mis. NGT). Konsentrasi &gt;0,1 N dilaporkan korosif walau lewat CVC.</div>
+                          </>
+                        ) : (
+                          <div className="text-xs font-medium text-[var(--label-secondary)]">Isi target HCO₃⁻ (lebih rendah dari HCO₃⁻ aktual) untuk menghitung dosis.</div>
+                        )}
                      </div>
                   )}
-                  <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 font-mono font-bold ml-1">📚 Gennari FJ. NEJM 1998; Galla JH. JASN 2000</div>
+                  <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 font-mono font-bold ml-1">📚 Emmett M. CJASN 2020 · Galla JH. JASN 2000 · Gennari FJ. NEJM 1998 (hipokalemia) · HCl: faktor 0,5 × BB & laju ≤0,2 mEq/kg/jam (rujukan farmasi klinis; keputusan pemilik)</div>
                 </>
              )}
           </div>
@@ -303,9 +329,9 @@ export default function AcidBaseCorrection({ abgInputs }: Props) {
         </div>
 
         <div className="p-4 border border-slate-200 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-800/50 rounded-xl">
-           <div className="font-bold text-sm mb-1 text-[var(--label-secondary)]">Strong Ion Difference (SID simpel)</div>
+           <div className="font-bold text-sm mb-1 text-[var(--label-secondary)]">Selisih Na⁺ − Cl⁻ (pengganti kasar SID)</div>
            <div className="text-xl font-black text-[var(--label-primary)] mb-1">{(n - c).toFixed(1)} mEq/L</div>
-           <div className="text-[11px] font-mono font-medium text-slate-500">SID = Na⁺ − Cl⁻</div>
+           <div className="text-[11px] font-mono font-medium text-slate-500">Na⁺ − Cl⁻ — BUKAN SID sebenarnya. SID apparent = (Na⁺ + K⁺ + Ca²⁺ + Mg²⁺) − (Cl⁻ + laktat).</div>
         </div>
         <div className="text-[10px] text-amber-600 dark:text-amber-400 font-mono font-bold ml-1">📚 Wrenn K. Ann Emerg Med 1990; Stewart PA. Can J Physiol Pharmacol 1983</div>
       </div>

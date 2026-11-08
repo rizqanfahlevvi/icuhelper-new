@@ -241,45 +241,54 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
   }
 
   // KONSIDERASI KLINIS
-  if (!isNaN(po2) && fio2 !== null) {
+  // (Ambang PEEP/klasifikasi P/F masih dijadwalkan Fase 3 — di sini hanya rujukan ECMO/NMB/hiperkapnia yang dikoreksi.)
+  if (!isNaN(po2) && fio2 !== null && kondisi !== 'cardiac') {
     const pf = po2 / fio2;
-    if (pf < 100) result.saran.push('P/F <100 (ARDS Severe): ↑ PEEP 13–18, prone position jika P/F <150, pertimbangkan NMB cisatrakurium, ECMO jika OI >40');
-    else if (pf < 200) result.saran.push('P/F 100–200 (ARDS Moderate): ↑ PEEP 8–13, FiO₂ 0.4–0.7, pertimbangkan prone jika tidak membaik');
+    if (pf < 100) result.saran.push('P/F <100 (ARDS Severe): ↑ PEEP 13–18, prone jika P/F <150, pertimbangkan NMB pada ARDS berat dini, ECMO-VV sesuai kriteria EOLIA (lihat kartu ARDS)');
+    else if (pf < 200) result.saran.push('P/F 100–200 (ARDS Moderate): ↑ PEEP 8–13, FiO₂ 0.4–0.7, prone bila P/F <150 (FiO₂ ≥0,6, PEEP ≥5)');
     else if (pf < 300) result.saran.push('P/F 200–300 (ARDS Mild): PEEP 5–8, FiO₂ titrasi, evaluasi ventilasi lung-protective');
   }
-  if (pH < 7.25 && pco2 > 50) result.saran.push('Asidosis respiratorik berat: ↑ RR atau ↑ VT (hati-hati Pplat), pertimbangkan NaHCO₃ jika pH <7.10 dengan ventilasi adekuat');
+  if (pH < 7.25 && pco2 > 50) result.saran.push('Asidosis respiratorik berat: ↑ RR (maks 35) lalu VT bertahap dengan memantau Pplat; NaHCO₃ hanya opsi bila pH <7,15 meski ventilasi sudah optimal (algoritma ARDSNet)');
   if (pco2 < 35 && pH > 7.45) result.saran.push('Alkalosis respiratorik: ↓ RR (bertahap), cek dead space, pastikan tidak ada pain/agitasi yang meningkatkan drive');
-  if (has('asidosis-metabolik') && be !== null && be < -5) result.saran.push('Asidosis metabolik: koreksi penyebab primer (sepsis, hipovolemia, DKA). NaHCO₃ hanya jika pH <7.10 DAN ventilasi adekuat');
+  if (has('asidosis-metabolik') && be !== null && be < -5) result.saran.push('Asidosis metabolik: koreksi penyebab primer (sepsis, hipovolemia, DKA). NaHCO₃ bukan terapi rutin — lihat kartu Koreksi Asidosis Metabolik (BICAR-ICU, BICARICU-2)');
   if (pH > 7.50 && hco3 > 30) result.saran.push('Alkalosis metabolik: koreksi hipokalemia, hipokloremia; hentikan diuretik; KCl replacement');
   if (kondisi === 'copd' && pco2 > 55) result.saran.push('PPOK: TARGET PaCO₂ = baseline pasien, bukan normocapnia! Koreksi bertahap — risiko alkalosis metabolik berat');
-  if (kondisi === 'ards') result.saran.push('ARDS: Pertahankan driving pressure ≤15 cmH₂O. Toleransi permissive hypercapnia (PaCO₂ 45–65) jika pH >7.20');
+  if (kondisi === 'ards') result.saran.push('ARDS: Pplat ≤30 & driving pressure ≤15 cmH₂O; hiperkapnia ditoleransi — ikuti algoritma pH ARDSNet (target 7,30–7,45; pH <7,15 → RR 35, lalu VT +1 mL/kg bertahap)');
 
   // ── TATALAKSANA: dipicu GANGGUAN YANG TERIDENTIFIKASI (primer/bersamaan), bukan
   //    sekadar nilai di luar rentang — supaya HCO₃⁻/PaCO₂ hasil kompensasi tidak "dikoreksi".
   //    Kartu koreksi juga mensyaratkan nilai absolut abnormal: gangguan "relatif"
   //    (mis. PaCO₂ 30 tapi > harapan Winter) cukup dijelaskan di Langkah 3.
+  // ── Isi kartu diperbarui Fase 2 (2026-11) — setiap angka bersumber; lihat `ref` tiap kartu.
   const metAcidCard = has('asidosis-metabolik') && hco3 < HCO3_LOW;
   const metAlkCard = has('alkalosis-metabolik') && hco3 > HCO3_HIGH;
   const respAcidCard = has('asidosis-respiratorik') && pco2 > PCO2_HIGH && acidosis;
   const respAlkCard = has('alkalosis-respiratorik') && pco2 < PCO2_LOW && alkalosis;
-  // ── KOREKSI ASAM-BASA SPESIFIK ──────────────────────────────────────────
+  const pfNow = !isNaN(po2) && fio2 !== null ? po2 / fio2 : null;
+  const laktatTxt = isNaN(laktat) ? '?' : laktat.toFixed(1);
+
+  // NaHCO₃: BICAR-ICU (Lancet 2018) — pH ≤7,20: luaran primer tidak berbeda, manfaat hanya di strata AKIN 2–3;
+  // BICARICU-2 (JAMA 2025) — pH ≤7,20 + AKI sedang–berat: mortalitas 90 hari 62,1% vs 61,7%, KRT 35% vs 50%.
+  const bicarText = pH <= 7.20
+    ? 'pH ≤7,20: BUKAN terapi rutin. Bila disertai AKI sedang–berat dapat dipertimbangkan untuk mengurangi kebutuhan KRT (BICARICU-2: KRT 35% vs 50%) — mortalitas 90 hari TIDAK berbeda (62,1% vs 61,7%). Tanpa AKI, BICAR-ICU tidak menunjukkan perbaikan luaran primer.'
+    : 'pH >7,20: tidak diindikasikan — koreksi penyebab primer.';
+
   if (metAcidCard) {
     const isHAGMA = agHigh;
     const isNAGMA = agRes !== null && !agHigh;
-    const bicarInd = pH < 7.10 ? '⚠ TERINDIKASI (pH <7.10)' : pH < 7.20 ? 'Pertimbangkan (pH 7.10–7.20, esp. AKI/NAGMA)' : 'Belum terindikasi — koreksi penyebab primer dulu';
     result.mgmt.push({
       judul: 'Koreksi Asidosis Metabolik',
       color: 'text-destructive',
       isi: [
-        `NaHCO₃ IV: ${bicarInd}`,
-        `Formula dosis: 0.5 × BBideal(kg) × (target HCO₃ − ${hco3.toFixed(0)} mmol/L) = mEq NaHCO₃ — targetkan HCO₃ 12–15, BUKAN normalisasi penuh`,
-        'Pemberian: ½ dosis dalam 4 jam pertama → evaluasi AGD → ½ sisanya jika perlu. NaHCO₃ 8.4% = 1 mEq/mL; NaHCO₃ 7.5% = 0.9 mEq/mL',
-        'Perhatian: NaHCO₃ → ↑ PaCO₂ transien (CO₂ release dari buffer) — pastikan ventilasi adekuat. Hindari jika alkalosis concurrent (Δ-Δ >2)',
+        `NaHCO₃ IV — ${bicarText}`,
+        'Dosis & target: hitung di tab 🧪 NaHCO₃ (faktor ruang distribusi menyesuaikan beratnya asidosis). Kedua uji klinis memakai target pH ≥7,30 — bukan normalisasi HCO₃.',
+        'Sediaan: NaHCO₃ 8,4% = 1 mEq/mL; 7,5% = 0,9 mEq/mL. Protokol BICAR-ICU: NaHCO₃ 4,2% 125–250 mL dalam 30 menit, maks 1000 mL/24 jam.',
+        'Perhatian: NaHCO₃ → ↑ PaCO₂ transien — pastikan ventilasi adekuat. Efek samping yang tercatat di BICAR-ICU: alkalosis metabolik, hipernatremia, hipokalsemia. Hindari bila ada alkalosis metabolik bersamaan (Δ-ratio >2).',
         isHAGMA ? 'HAGMA: Prioritas koreksi kausa (laktat → resusitasi, DKA → insulin, uremia → RRT, toksik → eliminasi)' : '',
         isNAGMA ? 'NAGMA: Identifikasi etiologi — diarrhea → rehidrasi; RTA → NaHCO₃ kronik 1–2 mEq/kg/hari; dilutional → hentikan saline, ganti ke balanced crystalloid' : '',
-        'Monitoring post-koreksi: pH, PaCO₂, K⁺ (hipokalemia memburuk saat pH naik), Na⁺ (hati-hati Na overload)'
+        'Monitoring post-koreksi: pH, PaCO₂, K⁺ (hipokalemia memburuk saat pH naik), Na⁺, Ca²⁺ ion'
       ].filter(Boolean),
-      ref: 'Kraut JA, Madias NE. NEJM 2014 · Jaber S et al. Lancet 2018 (BICAR-ICU) · Berend K. NEJM 2014'
+      ref: 'Jaber S et al. Lancet 2018 (BICAR-ICU) · Jung B et al. JAMA 2025 (BICARICU-2) · Kraut JA, Madias NE. NEJM 2014 · Berend K. NEJM 2014'
     });
   }
 
@@ -289,33 +298,33 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
       judul: 'Koreksi Alkalosis Metabolik',
       color: TEXT_AMBER,
       isi: [
-        'Tentukan tipe: Chloride-responsive (urin Cl⁻ <20 mEq/L) vs Chloride-resistant (urin Cl⁻ >20 mEq/L)',
-        'Chloride-responsive (muntah, NGT suction, diuretik): NaCl 0.9% IV + KCl replacement',
-        'KCl IV: 10–20 mEq/jam via central line — koreksi hipokalemia WAJIB dulu (target K⁺ ≥3.5 mEq/L)',
+        'Tentukan tipe dengan Cl⁻ URIN spot: <20 mEq/L → chloride-responsive (muntah, NGT, pasca-diuretik); ≥20 → chloride-resistant (hiperaldosteronisme, Cushing, Bartter/Gitelman) — atau masih dalam efek diuretik',
+        'Chloride-responsive: NaCl 0,9% IV + koreksi K⁺',
+        'KCl IV: ≤10 mEq/jam via perifer, ≤20 mEq/jam via sentral (selaras Kalkulator Elektrolit) — koreksi hipokalemia dulu (target K⁺ ≥3,5 mEq/L)',
         'Chloride-resistant (hiperaldosteronisme, Cushing, Bartter): koreksi underlying + spironolakton/amiloride',
         hco3 > 35 ? 'Acetazolamide 250–500 mg IV/8 jam: pilihan untuk CHF/fluid-overloaded (hindari eGFR <30, sulfa allergy)' : '',
-        severeAlk ? 'Alkalosis BERAT (pH >7.55): pertimbangkan HCl 0.1N via CVC — dosis: 0.1 × BB × (HCO₃ aktual − 24) mEq, berikan dalam 12–24 jam, pantau ketat' : '',
+        severeAlk ? 'Alkalosis BERAT/refrakter (pH >7,55 atau HCO₃ >40): pertimbangkan HCl 0,1 N via vena sentral — defisit H⁺ = 0,5 × BB × (HCO₃ aktual − HCO₃ target) mEq, laju ≤0,2 mEq/kg/jam; hitung di tab ⚗️ KCl / HCl. Rumus tidak memperhitungkan kehilangan asam berlanjut (mis. NGT) — pantau AGD & elektrolit serial.' : '',
         'Stop penyebab iatrogenik: kurangi/stop diuretik, hindari antasid berlebihan, kurangi transfusi sitrat'
       ].filter(Boolean),
-      ref: 'Emmett M. CJASN 2020 · Gennari FJ. NEJM 1998 · Laski ME. Am J Kidney Dis 2006'
+      ref: 'Emmett M. CJASN 2020 · Galla JH. JASN 2000 · Laski ME, Sabatini S. Semin Nephrol 2006'
     });
   }
 
   if (respAcidCard) {
-    const permHyperCap = kondisi === 'ards' || (!isNaN(po2) && fio2 !== null && (po2/fio2) < 200);
+    const permHyperCap = kondisi === 'ards' || (pfNow !== null && pfNow < 200);
     result.mgmt.push({
       judul: 'Koreksi Asidosis Respiratorik',
       color: 'text-destructive',
       isi: [
         kondisi === 'copd' ? 'PPOK: TARGET PaCO₂ = baseline pasien (bukan 40 mmHg!) — koreksi agresif risiko alkalosis rebound berat' : 'Target: perbaiki ventilasi alveolar, bukan buffer HCO₃',
-        kondisi === 'copd' || kondisi === 'umum' ? 'NIV BiPAP lini pertama (GCS baik, kooperatif): IPAP 12–18 / EPAP 4–8 cmH₂O, titrasi PaCO₂ turun 5–8 mmHg/jam' : '',
+        kondisi === 'copd' || kondisi === 'umum' ? 'NIV bilevel lini pertama pada PPOK eksaserbasi dengan asidosis respiratorik (pH ≤7,35) bila sadar & kooperatif (ERS/ATS 2017). Contoh setelan awal IPAP 12–18 / EPAP 4–8 cmH₂O, titrasi dengan AGD ulang' : '',
         'Intubasi jika: NIV gagal/kontraindikasi, GCS ↓ berat, sekresi tidak terkontrol, instabilitas hemodinamik',
-        'Pada ventilator: ↑ RR 2–3/mnt bertahap (max 35/mnt), awasi auto-PEEP. ↑ VT 6→8 mL/kgBBP hanya jika Pplat <28 cmH₂O',
-        permHyperCap ? `Permissive hypercapnia (ARDS/lung-protective): toleransi PaCO₂ hingga 70 mmHg jika pH >7.20 dan driving pressure ≤15 cmH₂O — JANGAN ↑ VT untuk "normalisasi" CO₂` : '',
-        'NaHCO₃ TIDAK diindikasikan untuk asidosis resp murni — hanya sebagai bridge jika pH <7.10 dan ventilasi optimal sudah tercapai',
+        'Pada ventilator: ↑ RR bertahap (maks 35/mnt), awasi auto-PEEP. VT di atas 6 mL/kgBBP hanya sesuai algoritma ARDSNet (pH <7,15 meski RR 35) sambil memantau Pplat',
+        permHyperCap ? 'Hiperkapnia permisif (ARDS/lung-protective) — algoritma pH ARDSNet: target pH 7,30–7,45; pH 7,15–7,30 → naikkan RR (maks 35); pH <7,15 → RR 35, lalu VT +1 mL/kg bertahap (Pplat 30 boleh terlampaui), NaHCO₃ boleh diberikan. JANGAN ↑ VT hanya untuk "normalisasi" CO₂' : '',
+        'NaHCO₃ TIDAK diindikasikan untuk asidosis resp murni — hanya opsi bila pH <7,15 dan ventilasi sudah dioptimalkan (ARDSNet)',
         'Bronkodilator nebulisasi: salbutamol 2.5 mg + ipratropium 0.5 mg q4–6h (esp. PPOK/asma)'
       ].filter(Boolean),
-      ref: 'GOLD 2024 · Rochwerg B. Eur Respir J 2017 (NIV) · Matthay MA. NEJM 2019 · Slutsky AS. NEJM 2013 (lung-protective)'
+      ref: 'GOLD 2024 · Rochwerg B. Eur Respir J 2017 (NIV) · ARDS Network. NEJM 2000 + protokol ARDSNet · Slutsky AS, Ranieri VM. NEJM 2013'
     });
   }
 
@@ -325,13 +334,13 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
       color: TEXT_AMBER,
       isi: [
         'Koreksi penyebab: nyeri → analgesia (morfin/fentanyl titrasi); agitasi → sedasi (propofol/midazolam titrasi); sepsis → kultur + antibiotik',
-        'Pada ventilator: ↓ RR 2/mnt bertahap (min 10/mnt), atau tambah dead space connector (increase anatomical dead space)',
-        'Target pH <7.50 secara bertahap — koreksi terlalu cepat dapat presipitasi seizure (alkalosis akut → vasokonstriksi serebral)',
+        'Pada ventilator: ↓ RR 2/mnt bertahap (min 10/mnt) atau ↓ VT; pastikan analgesia/sedasi adekuat',
+        'Hipokapnia/alkalemia → vasokonstriksi serebral, aritmia, dan ambang kejang turun (Laffey & Kavanagh 2002); bila hipokapnia sudah berlangsung lama, normalisasi PaCO₂ dilakukan bertahap',
         'Elektrolit yang sering terganggu: hipokalemia, hipofosfatemia, hipokalsemia ionik — koreksi bersamaan',
         'Liver failure: alkalosis resp persisten akibat hiperammonemia — tidak bisa dicegah tanpa koreksi kausa hepatik',
         'Cek VD/VT meningkat jika PaCO₂ rendah persisten meski RR sudah diturunkan (dead space patologis)'
       ],
-      ref: 'Berend K. NEJM 2014 · Laffey JG. NEJM 2002 · Seifter JL. NEJM 2023'
+      ref: 'Berend K. NEJM 2014 · Laffey JG, Kavanagh BP. NEJM 2002'
     });
   }
 
@@ -341,66 +350,73 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
       judul: 'Asidosis Laktat / HAGMA',
       color: 'text-primary',
       isi: [
-        'Target MAP ≥65 mmHg — resusitasi dengan Ringer Laktat atau PlasmaLyte (lebih sedikit dilutional acidosis vs NaCl 0.9%)',
-        'Norepinefrin lini pertama jika MAP tidak respons cairan: 0.1–0.5 mcg/kg/mnt via central, titrasi',
-        `Laktat clearance: target ≥10% penurunan per 2 jam. Laktat saat ini: ${laktat.toFixed(1)} mmol/L${laktat >= 4 ? ' — BERAT, mortalitas ↑' : ''}`,
-        `NaHCO₃: ${pH < 7.10 ? 'TERINDIKASI (pH <7.10) — dosis 0.5 × BBideal × (15 − ' + hco3.toFixed(0) + ') mEq, berikan ½ dalam 4 jam' : pH < 7.20 ? 'Pertimbangkan jika AKI concurrent (BICAR-ICU benefit subgroup)' : 'Belum terindikasi — koreksi kausa primer dulu'}`,
+        kondisi === 'cardiac'
+          ? 'Edema paru kardiogenik + laktat tinggi: curigai hipoperfusi/syok kardiogenik — HINDARI bolus cairan rutin; dukungan inotropik/vasopresor & atasi kausa jantung (lihat kartu Edema Paru Kardiogenik)'
+          : 'Target MAP awal 65 mmHg — resusitasi dengan kristaloid seimbang (RL/PlasmaLyte) lebih disarankan daripada NaCl 0,9% (SSC 2021)',
+        'Norepinefrin lini pertama bila MAP tidak respons cairan — boleh dimulai via vena perifer daripada menunda menunggu akses sentral (SSC 2021)',
+        `Laktat saat ini: ${laktat.toFixed(1)} mmol/L${laktat >= 4 ? ' — BERAT, mortalitas ↑' : ''}. Ukur ulang bila >2 mmol/L dan arahkan resusitasi untuk menurunkannya (SSC 2021)`,
+        `NaHCO₃: ${pH <= 7.20 ? 'bukan untuk memperbaiki hemodinamik/kebutuhan vasopresor pada asidosis laktat hipoperfusi (SSC 2021). Bila disertai AKI sedang–berat dapat dipertimbangkan — BICARICU-2: KRT ↓ (35% vs 50%), mortalitas sama. Dosis di tab 🧪 NaHCO₃' : 'tidak diindikasikan (pH >7,20) — koreksi kausa primer'}`,
         'Koreksi kausa primer: sepsis (antibiotik <1 jam dari onset), iskemia (revaskularisasi), DKA (insulin), hepatik (koreksi koagulopati)',
         'Tiamin IV 100–200 mg jika suspek defisiensi (alkohol, malnutrisi, refrakter terhadap resusitasi)'
       ],
-      ref: 'Evans L et al. Intensive Care Med 2021 (SSC) · Jaber S. Lancet 2018 (BICAR-ICU) · Levy B. Chest 2015'
+      ref: 'Evans L et al. Intensive Care Med 2021 (SSC) · Jaber S. Lancet 2018 (BICAR-ICU) · Jung B. JAMA 2025 (BICARICU-2) · Kraut JA, Madias NE. NEJM 2014'
     });
   }
 
   if (agHigh && (isNaN(laktat) || laktat < 4) && metAcidCard) {
     result.mgmt.push({
-      judul: 'Kemungkinan DKA / Ketoasidosis',
+      judul: 'Kemungkinan DKA / Ketoasidosis — konfirmasi GDS & keton',
       color: 'text-primary',
       isi: [
-        'Cek GDS, keton darah (beta-hydroxybutyrate), K⁺, Mg²⁺, fosfat sebelum mulai terapi',
-        'Resusitasi cairan: NaCl 0.9% 1 L/jam pertama (1–2 jam), lanjut 250–500 mL/jam sesuai hidrasi + output',
-        '⚠ CEK K⁺ DAHULU — jika K⁺ <3.5: TUNDA insulin, berikan KCl 20–40 mEq/jam IV sampai K⁺ ≥3.5',
-        'Insulin regular IV: 0.1 unit/kgBB/jam (setelah K⁺ ≥3.5). Target: ↓ GDS 50–75 mg/dL/jam, AG normalisasi',
-        'Ganti ke D5%/D10% + insulin saat GDS <200 (DKA) atau <250 (HHS) mg/dL — jaga agar GDS 150–200',
-        'Fosfat: koreksi jika <1 mg/dL atau ada kelemahan otot napas',
-        'NaHCO₃ pada DKA: hanya jika pH <7.0 setelah 1 jam resusitasi (ADA 2024 — kontroversi)'
+        'Konfirmasi dulu: GDS, keton darah (β-hidroksibutirat), K⁺, Mg²⁺, fosfat sebelum mulai terapi',
+        'Cairan: kristaloid isotonik — larutan seimbang (RL/PlasmaLyte) bila tersedia atau NaCl 0,9% (konsensus 2024); laju disesuaikan status volume — konsensus 2024 lebih konservatif dibanding protokol ADA 2009 (1 L/jam pertama lalu 250–500 mL/jam); hati-hati gagal jantung/ginjal',
+        '⚠ CEK K⁺ DAHULU — K⁺ <3,5 mmol/L: TUNDA insulin, berikan KCl IV ±10–20 mmol/jam (≤10 perifer, ≤20 sentral; monitor EKG) sampai K⁺ ≥3,5 (konsensus 2024)',
+        'Insulin regular IV: 0,1 unit/kgBB/jam setelah K⁺ ≥3,5',
+        'Tambahkan dekstrosa 5–10% saat GDS <250 mg/dL agar insulin tetap berjalan sampai ketoasidosis teratasi (konsensus 2024)',
+        'Fosfat: koreksi jika <1 mg/dL atau ada kelemahan otot napas/gangguan jantung',
+        'NaHCO₃ pada DKA: hanya jika pH <7,0',
+        'Resolusi DKA (konsensus 2024): keton <0,6 mmol/L DAN pH vena ≥7,3 atau HCO₃ ≥18 mmol/L'
       ],
-      ref: 'ADA Standards of Care 2024 · Kitabchi AE. Diabetes Care 2009 · Umpierrez GE. Endocr Rev 2023'
+      ref: 'Umpierrez GE et al. Diabetes Care 2024;47:1257 (konsensus ADA/EASD/JBDS/AACE/DTS) · Kitabchi AE et al. Diabetes Care 2009'
     });
   }
 
-  if (kondisi === 'ards' || (!isNaN(po2) && fio2 !== null && (po2/fio2) < 300)) {
-    const pf = !isNaN(po2) && fio2 !== null ? po2/fio2 : null;
+  if (kondisi === 'ards' || (pfNow !== null && pfNow < 300 && kondisi !== 'cardiac')) {
+    const pf = pfNow;
+    const ecmoHint = (pf !== null && pf < 80) || (pH < 7.25 && pco2 >= 60);
     result.mgmt.push({
       judul: 'Manajemen ARDS',
       color: 'text-primary',
       isi: [
-        'Lung-Protective Ventilation: VT 6 mL/kgBBP, Pplat ≤28 cmH₂O, Driving Pressure ≤15 cmH₂O, PEEP per ARDSNet table',
-        pf !== null && pf < 150 ? '🔄 Prone positioning: ≥16 jam/hari — wajib jika P/F <150 (PROSEVA 2013, NNT=8 untuk mortalitas)' : 'Prone positioning: pertimbangkan jika P/F tidak membaik 12–24 jam (threshold P/F <200–300 per PROSEVA update)',
-        pf !== null && pf < 120 ? '💊 Neuromuscular blockade: cisatracurium 37.5 mg bolus → 37.5 mg/jam drip IV (48 jam awal, jika RASS ≤-3)' : '',
-        'Konservasi cairan: fluid-restrictive strategy hari 2–7 setelah stabilisasi hemodinamik (FACTT trial)',
-        pf !== null && pf < 80 ? '🔴 Pertimbangkan ECMO-VV: jika OI >40 atau P/F <80 refrakter ≥6 jam (EOLIA 2018 — konsultasi ECMO center segera)' : '',
-        'Kortikosteroid: deksametason 6 mg/hari IV — dipertimbangkan pada ARDS moderate-severe (RECOVERY 2021, DEXA-ARDS 2020)',
-        'Target: SpO₂ 92–96%, pH >7.20 (toleransi permissive hypercapnia), Pplat <28, driving pressure <15'
+        'Lung-protective: VT 6 mL/kgBBP (rentang 4–8), Pplat ≤30 cmH₂O (ARDSNet/SSC 2021), driving pressure ≤15 cmH₂O, PEEP sesuai tabel ARDSNet; ARDS sedang–berat: PEEP lebih tinggi TANPA recruitment maneuver berkepanjangan (ATS 2024)',
+        pf !== null && pf < 150
+          ? '🔄 Prone ≥16 jam/hari bila P/F <150 dengan FiO₂ ≥0,6 & PEEP ≥5 — PROSEVA: mortalitas 28 hari 16,0% vs 32,8% (NNT ≈6); direkomendasikan ESICM 2023'
+          : 'Prone: indikasi bila P/F <150 dengan FiO₂ ≥0,6 & PEEP ≥5 (kriteria PROSEVA); di atas ambang itu belum ada bukti manfaat mortalitas',
+        pf !== null && pf < 150 ? '💊 NMB (opsional, ARDS berat dini): cisatrakurium 15 mg bolus IV lalu 37,5 mg/jam selama 48 jam, setelah sedasi dalam (ACURASYS, P/F <150). ROSE 2019: tanpa manfaat mortalitas; ATS 2024: rekomendasi kondisional' : '',
+        'Cairan: strategi konservatif setelah syok teratasi (FACTT trial)',
+        ecmoHint ? '🔴 ECMO-VV — kriteria EOLIA setelah ventilasi dioptimalkan: P/F <50 >3 jam, P/F <80 >6 jam, atau pH <7,25 dengan PaCO₂ ≥60 >6 jam. EOLIA: mortalitas 60 hari 35% vs 46% (p=0,09); ATS 2024 menyarankan pada ARDS berat terpilih — konsultasi pusat ECMO' : '',
+        'Kortikosteroid (ATS 2024: disarankan, kondisional): ARDS non-COVID sedang–berat → deksametason 20 mg/hari IV hari 1–5 lalu 10 mg/hari hari 6–10 (DEXA-ARDS); COVID-19 → deksametason 6 mg/hari hingga 10 hari (RECOVERY)',
+        'Target ARDSNet: PaO₂ 55–80 mmHg atau SpO₂ 88–95%; pH 7,30–7,45 (hiperkapnia ditoleransi sesuai algoritma ARDSNet)'
       ].filter(Boolean),
-      ref: 'Matthay MA. NEJM 2019 · Guérin C. NEJM 2013 (PROSEVA) · Combes A. NEJM 2018 (EOLIA) · Villar J. Lancet Respir Med 2020 (DEXA-ARDS) · Slutsky AS. NEJM 2013'
+      ref: 'Qadir N et al. AJRCCM 2024 (ATS) · Grasselli G et al. Intensive Care Med 2023 (ESICM) · ARDS Network. NEJM 2000 · Guérin C. NEJM 2013 (PROSEVA) · Papazian L. NEJM 2010 (ACURASYS) · Combes A. NEJM 2018 (EOLIA) · Villar J. Lancet Respir Med 2020 (DEXA-ARDS) · RECOVERY. NEJM 2021'
     });
   }
 
-  if (kondisi === 'sepsis' || (!isNaN(laktat) && laktat >= 2 && agHigh)) {
+  if (kondisi === 'sepsis' || (!isNaN(laktat) && laktat >= 2 && agHigh && kondisi !== 'cardiac')) {
     result.mgmt.push({
       judul: 'Manajemen Sepsis / Syok Septik (SSC 2021)',
       color: 'text-primary',
       isi: [
-        '⏱ HOUR-1 BUNDLE: Kultur darah (2 set, aerob+anaerob) → Antibiotik broad-spectrum IV → Laktat → Akses IV → Resusitasi',
-        'Cairan: 30 mL/kgBB balanced crystalloid (RL preferred) dalam 3 jam; nilai respons cairan dengan PLR / VTI / PPV — STOP jika tidak responsif (cegah fluid overload)',
-        'Vasopressor: Norepinefrin lini pertama 0.01–0.5 mcg/kg/mnt via central/IO, target MAP ≥65 mmHg (atau ≥80 jika riwayat hipertensi)',
-        'Vasopressin 0.03 unit/mnt: tambahkan jika dosis NE >0.25 mcg/kg/mnt (sparing effect, turunkan NE dose)',
-        'Kortikosteroid: hidrokortison 200 mg/hari IV (50 mg/6 jam atau infus kontinu) jika refrakter vasopressor — bukan semua sepsis',
-        `Laktat monitoring: target clearance ≥10%/2 jam (saat ini: ${isNaN(laktat) ? '?' : laktat.toFixed(1)} mmol/L). ScvO₂ ≥70%; transfusi PRC jika Hb <7 dan ScvO₂ rendah`,
-        'Antibiotik: de-eskalasi setelah 48–72 jam sesuai kultur. Durasi: 5–7 hari untuk respons klinis baik (IDSA/SSC)'
+        '⏱ Hour-1 bundle: ukur laktat (ulang bila >2) → kultur darah sebelum antibiotik → antibiotik spektrum luas → kristaloid 30 mL/kg bila hipotensi atau laktat ≥4 → vasopresor bila MAP <65 selama/sesudah cairan',
+        'Antibiotik: ≤1 jam bila syok atau kemungkinan sepsis tinggi; bila sepsis baru "mungkin" tanpa syok, evaluasi cepat lalu beri ≤3 jam bila kecurigaan menetap',
+        'Cairan: kristaloid seimbang lebih disarankan; nilai respons cairan (PLR/VTI/PPV) dan hentikan bila tidak responsif; capillary refill time dapat dipakai sebagai pelengkap',
+        'Vasopresor: norepinefrin lini pertama, target awal MAP 65 mmHg — boleh dimulai via vena perifer. Target 80–85 tidak menurunkan mortalitas (SEPSISPAM; AF lebih sering); pada hipertensi kronik kebutuhan RRT lebih rendah tanpa beda mortalitas',
+        'Vasopressin 0,03 unit/mnt: ditambahkan alih-alih menaikkan dosis NE; dalam praktik dimulai saat NE 0,25–0,5 mcg/kg/mnt',
+        'Kortikosteroid: hidrokortison 200 mg/hari IV (50 mg/6 jam) bila kebutuhan vasopresor menetap — mis. NE ≥0,25 mcg/kg/mnt ≥4 jam setelah mulai',
+        `Laktat saat ini: ${laktatTxt} mmol/L — ukur ulang dan arahkan resusitasi untuk menurunkannya. Transfusi PRC bila Hb <7 g/dL (strategi restriktif)`,
+        'Antibiotik: evaluasi de-eskalasi harian; durasi lebih pendek bila respons klinis baik'
       ],
-      ref: 'Evans L et al. Intensive Care Med 2021 (SSC) · Levy MM. Crit Care Med 2018 · Rhodes A. Intensive Care Med 2017'
+      ref: 'Evans L et al. Intensive Care Med 2021 (SSC) · Levy MM et al. Crit Care Med 2018 (hour-1 bundle) · Asfar P et al. NEJM 2014 (SEPSISPAM)'
     });
   }
 
@@ -414,12 +430,13 @@ export function interpretAbg(inputs: AbgInputs, opts: AbgOptions = {}): AbgResul
         'Nitrogliserin IV: mulai 10–20 mcg/mnt, titrasi 10–20 mcg/mnt tiap 5 mnt jika sistolik >100 mmHg (turunkan afterload)',
         'HINDARI cairan berlebihan — resusitasi hanya jika ada bukti hipovolemia konkuren (RV failure, tamponade)',
         'Low output / kardiogenik syok: dobutamin 2–10 mcg/kgBB/mnt (ionotropik) + NE jika MAP tidak tercapai',
+        !isNaN(laktat) && laktat >= 2 ? `Laktat ${laktat.toFixed(1)} mmol/L pada edema paru: curigai hipoperfusi/syok kardiogenik — bundle cairan sepsis tidak ditampilkan otomatis; bila sepsis memang dicurigai, pilih kondisi "Sepsis" dan nilai respons cairan dengan hati-hati` : '',
         'Intubasi: jika gagal NIV, GCS ↓, asidosis berat (pH <7.20), atau distres napas yang tidak terkontrol',
         'Koreksi penyebab precipitating: ACS (kateterisasi emergent), AF rapid (rate control/kardioversi), hipertensif emergensi (NTG IV)'
-      ],
-      ref: 'McDonagh TA et al. Eur Heart J 2021 (ESC HF) · Mebazaa A. Intensive Care Med 2018 · Masip J. Eur Heart J Acute Cardiovasc Care 2022'
+      ].filter(Boolean),
+      ref: 'McDonagh TA et al. Eur Heart J 2021 (ESC HF) · Mebazaa A et al. Intensive Care Med 2016 · Masip J. Eur Heart J Acute Cardiovasc Care 2022'
     });
   }
-  
+
   return result;
 }
