@@ -5,7 +5,7 @@ import { Accordion } from '../../components/ui/Accordion';
 
 const RASS_LEVELS = [
   { val: 4, label: '+4 Combative — Agresif', desc: 'Agresif/kekerasan, bahaya langsung terhadap staf. Dapat mencabut infus, ETT.', a: '⚠️ DARURAT: Amankan pasien & jalur IV/ETT segera! Analgesik IV bolus → sedatif titrasi. Evaluasi penyebab: nyeri, hipoksia, retensi urin, delirium hiperaktif.', c: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
-  { val: 3, label: '+3 Very Agitated — Sangat Gelisah', desc: 'Menarik/mencabut tube/kateter; agresif terhadap staf.', a: 'Evaluasi nyeri (CPOT), hipoksia, distensi kandung kemih, withdrawal. Analgesik IV terlebih dahulu. Pertimbangkan midazolam bolus atau dexmedetomidine.', c: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
+  { val: 3, label: '+3 Very Agitated — Sangat Gelisah', desc: 'Menarik/mencabut tube/kateter; agresif terhadap staf.', a: 'Evaluasi nyeri (CPOT), hipoksia, distensi kandung kemih, withdrawal. Analgesik IV terlebih dahulu. Bila tetap perlu sedasi: dexmedetomidine atau propofol (PADIS); benzodiazepin hanya untuk indikasi khusus (mis. withdrawal alkohol, kejang).', c: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
   { val: 2, label: '+2 Agitated — Gelisah', desc: 'Gerakan yang sering dan tidak bertujuan; melawan/fighting ventilator.', a: 'Evaluasi penyebab reversibel. Titrasi sedatif ke atas. Pertimbangkan reposisi, analgesik, dexmedetomidine.', c: 'text-orange-500', bg: 'bg-orange-500/10 border-orange-500/20' },
   { val: 1, label: '+1 Restless — Tidak Tenang', desc: 'Cemas, apprehensif, namun gerakan tidak agresif atau kuat.', a: 'Cek kenyamanan: nyeri? posisi? kandung kemih? NGT bermasalah? Orientasikan pasien. Analgesik sebelum tambah sedatif.', c: 'text-amber-500', bg: 'bg-amber-500/10 border-amber-500/20' },
   { val: 0, label: '0 Alert and Calm ✓ TARGET', desc: 'Sadar dan tenang — TARGET SEDASI IDEAL (PADIS 2018 / eCASH).', a: 'TARGET SEDASI IDEAL (PADIS 2018/eCASH). Pertahankan. Monitor setiap 4 jam. Lakukan SAT jika memenuhi syarat.', c: 'text-green-500', bg: 'bg-green-500/10 border-green-500/20' },
@@ -91,10 +91,10 @@ export default function ScoringRass() {
           <li><strong className="text-foreground">Tentang RASS:</strong> Alat penilaian tingkat sedasi di ICU. Diadopsi dalam PADIS 2018 sebagai skala sedasi utama karena validitas tinggi.</li>
           <li><strong className="text-foreground">eCASH Principle:</strong> <em>early Comfort using Analgesia, minimal Sedatives, maximal Humane care</em>.</li>
           <li><strong className="text-foreground">Analgesia First:</strong> Atasi nyeri dahulu (CPOT/NRS) sebelum pemberian sedatif.</li>
-          <li><strong className="text-foreground">Target Standar:</strong> Target Sedasi ICU pada umumnya adalah RASS 0 hingga -1 (Alert and Calm atau Drowsy). Hindari sedasi konstan berlebihan.</li>
+          <li><strong className="text-foreground">Target Standar:</strong> PADIS 2018 menyarankan sedasi ringan (kisaran RASS −2 hingga +1, sering ditargetkan 0 s/d −1) dibanding sedasi dalam, kecuali ada indikasi sedasi dalam. PADIS 2025: dexmedetomidine disarankan dibanding propofol untuk sedasi (rekomendasi kondisional).</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Sessler CN et al. Am J Respir Crit Care Med 2002;166:1338 (RASS validasi) · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Devlin JW et al. (PADIS 2025 update) Crit Care Med 2025;53:e711 · Vincent JL et al. (eCASH concept) ICM 2016;42:962
+          📚 Sessler CN et al. Am J Respir Crit Care Med 2002;166:1338 (RASS validasi) · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Lewis K et al. (PADIS 2025 focused update) Crit Care Med 2025;53:e711 · Vincent JL et al. (eCASH concept) ICM 2016;42:962
         </div>
       </Accordion>
     </div>

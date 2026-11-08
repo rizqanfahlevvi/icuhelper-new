@@ -114,11 +114,11 @@ export default function ScoringCamicu() {
               <div className="p-4 rounded-xl border bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 mt-4 animate-in fade-in slide-in-from-bottom-2">
                   <div className="font-bold text-sm mb-1 uppercase tracking-wider">Tindakan — Mnemonic THINK</div>
                   <div className="text-sm space-y-1 text-slate-800 dark:text-slate-200">
-                    <p><strong>T</strong>oxic: Sepsis, obat-obatan (benzo/opioid/antikolinergik), withdrawal.</p>
-                    <p><strong>H</strong>ypoxemia: Cek PaO2, anemia.</p>
-                    <p><strong>I</strong>mmobilization: Mobilisasi dini, reposisi.</p>
-                    <p><strong>N</strong>on-pharmacologic first: Orientasi, siklus tidur-bangun, pencahayaan.</p>
-                    <p><strong>K</strong>ey drugs to avoid: Hindari/Hentikan benzodiazepin. Evaluasi ulang terapi sedasi.</p>
+                    <p><strong>T</strong>oxic situations: syok, gagal jantung, dehidrasi, gagal organ baru; obat deliriogenik (benzodiazepin, antikolinergik, opioid berlebih) & withdrawal — evaluasi ulang sedasi, hindari benzodiazepin.</p>
+                    <p><strong>H</strong>ypoxemia: cek SpO₂/AGD, anemia.</p>
+                    <p><strong>I</strong>nfection/sepsis & Immobilization: cari infeksi baru; mobilisasi dini.</p>
+                    <p><strong>N</strong>onpharmacological: kacamata/alat bantu dengar, reorientasi, siklus tidur-bangun, kurangi bising.</p>
+                    <p><strong>K</strong>⁺ / elektrolit: koreksi gangguan elektrolit (K, Na, Ca, Mg) & glukosa.</p>
                   </div>
               </div>
            )}
@@ -128,11 +128,11 @@ export default function ScoringCamicu() {
       <Accordion title="📖 Teori CAM-ICU & Manajemen Delirium (PADIS 2018)">
         <ul className="pl-4 space-y-1 list-disc text-muted-foreground text-sm">
           <li><strong className="text-foreground">Latar Belakang:</strong> Delirium terjadi pada 60–80% pasien ICU berventilasi mekanik. Dikaitkan dengan mortalitas lebih tinggi, lama rawat yang lebih panjang, dan gangguan kognitif jangka panjang.</li>
-          <li><strong className="text-foreground">Diagnosis:</strong> Menggunakan CAM-ICU (Ely et al. 2001) sebagai gold standard. Pasien delirium bisa hadir dengan hiperaktif (25%), hipoaktif (50%), atau tipe campuran.</li>
-          <li><strong className="text-foreground">Prinsip Manajemen:</strong> Tindakan farmakologis dengan Haloperidol/Quetiapine BUKAN untuk menyembuhkan secara langsung, melainkan manajemen simptomatik hiperaktif. Utamakan perbaikan penyebab (THINK) dan hindari benzodiazepin. Dexmedetomidine sering disarankan meminimalisir delirium vs Propofol/Benzo.</li>
+          <li><strong className="text-foreground">Diagnosis:</strong> CAM-ICU (Ely et al. 2001) adalah alat skrining tervalidasi terhadap kriteria DSM oleh psikiater. Subtipe campuran (54,9%) dan hipoaktif (43,5%) paling sering; hiperaktif murni jarang (1,6%) — delirium hipoaktif mudah terlewat tanpa skrining aktif (Peterson 2006).</li>
+          <li><strong className="text-foreground">Prinsip Manajemen:</strong> Antipsikotik tidak direkomendasikan rutin untuk mencegah/mengobati delirium (PADIS 2018; pembaruan PADIS 2025 tidak membuat rekomendasi); dapat dipertimbangkan jangka pendek bila ada distres berat (agitasi berbahaya, halusinasi menakutkan). Utamakan perbaikan penyebab (THINK) dan hindari benzodiazepin. Untuk sedasi, PADIS 2025 menyarankan dexmedetomidine dibanding propofol (rekomendasi kondisional).</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Ely EW et al. (CAM-ICU) JAMA 2001;286:2703 · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · PADIS 2025 update Crit Care Med 2025;53:e711 · Pun BT et al. (MENDS-2) Crit Care Med 2021;49:1624
+          📚 Ely EW et al. (CAM-ICU) JAMA 2001;286:2703 · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Lewis K et al. (PADIS 2025 focused update) Crit Care Med 2025;53:e711 · Hughes CG et al. (MENDS2) N Engl J Med 2021;384:1424 · Peterson JF et al. (subtipe delirium) J Am Geriatr Soc 2006;54:479
         </div>
       </Accordion>
     </div>

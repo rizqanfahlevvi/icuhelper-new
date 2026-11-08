@@ -122,8 +122,13 @@ export default function ScoringWells() {
               <li><strong>PE Likely (&gt; 4):</strong> Langsung lakukan CTPA (Computed Tomography Pulmonary Angiography). D-dimer tidak berguna untuk mengeksklusi pada kelompok ini.</li>
             </ul>
           </li>
-          <li><strong className="text-foreground">PERC Rule:</strong> Jika pasien low probability, pertimbangkan kriteria PERC (Pulmonary Embolism Rule-out Criteria) untuk membatalkan pemeriksaan D-dimer (bila skor PERC = 0).</li>
+          <li><strong className="text-foreground">D-dimer sesuai usia:</strong> pada usia ≥50 tahun, ambang = usia × 10 µg/L (FEU) menggantikan 500 µg/L untuk pasien "PE unlikely" — aman dan menambah jumlah pasien yang PE-nya dapat disingkirkan tanpa CTPA (ADJUST-PE, Righini 2014).</li>
+          <li><strong className="text-foreground">PERC Rule:</strong> hanya untuk pasien IGD dengan probabilitas pra-tes rendah secara klinis (gestalt); bila ke-8 kriteria PERC negatif, D-dimer dapat dilewati (Kline 2004). Tidak dirancang untuk pasien rawat inap/ICU.</li>
+          <li><strong className="text-foreground">Konteks ICU:</strong> Wells dan D-dimer divalidasi pada pasien rawat jalan/IGD. Pada pasien kritis D-dimer sering meningkat karena sebab lain (sepsis, pascaoperasi, trauma), sehingga nilai eksklusinya rendah — keputusan pencitraan lebih bergantung pada penilaian klinis & stabilitas hemodinamik.</li>
         </ul>
+        <div className="mt-4 text-xs text-muted-foreground italic">
+          📚 Wells PS et al. (skor Wells PE) Thromb Haemost 2000;83:416 · van Belle A et al. (Christopher Study, Wells 2 tingkat) JAMA 2006;295:172 · Righini M et al. (ADJUST-PE) JAMA 2014;311:1117 · Kline JA et al. (PERC) J Thromb Haemost 2004;2:1247
+        </div>
       </Accordion>
     </div>
   );

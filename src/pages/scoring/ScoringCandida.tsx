@@ -84,7 +84,7 @@ export default function ScoringCandida() {
             <div className="font-bold text-sm mb-1">{isHighRisk ? 'Risiko Tinggi Infeksi Candida (Skor ≥ 3)' : 'Risiko Rendah Infeksi Candida (Skor < 3)'}</div>
             <div className="text-sm opacity-90 text-slate-800 dark:text-slate-200">
               {isHighRisk 
-                ? 'Kandidiasis invasif mungkin terjadi. Pertimbangkan antijamur empiris (Flukonazol 400 mg/hari atau Ekinokandin). Evaluasi 4-5 hari.' 
+                ? 'Kandidiasis invasif mungkin terjadi. Pertimbangkan antijamur empiris: ekinokandin (pilihan awal, IDSA 2016) atau flukonazol dosis muat 800 mg (12 mg/kg) lalu 400 mg (6 mg/kg)/hari bila tanpa paparan azol baru & tanpa kolonisasi spesies resisten azol. Ambil kultur dulu; evaluasi 4–5 hari.' 
                 : 'Antijamur empiris TIDAK direkomendasikan. Pantau ketat.'}
             </div>
          </div>
@@ -93,11 +93,12 @@ export default function ScoringCandida() {
       <Accordion title="📖 Teori Candida Score (León et al. 2006)">
         <ul className="pl-4 space-y-1 list-disc text-muted-foreground text-sm">
           <li><strong className="text-foreground">Latar Belakang:</strong> Dikembangkan untuk mengidentifikasi pasien ICU non-neutropenik berisiko tinggi terhadap kandidiasis invasif, sehingga dapat memulai terapi antijamur empiris lebih cepat tanpa menunggu kultur positif (NPV &gt; 97%).</li>
-          <li><strong className="text-foreground">Pilihan Antijamur (ESCMID/IDSA):</strong> Flukonazol 400 mg/hari jika pasien stabil, tidak ada riwayat terapi azole sebelumnya. Jika pasien dalam kondisi syok berat atau probabilitas *C. krusei / glabrata* tinggi, maka pilih Ekinokandin (Caspofungin / Micafungin).</li>
-          <li><strong className="text-foreground">De-eskalasi:</strong> Turunkan dari ekinokandin ke flukonazol bila pasien sudah klinis stabil dan hasil kultur terbukti sensitif. Hentikan terapi sesudah 4-5 hari jika diagnostik negatif dan perbaikan klinis nyata.</li>
+          <li><strong className="text-foreground">Pilihan Antijamur Empiris (IDSA 2016):</strong> <strong>ekinokandin</strong> sebagai pilihan awal — kaspofungin 70 mg dosis muat lalu 50 mg/hari; mikafungin 100 mg/hari; anidulafungin 200 mg dosis muat lalu 100 mg/hari. <strong>Flukonazol</strong> 800 mg (12 mg/kg) dosis muat lalu 400 mg (6 mg/kg)/hari adalah alternatif bila tidak ada paparan azol baru dan tidak ada kolonisasi spesies resisten azol (mis. <em>C. glabrata</em>, <em>C. krusei</em>); sesuaikan dosis rumatan flukonazol dengan fungsi ginjal.</li>
+          <li><strong className="text-foreground">De-eskalasi:</strong> Turunkan dari ekinokandin ke flukonazol bila pasien sudah klinis stabil dan hasil kultur terbukti sensitif. Pada terapi empiris tanpa respons klinis setelah 4–5 hari dan tanpa bukti kandidiasis invasif, pertimbangkan penghentian (IDSA 2016).</li>
+          <li className="list-none -ml-4 pt-1 text-xs italic">Alat bantu edukasi &amp; referensi cepat — bukan pengganti penilaian klinis, pola resistensi lokal, atau keputusan DPJP.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 León C et al. (Candida Score original) Crit Care Med 2006;34:730 · León C et al. (validasi prospektif) Crit Care Med 2009;37:1624 · Pappas PG et al. (IDSA 2016) Clin Infect Dis 2016;62:e1 · Cornely OA et al. (ESCMID-ECMM 2023) Clin Microbiol Infect 2023;29(Suppl 2):S1
+          📚 León C et al. (Candida Score original) Crit Care Med 2006;34:730 · León C et al. (validasi prospektif) Crit Care Med 2009;37:1624 · Pappas PG et al. (IDSA 2016) Clin Infect Dis 2016;62:e1 · Cornely OA et al. (ECMM/ISHAM/ASM global guideline) Lancet Infect Dis 2025;25:e280
         </div>
       </Accordion>
     </div>

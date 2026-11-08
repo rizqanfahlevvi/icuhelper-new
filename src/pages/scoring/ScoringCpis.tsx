@@ -4,17 +4,22 @@ import { Wind } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 
 export default function ScoringCpis() {
-  const [f1, setF1] = useState(0);
-  const [f2, setF2] = useState(0);
-  const [f3, setF3] = useState(0);
-  const [f4, setF4] = useState(0);
-  const [f5, setF5] = useState(0);
-  const [f6, setF6] = useState(0);
+  const [f1, setF1] = useState<number | null>(null);
+  const [f2, setF2] = useState<number | null>(null);
+  const [f3, setF3] = useState<number | null>(null);
+  const [f4, setF4] = useState<number | null>(null);
+  const [f5, setF5] = useState<number | null>(null);
+  const [f6, setF6] = useState<number | null>(null);
 
-  const total = f1 + f2 + f3 + f4 + f5 + f6;
-  const isVap = total > 6;
+  // Item belum dijawab = null (bukan 0) — skor/rekomendasi baru tampil setelah 6 item lengkap,
+  // agar item yang terlewat tidak menurunkan skor lalu memicu saran menghentikan antibiotik.
+  const items = [f1, f2, f3, f4, f5, f6];
+  const answered = items.filter((v) => v !== null).length;
+  const complete = answered === 6;
+  const total = items.reduce<number>((a, v) => a + (v ?? 0), 0);
+  const isVap = complete && total > 6;
 
-  const btnClass = (val: number, cur: number) => {
+  const btnClass = (val: number, cur: number | null) => {
     return `w-full text-left p-3 text-sm border rounded-xl transition-all ${
       val === cur 
       ? 'bg-blue-500 text-white shadow-md ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-[#1C1C1E] border-blue-500 font-bold' 
@@ -39,7 +44,8 @@ export default function ScoringCpis() {
            </div>
            <div className={`px-4 py-2 border rounded-xl text-center flex flex-col items-center justify-center ${isVap ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400'}`}>
               <div className="text-xs opacity-80 font-semibold mb-1">Skor CPIS</div>
-              <div className="text-3xl font-black">{total}</div>
+              <div className="text-3xl font-black">{complete ? total : '—'}</div>
+              {!complete && <div className="text-[11px] font-semibold mt-0.5">{answered}/6 item dijawab</div>}
            </div>
          </div>
 
@@ -91,21 +97,27 @@ export default function ScoringCpis() {
            <div className="space-y-2">
              <div className="font-bold text-sm">Kultur Trakeal / Sputum</div>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-               <button onClick={() => setF6(0)} className={btnClass(0, f6)}>Lewati / Tidak ada patogen (0)</button>
+               <button onClick={() => setF6(0)} className={btnClass(0, f6)}>Belum ada hasil / tidak ada patogen (0)</button>
                <button onClick={() => setF6(1)} className={btnClass(1, f6)}>Kuman patogen ditemukan (1)</button>
                <button onClick={() => setF6(2)} className={btnClass(2, f6)}>Kuman + Pewarnaan Gram sesuai (2)</button>
              </div>
            </div>
          </div>
 
+         {!complete ? (
+           <div className="mt-6 p-4 rounded-xl border bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm">
+             Jawab ke-6 item ({answered}/6) untuk melihat interpretasi. Bila kultur belum keluar, pilih "Belum ada hasil / tidak ada patogen" (CPIS modifikasi Singh dinilai tanpa kultur pada awal).
+           </div>
+         ) : (
          <div className={`mt-6 p-4 rounded-xl border ${isVap ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-teal-500/10 border-teal-500/20 text-teal-600 dark:text-teal-500'}`}>
-            <div className="font-bold text-sm mb-1">{isVap ? 'CPIS > 6 (VAP Kemungkinan Besar)' : 'CPIS ≤ 6 (VAP Tidak Mungkin)'}</div>
+            <div className="font-bold text-sm mb-1">{isVap ? 'CPIS > 6 (VAP Kemungkinan Besar)' : 'CPIS ≤ 6 (VAP kurang mungkin)'}</div>
             <div className="text-sm opacity-90 text-slate-800 dark:text-slate-200">
               {isVap 
                 ? 'Lanjutkan antibiotik VAP sesuai panduan lokal. De-eskalasi berdasarkan kultur. Evaluasi dalam 48–72 jam.' 
                 : 'Pertimbangkan de-eskalasi/penghentian antibiotik (Protokol Singh hari ke-3). Evaluasi ulang 24-48 jam.'}
             </div>
          </div>
+         )}
       </div>
 
       <Accordion title="📖 Teori CPIS — VAP Diagnosis & De-eskalasi Singh">
@@ -113,10 +125,10 @@ export default function ScoringCpis() {
           <li><strong className="text-foreground">Latar Belakang:</strong> CPIS pertama dipublikasikan Pugin et al. (1991). Modified CPIS (Singh et al. 2000) digunakan dalam protokol de-eskalasi: pasien VAP empiris dievaluasi pada hari ke-3.</li>
           <li><strong className="text-foreground">Protokol Singh:</strong> Jika CPIS &le; 6 dan kultur negatif, antibiotik dapat dihentikan pada hari ke-3.</li>
           <li><strong className="text-foreground">Keterbatasan CPIS:</strong> Sensitivitas dan spesifisitas moderat (65-72%). Panduan ATS/IDSA 2016 tidak lagi merekomendasikan CPIS sebagai alat diagnosis tunggal, melainkan lebih ke arah panduan untuk de-eskalasi antibiotik. Diagnosis klinis VAP tetap berdasarkan tanda klinis + kultur kuantitatif.</li>
-          <li><strong className="text-foreground">ERS/ESICM HAP/VAP Guidelines 2022:</strong> Menekankan bahwa CPIS berguna hanya untuk de-eskalasi antibiotik, bukan kriteria diagnosis definitif.</li>
+          <li><strong className="text-foreground">Pedoman ERS/ESICM/ESCMID/ALAT 2017 (Torres et al.):</strong> diagnosis HAP/VAP tetap berbasis klinis + mikrobiologi; skor seperti CPIS bukan kriteria diagnosis tunggal.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Pugin J et al. (CPIS original) Am Rev Respir Dis 1991;143:1121 · Singh N et al. (modified CPIS + de-eskalasi) Am J Respir Crit Care Med 2000;162:505 · Kalil AC et al. (IDSA/ATS HAP/VAP 2016) Clin Infect Dis 2016;63:e61 · Klompas M et al. (SHEA 2022 update) Infect Control Hosp Epidemiol 2022;43:687
+          📚 Pugin J et al. (CPIS original) Am Rev Respir Dis 1991;143:1121 · Singh N et al. (modified CPIS + de-eskalasi) Am J Respir Crit Care Med 2000;162:505 · Kalil AC et al. (IDSA/ATS HAP/VAP 2016) Clin Infect Dis 2016;63:e61 · Torres A et al. (ERS/ESICM/ESCMID/ALAT HAP/VAP 2017) Eur Respir J 2017;50:1700582
         </div>
       </Accordion>
     </div>
