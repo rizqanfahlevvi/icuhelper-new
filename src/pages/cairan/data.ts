@@ -35,10 +35,10 @@ const CF_PKG_DATA: Record<string, PackageData> = {
     pkg: ['500 mL'],
     pkgRef: '500 mL',
     pkgComp: [
-      { l: 'Na⁺',    v: '70 mEq' },
+      { l: 'Na⁺',    v: '72,5 mEq' },
       { l: 'K⁺',     v: '2 mEq' },
-      { l: 'Ca²⁺',   v: '1,25 mEq' },
-      { l: 'Mg²⁺',   v: '0,5 mEq' },
+      { l: 'Ca²⁺',   v: '1,25 mmol (2,5 mEq)' },
+      { l: 'Mg²⁺',   v: '0,5 mmol (1 mEq)' },
       { l: 'Cl⁻',    v: '63,5 mEq' },
       { l: 'Asetat', v: '12 mEq' },
       { l: 'Malat',  v: '2,5 mEq' }
@@ -50,7 +50,7 @@ const CF_PKG_DATA: Record<string, PackageData> = {
     pkgComp: [
       { l: 'Na⁺',      v: '70 mEq' },
       { l: 'K⁺',       v: '2,5 mEq' },
-      { l: 'Mg²⁺',     v: '0,75 mEq' },
+      { l: 'Mg²⁺',     v: '0,75 mmol (1,5 mEq)' },
       { l: 'Cl⁻',      v: '49 mEq' },
       { l: 'Asetat',   v: '13,5 mEq' },
       { l: 'Glukonat', v: '11,5 mEq' }
@@ -410,7 +410,7 @@ const _CF_FLUIDS_RAW: Partial<FluidItem>[] = [
       'Laktat → dimetabolisme hati → HCO₃⁻ (efek buffer ringan)',
       'Gagal hati berat: gunakan Ringer Asetat atau Physiolyte',
       'Butuh kompatibel darah: gunakan NS atau Physiolyte',
-      'SMART trial: RL setara Physiolyte, keduanya superior NS untuk MAKE30'
+      'SMART (NEJM 2018): kristaloid seimbang (RL/Plasma-Lyte A, digabung) menurunkan MAKE30 vs NS (14,3% vs 15,4%) — RL dan Plasma-Lyte tidak dibandingkan langsung'
     ],
     ref: [
       { t: 'Semler MW et al. SMART trial.', j: 'NEJM 2018', d: '378:829–839' },
@@ -472,33 +472,36 @@ const _CF_FLUIDS_RAW: Partial<FluidItem>[] = [
     alias: 'Sterofundin ISO · R-Fundin',
     cat: 'kristaloid',
     badge: 'Balanced',
-    osm: '304 mOsm/L',
+    osm: '309 mOsm/L',
     img: '/assets/img/cairan/ringer-fundin.jpg',
+    // Komposisi per SmPC Sterofundin ISO (B. Braun). Dulu: Na 140 & osm 304; Ca/Mg tertulis "mEq/L"
+    // padahal nilainya mmol/L (Ca 2,5 mmol/L = 5 mEq/L; Mg 1 mmol/L = 2 mEq/L).
     comp: [
-      { l: 'Na⁺',       v: '140 mEq/L' },
-      { l: 'K⁺',        v: '4 mEq/L' },
-      { l: 'Ca²⁺',      v: '2,5 mEq/L' },
-      { l: 'Mg²⁺',      v: '1 mEq/L' },
-      { l: 'Cl⁻',       v: '127 mEq/L' },
-      { l: 'Asetat',    v: '24 mEq/L' },
-      { l: 'Malat',     v: '5 mEq/L' },
-      { l: 'Osmolarity',v: '304 mOsm/L' },
+      { l: 'Na⁺',       v: '145 mmol/L' },
+      { l: 'K⁺',        v: '4 mmol/L' },
+      { l: 'Ca²⁺',      v: '2,5 mmol/L (5 mEq/L)' },
+      { l: 'Mg²⁺',      v: '1 mmol/L (2 mEq/L)' },
+      { l: 'Cl⁻',       v: '127 mmol/L' },
+      { l: 'Asetat',    v: '24 mmol/L' },
+      { l: 'Malat',     v: '5 mmol/L' },
+      { l: 'Osmolarity',v: '309 mOsm/L (teoretis)' },
       { l: 'pH',        v: '5,1–5,9' }
     ],
     ind: [
       { i: '✅', t: 'Resusitasi volume perioperatif dan ICU' },
-      { i: '✅', t: 'Balanced crystalloid dengan Na mendekati plasma (140 mEq/L)' },
+      { i: '✅', t: 'Balanced crystalloid dengan Na setara plasma (145 mmol/L)' },
       { i: '✅', t: 'Pasien yang memerlukan suplementasi Mg²⁺' }
     ],
     warn: [
       { i: '⚠️', t: 'Tidak kompatibel dengan produk darah (mengandung Ca²⁺)' },
       { i: '✅', t: 'Dual buffer asetat + malat — metabolisme di berbagai jaringan' },
       { i: '✅', t: 'Tanpa laktat — aman pada gagal hati' },
-      { i: '✅', t: 'Na 140 mEq/L — tidak menyebabkan hiponatremia dilusi' }
+      { i: '✅', t: 'Na 145 mmol/L — risiko hiponatremia dilusi lebih kecil dibanding cairan hipotonik' }
     ],
     tips: [
       'Komposisi paling mendekati plasma di antara balanced crystalloid yang mengandung Ca²⁺',
-      'Malat dimetabolisme terutama di ginjal dan jantung'
+      'Malat dimetabolisme terutama di ginjal dan jantung',
+      'Komposisi mengikuti SmPC Sterofundin ISO (B. Braun) — cek label kemasan lokal bila berbeda'
     ],
     ref: [
       { t: 'Myburgh JA & Mythen MG. Resuscitation Fluids.', j: 'NEJM 2013', d: '369:1243–1251' },
@@ -521,25 +524,25 @@ const _CF_FLUIDS_RAW: Partial<FluidItem>[] = [
     comp: [
       { l: 'Na⁺',       v: '140 mEq/L' },
       { l: 'K⁺',        v: '5 mEq/L' },
-      { l: 'Mg²⁺',      v: '1,5 mEq/L' },
+      { l: 'Mg²⁺',      v: '1,5 mmol/L (3 mEq/L)' },
       { l: 'Cl⁻',       v: '98 mEq/L' },
       { l: 'Asetat',    v: '27 mEq/L' },
       { l: 'Glukonat',  v: '23 mEq/L' },
       { l: 'Ca²⁺',      v: '0' },
       { l: 'Laktat',    v: '0' },
       { l: 'Osmolarity',v: '294 mOsm/L' },
-      { l: 'pH',        v: '7,4' }
+      { l: 'pH',        v: 'Tergantung produk (Plasma-Lyte A/Normosol-R ±7,4; Plasma-Lyte 148 ±5,5) — cek label' }
     ],
     ind: [
       { i: '✅', t: 'Resusitasi volume — pilihan most physiological' },
       { i: '✅', t: 'Perioperatif dan ICU' },
       { i: '✅', t: 'Butuh kompatibel darah sekaligus balanced' },
       { i: '✅', t: 'Gagal hati berat (tanpa laktat, tanpa Ca²⁺)' },
-      { i: '✅', t: 'TBI — osmolarity isotonik, tidak hipotonik' }
+      { i: 'ℹ️', t: 'TBI: osmolaritas teoretis 294 mOsm/L; RCT besar (SMART, BaSICS) tidak khusus TBI — banyak pusat tetap memakai NaCl 0,9% pada cedera otak' }
     ],
     warn: [
-      { i: '✅', t: 'pH 7,4 — satu-satunya kristaloid dengan pH setara plasma' },
-      { i: '✅', t: 'Cl 98 mEq/L — identik plasma normal, minimal risiko asidosis hiperkloremik' },
+      { i: 'ℹ️', t: 'pH bervariasi antar-produk: Plasma-Lyte A & Normosol-R ±7,4, Plasma-Lyte 148 ±5,5 (bukan satu-satunya kristaloid ber-pH fisiologis)' },
+      { i: '✅', t: 'Cl 98 mEq/L — mendekati plasma, risiko asidosis hiperkloremik lebih kecil dibanding NS' },
       { i: '✅', t: 'Kompatibel dengan produk darah (tidak mengandung Ca²⁺)' },
       { i: '✅', t: 'Dual buffer asetat + glukonat — tidak tergantung fungsi hati' },
       { i: '✅', t: 'Tanpa laktat — aman pada gagal hati berat' }
@@ -557,7 +560,7 @@ const _CF_FLUIDS_RAW: Partial<FluidItem>[] = [
     pop: [
       { g: 'Neonatus',  n: 'Data terbatas. Bebas Ca²⁺ membuatnya kompatibel dengan transfusi, namun studi pada neonatus belum memadai.' },
       { g: 'Pediatrik', n: 'Alternatif RL/RA untuk anak > 2 tahun. Kompatibel dengan produk darah.' },
-      { g: 'Dewasa',    n: 'Balanced crystalloid bebas Ca²⁺ — satu-satunya balanced yang kompatibel penuh dengan transfusi. SMART trial: setara RL.' }
+      { g: 'Dewasa',    n: 'Balanced crystalloid bebas Ca²⁺ — kompatibel dengan transfusi. SMART: kristaloid seimbang (RL atau Plasma-Lyte A, digabung) vs NS menurunkan MAKE30; BaSICS: mortalitas 90 hari tidak berbeda vs NS.' }
     ]
   },
   {
@@ -724,12 +727,12 @@ const _CF_FLUIDS_RAW: Partial<FluidItem>[] = [
     alias: 'D20W · D20%',
     cat: 'dextrose',
     badge: 'Dextrose',
-    osm: '~1110 mOsm/L',
+    osm: '~1010 mOsm/L',
     img: '/assets/img/cairan/d20.jpg',
     comp: [
       { l: 'Dextrose',   v: '200 g/L (200 mg/mL)' },
       { l: 'Kalori',     v: '~680 kcal/L' },
-      { l: 'Osmolarity', v: '~1110 mOsm/L' },
+      { l: 'Osmolarity', v: '~1010 mOsm/L' },
       { l: 'pH',         v: '3,5–6,5' },
       { l: 'Tonisitas',  v: 'Hipertonik' }
     ],
@@ -741,7 +744,7 @@ const _CF_FLUIDS_RAW: Partial<FluidItem>[] = [
       { i: '✅', t: 'Hiperkalemia: kombinasi dengan Insulin Regular (jika D40% tidak tersedia)' }
     ],
     warn: [
-      { i: '⚠️', t: 'Osmolarity ~1110 mOsm/L — wajib via CVC untuk infus lama' },
+      { i: '⚠️', t: 'Osmolarity ~1010 mOsm/L — wajib via CVC untuk infus lama' },
       { i: '⚠️', t: 'Via perifer hanya boleh jangka sangat pendek — risiko phlebitis berat' },
       { i: '⚠️', t: 'Monitor GDS ketat — risiko hiperglikemia' },
       { i: '⚠️', t: 'Hindari pada TBI — hiperglikemia memperburuk outcome neurologis' },
@@ -1274,8 +1277,8 @@ const _CF_FLUIDS_RAW: Partial<FluidItem>[] = [
     ],
     warn: [
       { i: '🔴', t: 'JANGAN pernah bolus / undiluted IV — fatal, cardiac arrest' },
-      { i: '⚠️', t: 'Wajib diencerkan: maks 20–40 mEq per 100–250 mL' },
-      { i: '⚠️', t: 'Kecepatan maks via perifer: 10 mEq/jam; via CVC dengan monitoring: 20–40 mEq/jam' },
+      { i: '⚠️', t: 'Wajib diencerkan: maks 20–40 mEq per 100–250 mL (konsentrasi tinggi hanya via CVC; perifer lebih encer — batas konsentrasi berbeda antar-protokol, ikuti protokol RS)' },
+      { i: '⚠️', t: 'Kecepatan maks via perifer: 10 mEq/jam; via CVC rutin ≤20 mEq/jam; hingga 40 mEq/jam hanya pada hipokalemia mengancam nyawa dengan monitoring EKG kontinu' },
       { i: '⚠️', t: 'Monitor EKG kontinu saat koreksi cepat' }
     ],
     tips: [
@@ -1384,12 +1387,12 @@ const _CF_FLUIDS_RAW: Partial<FluidItem>[] = [
     alias: 'D40% · Glukosa 40%',
     cat: 'elektrolit',
     badge: 'Hipertonik',
-    osm: '~2220 mOsm/L',
+    osm: '~2020 mOsm/L',
     img: '/assets/img/cairan/d40.jpg',
     comp: [
       { l: 'Glukosa',    v: '400 g/L (400 mg/mL)' },
       { l: 'Kalori',     v: '~1360 kcal/L' },
-      { l: 'Osmolarity', v: '~2220 mOsm/L' },
+      { l: 'Osmolarity', v: '~2020 mOsm/L' },
       { l: 'pH',        v: '3,5–6,5' },
       { l: 'Tonisitas', v: 'Sangat hipertonik' }
     ],
