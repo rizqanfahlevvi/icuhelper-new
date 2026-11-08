@@ -20,6 +20,10 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import {
+  redCellVolumeMl, bagsFromVolume, cryoBags, randomDonorUnits, plateletRiseRange,
+  PRC_BAG_ML, WB_BAG_ML, WB_K_FACTOR, FFP_BAG_ML, RD_UNIT_ML,
+} from '../../utils/transfusion';
 
 interface TransfusiResult {
   type: 'prc' | 'wb' | 'ffp' | 'tc' | 'cryo';
@@ -29,8 +33,10 @@ interface TransfusiResult {
   ebv?: number;           // mL
   units?: number;         // untuk TC RD / SDA
   subtype?: 'rd' | 'sda';
-  minExpectedPltRise?: number;
-  maxExpectedPltRise?: number;
+  minExpectedPltRise?: number;   // ×10³/µL
+  maxExpectedPltRise?: number;   // ×10³/µL
+  p1?: number;                   // trombosit aktual ×10³/µL
+  p2?: number;                   // target ×10³/µL
   deficit?: number;       // fibrinogen deficit mg
   dose?: number;          // mL/kg untuk FFP
   inr?: number;           // INR jika diisi
@@ -144,9 +150,9 @@ export default function KalkulatorTransfusi() {
       }
 
       const dhb = h2 - h1;
-      // Formula Davies 2007 with default Indonesian factor k=4 (assuming PRC Hematocrit ≈ 70-75%)
-      const vol = dhb * w * 4;
-      const kolf = Math.ceil(vol / 250); // 1 kolf PRC estimated at 250 mL
+      // Davies 2007: BB × ΔHb × 3 / Hct PRC; Hct ±0,75 → k = 4
+      const vol = redCellVolumeMl(dhb, w);
+      const kolf = bagsFromVolume(vol, PRC_BAG_ML);
       const ebv = w * (sex === 'm' ? 70 : 65);
 
       setRes({
@@ -173,9 +179,9 @@ export default function KalkulatorTransfusi() {
       }
 
       const dhb = h2 - h1;
-      // Formula k=6 (WB Hematocrit ≈ 38-45%)
-      const vol = dhb * w * 6;
-      const kolf = Math.ceil(vol / 450); // 1 kolf WB estimated at 450 mL
+      // k = 6 (Hct WB ±38–45%)
+      const vol = redCellVolumeMl(dhb, w, WB_K_FACTOR);
+      const kolf = bagsFromVolume(vol, WB_BAG_ML);
 
       setRes({
         type: 'wb',
@@ -188,7 +194,7 @@ export default function KalkulatorTransfusi() {
     } else if (tab === 'ffp') {
       const d = parseInt(ffpDose);
       const vol = d * w;
-      const kolf = Math.ceil(vol / 250); // 1 kolf FFP estimated at 250 mL
+      const kolf = bagsFromVolume(vol, FFP_BAG_ML);
       const inrVal = ffpInr ? parseFloat(ffpInr) : undefined;
 
       setRes({
@@ -213,35 +219,31 @@ export default function KalkulatorTransfusi() {
       }
 
       if (tcType === 'rd') {
-        // Rule of thumb: 1 unit RD / 10 kg BB (min 4, max 10)
-        const units = Math.max(4, Math.min(Math.ceil(w / 10), 10));
-        const vol = units * 60; // 1 unit RD ≈ 60 mL
-        // Expected rise: 5.000 - 10.000 / unit, normalized to 70 kg BB
-        const minExpectedPltRise = Math.round((5000 * units) / (w / 70));
-        const maxExpectedPltRise = Math.round((10000 * units) / (w / 70));
-
+        // Aturan praktis 1 unit RD / 10 kg BB (min 4, maks 10)
+        const units = randomDonorUnits(w);
+        const vol = units * RD_UNIT_ML;
+        const rise = plateletRiseRange('rd', units, w)!; // ×10³/µL
         setRes({
           type: 'tc',
           subtype: 'rd',
           units,
           vol,
-          minExpectedPltRise,
-          maxExpectedPltRise
+          w, p1, p2,
+          minExpectedPltRise: Math.round(rise.min * 10) / 10,
+          maxExpectedPltRise: Math.round(rise.max * 10) / 10,
         });
       } else {
-        // SDA (Apheresis)
-        const vol = 250; // 1 kantong SDA ≈ 250 mL (equivalent to 4-6 RD)
-        // Expected rise: 30.000 - 60.000, normalized to 70 kg BB
-        const minExpectedPltRise = Math.round(30000 / (w / 70));
-        const maxExpectedPltRise = Math.round(60000 / (w / 70));
-
+        // SDA (apheresis) — 1 kantong ≈ 250 mL, setara 4–6 RD
+        const vol = 250;
+        const rise = plateletRiseRange('sda', 1, w)!; // ×10³/µL
         setRes({
           type: 'tc',
           subtype: 'sda',
           units: 1,
           vol,
-          minExpectedPltRise,
-          maxExpectedPltRise
+          w, p1, p2,
+          minExpectedPltRise: Math.round(rise.min * 10) / 10,
+          maxExpectedPltRise: Math.round(rise.max * 10) / 10,
         });
       }
 
@@ -261,38 +263,21 @@ export default function KalkulatorTransfusi() {
         return;
       }
 
-      const pv = w * 40; // Plasma volume estimated at 40 mL/kg
-      const deficit = ((f2 - f1_mgdl) * pv) / 100; // Deficit in mg
-      const kForm = Math.ceil(deficit / 200); // 1 kolf Cryoprecipitate contains ≈ 200 mg Fibrinogen
-      const kRule = Math.ceil(w / 10); // Rule of thumb: 1 kolf / 10 kg BB
-      const kolf = Math.max(kForm, kRule);
-      const vol = kolf * 17; // 1 kolf Cryo ≈ 15-20 mL (avg 17 mL)
-
+      // Rumus defisit = jumlah yang DIPAKAI; aturan 1 kantong/10 kg hanya pembanding
+      // (dulu diambil nilai terbesar → bisa memberi kantong berlebih).
+      const c = cryoBags(f1_mgdl, f2, w)!;
       setRes({
         type: 'cryo',
-        deficit,
-        kolf,
-        vol,
-        w, pv, f1_mgdl, f2, kForm, kRule,
+        deficit: c.deficitMg,
+        kolf: c.bagsByDeficit,
+        vol: c.volMl,
+        w, pv: c.plasmaVolMl, f1_mgdl, f2, kForm: c.bagsByDeficit, kRule: c.bagsByRule,
       });
     }
   };
 
-  // Dynamic dosage suggestion helper based on INR input for FFP
-  useEffect(() => {
-    if (tab === 'ffp' && ffpInr) {
-      const inrVal = parseFloat(ffpInr);
-      if (!isNaN(inrVal)) {
-        if (inrVal >= 1.5 && inrVal <= 2.0) {
-          setFfpDose('15');
-        } else if (inrVal > 2.0 && inrVal <= 3.0) {
-          setFfpDose('20');
-        } else if (inrVal > 3.0) {
-          setFfpDose('30');
-        }
-      }
-    }
-  }, [ffpInr, tab]);
+  // Catatan: dosis FFP TIDAK lagi dinaikkan otomatis berdasarkan INR (15→20→30 mL/kg) —
+  // pemetaan itu tidak bersumber. Dosis dipilih klinisi; INR hanya sebagai konteks.
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
@@ -456,12 +441,21 @@ export default function KalkulatorTransfusi() {
                   value={ffpDose} 
                   onChange={e => { setFfpDose(e.target.value); setRes(null); }}
                 >
-                  <option value="10">Koagulopati ringan (10 mL/kg)</option>
-                  <option value="15">Koreksi INR standar (15 mL/kg)</option>
-                  <option value="20">Kondisi DIC aktif (20 mL/kg)</option>
-                  <option value="30">Reversal cepat / MTP (30 mL/kg)</option>
+                  <option value="10">10 mL/kg (dosis rendah)</option>
+                  <option value="15">15 mL/kg (dosis lazim)</option>
+                  <option value="20">20 mL/kg (dosis tinggi)</option>
+                  <option value="30">30 mL/kg (perdarahan masif — ikuti protokol MTP)</option>
                 </select>
               </div>
+
+              {ffpInr && parseFloat(ffpInr) >= 1.5 && (
+                <div className="bg-blue-500/10 border border-blue-500/20 text-blue-800 dark:text-blue-300 p-3 rounded-xl text-xs flex items-start gap-2">
+                  <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <div>
+                    Dosis tidak dinaikkan otomatis menurut INR — pilih sesuai klinis &amp; nilai ulang PT/INR. <strong>Pasien dengan antagonis vitamin K (warfarin) + perdarahan mayor:</strong> PCC 4-faktor + vitamin K IV lebih dianjurkan daripada FFP (CHEST 2012; ASH 2018).
+                  </div>
+                </div>
+              )}
 
               {ffpInr && parseFloat(ffpInr) < 1.5 && (
                 <div className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 p-3 rounded-xl text-xs flex items-start gap-2">
@@ -523,24 +517,27 @@ export default function KalkulatorTransfusi() {
               {/* Inline Trigger Guidance */}
               <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs bg-slate-50/50 dark:bg-slate-900/10 mt-2">
                 <div className="bg-slate-100 dark:bg-[#2C2C2E] p-2 font-bold text-slate-700 dark:text-slate-300 text-[10px] uppercase tracking-wider">
-                  Panduan Threshold Transfusi Trombosit (AABB)
+                  Ambang Transfusi Trombosit Dewasa (AABB/ICTMG 2025)
                 </div>
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  <div className="p-2 flex justify-between">
-                    <span className="font-medium text-slate-600 dark:text-slate-400">&lt; 10.000 ×10³/μL</span>
-                    <span className="font-bold text-red-600 dark:text-red-400">Profilaksis rutin (pasien stabil)</span>
+                  <div className="p-2 flex justify-between gap-3">
+                    <span className="font-medium text-slate-600 dark:text-slate-400 flex-shrink-0">&lt; 10 ×10³/µL</span>
+                    <span className="font-bold text-red-600 dark:text-red-400 text-right">Profilaksis: hipoproliferatif tanpa perdarahan (kemoterapi/allo-SCT) · konsumtif tanpa perdarahan mayor · pasang CVC di lokasi kompresibel</span>
                   </div>
-                  <div className="p-2 flex justify-between">
-                    <span className="font-medium text-slate-600 dark:text-slate-400">&lt; 20.000 ×10³/μL</span>
-                    <span className="font-bold text-amber-600 dark:text-amber-400">Sebelum prosedur invasif minor</span>
+                  <div className="p-2 flex justify-between gap-3">
+                    <span className="font-medium text-slate-600 dark:text-slate-400 flex-shrink-0">&lt; 20 ×10³/µL</span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400 text-right">Pungsi lumbal · radiologi intervensi risiko rendah</span>
                   </div>
-                  <div className="p-2 flex justify-between">
-                    <span className="font-medium text-slate-600 dark:text-slate-400">&lt; 50.000 ×10³/μL</span>
-                    <span className="font-bold text-blue-600 dark:text-blue-400">Sebelum operasi umum / perdarahan sedang</span>
+                  <div className="p-2 flex justify-between gap-3">
+                    <span className="font-medium text-slate-600 dark:text-slate-400 flex-shrink-0">&lt; 50 ×10³/µL</span>
+                    <span className="font-bold text-blue-600 dark:text-blue-400 text-right">Bedah mayor non-neuraksial · radiologi intervensi risiko tinggi</span>
                   </div>
-                  <div className="p-2 flex justify-between">
-                    <span className="font-medium text-slate-600 dark:text-slate-400">&lt; 100.000 ×10³/μL</span>
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400">Sebelum bedah saraf atau bedah mata</span>
+                  <div className="p-2 flex justify-between gap-3">
+                    <span className="font-medium text-slate-600 dark:text-slate-400 flex-shrink-0">&lt; 100 ×10³/µL</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 text-right">Bedah saraf / segmen posterior mata — konsensus BSH 2017, bukan rekomendasi AABB</span>
+                  </div>
+                  <div className="p-2 text-slate-600 dark:text-slate-400">
+                    <strong className="text-slate-700 dark:text-slate-300">Tidak direkomendasikan:</strong> dengue tanpa perdarahan mayor (rekomendasi kuat) · bedah kardiovaskular tanpa trombositopenia &amp; tanpa perdarahan mayor · perdarahan intrakranial non-operatif dengan trombosit &gt;100 ×10³/µL (termasuk pengguna antiplatelet).
                   </div>
                 </div>
               </div>
@@ -683,10 +680,10 @@ export default function KalkulatorTransfusi() {
                 {res.type === 'tc' && (
                   <div className="mt-1">
                     <div className="font-mono text-lg md:text-xl font-extrabold text-slate-800 dark:text-slate-200">
-                      +{res.minExpectedPltRise?.toLocaleString()} s/d +{res.maxExpectedPltRise?.toLocaleString()}
+                      +{res.minExpectedPltRise} s/d +{res.maxExpectedPltRise}
                     </div>
                     <span className="text-[10px] font-semibold text-slate-500 mt-1 block">
-                      Kenaikan per μL (Terstandarisasi BB)
+                      ×10³/µL (perkiraan, disesuaikan BB)
                     </span>
                   </div>
                 )}
@@ -720,7 +717,7 @@ export default function KalkulatorTransfusi() {
                     {
                       label: 'Langkah 2 — Volume PRC (formula Davies):',
                       formula: `Volume = ΔHb × BB × faktor\n= ${res.dhb?.toFixed(1)} × ${res.w} × 4 = ${Math.round(res.vol || 0)} mL`,
-                      note: 'Faktor k=4 mengasumsikan Hct PRC ±70-75% (spesifikasi BDRS Indonesia). Untuk PRC Hct rendah, volume aktual bisa berbeda.',
+                      note: 'Faktor k = 3 ÷ Hct PRC (Davies 2007); Hct ±0,75 → k = 4. Rumus diturunkan dari data PICU ANAK — pada dewasa gunakan pembanding: ±1 kantong PRC menaikkan Hb ≈1 g/dL (dewasa ±70 kg).',
                     },
                     {
                       label: 'Langkah 3 — Konversi ke jumlah kantong (kolf):',
@@ -728,7 +725,7 @@ export default function KalkulatorTransfusi() {
                       note: '1 kantong PRC ≈ 250 mL. Transfusikan 1 kantong dalam ≤4 jam, cek Hb ulang setelah selesai.',
                     },
                   ]}
-                  footer="Estimasi — kenaikan Hb aktual dipengaruhi perdarahan berlanjut, hemolisis, dan hidrasi. Pertimbangkan ambang restriktif Hb <7 g/dL (AABB)."
+                  footer="Estimasi — kenaikan Hb aktual dipengaruhi perdarahan berlanjut, hemolisis, dan hidrasi. Ambang restriktif AABB 2023: Hb <7 g/dL (7,5 bedah jantung; 8 bedah ortopedi/penyakit kardiovaskular). Utamakan transfusi 1 kantong lalu nilai ulang."
                 />
               )}
               {res.type === 'wb' && (
@@ -746,7 +743,7 @@ export default function KalkulatorTransfusi() {
                 <CalcSteps
                   tone="slate"
                   steps={[
-                    { label: 'Langkah 1 — Dosis per kgBB:', formula: `Dosis = ${res.dose} mL/kg${res.inr ? ` (dari INR ${res.inr})` : ''}`, note: res.inr ? 'INR 1.5-2 → 15 mL/kg; INR 2-3 → 20 mL/kg; INR >3 → 30 mL/kg.' : 'Dosis lazim koreksi koagulopati 10-20 mL/kg.' },
+                    { label: 'Langkah 1 — Dosis per kgBB:', formula: `Dosis = ${res.dose} mL/kg (dipilih klinisi)${res.inr ? ` · INR saat ini ${res.inr}` : ''}`, note: 'Dosis lazim koreksi koagulopati 10–20 mL/kg. Dosis tidak diturunkan dari nilai INR; reversal warfarin + perdarahan mayor → PCC 4-faktor + vitamin K IV.' },
                     { label: 'Langkah 2 — Volume total:', formula: `Volume = dosis × BB = ${res.dose} × ${res.w} = ${Math.round(res.vol || 0)} mL` },
                     { label: 'Langkah 3 — Jumlah kantong:', formula: `Kolf = ${Math.round(res.vol || 0)} ÷ 250 → ${res.kolf} kantong`, note: '1 kantong FFP ≈ 250 mL.' },
                   ]}
@@ -757,11 +754,13 @@ export default function KalkulatorTransfusi() {
                 <CalcSteps
                   tone="slate"
                   steps={res.subtype === 'rd' ? [
-                    { label: 'Langkah 1 — Jumlah unit (Random Donor):', formula: `Unit = BB ÷ 10 = ${res.w} ÷ 10 → ${res.units} unit (min 4, maks 10)`, note: 'Aturan praktis 1 unit RD per 10 kg BB.' },
-                    { label: 'Langkah 2 — Volume & estimasi kenaikan:', formula: `Volume = ${res.units} × 60 mL = ${res.vol} mL\nKenaikan trombosit ≈ ${res.minExpectedPltRise.toLocaleString()}–${res.maxExpectedPltRise.toLocaleString()} /µL`, note: '1 unit RD ≈ 60 mL; kenaikan ~5.000-10.000/µL per unit (disesuaikan ke BB).' },
+                    { label: 'Langkah 1 — Jumlah unit (Random Donor):', formula: `Unit = BB ÷ 10 = ${res.w} ÷ 10 → ${res.units} unit (min 4, maks 10)`, note: `Aturan praktis 1 unit RD per 10 kg BB.${(res.units ?? 0) > 6 ? ' ⚠ Melebihi setara 1 unit apheresis (4–6 RD): untuk profilaksis AABB 2015 merekomendasikan hingga 1 unit apheresis atau setara — dosis lebih besar tidak lebih efektif (PLADO).' : ''}` },
+                    { label: 'Langkah 2 — Volume & estimasi kenaikan:', formula: `Volume = ${res.units} × 60 mL = ${res.vol} mL\nKenaikan ≈ (5–10 ×10³/µL × ${res.units} unit) × 70 ÷ ${res.w} kg = ${res.minExpectedPltRise}–${res.maxExpectedPltRise} ×10³/µL`, note: '1 unit RD ≈ 60 mL; perkiraan kenaikan 5–10 ×10³/µL per unit pada dewasa 70 kg.' },
+                    { label: 'Langkah 3 — Perkiraan hasil vs target:', formula: `${res.p1} + (${res.minExpectedPltRise}–${res.maxExpectedPltRise}) = ${((res.p1 ?? 0) + (res.minExpectedPltRise ?? 0)).toFixed(0)}–${((res.p1 ?? 0) + (res.maxExpectedPltRise ?? 0)).toFixed(0)} ×10³/µL (target ${res.p2})`, note: (res.p1 ?? 0) + (res.minExpectedPltRise ?? 0) >= (res.p2 ?? 0) ? 'Perkiraan batas bawah sudah mencapai target.' : 'Perkiraan batas bawah belum mencapai target — cek ulang hitung trombosit pasca-transfusi sebelum menambah dosis.' },
                   ] : [
-                    { label: 'Langkah 1 — Sediaan Apheresis (SDA):', formula: `1 kantong SDA (setara 4-6 unit donor acak), volume ≈ ${res.vol} mL` },
-                    { label: 'Langkah 2 — Estimasi kenaikan:', formula: `Kenaikan trombosit ≈ ${res.minExpectedPltRise.toLocaleString()}–${res.maxExpectedPltRise.toLocaleString()} /µL`, note: 'Disesuaikan ke BB pasien (basis 70 kg).' },
+                    { label: 'Langkah 1 — Sediaan Apheresis (SDA):', formula: `1 kantong SDA (setara 4–6 unit donor acak), volume ≈ ${res.vol} mL`, note: 'AABB 2015: dosis profilaksis hingga 1 unit apheresis atau setara; setengah dosis sama efektif.' },
+                    { label: 'Langkah 2 — Estimasi kenaikan:', formula: `Kenaikan ≈ (30–60 ×10³/µL) × 70 ÷ ${res.w} kg = ${res.minExpectedPltRise}–${res.maxExpectedPltRise} ×10³/µL`, note: 'Perkiraan pada dewasa 70 kg, disesuaikan ke BB pasien.' },
+                    { label: 'Langkah 3 — Perkiraan hasil vs target:', formula: `${res.p1} + (${res.minExpectedPltRise}–${res.maxExpectedPltRise}) = ${((res.p1 ?? 0) + (res.minExpectedPltRise ?? 0)).toFixed(0)}–${((res.p1 ?? 0) + (res.maxExpectedPltRise ?? 0)).toFixed(0)} ×10³/µL (target ${res.p2})` },
                   ]}
                   footer="Kenaikan aktual turun pada splenomegali, demam, sepsis, DIC — cek trombosit 10-60 menit & 24 jam pasca-transfusi."
                 />
@@ -772,7 +771,7 @@ export default function KalkulatorTransfusi() {
                   steps={[
                     { label: 'Langkah 1 — Volume plasma:', formula: `PV = BB × 40 mL/kg = ${res.w} × 40 = ${res.pv} mL` },
                     { label: 'Langkah 2 — Defisit fibrinogen:', formula: `Defisit = (target − aktual) × PV ÷ 100\n= (${res.f2} − ${res.f1_mgdl}) × ${res.pv} ÷ 100 = ${Math.round(res.deficit || 0)} mg` },
-                    { label: 'Langkah 3 — Jumlah kantong:', formula: `Berbasis defisit: ${Math.round(res.deficit || 0)} ÷ 200 → ${res.kForm} kantong\nAturan praktis: BB ÷ 10 → ${res.kRule} kantong\nDipakai nilai lebih besar = ${res.kolf} kantong`, note: '1 kantong Cryo ≈ 200 mg fibrinogen fungsional, volume ±17 mL.' },
+                    { label: 'Langkah 3 — Jumlah kantong:', formula: `Berbasis defisit: ${Math.round(res.deficit || 0)} ÷ 200 → ${res.kForm} kantong (DIPAKAI)\nPembanding aturan praktis 1 kantong/10 kg: ${res.w} ÷ 10 → ${res.kRule} kantong`, note: 'Asumsi ±200 mg fibrinogen per kantong, volume ±17 mL — kandungan aktual bervariasi antar-UTD. Aturan 1/10 kg hanya pembanding (dulu diambil nilai terbesar sehingga bisa berlebih).' },
                   ]}
                   footer="Target fibrinogen ≥150 mg/dL (≥200 pada perdarahan obstetrik). Nilai ulang fibrinogen setelah pemberian."
                 />
@@ -794,7 +793,7 @@ export default function KalkulatorTransfusi() {
                   <div className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 p-3 rounded-lg text-xs flex gap-2">
                     <ShieldAlert className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-500" />
                     <div>
-                      <strong>Pertimbangan Threshold Restriktif (AABB):</strong> Hb aktual pasien ≥ 7.0 g/dL. Pada pasien ICU yang stabil (tanpa sindrom koroner akut, penyakit kardiovaskular berat, atau perdarahan aktif masif), strategi transfusi restriktif dengan ambang batas <strong>Hb &lt; 7.0 g/dL</strong> terbukti aman dan meminimalkan komplikasi transfusi.
+                      <strong>Pertimbangan Ambang Restriktif (AABB 2023):</strong> Hb aktual pasien ≥ 7,0 g/dL. Pada pasien rawat inap dewasa yang hemodinamik stabil — termasuk pasien kritis — dianjurkan strategi restriktif dengan ambang <strong>Hb &lt; 7 g/dL</strong> (rekomendasi kuat); klinisi dapat memakai 7,5 g/dL pada bedah jantung dan 8 g/dL pada bedah ortopedi atau penyakit kardiovaskular yang sudah ada. Infark miokard akut dengan anemia: MINT 2023 menunjukkan kecenderungan (tidak bermakna statistik) luaran lebih baik dengan strategi liberal (Hb &lt;10 g/dL).
                     </div>
                   </div>
                 </div>
@@ -881,7 +880,7 @@ export default function KalkulatorTransfusi() {
             <div className="bg-slate-100/50 dark:bg-[#2C2C2E]/40 p-3.5 rounded-xl text-xs space-y-2">
               <strong className="text-slate-800 dark:text-slate-200 block">Derivasi Formula Volume PRC (Davies et al. 2007)</strong>
               <p className="text-slate-600 dark:text-slate-400">
-                Formula dasar penentuan volume transfusi anak & dewasa adalah:
+                Formula Davies — diturunkan dari 379 transfusi di PICU (ANAK); pada dewasa belum divalidasi, gunakan sebagai estimasi:
                 <br />
                 <code className="font-mono bg-white dark:bg-[#1C1C1E] px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">Volume (mL) = ΔHb (g/dL) × BB (kg) × 3 / Hct_PRC</code>
               </p>
@@ -924,7 +923,7 @@ export default function KalkulatorTransfusi() {
                 </table>
               </div>
               <p className="text-[11px] text-slate-400 mt-1 italic">
-                *Referensi Utama: Davies P et al. Transfusion 2007;47(2):212–217. doi:10.1111/j.1537-2995.2007.01091.x
+                *Referensi Utama: Davies P et al. Transfusion 2007;47(2):212–216. doi:10.1111/j.1537-2995.2007.01091.x
               </p>
             </div>
           </div>
@@ -1098,7 +1097,7 @@ export default function KalkulatorTransfusi() {
             </p>
 
             <div className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 p-3 rounded-lg text-xs">
-              <strong>Rekomendasi Guideline Internasional (AABB / NICE):</strong> Batasi pemberian premedikasi hanya untuk kelompok pasien dengan indikasi klinis spesifik berikut.
+              <strong>Pendekatan berbasis bukti:</strong> RCT dan tinjauan Cochrane tidak menemukan bahwa premedikasi rutin menurunkan reaksi transfusi non-hemolitik. Pertimbangkan premedikasi hanya secara selektif, misalnya pada kelompok berikut (praktik lazim, bukan rekomendasi guideline formal).
             </div>
 
             {/* Mobile View */}
@@ -1140,7 +1139,7 @@ export default function KalkulatorTransfusi() {
             </div>
 
             <div className="text-[11px] text-slate-400 italic">
-              *Referensi Utama: AABB Clinical Practice Guidelines 2016 · NICE Guideline NG24 Blood Transfusion 2015 (updated 2023)
+              *Referensi Utama: Kennedy LD et al. Transfusion 2008;48:2285–91 (RCT parasetamol + difenhidramin vs plasebo: risiko reaksi keseluruhan tidak berbeda) · Martí-Carvajal AJ et al. Cochrane Database Syst Rev 2010;CD007539 (premedikasi tidak terbukti mencegah reaksi alergi/febril non-hemolitik)
             </div>
           </div>
         </Accordion>
@@ -1269,7 +1268,7 @@ export default function KalkulatorTransfusi() {
             </div>
 
             <div className="text-[11px] text-slate-400 italic">
-              *Referensi Utama: Carson JL et al. Ann Intern Med 2016;165:519 · Holst LB et al. (TRISS). NEJM 2014;371:1381 · Lieberman L et al. Transfusion 2013;53:790
+              *Referensi Utama: Carson JL et al. Red Blood Cell Transfusion: 2023 AABB International Guidelines. JAMA 2023;330:1892–1902 · NICE NG24 Blood transfusion (2015) — transfusi satu unit lalu nilai ulang pada pasien tanpa perdarahan aktif · Holst LB et al. (TRISS). NEJM 2014;371:1381 · Metcalf RA et al. Platelet Transfusion: 2025 AABB and ICTMG Guidelines. JAMA 2025;334:606–617 · Kaufman RM et al. (AABB trombosit). Ann Intern Med 2015;162:205–213
             </div>
           </div>
         </Accordion>
