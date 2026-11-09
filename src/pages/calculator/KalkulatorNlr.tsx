@@ -9,6 +9,9 @@ import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { toneFromColorClass } from '../../utils/barTone';
 
 export default function KalkulatorNlr() {
   const patient = usePatientStore();
@@ -87,7 +90,7 @@ export default function KalkulatorNlr() {
       const lp = parseFloat(lymphP);
       const mp = parseFloat(monoP);
       
-      if (!wp || !np || !lp) return;
+      if (!wp || !np || !lp) { setRes(null); return; } // tanpa hasil basi
       neut = (np / 100) * wp;
       lymph = (lp / 100) * wp;
       mono = isNaN(mp) ? null : (mp / 100) * wp;
@@ -101,7 +104,7 @@ export default function KalkulatorNlr() {
       wbc = parseFloat(wbcA) || null;
     }
 
-    if (!neut || !lymph) return;
+    if (!neut || !lymph) { setRes(null); return; }
 
     const nlr = neut / lymph;
     const plr = plt ? plt / lymph : null;
@@ -137,6 +140,22 @@ export default function KalkulatorNlr() {
     setRes({ nlr, plr, sii, mlr, n, p, s, m, ni, nc, wbcNote, wbc, neut, lymph, mono, plt, mode });
   };
 
+  // Hitung sekali → setelah itu hasil ikut berubah otomatis (tidak ada hasil basi).
+  const calc = useCalcTrigger({
+    compute: () => calculate(),
+    deps: [mode, neutA, lymphA, monoA, pltA, wbcA, wbcP, neutP, lymphP, monoP, pltP],
+    required: mode === 'abs'
+      ? [
+          { id: 'nlr-neut', label: 'Neutrofil', filled: parseFloat(neutA) > 0 },
+          { id: 'nlr-lymph', label: 'Limfosit', filled: parseFloat(lymphA) > 0 },
+        ]
+      : [
+          { id: 'nlr-wbc', label: 'WBC total', filled: parseFloat(wbcP) > 0 },
+          { id: 'nlr-neut', label: 'Neutrofil %', filled: parseFloat(neutP) > 0 },
+          { id: 'nlr-lymph', label: 'Limfosit %', filled: parseFloat(lymphP) > 0 },
+        ],
+  });
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
@@ -160,14 +179,14 @@ export default function KalkulatorNlr() {
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Neutrofil</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={neutA} onChange={e=>setNeutA(e.target.value)} />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-neut" inputMode="decimal" aria-invalid={calc.isMissing('nlr-neut')} value={neutA} onChange={e=>setNeutA(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Limfosit</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={lymphA} onChange={e=>setLymphA(e.target.value)} />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-lymph" inputMode="decimal" aria-invalid={calc.isMissing('nlr-lymph')} value={lymphA} onChange={e=>setLymphA(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
@@ -198,21 +217,21 @@ export default function KalkulatorNlr() {
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">WBC Total (wajib)</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={wbcP} onChange={e=>setWbcP(e.target.value)} />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-wbc" inputMode="decimal" aria-invalid={calc.isMissing('nlr-wbc')} value={wbcP} onChange={e=>setWbcP(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Neutrofil</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={neutP} onChange={e=>setNeutP(e.target.value)} />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-neut" inputMode="decimal" aria-invalid={calc.isMissing('nlr-neut')} value={neutP} onChange={e=>setNeutP(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">%</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Limfosit</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={lymphP} onChange={e=>setLymphP(e.target.value)} />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-lymph" inputMode="decimal" aria-invalid={calc.isMissing('nlr-lymph')} value={lymphP} onChange={e=>setLymphP(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">%</span>
                    </div>
                 </div>
@@ -234,14 +253,8 @@ export default function KalkulatorNlr() {
             )}
          </div>
          
-         <div className="mt-4">
-            <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-               Hitung Indeks
-            </button>
-         </div>
-
          {res && (
-           <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+           <div id="nlr-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
              <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-4">
                {res.wbcNote && (
                  <div className="flex gap-2.5 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 p-3 rounded-lg border border-red-200 dark:border-red-800/30 text-[13px] mb-4">
@@ -400,6 +413,16 @@ export default function KalkulatorNlr() {
           📚 Zahorec R. (2001) Ratio of neutrophil to lymphocyte. Bratisl Lek Listy; Hu B et al. (2014) SII Index. Clin Cancer Res. Forget P (2017) What is the normal value of the neutrophil-to-lymphocyte ratio?
         </div>
       </Accordion>
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung Indeks"
+        summary={res ? `NLR ${res.nlr.toFixed(2)} · ${res.n.lbl}` : null}
+        summaryTone={toneFromColorClass(res?.n.color)}
+        caption={res ? [res.plr !== null ? `PLR ${res.plr.toFixed(1)}` : null, res.sii !== null ? `SII ${res.sii.toFixed(0)}` : null, res.mlr !== null ? `MLR ${res.mlr.toFixed(2)}` : null].filter(Boolean).join(' · ') || 'Diperbarui otomatis saat input berubah' : undefined}
+        missing={calc.missing}
+        resultTargetId="nlr-hasil"
+      />
       <AbbrLegend
         terms={[
           'NLR', 'PLR-rasio', 'SII', 'MLR', 'WBC', 'PLT', 'AMI', 'ICU', 'IGD', 'HIV', 'AIDS', 'COVID-19', 'AUC',
