@@ -15,6 +15,8 @@ import {
   type NutritionPhase, type NutritionCondition, type NutritionSex, type NutritionResult, type Range, type TargetBlock,
 } from '../../utils/nutrition';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 
 type Route = 'en' | 'pn' | 'mixed';
 
@@ -121,6 +123,20 @@ export default function KalkulatorNutrisi() {
   const espenP = res ? res.r.protein.find((e) => e.guideline === 'ESPEN')! : null;
   const aspenP = res ? res.r.protein.find((e) => e.guideline === 'ASPEN')! : null;
 
+  // Hitung sekali → setelah itu hasil ikut berubah otomatis (tidak ada hasil basi).
+  const calc = useCalcTrigger({
+    compute: () => calculate(),
+    deps: [bb, tb, sex, ibwIn, fase, kondisi, route, refeeding, density, proteinGL, nonNutr],
+    required: [{ id: 'nut-bb', label: 'BB aktual', filled: parseFloat(bb) > 0 }],
+  });
+  // Ringkasan bilah: ESPEN & ASPEN berdampingan, satuan per hari persis seperti rincian.
+  const barSummary = res && espenE && aspenE
+    ? `ESPEN ${espenE.upperOnly ? '≤' : ''}${fmtRange(espenE.total)} · ASPEN ${aspenE.upperOnly ? '≤' : ''}${fmtRange(aspenE.total)} kkal/hari`
+    : null;
+  const barCaption = res && espenP && aspenP
+    ? `${res.refeed ? `Risiko refeeding — mulai ${fmtRange(res.refeed, ' kkal/hari')} · ` : ''}Protein ESPEN ${fmtRange(espenP.total)} · ASPEN ${fmtRange(aspenP.total)} g/hari`
+    : undefined;
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
 
@@ -175,7 +191,7 @@ export default function KalkulatorNutrisi() {
           <div className="flex items-center justify-between px-4 py-3 gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BB Aktual</span>
             <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className={inputCls} value={bb} onChange={e => { setBb(e.target.value); reset(); }} />
+              <input id="nut-bb" type="number" inputMode="decimal" aria-invalid={calc.isMissing('nut-bb')} className={`${inputCls} aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]`} value={bb} onChange={e => { setBb(e.target.value); reset(); }} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kg</span>
             </div>
           </div>
@@ -235,13 +251,7 @@ export default function KalkulatorNutrisi() {
         </div>
       </div>
 
-      <div className="mt-4">
-        <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-          Hitung Target Nutrisi
-        </button>
-      </div>
-
-      {err && (
+      {calc.armed && err && (
         <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/40 text-[13px] font-semibold text-red-700 dark:text-red-400 flex gap-2">
           <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" /> {err}
         </div>
@@ -250,7 +260,7 @@ export default function KalkulatorNutrisi() {
       {res && <InputWarning messages={[weightPlausibilityWarning(parseFloat(bb)), ...res.r.warnings]} />}
 
       {res && espenE && aspenE && espenP && aspenP && (
-        <div className="mt-2 animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div id="nut-hasil" className="scroll-mt-4 mt-2 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
 
             {res.refeed && (
@@ -435,6 +445,17 @@ export default function KalkulatorNutrisi() {
         </div>
       </Accordion>
 
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung Target Nutrisi"
+        summary={barSummary}
+        summaryTone={res?.refeed ? 'warn' : 'info'}
+        caption={barCaption}
+        missing={calc.missing}
+        resultTargetId="nut-hasil"
+        emptyText={err || 'Lengkapi data untuk melihat hasil'}
+      />
       <AbbrLegend
         terms={[
           'ICU', 'ARDS', 'AKI', 'HD', 'CRRT', 'KRT', 'EN', 'PN', 'TPN', 'NGT', 'NICE', 'CG', 'ASPEN', 'ESPEN', 'SCCM',
