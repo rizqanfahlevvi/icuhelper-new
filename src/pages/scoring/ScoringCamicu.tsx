@@ -3,6 +3,7 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { Brain } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
 
 export default function ScoringCamicu() {
   const [rassOk, setRassOk] = useState<boolean | null>(null);
@@ -39,7 +40,7 @@ export default function ScoringCamicu() {
 
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+         <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
              <h2 className="text-xl font-bold flex items-center gap-2">
                <Brain className="w-5 h-5 text-indigo-500" />
@@ -112,7 +113,7 @@ export default function ScoringCamicu() {
            )}
            
            {res === true && (
-              <div className="p-4 rounded-xl border bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 mt-4 animate-in fade-in slide-in-from-bottom-2">
+              <div id="camicu-hasil" className="scroll-mt-4 p-4 rounded-xl border bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 mt-4 animate-in fade-in slide-in-from-bottom-2">
                   <div className="font-bold text-sm mb-1 uppercase tracking-wider">Tindakan — Mnemonic THINK</div>
                   <div className="text-sm space-y-1 text-slate-800 dark:text-slate-200">
                     <p><strong>T</strong>oxic situations: syok, gagal jantung, dehidrasi, gagal organ baru; obat deliriogenik (benzodiazepin, antikolinergik, opioid berlebih) & withdrawal — evaluasi ulang sedasi, hindari benzodiazepin.</p>
@@ -136,6 +137,14 @@ export default function ScoringCamicu() {
           📚 Ely EW et al. (CAM-ICU) JAMA 2001;286:2703 · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Lewis K et al. (PADIS 2025 focused update) Crit Care Med 2025;53:e711 · Hughes CG et al. (MENDS2) N Engl J Med 2021;384:1424 · Peterson JF et al. (subtipe delirium) J Am Geriatr Soc 2006;54:479
         </div>
       </Accordion>
+      <CalcActionBar
+        mode="live"
+        summary={res === null ? null : res === 'UTA' ? 'UTA — tidak dapat dinilai' : `Delirium: ${res ? 'POSITIF' : 'NEGATIF'}`}
+        summaryTone={res === 'UTA' ? 'warn' : res ? 'bad' : 'good'}
+        caption={res === 'UTA' ? 'RASS −4/−5 · ulangi saat sedasi dikurangi' : res ? 'Ketuk untuk tindakan (THINK)' : res === false ? 'CAM-ICU negatif' : undefined}
+        resultTargetId={res === true ? 'camicu-hasil' : undefined}
+        emptyText="Jawab prasyarat RASS & fitur CAM-ICU"
+      />
       <AbbrLegend terms={['CAM-ICU', 'ICU', 'RASS', 'UTA', 'DSM', 'PADIS', 'SpO2', 'AGD']} />
     </div>
   );

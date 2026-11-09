@@ -3,6 +3,8 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { Activity } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { toneFromColorClass, signed } from '../../utils/barTone';
 
 const RASS_LEVELS = [
   { val: 4, label: '+4 Combative — Agresif', desc: 'Agresif/kekerasan, bahaya langsung terhadap staf. Dapat mencabut infus, ETT.', a: '⚠️ DARURAT: Amankan pasien & jalur IV/ETT segera! Analgesik IV bolus → sedatif titrasi. Evaluasi penyebab: nyeri, hipoksia, retensi urin, delirium hiperaktif.', c: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
@@ -27,7 +29,7 @@ export default function ScoringRass() {
 
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+         <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
              <h2 className="text-xl font-bold flex items-center gap-2">
                <Activity className="w-5 h-5 text-violet-500" />
@@ -37,12 +39,15 @@ export default function ScoringRass() {
            </div>
          </div>
 
-         <div className="flex flex-col-reverse lg:flex-row gap-6">
-           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+         <p className="md:hidden mb-3 text-[13px] text-muted-foreground">Pilih tingkat yang paling sesuai — hasil & tindakan tampil di bilah bawah.</p>
+         <div className="flex flex-col lg:flex-row gap-6">
+           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4" role="radiogroup" aria-label="Tingkat RASS">
              {RASS_LEVELS.map((item) => (
                <button
                  key={item.val}
                  onClick={() => setScoreObj(item)}
+                 role="radio"
+                 aria-checked={scoreObj?.val === item.val}
                  className={`w-full text-left p-2.5 border rounded-xl transition-all ${
                    scoreObj?.val === item.val
                      ? `bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm ring-1 ring-blue-500`
@@ -61,7 +66,7 @@ export default function ScoringRass() {
              ))}
            </div>
 
-           <div className="lg:w-1/3 shrink-0">
+           <div id="rass-hasil" className="lg:w-1/3 shrink-0 scroll-mt-4">
               {scoreObj ? (
                 <div className={`p-5 border rounded-2xl ${scoreObj.bg} sticky top-24`}>
                   <div className="text-sm font-semibold opacity-80 uppercase tracking-widest mb-1">RASS Score</div>
@@ -78,7 +83,7 @@ export default function ScoringRass() {
                   </div>
                 </div>
               ) : (
-                <div className="p-5 border border-dashed rounded-2xl flex flex-col items-center justify-center text-center h-full min-h-[300px] text-muted-foreground">
+                <div className="hidden lg:flex p-5 border border-dashed rounded-2xl flex-col items-center justify-center text-center h-full min-h-[300px] text-muted-foreground">
                   <Activity className="w-8 h-8 mb-3 opacity-20" />
                   <p>Pilih tingkat kondisi pasien di sebelahnya untuk melihat interpretasi dan rekomendasi tindakan.</p>
                 </div>
@@ -98,6 +103,14 @@ export default function ScoringRass() {
           📚 Sessler CN et al. Am J Respir Crit Care Med 2002;166:1338 (RASS validasi) · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Lewis K et al. (PADIS 2025 focused update) Crit Care Med 2025;53:e711 · Vincent JL et al. (eCASH concept) ICM 2016;42:962
         </div>
       </Accordion>
+      <CalcActionBar
+        mode="live"
+        summary={scoreObj ? `RASS ${signed(scoreObj.val)}` : null}
+        summaryTone={toneFromColorClass(scoreObj?.c)}
+        caption={scoreObj ? scoreObj.label.substring(scoreObj.label.indexOf(' ') + 1) : undefined}
+        resultTargetId="rass-hasil"
+        emptyText="Pilih tingkat RASS pasien"
+      />
       <AbbrLegend
         terms={[
           'RASS', 'ICU', 'ETT', 'IV', 'CPOT', 'NRS', 'PADIS', 'eCASH', 'NGT', 'SAT', 'SBT', 'CAM-ICU', 'UTA', 'HICP',

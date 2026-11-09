@@ -3,6 +3,8 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { Activity as ActivityIcon } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { toneFromColorClass } from '../../utils/barTone';
 
 export default function ScoringWells() {
   const [signsOfDvt, setSignsOfDvt] = useState(false);
@@ -51,7 +53,7 @@ export default function ScoringWells() {
       <ActivePatientBriefCard />
 
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+         <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
              <h2 className="text-xl font-bold flex items-center gap-2">
                <ActivityIcon className="w-5 h-5 text-blue-500" />
@@ -67,7 +69,7 @@ export default function ScoringWells() {
          </div>
 
          {/* Two-tier Interpretation */}
-         <div className="mb-6 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-between items-center">
+         <div id="wells-hasil" className="scroll-mt-4 mb-6 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-between items-center">
             <div>
               <div className="text-xs text-muted-foreground font-medium">Interpretasi (2-Tier)</div>
               <div className={`font-bold text-lg ${getRiskTwoTier().color}`}>
@@ -131,6 +133,13 @@ export default function ScoringWells() {
           📚 Wells PS et al. (skor Wells PE) Thromb Haemost 2000;83:416 · van Belle A et al. (Christopher Study, Wells 2 tingkat) JAMA 2006;295:172 · Righini M et al. (ADJUST-PE) JAMA 2014;311:1117 · Kline JA et al. (PERC) J Thromb Haemost 2004;2:1247
         </div>
       </Accordion>
+      <CalcActionBar
+        mode="live"
+        summary={`Wells ${total} · ${getRiskTwoTier().risk}`}
+        summaryTone={toneFromColorClass(getRiskTwoTier().color)}
+        caption={`3-tier: ${getRiskThreeTier()}`}
+        resultTargetId="wells-hasil"
+      />
       <AbbrLegend terms={['PE', 'DVT', 'CTPA', 'FEU', 'PERC', 'IGD', 'ICU']} />
     </div>
   );
