@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { useActiveSection } from '../../hooks/useActiveSection';
 import { Stethoscope, Wind, FileText, ChevronDown } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
@@ -11,6 +14,10 @@ import { interpretAa, expectedAaRoomAir } from '../../utils/oxygenation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+
+const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
+const RISK_TONE: Record<string, CalcTone> = { low: 'good', mid: 'warn', high: 'bad', veryhigh: 'bad' };
+const SECTIONS = ['sec-curb', 'sec-psi', 'sec-smartcop', 'sec-ats', 'sec-aa'] as const;
 
 export default function KalkulatorPulmo() {
   const patient = usePatientStore();
@@ -255,12 +262,12 @@ export default function KalkulatorPulmo() {
     const cls = g.tone === 'low' ? 'text-teal-500' : g.tone === 'mid' ? 'text-amber-500' : 'text-red-500';
     const act = missing.length ? `${g.act} · SKOR PARSIAL — belum diisi: ${missing.join(', ')} (dihitung 0, skor bisa lebih tinggi).` : g.act;
 
-    setCurbRes({ score, rows, interp: g.interp, act, cls });
+    setCurbRes({ score, rows, interp: g.interp, act, cls, tone: g.tone, partial: missing.length > 0 });
   };
 
   const calcPSI = () => {
     const age = parseFloat(psiAge);
-    if (isNaN(age)) { setPsiError('Masukkan usia pasien'); return; }
+    if (isNaN(age)) { setPsiError('Masukkan usia pasien'); setPsiRes(null); return; }
     setPsiError('');
 
     const hasComorbid = psiNeoplastic || psiLiver || psiChf || psiCva || psiRenal;
@@ -318,21 +325,21 @@ export default function KalkulatorPulmo() {
     }
     add('Efusi pleura (CXR)', psiEffusion ? 10 : 0, psiEffusion ? 'Ya +10' : 'Tidak');
 
-    let riskClass: string, mortality: string, disposition: string, cls: string, dispositionCls: string;
+    let riskClass: string, mortality: string, disposition: string, cls: string, dispositionCls: string, tone: CalcTone;
     // Mortalitas 30 hari: kelas I–III = rentang antar-kohort Fine 1997 (abstrak); IV–V nilai satu kohort.
     const pc = psiClass(score, isClassI);
     riskClass = pc.cls; mortality = pc.mortality;
     if (isClassI || score <= 70) {
-      disposition = 'Rawat Jalan'; cls = 'text-green-500'; dispositionCls = 'text-green-600';
+      disposition = 'Rawat Jalan'; cls = 'text-green-500'; dispositionCls = 'text-green-600'; tone = 'good';
     } else if (score <= 90) {
-      disposition = 'Rawat Inap Singkat / Observasi Ketat'; cls = 'text-amber-400'; dispositionCls = 'text-amber-600';
+      disposition = 'Rawat Inap Singkat / Observasi Ketat'; cls = 'text-amber-400'; dispositionCls = 'text-amber-600'; tone = 'warn';
     } else if (score <= 130) {
-      disposition = 'Rawat Inap'; cls = 'text-orange-500'; dispositionCls = 'text-orange-600';
+      disposition = 'Rawat Inap'; cls = 'text-orange-500'; dispositionCls = 'text-orange-600'; tone = 'warn';
     } else {
-      disposition = 'Rawat Inap / ICU'; cls = 'text-red-500'; dispositionCls = 'text-red-600';
+      disposition = 'Rawat Inap / ICU'; cls = 'text-red-500'; dispositionCls = 'text-red-600'; tone = 'bad';
     }
 
-    setPsiRes({ score, riskClass, mortality, disposition, cls, dispositionCls, rows, isClassI });
+    setPsiRes({ score, riskClass, mortality, disposition, cls, dispositionCls, rows, isClassI, tone });
   };
 
   const calcSmartCop = () => {
@@ -353,7 +360,7 @@ export default function KalkulatorPulmo() {
     const desc = sr.desc;
     const cls = sr.tone === 'low' ? 'text-green-500 dark:text-green-400' : sr.tone === 'mid' ? 'text-amber-500 dark:text-amber-400' : sr.tone === 'high' ? 'text-orange-500 dark:text-orange-400' : 'text-red-600 dark:text-red-400';
 
-    setSmartCopRes({ score, risk, desc, cls });
+    setSmartCopRes({ score, risk, desc, cls, tone: sr.tone });
   };
 
   const calcAa = () => {
@@ -364,12 +371,13 @@ export default function KalkulatorPulmo() {
     const age = parseFloat(aaAge);
 
     setAaFio2Error('');
-    if (!aaFio2Raw) { setAaFio2Error('Masukkan FiO₂'); return; }
+    if (!aaFio2Raw) { setAaFio2Error('Masukkan FiO₂'); setAaRes(null); return; }
     if (isNaN(f) || f < 0.21 || f > 1.0) {
       setAaFio2Error(`FiO₂ tidak valid. Harus antara ${aaFio2Mode === 'percent' ? '21–100%' : '0.21–1.0'}`);
+      setAaRes(null);
       return;
     }
-    if (isNaN(pco2) || isNaN(po2)) { setAaInputError('Masukkan PaCO₂ dan PaO₂'); return; }
+    if (isNaN(pco2) || isNaN(po2)) { setAaInputError('Masukkan PaCO₂ dan PaO₂'); setAaRes(null); return; }
     setAaInputError('');
 
     const paO2calc = f * (patm - 47) - pco2 / 0.8;
@@ -381,8 +389,69 @@ export default function KalkulatorPulmo() {
     const ai = ia.text;
     const ac = ia.tone === 'red' ? 'text-red-500' : ia.tone === 'amber' ? 'text-amber-500' : ia.tone === 'emerald' ? 'text-teal-500' : 'text-slate-500';
 
-    setAaRes({ grad: aaGrad.toFixed(1), calc: paO2calc.toFixed(1), po2, normal: isNaN(normalAa) ? '—' : normalAa.toFixed(0), ai, ac, fio2pct: (f*100).toFixed(0), fio2dec: f.toFixed(2) });
+    setAaRes({ tone: ia.tone, grad: aaGrad.toFixed(1), calc: paO2calc.toFixed(1), po2, normal: isNaN(normalAa) ? '—' : normalAa.toFixed(0), ai, ac, fio2pct: (f*100).toFixed(0), fio2dec: f.toFixed(2) });
   };
+
+  // Pola Hitung per bagian: hasil tampil setelah Hitung; sesudahnya ikut berubah otomatis (tanpa hasil basi).
+  // SMART-COP & ATS/IDSA = ceklis ketuk → selalu live.
+  const curb = useCalcTrigger({ compute: () => calcCurb(), deps: [curbC, ureumMgdl, curbRr, curbSbp, curbDbp, curbAge] });
+  const psi = useCalcTrigger({
+    compute: () => calcPSI(),
+    deps: [psiSex, psiAge, psiNursing, psiNeoplastic, psiLiver, psiChf, psiCva, psiRenal, psiAms, psiRr, psiSbp, psiTemp, psiHr, psiPh, psiBun, psiNa, psiGlucose, psiHct, psiPao2, psiSpo2, psiEffusion],
+    required: [{ id: 'psi-age', label: 'Usia', filled: !isNaN(parseFloat(psiAge)) }],
+  });
+  const aa = useCalcTrigger({
+    compute: () => calcAa(),
+    deps: [aaFio2Mode, aaFio2Raw, aaPaco2, aaPao2, aaPatm, aaAge],
+    required: [
+      { id: 'aa-fio2', label: 'FiO₂', filled: aaFio2Raw.trim() !== '' },
+      { id: 'aa-paco2', label: 'PaCO₂', filled: !isNaN(parseFloat(aaPaco2)) },
+      { id: 'aa-pao2', label: 'PaO₂', filled: !isNaN(parseFloat(aaPao2)) },
+    ],
+  });
+  useEffect(() => { calcSmartCop(); }, [scSbp, scMulti, scAlbumin, scRr, scTachy, scConfusion, scO2, scPh]);
+
+  // Bilah bawah mengikuti bagian yang sedang dilihat (bagian konversi ureum di atas → CURB-65).
+  const active = useActiveSection(SECTIONS) ?? 'sec-curb';
+  const bar = (() => {
+    switch (active) {
+      case 'sec-psi':
+        return {
+          mode: 'button' as const, armed: psi.armed, onCalculate: psi.trigger, label: 'Hitung PSI/PORT', missing: psi.missing, target: 'psi-hasil',
+          summary: psi.armed && psiRes ? `PSI ${psiRes.score} · Kelas ${psiRes.riskClass}` : null,
+          caption: psi.armed && psiRes ? `${psiRes.disposition} · mortalitas ${psiRes.mortality}` : undefined,
+          tone: (psi.armed && psiRes ? psiRes.tone : 'neutral') as CalcTone,
+        };
+      case 'sec-smartcop':
+        return {
+          mode: 'live' as const, armed: true, onCalculate: undefined, label: 'Hitung', missing: [], target: 'sc-hasil',
+          summary: smartCopRes ? `SMART-COP ${smartCopRes.score} · ${smartCopRes.risk}` : null,
+          caption: smartCopRes ? smartCopRes.desc : undefined,
+          tone: (smartCopRes ? RISK_TONE[smartCopRes.tone] : 'neutral') as CalcTone,
+        };
+      case 'sec-ats':
+        return {
+          mode: 'live' as const, armed: true, onCalculate: undefined, label: 'Hitung', missing: [], target: 'ats-hasil',
+          summary: atsResult.isSevere ? 'Severe CAP — ATS/IDSA' : 'Belum memenuhi severe CAP',
+          caption: `Mayor ${atsResult.major} · Minor ${atsResult.minor} — ${atsResult.desc}`,
+          tone: (atsResult.isSevere ? 'bad' : 'neutral') as CalcTone,
+        };
+      case 'sec-aa':
+        return {
+          mode: 'button' as const, armed: aa.armed, onCalculate: aa.trigger, label: 'Hitung A-a Gradient', missing: aa.missing, target: 'aa-hasil',
+          summary: aa.armed && aaRes ? `A-a ${aaRes.grad} mmHg` : null,
+          caption: aa.armed && aaRes ? aaRes.ai : (aa.armed ? (aaFio2Error || aaInputError || undefined) : undefined),
+          tone: (aa.armed && aaRes ? ({ red: 'bad', amber: 'warn', emerald: 'good' } as Record<string, CalcTone>)[aaRes.tone] ?? 'neutral' : 'neutral') as CalcTone,
+        };
+      default:
+        return {
+          mode: 'button' as const, armed: curb.armed, onCalculate: curb.trigger, label: 'Hitung CURB-65', missing: curb.missing, target: 'curb-hasil',
+          summary: curb.armed && curbRes ? `CURB-65 ${curbRes.score} · ${curbRes.interp}${curbRes.partial ? ' (parsial)' : ''}` : null,
+          caption: curb.armed && curbRes ? curbRes.act : undefined,
+          tone: (curb.armed && curbRes ? RISK_TONE[curbRes.tone] : 'neutral') as CalcTone,
+        };
+    }
+  })();
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
@@ -398,21 +467,21 @@ export default function KalkulatorPulmo() {
         </h2>
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">Ureum (mg/dL)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMgdl} onChange={e => handleUreumChange(e.target.value, 'mgdl')} />
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">Ureum (mmol/L)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMmol} onChange={e => handleUreumChange(e.target.value, 'mmol')} />
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">BUN (mg/dL)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={bunMgdl} onChange={e => handleUreumChange(e.target.value, 'bun')} />
             </div>
           </div>
@@ -420,61 +489,55 @@ export default function KalkulatorPulmo() {
       </div>
 
       {/* CURB-65 */}
-      <div className="flex flex-col gap-0 mt-4">
+      <div id="sec-curb" className="flex flex-col gap-0 mt-4">
         <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           CURB-65 Score
         </h2>
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex justify-between px-4 py-3 items-center gap-4">
+          <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32 truncate">C — Confusion</span>
             <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis" value={curbC} onChange={e => setCurbC(e.target.value)}>
               <option value="0">Tidak (0)</option>
               <option value="1">Ya (1)</option>
             </select>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">U — Ureum (&gt;42)</span>
             <div className="flex-1 flex items-center justify-end gap-2 opacity-60">
               <input type="number" disabled className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMgdl} placeholder="Dari konversi" />
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">R — Resp. Rate</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbRr} onChange={e => setCurbRr(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">/mnt</span>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">B — Sistolik</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbSbp} onChange={e => setCurbSbp(e.target.value)} />
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">B — Diastolik</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbDbp} onChange={e => setCurbDbp(e.target.value)} />
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">65 — Usia</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbAge} onChange={e => setCurbAge(e.target.value)} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-4">
-         <button onClick={calcCurb} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-           Hitung CURB-65
-         </button>
-      </div>
-
-      {curbRes && (
-        <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+      {curb.armed && curbRes && (
+        <div id="curb-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
             <div className={`text-5xl font-black mb-2 ${curbRes.cls}`}>{curbRes.score}</div>
             <div className={`text-[15px] font-bold mb-1 ${curbRes.cls}`}>{curbRes.interp}</div>
@@ -506,7 +569,7 @@ export default function KalkulatorPulmo() {
       )}
 
       {/* PSI/PORT Score */}
-      <div className="flex flex-col gap-0 mt-6">
+      <div id="sec-psi" className="flex flex-col gap-0 mt-6">
         <h2 className="mb-1 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           PSI / PORT Score
         </h2>
@@ -515,7 +578,7 @@ export default function KalkulatorPulmo() {
         </p>
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Jenis Kelamin</span>
              <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
                 <button className={`px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'm' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('m')}>Laki-laki</button>
@@ -525,11 +588,11 @@ export default function KalkulatorPulmo() {
           <div className="px-4 py-2 text-[11px] text-slate-500 bg-slate-100/50 dark:bg-slate-800/50 italic text-right">
              Perempuan: skor dasar = usia − 10
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Usia (Tahun)</span>
-             <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiAge} onChange={e => setPsiAge(e.target.value)} />
+             <input id="psi-age" aria-label="Usia (tahun)" type="number" inputMode="decimal" className={`w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]${psi.isMissing('psi-age') ? MISSING_RING : ''}`} value={psiAge} onChange={e => setPsiAge(e.target.value)} />
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Nursing home resident</span>
              <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiNursing ? '1' : '0'} onChange={e => setPsiNursing(e.target.value === '1')}>
                 <option value="0">Tidak</option><option value="1">Ya</option>
@@ -539,23 +602,23 @@ export default function KalkulatorPulmo() {
 
         <h3 className="px-4 text-[12px] font-bold text-slate-600 dark:text-slate-400 mt-2 mb-1">Komorbiditas</h3>
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Neoplastic disease <span className="text-slate-400 text-[11px] ml-1">+30</span></span>
             <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiNeoplastic ? '1' : '0'} onChange={e => setPsiNeoplastic(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Liver disease <span className="text-slate-400 text-[11px] ml-1">+20</span></span>
             <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiLiver ? '1' : '0'} onChange={e => setPsiLiver(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">CHF <span className="text-slate-400 text-[11px] ml-1">+10</span></span>
             <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiChf ? '1' : '0'} onChange={e => setPsiChf(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Cerebrovascular disease <span className="text-slate-400 text-[11px] ml-1">+10</span></span>
             <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiCva ? '1' : '0'} onChange={e => setPsiCva(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Renal disease <span className="text-slate-400 text-[11px] ml-1">+10</span></span>
             <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiRenal ? '1' : '0'} onChange={e => setPsiRenal(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
@@ -563,7 +626,7 @@ export default function KalkulatorPulmo() {
 
         <h3 className="px-4 text-[12px] font-bold text-slate-600 dark:text-slate-400 mt-2 mb-1">Pemeriksaan Fisik</h3>
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Altered mental status <span className="text-slate-400 text-[11px] ml-1">+20</span></span>
             <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiAms ? '1' : '0'} onChange={e => setPsiAms(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
@@ -647,21 +710,16 @@ export default function KalkulatorPulmo() {
             </div>
             <div className={`text-[10px] font-bold text-right ${((!isNaN(parseFloat(psiPao2)) && parseFloat(psiPao2)<60) || (!isNaN(parseFloat(psiSpo2)) && parseFloat(psiSpo2)<90)) ? 'text-red-500' : 'text-slate-400'}`}>PaO₂ &lt;60 atau SpO₂ &lt;90: +10</div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Efusi Pleura (CXR) <span className="text-slate-400 text-[11px] ml-1">+10</span></span>
             <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiEffusion ? '1' : '0'} onChange={e => setPsiEffusion(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
         </div>
-        <div className="px-4">
-          <button onClick={calcPSI} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-            Hitung PSI/PORT
-          </button>
-          {psiError && <p className="text-sm text-destructive mt-2 text-center">{psiError}</p>}
-        </div>
+        {psi.armed && psiError && <p className="px-4 text-sm text-destructive mt-2 text-center">{psiError}</p>}
       </div>
 
-      {psiRes && (
-        <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+      {psi.armed && psiRes && (
+        <div id="psi-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
             {psiRes.isClassI && (
               <div className="mb-4 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 p-3 rounded-xl border border-green-200 dark:border-green-800 text-[13px] font-bold">
@@ -702,7 +760,7 @@ export default function KalkulatorPulmo() {
       )}
 
       {/* SMART-COP Score */}
-      <div className="flex flex-col gap-0 mt-6">
+      <div id="sec-smartcop" className="flex flex-col gap-0 mt-6">
         <h2 className="mb-1 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           SMART-COP Score
         </h2>
@@ -762,15 +820,10 @@ export default function KalkulatorPulmo() {
              </div>
           </div>
         </div>
-        <div className="px-4">
-          <button onClick={calcSmartCop} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-            Hitung SMART-COP
-          </button>
-        </div>
       </div>
 
       {smartCopRes && (
-        <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div id="sc-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
             <div className={`text-[12px] font-bold uppercase tracking-wider mb-1 ${smartCopRes.cls}`}>{smartCopRes.risk}</div>
             <div className={`text-5xl font-black mb-2 ${smartCopRes.cls}`}>{smartCopRes.score}</div>
@@ -792,7 +845,7 @@ export default function KalkulatorPulmo() {
       )}
 
       {/* ATS/IDSA */}
-      <div className="flex flex-col gap-0 mt-6">
+      <div id="sec-ats" className="flex flex-col gap-0 mt-6">
         <h2 className="mb-1 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           ATS/IDSA Severe CAP
         </h2>
@@ -872,7 +925,7 @@ export default function KalkulatorPulmo() {
           </div>
         </div>
 
-        <div className="animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div id="ats-hasil" className="scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className={`border rounded-xl shadow-sm p-4 text-center ${atsResult.isSevere ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-[#1C1C1E] border-slate-200 dark:border-slate-800'}`}>
             <div className={`text-[12px] font-bold uppercase tracking-wider mb-2 ${atsResult.isSevere ? 'text-red-700 dark:text-red-400' : 'text-slate-500'}`}>Kesimpulan ATS/IDSA</div>
             <div className={`text-[15px] font-bold mb-1 ${atsResult.isSevere ? 'text-red-800 dark:text-red-300' : 'text-slate-800 dark:text-slate-200'}`}>{atsResult.desc}</div>
@@ -894,62 +947,57 @@ export default function KalkulatorPulmo() {
       </div>
 
       {/* A-a Gradient */}
-      <div className="flex flex-col gap-0 mt-6">
+      <div id="sec-aa" className="flex flex-col gap-0 mt-6">
         <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           A-a Gradient — Analisis Hipoksemia
         </h2>
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-col px-4 py-3 gap-2">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">FiO₂ {getFio2Hint()}</span>
-              <div className="flex-1 flex flex-col items-end gap-1">
+              <div className="flex-1 min-w-[8rem] flex flex-col items-end gap-1">
                 <div className="flex items-center gap-1 bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg self-end mb-1">
                   <button className={`px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'decimal' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('decimal')}>Desimal</button>
                   <button className={`px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'percent' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('percent')}>Persen</button>
                 </div>
-                <input type="number" step={aaFio2Mode === 'decimal' ? '0.01' : '1'} className={`w-32 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold transition-all text-[14px] ${aaFio2Error ? 'text-red-500 focus:ring-red-500/50' : 'text-slate-900 dark:text-white focus:ring-blue-500/50'}`} value={aaFio2Raw} onChange={e=>{setAaFio2Raw(e.target.value); setAaFio2Error('');}} placeholder={aaFio2Mode==='percent'?'21':'0.21'}/>
+                <input id="aa-fio2" aria-label="FiO₂" type="number" inputMode="decimal" step={aaFio2Mode === 'decimal' ? '0.01' : '1'} className={`${aa.isMissing('aa-fio2') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-32 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold transition-all text-[14px] ${aaFio2Error ? 'text-red-500 focus:ring-red-500/50' : 'text-slate-900 dark:text-white focus:ring-blue-500/50'}`} value={aaFio2Raw} onChange={e=>{setAaFio2Raw(e.target.value); setAaFio2Error('');}} placeholder={aaFio2Mode==='percent'?'21':'0.21'}/>
               </div>
             </div>
             {aaFio2Error && <div className="text-[10px] font-bold text-red-500 text-right">{aaFio2Error}</div>}
             {aaFio2Raw && !aaFio2Error && <div className="text-[10px] text-slate-400 text-right italic">{getFio2Decimal()}</div>}
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaCO₂ (mmHg)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaPaco2} onChange={e=>setAaPaco2(e.target.value)}/>
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
+              <input type="number" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-paco2') ? MISSING_RING : ''}`} value={aaPaco2} onChange={e=>setAaPaco2(e.target.value)} id="aa-paco2" aria-label="PaCO₂ (mmHg)" inputMode="decimal"/>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaO₂ (mmHg)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaPao2} onChange={e=>setAaPao2(e.target.value)}/>
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
+              <input type="number" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-pao2') ? MISSING_RING : ''}`} value={aaPao2} onChange={e=>setAaPao2(e.target.value)} id="aa-pao2" aria-label="PaO₂ (mmHg)" inputMode="decimal"/>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Usia (Tahun)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaAge} onChange={e=>setAaAge(e.target.value)}/>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">P. atm (mmHg)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaPatm} onChange={e=>setAaPatm(e.target.value)} placeholder="760"/>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-4">
-        <button onClick={calcAa} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-          Hitung A-a Gradient
-        </button>
-        {aaInputError && <p className="text-sm text-destructive mt-2 text-center">{aaInputError}</p>}
-      </div>
+      {aa.armed && aaInputError && <p className="text-sm text-destructive mt-2 text-center">{aaInputError}</p>}
 
-      {aaRes && (
-        <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+      {aa.armed && aaRes && (
+        <div id="aa-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center">
              <div className={`text-[12px] font-bold uppercase tracking-wider mb-1 ${aaRes.ac}`}>A-a Gradient</div>
              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">{aaRes.grad} <span className="text-[15px] font-semibold text-slate-500">mmHg</span></div>
@@ -1023,6 +1071,17 @@ export default function KalkulatorPulmo() {
           'FiO2', 'SpO2', 'P/F', 'Patm', 'JK', 'RR', 'TDS', 'TDD-diastolik', 'SBP', 'BP', 'HR', 'GDS', 'Ht', 'BUN',
           'CHF', 'CXR', 'WBC', 'ICU', 'IGD', 'CPAP', 'ILD', 'V/Q',
         ]}
+      />
+      <CalcActionBar
+        mode={bar.mode}
+        armed={bar.armed}
+        onCalculate={bar.onCalculate}
+        label={bar.label}
+        summary={bar.summary}
+        summaryTone={bar.tone}
+        caption={bar.caption}
+        missing={bar.missing}
+        resultTargetId={bar.target}
       />
     </div>
   );

@@ -19,6 +19,9 @@ import {
   calculatePumpRateMlPerHour,
 } from '../../data/hemodynamicDrugs';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
+
+const NEE_TONE: Record<'normal' | 'warning' | 'danger', CalcTone> = { normal: 'good', warning: 'warn', danger: 'bad' };
 
 interface ActiveDrug {
   id: string;
@@ -305,11 +308,13 @@ export default function KalkulatorHemodinamik() {
 
       {/* Weight Input */}
       <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl">
-        <div className="flex items-center justify-between px-4 py-3 gap-4">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan Pasien</span>
-          <div className="flex-1 flex items-center justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+          <label htmlFor="hemo-bw" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[8rem]">Berat Badan Pasien</label>
+          <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
             <input
+              id="hemo-bw"
               type="number"
+              inputMode="decimal"
               value={bw}
               onChange={(e) => setBw(e.target.value)}
               placeholder="70"
@@ -499,7 +504,7 @@ export default function KalkulatorHemodinamik() {
 
       {/* NEE Panel */}
       {activeDrugs.length > 0 && (
-        <div className={`rounded-2xl border p-5 space-y-3 ${neeStatus.className}`}>
+        <div id="hemo-nee" className={`scroll-mt-4 rounded-2xl border p-5 space-y-3 ${neeStatus.className}`}>
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <span className="text-[12px] font-bold uppercase tracking-wider">Skor NEE (Norepinephrine Equivalent)</span>
@@ -712,6 +717,17 @@ export default function KalkulatorHemodinamik() {
         </div>
       </Accordion>
       <AbbrLegend terms={['NEE', 'NE', 'MAP', 'SVR', 'SSC', 'SCAI', 'BB', 'DPJP']} />
+      {/* Pembangun kombinasi obat (ketuk + slider) → ringkasan NEE selalu live, tanpa tombol Hitung. */}
+      <CalcActionBar
+        mode="live"
+        summary={activeDrugs.length ? `NEE ${neeScore.toFixed(2)} mcg/kgBB/mnt` : null}
+        summaryTone={activeDrugs.length ? NEE_TONE[neeStatus.level] : 'neutral'}
+        caption={activeDrugs.length
+          ? [neeStatus.label, `${activeDrugs.length} agen`, mapValue !== null ? `MAP ${mapValue.toFixed(0)}` : ''].filter(Boolean).join(' · ')
+          : undefined}
+        resultTargetId="hemo-nee"
+        emptyText="Tambah obat untuk melihat skor NEE"
+      />
     </div>
   );
 }
