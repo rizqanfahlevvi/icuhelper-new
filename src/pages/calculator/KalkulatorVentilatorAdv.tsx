@@ -14,6 +14,12 @@ import {
   meanAirwayPressureEstimate, alveoliHighPeep, vtTarget, MP_RISK_THRESHOLD, type VentCondition, type VtTarget,
 } from '../../utils/ventilation';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+
+const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
+// Baris label-kiri / input-kanan yang membungkus saat sempit (font besar / layar 360 px) — tidak overflow.
+const ROW = 'flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2';
 
 interface VentResult {
   dp: number; cstat: number | null; mp: number;
@@ -79,7 +85,6 @@ export default function KalkulatorVentilatorAdv() {
     if (clinicalStore.data.spo2) setSpo2(clinicalStore.data.spo2);
     if (clinicalStore.data.pao2) setPao2(clinicalStore.data.pao2);
     if (clinicalStore.data.mpaw) setMpawIn(clinicalStore.data.mpaw);
-    setRes(null);
   };
 
   const calculate = () => {
@@ -95,7 +100,7 @@ export default function KalkulatorVentilatorAdv() {
     const vFlow = parseFloat(flow);
     const vMpaw = parseFloat(mpawIn);
 
-    if (!vVt || !vRr || !vPpeak || !vPplat || isNaN(vPeep)) return;
+    if (!vVt || !vRr || !vPpeak || !vPplat || isNaN(vPeep)) { setRes(null); return; }
 
     const dp = drivingPressure(vPplat, vPeep);
     const cstat = staticCompliance(vVt, dp);
@@ -148,11 +153,33 @@ export default function KalkulatorVentilatorAdv() {
   };
 
   const inputCls = 'w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
-  const row = (label: React.ReactNode, value: string, set: (v: string) => void, placeholder = '', tone = '') => (
-    <div className={`flex items-center justify-between px-4 py-3 gap-4 ${tone}`}>
-      <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{label}</span>
-      <div className="flex-1 flex items-center justify-end gap-2">
-        <input type="number" className={inputCls} value={value} placeholder={placeholder} onChange={e => { set(e.target.value); setRes(null); }} />
+  // Hitung sekali → setelah itu hasil ikut berubah otomatis (tidak ada hasil basi).
+  const calc = useCalcTrigger({
+    compute: () => calculate(),
+    deps: [kondisi, ibw, vt, rr, fio2, ppeak, pplat, peep, flow, mpawIn, spo2, pao2],
+    required: [
+      { id: 'va-vt', label: 'VT', filled: parseFloat(vt) > 0 },
+      { id: 'va-rr', label: 'RR', filled: parseFloat(rr) > 0 },
+      { id: 'va-ppeak', label: 'Ppeak', filled: parseFloat(ppeak) > 0 },
+      { id: 'va-pplat', label: 'Pplat', filled: parseFloat(pplat) > 0 },
+      { id: 'va-peep', label: 'PEEP', filled: peep.trim() !== '' && !isNaN(parseFloat(peep)) },
+    ],
+  });
+  const shown = calc.armed ? res : null;
+  const barTone = shown ? (shown.dp > 15 || shown.mp > MP_RISK_THRESHOLD ? 'bad' : 'good') : 'neutral';
+  const barCaption = shown
+    ? [
+        shown.pf !== null ? `P/F ${Math.round(shown.pf)}` : shown.sf !== null ? `S/F ${Math.round(shown.sf)}` : '',
+        shown.cstat !== null ? `Cstat ${Math.round(shown.cstat)}` : '',
+        shown.warnings.length ? `${shown.warnings.length} peringatan` : '',
+      ].filter(Boolean).join(' · ') || undefined
+    : undefined;
+
+  const row = (id: string, label: React.ReactNode, value: string, set: (v: string) => void, placeholder = '', tone = '') => (
+    <div className={`${ROW} ${tone}`}>
+      <label htmlFor={id} className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{label}</label>
+      <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
+        <input id={id} type="number" inputMode="decimal" className={inputCls + (calc.isMissing(id) ? MISSING_RING : '')} value={value} placeholder={placeholder} onChange={e => set(e.target.value)} />
       </div>
     </div>
   );
@@ -169,9 +196,9 @@ export default function KalkulatorVentilatorAdv() {
         </h2>
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi</span>
-            <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e => { setKondisi(e.target.value as VentCondition); setRes(null); }}>
+          <div className={ROW}>
+            <label htmlFor="va-kondisi" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi</label>
+            <select id="va-kondisi" className="flex-1 min-w-[10rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e => setKondisi(e.target.value as VentCondition)}>
               <option value="normal">Tanpa ARDS / Post-op</option>
               <option value="ards">ARDS</option>
               <option value="copd">PPOK</option>
@@ -179,10 +206,10 @@ export default function KalkulatorVentilatorAdv() {
               <option value="neuro">Neuromuskular</option>
             </select>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PBW / IBW (kg)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className={inputCls} value={ibw} onChange={e => { setIbw(e.target.value); setRes(null); }} />
+          <div className={ROW}>
+            <label htmlFor="va-ibw" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">PBW / IBW (kg)</label>
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
+              <input id="va-ibw" type="number" inputMode="decimal" className={inputCls} value={ibw} onChange={e => setIbw(e.target.value)} />
               {patientPbw && ibw !== patientPbw && (
                 <button type="button" onClick={() => setIbw(patientPbw)} className="shrink-0 text-[11px] font-semibold text-[var(--accent)] hover:underline whitespace-nowrap">
                   PBW pasien {patientPbw}
@@ -190,27 +217,21 @@ export default function KalkulatorVentilatorAdv() {
               )}
             </div>
           </div>
-          {row('FiO₂ (%)', fio2, setFio2)}
-          {row('Tidal Vol. (mL)', vt, setVt)}
-          {row('Resp Rate (/mnt)', rr, setRr)}
-          {row('Ppeak', ppeak, setPpeak, '', 'bg-red-50/50 dark:bg-red-900/10')}
-          {row('Pplat', pplat, setPplat, '', 'bg-red-50/50 dark:bg-red-900/10')}
-          {row('PEEP', peep, setPeep, '', 'bg-blue-50/50 dark:bg-blue-900/10')}
-          {row(<>Flow inspirasi <span className="font-normal text-slate-500">(L/mnt, opsional)</span></>, flow, setFlow, 'dari layar')}
-          {row(<>mPaw <span className="font-normal text-slate-500">(opsional)</span></>, mpawIn, setMpawIn, 'dari layar')}
-          {row('SpO₂ (%)', spo2, setSpo2, 'opsional', 'bg-teal-50/50 dark:bg-teal-900/10')}
-          {row('PaO₂ (mmHg)', pao2, setPao2, 'opsional', 'bg-teal-50/50 dark:bg-teal-900/10')}
+          {row('va-fio2', 'FiO₂ (%)', fio2, setFio2)}
+          {row('va-vt', 'Tidal Vol. (mL)', vt, setVt)}
+          {row('va-rr', 'Resp Rate (/mnt)', rr, setRr)}
+          {row('va-ppeak', 'Ppeak', ppeak, setPpeak, '', 'bg-red-50/50 dark:bg-red-900/10')}
+          {row('va-pplat', 'Pplat', pplat, setPplat, '', 'bg-red-50/50 dark:bg-red-900/10')}
+          {row('va-peep', 'PEEP', peep, setPeep, '', 'bg-blue-50/50 dark:bg-blue-900/10')}
+          {row('va-flow', <>Flow inspirasi <span className="font-normal text-slate-500">(L/mnt, opsional)</span></>, flow, setFlow, 'dari layar')}
+          {row('va-mpaw', <>mPaw <span className="font-normal text-slate-500">(opsional)</span></>, mpawIn, setMpawIn, 'dari layar')}
+          {row('va-spo2', 'SpO₂ (%)', spo2, setSpo2, 'opsional', 'bg-teal-50/50 dark:bg-teal-900/10')}
+          {row('va-pao2', 'PaO₂ (mmHg)', pao2, setPao2, 'opsional', 'bg-teal-50/50 dark:bg-teal-900/10')}
         </div>
       </div>
 
-      <div className="mt-4">
-        <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-          Hitung Mekanik Paru & Oksigenasi
-        </button>
-      </div>
-
-      {res && (
-        <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+      {shown && (() => { const res = shown; return (
+        <div id="va-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
 
             <div className="grid grid-cols-2 p-4 gap-4 bg-slate-50 dark:bg-[#1C1C1E]">
@@ -383,7 +404,7 @@ export default function KalkulatorVentilatorAdv() {
             </div>
           </div>
         </div>
-      )}
+      ); })()}
 
       <Accordion title="📖 Teori & Referensi: Mekanik Paru Lanjutan">
         <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
@@ -403,6 +424,17 @@ export default function KalkulatorVentilatorAdv() {
           'Raw', 'Ti', 'I:E', 'VE', 'MP', 'VT', 'OI', 'OSI', 'SpO2', 'FiO2', 'PaO2', 'P/F', 'AGD', 'ETT', 'ARDSNet',
           'S/F', 'CT', 'USG', 'ATS', 'ESICM', 'SCCM',
         ]}
+      />
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung Mekanik Paru & Oksigenasi"
+        summary={shown ? `ΔP ${Math.round(shown.dp)} · MP ${shown.mp.toFixed(1)} J/mnt` : null}
+        summaryTone={barTone}
+        caption={barCaption}
+        missing={calc.missing}
+        resultTargetId="va-hasil"
+        emptyText="Lengkapi data untuk melihat hasil"
       />
     </div>
   );
