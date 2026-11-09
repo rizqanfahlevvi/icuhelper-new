@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { usePatientStore } from '../../store/usePatientStore';
 import { calcIbw } from '../../utils/anthropometry';
 import AbgInterpreter from './AbgInterpreter';
@@ -13,6 +13,11 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { PageHeader } from '../../components/ui/PageHeader';
 import { fio2ToPercentString, fio2FromStoreString } from '../../utils/abg';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { useAbgCalculator } from './useAbgCalculator';
+import { abgSummary } from '../../utils/respirasiSummary';
+import type { CorrectionBarState } from './AcidBaseCorrection';
 
 export default function AbgPage() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -29,6 +34,33 @@ export default function AbgPage() {
     return calcIbw(h, patientGender === 'P').toFixed(1);
   }, [patientHeight, patientGender]);
   const isFav = isFavorite('/abg');
+
+  // Interpretasi dihitung via memo (selalu sesuai input); tombol Hitung hanya membuka tampilan hasil.
+  // Setelah Hitung pertama, hasil ikut berubah otomatis → tidak pernah ada hasil basi.
+  const calcResult = useAbgCalculator(abgInputs);
+  const calc = useCalcTrigger({
+    compute: () => {},
+    deps: [],
+    required: [
+      { id: 'abg-ph', label: 'pH', filled: abgInputs.ph.trim() !== '' },
+      { id: 'abg-pco2', label: abgInputs.sampleType === 'vena' ? 'PvCO₂' : 'PaCO₂', filled: abgInputs.pco2.trim() !== '' },
+      { id: 'abg-hco3', label: 'HCO₃⁻', filled: abgInputs.hco3.trim() !== '' },
+    ],
+  });
+  const interpSum = calc.armed ? abgSummary(calcResult) : null;
+
+  // Bilah bawah mengikuti bagian yang sedang dilihat: interpretasi ABG atau kalkulator koreksi (tab aktif).
+  const koreksiRef = useRef<HTMLDivElement>(null);
+  const [inKoreksi, setInKoreksi] = useState(false);
+  const [koreksiBar, setKoreksiBar] = useState<CorrectionBarState | null>(null);
+  useEffect(() => {
+    const el = koreksiRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setInKoreksi(e.isIntersecting), { rootMargin: '0px 0px -55% 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  const useKoreksiBar = inKoreksi && koreksiBar !== null;
 
   // Autofill dari pasien aktif: usia (A-a gradient normal) & BB (kalkulator koreksi).
   const handleAutofill = (data: { weightKg: string; temp?: string; age?: string; gender?: string }) => {
@@ -81,8 +113,9 @@ export default function AbgPage() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-4 w-full max-w-4xl mx-auto space-y-6 pb-20 overflow-x-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="pt-2">
+      <div className="md:pt-2">
         <PageHeader 
+          compact
           badgeIcon={Droplet}
           badgeText="GAS DARAH"
           title="ABG & Asam-Basa"
@@ -104,8 +137,10 @@ export default function AbgPage() {
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
-      <AbgInterpreter inputs={abgInputs} setInputs={setAbgInputs} />
-      <AcidBaseCorrection abgInputs={abgInputs} patientWeight={weightForCorrection} patientIbw={ibwForCorrection} />
+      <AbgInterpreter inputs={abgInputs} setInputs={setAbgInputs} calcResult={calcResult} showResult={calc.armed} isMissing={calc.isMissing} />
+      <div ref={koreksiRef}>
+        <AcidBaseCorrection abgInputs={abgInputs} patientWeight={weightForCorrection} patientIbw={ibwForCorrection} onBarChange={setKoreksiBar} />
+      </div>
       <AbgTheory />
       <AbbrLegend
         terms={[
@@ -118,6 +153,31 @@ export default function AbgPage() {
           'TB', 'AHA', 'ATS', 'ERS', 'ESICM', 'SSC', 'GOLD', 'ADA', 'EASD', 'JBDS', 'AACE', 'DTS', 'BTS', 'ICS', 'ESC',
         ]}
       />
+      {useKoreksiBar && koreksiBar ? (
+        <CalcActionBar
+          mode={koreksiBar.mode}
+          armed={koreksiBar.armed}
+          onCalculate={koreksiBar.onCalculate}
+          label={koreksiBar.label}
+          summary={koreksiBar.summary}
+          summaryTone={koreksiBar.tone}
+          caption={koreksiBar.caption}
+          missing={koreksiBar.missing}
+          resultTargetId={koreksiBar.resultTargetId}
+          emptyText={koreksiBar.emptyText}
+        />
+      ) : (
+        <CalcActionBar
+          armed={calc.armed}
+          onCalculate={calc.trigger}
+          label="Interpretasi ABG"
+          summary={interpSum?.text ?? null}
+          summaryTone={(interpSum?.tone ?? 'neutral') as CalcTone}
+          caption={interpSum?.caption}
+          missing={calc.missing}
+          resultTargetId="abg-hasil"
+        />
+      )}
     </div>
   );
 }

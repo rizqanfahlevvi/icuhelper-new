@@ -20,14 +20,23 @@ function historySummary(inputs: AbgInputs, r: AbgResultData): string {
   return parts.filter(Boolean).join(' · ');
 }
 import { AbgInputs } from './types';
-import { useAbgCalculator } from './useAbgCalculator';
 
 interface Props {
   inputs: AbgInputs;
   setInputs: (inputs: AbgInputs) => void;
+  /** Hasil interpretasi (dihitung di halaman — dipakai juga untuk bilah hasil). */
+  calcResult: AbgResultData | null;
+  /** Tampilkan rincian hasil (setelah tombol Hitung ditekan). */
+  showResult: boolean;
+  /** Penanda input wajib kosong setelah Hitung. */
+  isMissing: (id: string) => boolean;
 }
 
-export default function AbgInterpreter({ inputs, setInputs }: Props) {
+const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
+// Baris label-kiri / input-kanan yang membungkus saat sempit (font besar / layar 360 px).
+const ROW = 'flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2';
+
+export default function AbgInterpreter({ inputs, setInputs, calcResult, showResult, isMissing }: Props) {
   const updateInput = (key: keyof AbgInputs, val: string) => {
     const newInputs = { ...inputs, [key]: val };
     setInputs(newInputs as AbgInputs);
@@ -41,7 +50,6 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
     setInputs({ ...inputs, paco2Unit: toKpa ? 'kPa' : 'mmHg', pco2: conv(inputs.pco2), po2: conv(inputs.po2) });
   };
 
-  const calcResult = useAbgCalculator(inputs);
   const effectiveSupport: RespSupport = inputs.fio2Mode === 'lowflow' ? 'udara' : inputs.support;
 
   return (
@@ -55,7 +63,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 w-full shadow-sm">
           <div className="flex flex-col px-4 py-3 gap-2">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Jenis Sampel</span>
               <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
                 <button
@@ -78,27 +86,29 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           </div>
 
           
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">pH</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input 
-                type="number" step="0.01" 
+                id="abg-ph" aria-label="pH"
+                type="number" step="0.01" inputMode="decimal"
                 value={inputs.ph} 
                 onChange={e => updateInput('ph', e.target.value)}
-                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className={`w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-ph') ? MISSING_RING : ''}`} 
                 placeholder="7.35–7.45" 
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{inputs.sampleType === 'vena' ? 'PvCO₂' : 'PaCO₂'}</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input 
-                type="number" 
+                id="abg-pco2" aria-label={inputs.sampleType === 'vena' ? 'PvCO₂' : 'PaCO₂'}
+                type="number" inputMode="decimal"
                 value={inputs.pco2} 
                 onChange={e => updateInput('pco2', e.target.value)}
-                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className={`w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-pco2') ? MISSING_RING : ''}`} 
                 placeholder="35–45" 
               />
               <button 
@@ -110,21 +120,22 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">HCO₃⁻</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input 
-                type="number" step="0.1" 
+                id="abg-hco3" aria-label="HCO₃⁻"
+                type="number" step="0.1" inputMode="decimal"
                 value={inputs.hco3} 
                 onChange={e => updateInput('hco3', e.target.value)}
-                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className={`w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-hco3') ? MISSING_RING : ''}`} 
                 placeholder="22–26" 
               />
               <span className="text-[11px] font-semibold text-slate-500 w-8 text-left">mmol</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{inputs.sampleType === 'vena' ? 'PvO₂ (diabaikan)' : 'PaO₂'}</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input 
@@ -144,7 +155,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
             </div>
           </div>
           
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BE</span>
             <div className="flex-1 flex items-center justify-end gap-2">
               <input 
@@ -256,7 +267,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
           </div>
 
           <div className="flex flex-col px-4 py-3 gap-2">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Dukungan Napas</span>
               <select
                 value={effectiveSupport}
@@ -296,7 +307,7 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
             )}
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Kondisi Utama</span>
             <select 
               value={inputs.kondisi} 
@@ -330,8 +341,8 @@ export default function AbgInterpreter({ inputs, setInputs }: Props) {
         </div>
       </div>
 
-      {calcResult && (
-        <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm mt-6">
+      {showResult && calcResult && (
+        <div id="abg-hasil" className="scroll-mt-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm mt-6">
           <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800">
             <h3 className="font-extrabold text-[var(--label-primary)] flex items-center gap-2 text-base">
               <CheckCircle2 className="w-5 h-5 text-[var(--accent)]" />

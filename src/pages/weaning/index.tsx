@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Activity, Wind, ListCheck, CheckCircle2, AlertTriangle, Star } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
-import { useHistoryStore } from '../../store/useHistoryStore';
 import { usePatientStore } from '../../store/usePatientStore';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
@@ -9,10 +8,28 @@ import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncB
 import { calcIbw } from '../../utils/anthropometry';
 import { rsbi as calcRsbi, interpretRsbi, RSBI_THRESHOLD } from '../../utils/ventilation';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { rsbiSummary } from '../../utils/respirasiSummary';
+
+interface WeaningResult {
+  rsbi: string;
+  rsbiOk: boolean;
+  rsbiColor: string;
+  rsbiInterp: string;
+  vtL: string;
+  vtKg: string | null;
+  mipRes: { value: number; color: string; text: string } | null;
+  mepRes: { value: number; color: string; text: string } | null;
+  mvNum: number | null;
+}
+
+const INPUT_CLS = 'w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring';
+const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
 
 export default function WeaningIndex() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
-  const addHistory = useHistoryStore((state) => state.addEntry);
   const [rr, setRr] = useState('');
   const [vt, setVt] = useState('');
   const [bb, setBb] = useState('');
@@ -21,7 +38,7 @@ export default function WeaningIndex() {
   const [peep, setPeep] = useState('');
   const [ps, setPs] = useState('');
   const [mv, setMv] = useState('');
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<WeaningResult | null>(null);
 
   const isFav = isFavorite('/weaning');
 
@@ -44,7 +61,7 @@ export default function WeaningIndex() {
     const rrNum = parseFloat(rr);
     const vtNum = parseFloat(vt);
     const bbNum = parseFloat(bb);
-    if (!rrNum || !vtNum) return;
+    if (!rrNum || !vtNum) { setResult(null); return; }
 
     const vtL = vtNum / 1000;
     // Yang & Tobin 1991: ambang tunggal 105 (zona "80–105 borderline" dulu tidak bersumber).
@@ -77,6 +94,7 @@ export default function WeaningIndex() {
 
     setResult({
       rsbi: rsbi.toFixed(0),
+      rsbiOk: ri.ok,
       rsbiColor,
       rsbiInterp,
       vtL: vtL.toFixed(2),
@@ -85,16 +103,26 @@ export default function WeaningIndex() {
       mepRes,
       mvNum: mv ? parseFloat(mv) : null
     });
-
-    addHistory('weaning', 'RSBI & Readiness to Wean', { rr, vt, bb, mip, mep, peep, ps, mv }, `RSBI: ${rsbi.toFixed(0)} bpm/L - ${rsbiInterp}`);
   };
+
+  // Hitung sekali → setelah itu hasil ikut berubah otomatis (tidak ada hasil basi). Riwayat lewat tombol Simpan.
+  const calc = useCalcTrigger({
+    compute: () => calculateRSBI(),
+    deps: [rr, vt, bb, mip, mep, mv],
+    required: [
+      { id: 'wean-rr', label: 'RR spontan', filled: parseFloat(rr) > 0 },
+      { id: 'wean-vt', label: 'VT spontan', filled: parseFloat(vt) > 0 },
+    ],
+  });
+  const barSum = calc.armed && result ? rsbiSummary(result.rsbi, result.rsbiInterp, result.rsbiOk) : null;
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       {/* Page Title & Bookmark */}
-      <div className="pt-2">
+      <div className="md:pt-2">
         <PageHeader 
+          compact
           badgeIcon={Wind}
           badgeText="VENTILASI MEKANIK"
           title="Weaning Evaluator"
@@ -128,16 +156,16 @@ export default function WeaningIndex() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">RR Spontan (/mnt)</label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 18" value={rr} onChange={e => setRr(e.target.value)} />
+              <label htmlFor="wean-rr" className="text-xs font-medium text-muted-foreground mb-1 block">RR Spontan (/mnt)</label>
+              <input id="wean-rr" type="number" inputMode="decimal" className={INPUT_CLS + (calc.isMissing('wean-rr') ? MISSING_RING : '')} placeholder="cth: 18" value={rr} onChange={e => setRr(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">VT Spontan (mL)</label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 400" value={vt} onChange={e => setVt(e.target.value)} />
+              <label htmlFor="wean-vt" className="text-xs font-medium text-muted-foreground mb-1 block">VT Spontan (mL)</label>
+              <input id="wean-vt" type="number" inputMode="decimal" className={INPUT_CLS + (calc.isMissing('wean-vt') ? MISSING_RING : '')} placeholder="cth: 400" value={vt} onChange={e => setVt(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">BB Prediksi / PBW (kg)</label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 61.4" value={bb} onChange={e => setBb(e.target.value)} />
+              <label htmlFor="wean-bb" className="text-xs font-medium text-muted-foreground mb-1 block">BB Prediksi / PBW (kg)</label>
+              <input id="wean-bb" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 61.4" value={bb} onChange={e => setBb(e.target.value)} />
               {patientPbw && bb !== patientPbw && (
                 <button
                   type="button"
@@ -149,34 +177,32 @@ export default function WeaningIndex() {
               )}
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">MV (Menit Volume, L/mnt)</label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 7.2" value={mv} onChange={e => setMv(e.target.value)} />
+              <label htmlFor="wean-mv" className="text-xs font-medium text-muted-foreground mb-1 block">MV (Menit Volume, L/mnt)</label>
+              <input id="wean-mv" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 7.2" value={mv} onChange={e => setMv(e.target.value)} />
             </div>
           </div>
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">MIP / NIF (cmH₂O) <span className="opacity-50">(opsional)</span></label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="misal -35" value={mip} onChange={e => setMip(e.target.value)} />
+              <label htmlFor="wean-mip" className="text-xs font-medium text-muted-foreground mb-1 block">MIP / NIF (cmH₂O) <span className="opacity-50">(opsional)</span></label>
+              <input id="wean-mip" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="misal -35" value={mip} onChange={e => setMip(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">MEP (cmH₂O) <span className="opacity-50">(opsional)</span></label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="normal >60" value={mep} onChange={e => setMep(e.target.value)} />
+              <label htmlFor="wean-mep" className="text-xs font-medium text-muted-foreground mb-1 block">MEP (cmH₂O) <span className="opacity-50">(opsional)</span></label>
+              <input id="wean-mep" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="normal >60" value={mep} onChange={e => setMep(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">PEEP saat ini (cmH₂O)</label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 5" value={peep} onChange={e => setPeep(e.target.value)} />
+              <label htmlFor="wean-peep" className="text-xs font-medium text-muted-foreground mb-1 block">PEEP saat ini (cmH₂O)</label>
+              <input id="wean-peep" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 5" value={peep} onChange={e => setPeep(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">PS saat ini (cmH₂O)</label>
-              <input type="number" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="cth: 8" value={ps} onChange={e => setPs(e.target.value)} />
+              <label htmlFor="wean-ps" className="text-xs font-medium text-muted-foreground mb-1 block">PS saat ini (cmH₂O)</label>
+              <input id="wean-ps" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 8" value={ps} onChange={e => setPs(e.target.value)} />
             </div>
           </div>
         </div>
 
-        <button onClick={calculateRSBI} className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2 w-full md:w-auto">Evaluasi Weaning</button>
-
-        {result && (
-          <div className="mt-6 p-4 rounded-xl bg-muted/30 border border-border/50">
+        {calc.armed && result && (
+          <div id="weaning-hasil" className="scroll-mt-4 mt-6 p-4 rounded-xl bg-muted/30 border border-border/50">
             <div className={`text-3xl font-bold ${result.rsbiColor}`}>{result.rsbi} <span className="text-sm font-normal text-muted-foreground">bpm/L</span></div>
             <div className={`text-sm font-semibold mb-3 ${result.rsbiColor}`}>{result.rsbiInterp}</div>
             
@@ -225,6 +251,14 @@ export default function WeaningIndex() {
                  <div><strong className="block">⚠ Support Tidak Minimal</strong>Yang & Tobin mengukur RSBI saat napas spontan tanpa bantuan (T-piece, menit pertama). PEEP/PS menurunkan nilai RSBI sehingga bisa tampak lebih baik dari sebenarnya.</div>
                </div>
             )}
+
+            <SaveToHistoryButton
+              module="weaning"
+              label="RSBI & Readiness to Wean"
+              inputs={{ rr, vt, bb, mip, mep, peep, ps, mv }}
+              summary={`RSBI: ${result.rsbi} bpm/L - ${result.rsbiInterp}`}
+              className="w-full mt-4"
+            />
           </div>
         )}
       </section>
@@ -369,6 +403,16 @@ export default function WeaningIndex() {
           'NMB', 'GBS', 'VC-kapasitas', 'ATS', 'ACCP', 'SpO2', 'FiO2', 'HR', 'ETT', 'PPOK', 'NIV', 'HFNC', 'ICU', 'IV',
           'BNP', 'VIDD', 'CAM-ICU',
         ]}
+      />
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Evaluasi Weaning (RSBI)"
+        summary={barSum?.text ?? null}
+        summaryTone={barSum?.tone ?? 'neutral'}
+        caption={barSum?.caption}
+        missing={calc.missing}
+        resultTargetId="weaning-hasil"
       />
     </div>
   );
