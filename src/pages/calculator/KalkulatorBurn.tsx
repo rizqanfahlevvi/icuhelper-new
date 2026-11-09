@@ -9,6 +9,8 @@ import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncB
 import { CalcSteps } from '../../components/ui/CalcSteps';
 import { weightPlausibilityWarning } from '../../utils/validation';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 
 // Beautiful organic SVG paths for a human mannequin
 const SVG_PATHS = {
@@ -158,9 +160,23 @@ export default function KalkulatorBurn() {
     );
   };
 
+  // Hitung sekali → hasil cairan tampil & selalu mengikuti input (nilai turunan useMemo).
+  const calc = useCalcTrigger({
+    compute: () => {},
+    deps: [],
+    required: [
+      { id: 'burn-map', label: 'Area luka bakar', filled: tbsa > 0 },
+      { id: 'burn-weight', label: 'Berat badan', filled: parseFloat(localWeight) > 0 },
+    ],
+  });
+  const barHours = parseFloat(hoursElapsed);
+  const barHoursRemaining = (!isNaN(barHours) && barHours >= 0 && barHours < 8) ? (8 - barHours) : null;
+  const fmtMl = (v: number) => v.toLocaleString(undefined, { maximumFractionDigits: 0 });
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
-      <PageHeader 
+      <PageHeader
+        compact
         badgeIcon={Flame}
         badgeText="LUKA BAKAR"
         title="Lund-Browder TBSA"
@@ -173,8 +189,8 @@ export default function KalkulatorBurn() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         
         {/* Interactive SVG Area */}
-        <div className="lg:col-span-3 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col">
-          <div className="flex justify-between w-full items-center mb-8">
+        <div id="burn-map" tabIndex={-1} className={`lg:col-span-3 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-3xl p-4 md:p-6 shadow-sm flex flex-col outline-none${calc.isMissing('burn-map') ? ' ring-2 ring-[var(--sys-red)]' : ''}`}>
+          <div className="flex justify-between w-full items-center mb-4 md:mb-8">
             <h3 className="font-semibold text-foreground text-lg">Pemetaan 3D Visual</h3>
             <button 
               onClick={() => { setSelectedPartsFront(new Set()); setSelectedPartsBack(new Set()); }}
@@ -237,11 +253,14 @@ export default function KalkulatorBurn() {
                   <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wider">Berat Badan</label>
                   <div className="relative">
                     <input
+                      id="burn-weight"
                       type="number"
+                      inputMode="decimal"
+                      aria-invalid={calc.isMissing('burn-weight')}
                       value={localWeight}
                       placeholder="kg"
                       onChange={(e) => setLocalWeight(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
+                      className="aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)] w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">kg</span>
                   </div>
@@ -302,7 +321,8 @@ export default function KalkulatorBurn() {
                   Isi berat badan untuk menghitung kebutuhan cairan.
                 </div>
               )}
-              <div className="bg-gradient-to-br from-[var(--accent)]/10 to-[var(--accent)]/5 rounded-2xl p-5 border border-[var(--accent)]/20">
+              {calc.armed && fluidVolume > 0 && (
+              <div id="burn-hasil" className="scroll-mt-4 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--accent)]/5 rounded-2xl p-5 border border-[var(--accent)]/20">
                 <div className="flex flex-col mb-5">
                   <span className="text-sm font-semibold text-[var(--accent)]">Total Cairan 24 Jam</span>
                   <div className="flex items-baseline gap-1 mt-1">
@@ -394,6 +414,7 @@ export default function KalkulatorBurn() {
                   />
                 </div>
               </div>
+              )}
             </div>
           </div>
         </div>
@@ -417,6 +438,18 @@ export default function KalkulatorBurn() {
         </div>
       </Accordion>
 
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung Resusitasi Cairan"
+        summary={fluidVolume > 0 ? `${fmtMl(fluidVolume)} mL / 24 jam · TBSA ${tbsa.toFixed(1)}%` : null}
+        summaryTone="info"
+        caption={fluidVolume > 0
+          ? `8 jam pertama ${fmtMl(fluidVolume / 2)} mL${barHoursRemaining !== null ? ` (≈ ${Math.round((fluidVolume / 2) / barHoursRemaining)} mL/jam sisa)` : ''} · 16 jam berikutnya ≈ ${Math.round((fluidVolume / 2) / 16)} mL/jam`
+          : undefined}
+        missing={calc.missing}
+        resultTargetId="burn-hasil"
+      />
       <AbbrLegend terms={['TBSA', 'BB', 'ATLS', 'ABLS', 'ABA', 'RS', 'UO', 'MAP', 'DPJP']} />
       <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 text-center">
         Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis. Titrasi resusitasi berdasarkan respons klinis (urine output, MAP) dan keputusan DPJP.
