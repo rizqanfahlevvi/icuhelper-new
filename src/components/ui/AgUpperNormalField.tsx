@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSettingsStore } from '../../store/settingsStore';
 import { AG_UPPER_NORMAL_DEFAULT, normalizeAgUpper } from '../../utils/acidBase';
+import { DecimalInput } from './DecimalInput';
 
 /**
  * Input "batas atas AG normal" — tersimpan di pengaturan (persist), berlaku sama di
@@ -36,9 +37,8 @@ export function AgUpperNormalField() {
               Reset {AG_UPPER_NORMAL_DEFAULT}
             </button>
           )}
-          <input
+          <DecimalInput
             id="ag-upper-normal"
-            type="number"
             step="1"
             value={draft}
             onChange={e => onChange(e.target.value)}

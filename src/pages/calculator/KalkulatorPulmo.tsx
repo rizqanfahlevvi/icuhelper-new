@@ -14,6 +14,7 @@ import { interpretAa, expectedAaRoomAir } from '../../utils/oxygenation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
 const RISK_TONE: Record<string, CalcTone> = { low: 'good', mid: 'warn', high: 'bad', veryhigh: 'bad' };
@@ -470,19 +471,19 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">Ureum (mg/dL)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMgdl} onChange={e => handleUreumChange(e.target.value, 'mgdl')} />
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMgdl} onChange={e => handleUreumChange(e.target.value, 'mgdl')} />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">Ureum (mmol/L)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMmol} onChange={e => handleUreumChange(e.target.value, 'mmol')} />
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMmol} onChange={e => handleUreumChange(e.target.value, 'mmol')} />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">BUN (mg/dL)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={bunMgdl} onChange={e => handleUreumChange(e.target.value, 'bun')} />
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={bunMgdl} onChange={e => handleUreumChange(e.target.value, 'bun')} />
             </div>
           </div>
         </div>
@@ -505,32 +506,32 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">U — Ureum (&gt;42)</span>
             <div className="flex-1 flex items-center justify-end gap-2 opacity-60">
-              <input type="number" disabled className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMgdl} placeholder="Dari konversi" />
+              <DecimalInput disabled className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMgdl} placeholder="Dari konversi" />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">R — Resp. Rate</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbRr} onChange={e => setCurbRr(e.target.value)} />
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbRr} onChange={e => setCurbRr(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">/mnt</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">B — Sistolik</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbSbp} onChange={e => setCurbSbp(e.target.value)} />
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbSbp} onChange={e => setCurbSbp(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">B — Diastolik</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbDbp} onChange={e => setCurbDbp(e.target.value)} />
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbDbp} onChange={e => setCurbDbp(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">65 — Usia</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbAge} onChange={e => setCurbAge(e.target.value)} />
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbAge} onChange={e => setCurbAge(e.target.value)} />
             </div>
           </div>
         </div>
@@ -590,7 +591,7 @@ export default function KalkulatorPulmo() {
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Usia (Tahun)</span>
-             <input id="psi-age" aria-label="Usia (tahun)" type="number" inputMode="decimal" className={`w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]${psi.isMissing('psi-age') ? MISSING_RING : ''}`} value={psiAge} onChange={e => setPsiAge(e.target.value)} />
+             <DecimalInput id="psi-age" aria-label="Usia (tahun)" inputMode="decimal" className={`w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]${psi.isMissing('psi-age') ? MISSING_RING : ''}`} value={psiAge} onChange={e => setPsiAge(e.target.value)} />
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Nursing home resident</span>
@@ -633,28 +634,28 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Resp. Rate (/mnt)</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiRr} onChange={e => setPsiRr(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiRr} onChange={e => setPsiRr(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiRr)>=30 ? 'text-red-500' : 'text-slate-400'}`}>≥30: +20</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">TD Sistolik (mmHg)</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiSbp} onChange={e => setPsiSbp(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiSbp} onChange={e => setPsiSbp(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiSbp)<90 ? 'text-red-500' : 'text-slate-400'}`}>&lt;90: +20</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Suhu (°C)</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiTemp} onChange={e => setPsiTemp(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiTemp} onChange={e => setPsiTemp(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${(parseFloat(psiTemp)<35 || parseFloat(psiTemp)>=40) ? 'text-red-500' : 'text-slate-400'}`}>&lt;35 atau ≥40: +15</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Heart Rate (/mnt)</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiHr} onChange={e => setPsiHr(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiHr} onChange={e => setPsiHr(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiHr)>=125 ? 'text-red-500' : 'text-slate-400'}`}>≥125: +10</div>
           </div>
@@ -665,14 +666,14 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">pH Arteri</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiPh} onChange={e => setPsiPh(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiPh} onChange={e => setPsiPh(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiPh)<7.35 ? 'text-red-500' : 'text-slate-400'}`}>&lt;7.35: +30</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">BUN (mg/dL)</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiBun} onChange={e => setPsiBun(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiBun} onChange={e => setPsiBun(e.target.value)} />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-[10px] text-slate-400 italic">BUN = Ureum × 0.47</span>
@@ -682,21 +683,21 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Na Serum (mEq/L)</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiNa} onChange={e => setPsiNa(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiNa} onChange={e => setPsiNa(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiNa)<130 ? 'text-red-500' : 'text-slate-400'}`}>&lt;130: +20</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Glukosa (mg/dL)</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiGlucose} onChange={e => setPsiGlucose(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiGlucose} onChange={e => setPsiGlucose(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiGlucose)>=250 ? 'text-red-500' : 'text-slate-400'}`}>≥250: +10</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Hematokrit (%)</span>
-              <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiHct} onChange={e => setPsiHct(e.target.value)} />
+              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiHct} onChange={e => setPsiHct(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiHct)<30 ? 'text-red-500' : 'text-slate-400'}`}>&lt;30%: +10</div>
           </div>
@@ -704,8 +705,8 @@ export default function KalkulatorPulmo() {
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">PaO₂ (mmHg) / SpO₂ (%)</span>
               <div className="flex gap-2">
-                <input type="number" className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="PaO2" value={psiPao2} onChange={e => setPsiPao2(e.target.value)} />
-                <input type="number" className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="SpO2" value={psiSpo2} onChange={e => setPsiSpo2(e.target.value)} />
+                <DecimalInput className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="PaO2" value={psiPao2} onChange={e => setPsiPao2(e.target.value)} />
+                <DecimalInput className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="SpO2" value={psiSpo2} onChange={e => setPsiSpo2(e.target.value)} />
               </div>
             </div>
             <div className={`text-[10px] font-bold text-right ${((!isNaN(parseFloat(psiPao2)) && parseFloat(psiPao2)<60) || (!isNaN(parseFloat(psiSpo2)) && parseFloat(psiSpo2)<90)) ? 'text-red-500' : 'text-slate-400'}`}>PaO₂ &lt;60 atau SpO₂ &lt;90: +10</div>
@@ -961,7 +962,7 @@ export default function KalkulatorPulmo() {
                   <button className={`px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'decimal' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('decimal')}>Desimal</button>
                   <button className={`px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'percent' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('percent')}>Persen</button>
                 </div>
-                <input id="aa-fio2" aria-label="FiO₂" type="number" inputMode="decimal" step={aaFio2Mode === 'decimal' ? '0.01' : '1'} className={`${aa.isMissing('aa-fio2') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-32 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold transition-all text-[14px] ${aaFio2Error ? 'text-red-500 focus:ring-red-500/50' : 'text-slate-900 dark:text-white focus:ring-blue-500/50'}`} value={aaFio2Raw} onChange={e=>{setAaFio2Raw(e.target.value); setAaFio2Error('');}} placeholder={aaFio2Mode==='percent'?'21':'0.21'}/>
+                <DecimalInput id="aa-fio2" aria-label="FiO₂" inputMode="decimal" step={aaFio2Mode === 'decimal' ? '0.01' : '1'} className={`${aa.isMissing('aa-fio2') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-32 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold transition-all text-[14px] ${aaFio2Error ? 'text-red-500 focus:ring-red-500/50' : 'text-slate-900 dark:text-white focus:ring-blue-500/50'}`} value={aaFio2Raw} onChange={e=>{setAaFio2Raw(e.target.value); setAaFio2Error('');}} placeholder={aaFio2Mode==='percent'?'21':'0.21'}/>
               </div>
             </div>
             {aaFio2Error && <div className="text-[10px] font-bold text-red-500 text-right">{aaFio2Error}</div>}
@@ -970,25 +971,25 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaCO₂ (mmHg)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-paco2') ? MISSING_RING : ''}`} value={aaPaco2} onChange={e=>setAaPaco2(e.target.value)} id="aa-paco2" aria-label="PaCO₂ (mmHg)" inputMode="decimal"/>
+              <DecimalInput className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-paco2') ? MISSING_RING : ''}`} value={aaPaco2} onChange={e=>setAaPaco2(e.target.value)} id="aa-paco2" aria-label="PaCO₂ (mmHg)" inputMode="decimal"/>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaO₂ (mmHg)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-pao2') ? MISSING_RING : ''}`} value={aaPao2} onChange={e=>setAaPao2(e.target.value)} id="aa-pao2" aria-label="PaO₂ (mmHg)" inputMode="decimal"/>
+              <DecimalInput className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-pao2') ? MISSING_RING : ''}`} value={aaPao2} onChange={e=>setAaPao2(e.target.value)} id="aa-pao2" aria-label="PaO₂ (mmHg)" inputMode="decimal"/>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Usia (Tahun)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaAge} onChange={e=>setAaAge(e.target.value)}/>
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaAge} onChange={e=>setAaAge(e.target.value)}/>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">P. atm (mmHg)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaPatm} onChange={e=>setAaPatm(e.target.value)} placeholder="760"/>
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaPatm} onChange={e=>setAaPatm(e.target.value)} placeholder="760"/>
             </div>
           </div>
         </div>

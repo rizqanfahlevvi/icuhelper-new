@@ -14,6 +14,7 @@ import {
   type SofaRiskTier,
 } from '../../utils/sofa';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 interface OrganScore {
   organ: string;
@@ -433,8 +434,7 @@ export default function ScoringSofa() {
                     <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                       FiO₂ {fio2Mode === 'persen' ? '(21–100)' : '(0.21–1.0)'}
                     </label>
-                    <input
-                      type="number"
+                    <DecimalInput
                       className={inputClass}
                       value={fio2Mode === 'persen' ? fio2Persen : fio2Desimal}
                       onChange={(e) => fio2Mode === 'persen' ? setFio2Persen(e.target.value) : setFio2Desimal(e.target.value)}
@@ -445,8 +445,7 @@ export default function ScoringSofa() {
                     <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                       {useSpO2 ? 'SpO₂ (%)' : 'PaO₂ (mmHg)'}
                     </label>
-                    <input
-                      type="number"
+                    <DecimalInput
                       className={inputClass}
                       value={useSpO2 ? spo2 : pao2}
                       onChange={(e) => useSpO2 ? setSpo2(e.target.value) : setPao2(e.target.value)}
@@ -501,8 +500,7 @@ export default function ScoringSofa() {
               />
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Trombosit (×10³/μL)</label>
-                <input
-                  type="number"
+                <DecimalInput
                   className={inputClass}
                   value={trombosit}
                   onChange={(e) => setTrombosit(e.target.value)}
@@ -528,8 +526,7 @@ export default function ScoringSofa() {
               />
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Bilirubin total (mg/dL)</label>
-                <input
-                  type="number"
+                <DecimalInput
                   className={inputClass}
                   value={bilirubin}
                   onChange={(e) => setBilirubin(e.target.value)}
@@ -589,8 +586,7 @@ export default function ScoringSofa() {
               />
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">GCS (3–15)</label>
-                <input
-                  type="number"
+                <DecimalInput
                   className={inputClass}
                   value={gcs}
                   onChange={(e) => setGcs(e.target.value)}
@@ -619,8 +615,7 @@ export default function ScoringSofa() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Kreatinin (mg/dL)</label>
-                  <input
-                    type="number"
+                  <DecimalInput
                     className={inputClass}
                     value={kreatinin}
                     onChange={(e) => setKreatinin(e.target.value)}
@@ -629,8 +624,7 @@ export default function ScoringSofa() {
                 </div>
                 <div>
                   <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Urine (mL/24j)</label>
-                  <input
-                    type="number"
+                  <DecimalInput
                     className={inputClass}
                     value={urineOutput}
                     onChange={(e) => setUrineOutput(e.target.value)}
@@ -645,8 +639,7 @@ export default function ScoringSofa() {
               <h3 className="font-semibold text-slate-900 dark:text-slate-100">Δ SOFA (Sepsis-3)</h3>
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">SOFA Baseline (sebelum sakit ini)</label>
-                <input
-                  type="number"
+                <DecimalInput
                   className={inputClass}
                   value={sofaBaseline}
                   onChange={(e) => setSofaBaseline(e.target.value)}

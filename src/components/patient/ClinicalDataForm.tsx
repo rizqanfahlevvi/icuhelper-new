@@ -9,6 +9,7 @@ import {
   type ClinicalKey,
 } from '../../utils/clinicalVariables';
 import { formatDataAge, formatDataTimestamp } from '../../utils/patientContext';
+import { DecimalInput } from '../ui/DecimalInput';
 
 type FormGroup = (typeof CLINICAL_GROUPS)[number]['id'];
 
@@ -125,9 +126,8 @@ export function ClinicalDataForm() {
                 )}
               </label>
               <div className="relative">
-                <input
+                <DecimalInput
                   id={id}
-                  type="number"
                   inputMode="decimal"
                   step="any"
                   value={value}

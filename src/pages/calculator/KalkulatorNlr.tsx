@@ -12,6 +12,7 @@ import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 import { toneFromColorClass } from '../../utils/barTone';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 export default function KalkulatorNlr() {
   const patient = usePatientStore();
@@ -179,35 +180,35 @@ export default function KalkulatorNlr() {
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Neutrofil</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-neut" inputMode="decimal" aria-invalid={calc.isMissing('nlr-neut')} value={neutA} onChange={e=>setNeutA(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-neut" inputMode="decimal" aria-invalid={calc.isMissing('nlr-neut')} value={neutA} onChange={e=>setNeutA(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Limfosit</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-lymph" inputMode="decimal" aria-invalid={calc.isMissing('nlr-lymph')} value={lymphA} onChange={e=>setLymphA(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-lymph" inputMode="decimal" aria-invalid={calc.isMissing('nlr-lymph')} value={lymphA} onChange={e=>setLymphA(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Monosit</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={monoA} onChange={e=>setMonoA(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={monoA} onChange={e=>setMonoA(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Trombosit</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={pltA} onChange={e=>setPltA(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={pltA} onChange={e=>setPltA(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">WBC Total (opsional)</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={wbcA} onChange={e=>setWbcA(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={wbcA} onChange={e=>setWbcA(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
@@ -217,35 +218,35 @@ export default function KalkulatorNlr() {
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">WBC Total (wajib)</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-wbc" inputMode="decimal" aria-invalid={calc.isMissing('nlr-wbc')} value={wbcP} onChange={e=>setWbcP(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-wbc" inputMode="decimal" aria-invalid={calc.isMissing('nlr-wbc')} value={wbcP} onChange={e=>setWbcP(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Neutrofil</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-neut" inputMode="decimal" aria-invalid={calc.isMissing('nlr-neut')} value={neutP} onChange={e=>setNeutP(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-neut" inputMode="decimal" aria-invalid={calc.isMissing('nlr-neut')} value={neutP} onChange={e=>setNeutP(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">%</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Limfosit</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-lymph" inputMode="decimal" aria-invalid={calc.isMissing('nlr-lymph')} value={lymphP} onChange={e=>setLymphP(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="nlr-lymph" inputMode="decimal" aria-invalid={calc.isMissing('nlr-lymph')} value={lymphP} onChange={e=>setLymphP(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">%</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Monosit</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={monoP} onChange={e=>setMonoP(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={monoP} onChange={e=>setMonoP(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">%</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Trombosit</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={pltP} onChange={e=>setPltP(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={pltP} onChange={e=>setPltP(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">10³/µL</span>
                    </div>
                 </div>

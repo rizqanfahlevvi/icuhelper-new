@@ -11,6 +11,7 @@ import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
 const RASS_LABEL: Record<string, string> = { light: 'Sedasi ringan', moderate: 'Sedasi sedang', deep: 'Sedasi dalam' };
@@ -223,9 +224,8 @@ export default function KalkulatorDrug() {
             <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
               <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                <input
-                  id="drug-rsi-bb"
-                  type="number" inputMode="decimal"
+                <DecimalInput
+                  id="drug-rsi-bb" inputMode="decimal"
                   value={ituBb}
                   onChange={e => setItuBb(e.target.value)}
                   placeholder="70"
@@ -406,9 +406,8 @@ export default function KalkulatorDrug() {
             <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
               <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                <input
-                  id="drug-icu-bb"
-                  type="number" inputMode="decimal"
+                <DecimalInput
+                  id="drug-icu-bb" inputMode="decimal"
                   value={icuBb}
                   onChange={e => setIcuBb(e.target.value)}
                   placeholder="70"

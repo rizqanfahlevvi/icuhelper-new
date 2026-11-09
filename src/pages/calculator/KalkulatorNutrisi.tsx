@@ -17,6 +17,7 @@ import {
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 type Route = 'en' | 'pn' | 'mixed';
 
@@ -191,14 +192,14 @@ export default function KalkulatorNutrisi() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BB Aktual</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input id="nut-bb" type="number" inputMode="decimal" aria-invalid={calc.isMissing('nut-bb')} className={`${inputCls} aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]`} value={bb} onChange={e => { setBb(e.target.value); reset(); }} />
+              <DecimalInput id="nut-bb" inputMode="decimal" aria-invalid={calc.isMissing('nut-bb')} className={`${inputCls} aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]`} value={bb} onChange={e => { setBb(e.target.value); reset(); }} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kg</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Tinggi Badan</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className={inputCls} value={tb} onChange={e => { setTb(e.target.value); reset(); }} />
+              <DecimalInput className={inputCls} value={tb} onChange={e => { setTb(e.target.value); reset(); }} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">cm</span>
             </div>
           </div>
@@ -213,7 +214,7 @@ export default function KalkulatorNutrisi() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BBI manual <span className="font-normal text-slate-500">(opsional)</span></span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className={inputCls} value={ibwIn} onChange={e => { setIbwIn(e.target.value); reset(); }} placeholder="Devine" />
+              <DecimalInput className={inputCls} value={ibwIn} onChange={e => { setIbwIn(e.target.value); reset(); }} placeholder="Devine" />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kg</span>
             </div>
           </div>
@@ -232,7 +233,7 @@ export default function KalkulatorNutrisi() {
               <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Protein formula <span className="font-normal text-slate-500">(opsional)</span></span>
                 <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-                  <input type="number" className={inputCls} value={proteinGL} onChange={e => { setProteinGL(e.target.value); reset(); }} placeholder="label produk" />
+                  <DecimalInput className={inputCls} value={proteinGL} onChange={e => { setProteinGL(e.target.value); reset(); }} placeholder="label produk" />
                   <span className="text-xs font-semibold text-slate-500 w-8 text-left">g/L</span>
                 </div>
               </div>
@@ -241,7 +242,7 @@ export default function KalkulatorNutrisi() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Kalori non-nutrisi <span className="font-normal text-slate-500">(opsional)</span></span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input type="number" className={inputCls} value={nonNutr} onChange={e => { setNonNutr(e.target.value); reset(); }} placeholder="0" />
+              <DecimalInput className={inputCls} value={nonNutr} onChange={e => { setNonNutr(e.target.value); reset(); }} placeholder="0" />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kkal</span>
             </div>
           </div>

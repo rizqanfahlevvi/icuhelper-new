@@ -14,6 +14,7 @@ import { useClinicalStore } from '../../store/useClinicalStore';
 import { bunFromUreum } from '../../utils/clinicalUnits';
 import { focusInput, type RequiredInput } from '../../hooks/useCalcTrigger';
 import type { CalcTone } from '../../components/ui/CalcActionBar';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 /** Status bilah hasil untuk tab koreksi yang aktif (dirender oleh halaman ABG). */
 export interface CorrectionBarState {
@@ -224,15 +225,15 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">BBI (kg){patientIbw && bb === patientIbw ? ' · dari TB pasien' : ''}</label>
-            <input id="abgk-bb1" aria-label="BBI (kg)" type="number" inputMode="decimal" value={bb} onChange={e=>setBb(e.target.value)} className={`px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0${miss('abgk-bb1')}`} placeholder="e.g. 60" />
+            <DecimalInput id="abgk-bb1" aria-label="BBI (kg)" inputMode="decimal" value={bb} onChange={e=>setBb(e.target.value)} className={`px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0${miss('abgk-bb1')}`} placeholder="e.g. 60" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">HCO₃ Aktual</label>
-            <input id="abgk-hco3-1" aria-label="HCO₃ aktual" type="number" inputMode="decimal" value={hco3act} onChange={e=>setHco3act(e.target.value)} className={`px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0${miss('abgk-hco3-1')}`} placeholder="e.g. 10" />
+            <DecimalInput id="abgk-hco3-1" aria-label="HCO₃ aktual" inputMode="decimal" value={hco3act} onChange={e=>setHco3act(e.target.value)} className={`px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0${miss('abgk-hco3-1')}`} placeholder="e.g. 10" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Target HCO₃</label>
-            <input type="number" value={hco3tgt} onChange={e=>setHco3tgt(e.target.value)} disabled={type1 !== 'met'} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0 disabled:opacity-50" />
+            <DecimalInput value={hco3tgt} onChange={e=>setHco3tgt(e.target.value)} disabled={type1 !== 'met'} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0 disabled:opacity-50" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Jenis Asidosis</label>
@@ -324,19 +325,19 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1.5">
             <label className={labelCls}>BB (kg)</label>
-            <input id="abgk-bb2" aria-label="BB (kg)" type="number" inputMode="decimal" value={bb2} onChange={e=>setBb2(e.target.value)} className={inputCls + miss('abgk-bb2')} placeholder="e.g. 60" />
+            <DecimalInput id="abgk-bb2" aria-label="BB (kg)" inputMode="decimal" value={bb2} onChange={e=>setBb2(e.target.value)} className={inputCls + miss('abgk-bb2')} placeholder="e.g. 60" />
           </div>
           <div className="space-y-1.5">
             <label className={labelCls}>HCO₃ Aktual</label>
-            <input id="abgk-hco3-2" aria-label="HCO₃ aktual" type="number" inputMode="decimal" value={hco3act2} onChange={e=>setHco3act2(e.target.value)} className={inputCls + miss('abgk-hco3-2')} placeholder="e.g. 38" />
+            <DecimalInput id="abgk-hco3-2" aria-label="HCO₃ aktual" inputMode="decimal" value={hco3act2} onChange={e=>setHco3act2(e.target.value)} className={inputCls + miss('abgk-hco3-2')} placeholder="e.g. 38" />
           </div>
           <div className="space-y-1.5">
             <label className={labelCls}>Kalium K⁺</label>
-            <input type="number" value={k} onChange={e=>setK(e.target.value)} className={inputCls} placeholder="e.g. 2.8" />
+            <DecimalInput value={k} onChange={e=>setK(e.target.value)} className={inputCls} placeholder="e.g. 2.8" />
           </div>
           <div className="space-y-1.5">
             <label className={labelCls}>Cl⁻ URIN spot</label>
-            <input type="number" value={urineCl} onChange={e=>setUrineCl(e.target.value)} className={inputCls} placeholder="mEq/L" />
+            <DecimalInput value={urineCl} onChange={e=>setUrineCl(e.target.value)} className={inputCls} placeholder="mEq/L" />
           </div>
         </div>
 
@@ -372,7 +373,7 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
                         <div className="text-xs font-medium text-[var(--label-secondary)]">Hanya untuk alkalosis berat/refrakter bergejala (mis. pH &gt;7,55) bila koreksi Cl⁻/K⁺ tidak cukup atau saline dikontraindikasikan.</div>
                         <div className="flex items-center gap-2">
                           <label className={labelCls}>Target HCO₃⁻</label>
-                          <input type="number" value={hco3tgt2} onChange={e=>setHco3tgt2(e.target.value)} className="w-24 px-3 py-2 bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none" placeholder="isi" />
+                          <DecimalInput value={hco3tgt2} onChange={e=>setHco3tgt2(e.target.value)} className="w-24 px-3 py-2 bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none" placeholder="isi" />
                           <span className="text-[11px] text-slate-500">mEq/L — tidak ada angka baku; koreksi parsial, bukan normalisasi</span>
                         </div>
                         {hcl ? (
@@ -416,10 +417,10 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
     const agLabelCls = 'text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider';
     const agInputs = (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="space-y-1.5"><label htmlFor="abgk-na4" className={agLabelCls}>Na⁺</label><input id="abgk-na4" type="number" inputMode="decimal" value={na4} onChange={e=>setNa4(e.target.value)} placeholder="mEq/L" className={agInputCls + miss('abgk-na4')} /></div>
-        <div className="space-y-1.5"><label htmlFor="abgk-cl4" className={agLabelCls}>Cl⁻</label><input id="abgk-cl4" type="number" inputMode="decimal" value={cl4} onChange={e=>setCl4(e.target.value)} placeholder="mEq/L" className={agInputCls + miss('abgk-cl4')} /></div>
-        <div className="space-y-1.5"><label htmlFor="abgk-hco3-4" className={agLabelCls}>HCO₃⁻</label><input id="abgk-hco3-4" type="number" inputMode="decimal" value={hco3act4} onChange={e=>setHco3act4(e.target.value)} placeholder="mmol/L" className={agInputCls + miss('abgk-hco3-4')} /></div>
-        <div className="space-y-1.5"><label htmlFor="abgk-alb4" className={agLabelCls}>Albumin (opt)</label><input id="abgk-alb4" type="number" inputMode="decimal" value={alb4} onChange={e=>setAlb4(e.target.value)} placeholder="4.0" className={agInputCls} /></div>
+        <div className="space-y-1.5"><label htmlFor="abgk-na4" className={agLabelCls}>Na⁺</label><DecimalInput id="abgk-na4" inputMode="decimal" value={na4} onChange={e=>setNa4(e.target.value)} placeholder="mEq/L" className={agInputCls + miss('abgk-na4')} /></div>
+        <div className="space-y-1.5"><label htmlFor="abgk-cl4" className={agLabelCls}>Cl⁻</label><DecimalInput id="abgk-cl4" inputMode="decimal" value={cl4} onChange={e=>setCl4(e.target.value)} placeholder="mEq/L" className={agInputCls + miss('abgk-cl4')} /></div>
+        <div className="space-y-1.5"><label htmlFor="abgk-hco3-4" className={agLabelCls}>HCO₃⁻</label><DecimalInput id="abgk-hco3-4" inputMode="decimal" value={hco3act4} onChange={e=>setHco3act4(e.target.value)} placeholder="mmol/L" className={agInputCls + miss('abgk-hco3-4')} /></div>
+        <div className="space-y-1.5"><label htmlFor="abgk-alb4" className={agLabelCls}>Albumin (opt)</label><DecimalInput id="abgk-alb4" inputMode="decimal" value={alb4} onChange={e=>setAlb4(e.target.value)} placeholder="4.0" className={agInputCls} /></div>
       </div>
     );
 
@@ -484,9 +485,9 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
       <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/60 dark:bg-slate-800/40 space-y-3">
         <div className="font-bold text-sm text-[var(--label-primary)]">Osmolar Gap (petunjuk alkohol toksik pada HAGMA)</div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Osm terukur</label><input type="number" value={osmMeas} onChange={e=>setOsmMeas(e.target.value)} placeholder="mOsm/kg" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
-          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Glukosa</label><input type="number" value={glu4} onChange={e=>setGlu4(e.target.value)} placeholder="mg/dL" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
-          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">{ureaUnit4 === 'bun' ? 'BUN' : 'Ureum'}</label><input type="number" value={urea4} onChange={e=>setUrea4(e.target.value)} placeholder="mg/dL" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Osm terukur</label><DecimalInput value={osmMeas} onChange={e=>setOsmMeas(e.target.value)} placeholder="mOsm/kg" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Glukosa</label><DecimalInput value={glu4} onChange={e=>setGlu4(e.target.value)} placeholder="mg/dL" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">{ureaUnit4 === 'bun' ? 'BUN' : 'Ureum'}</label><DecimalInput value={urea4} onChange={e=>setUrea4(e.target.value)} placeholder="mg/dL" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
           <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Satuan</label>
             <select value={ureaUnit4} onChange={e=>setUreaUnit4(e.target.value as UreaUnit)} className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0">
               <option value="ureum">Ureum</option>
@@ -517,9 +518,9 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
       <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-slate-50/60 dark:bg-slate-800/40 space-y-3">
         <div className="font-bold text-sm text-[var(--label-primary)]">AG Urin (untuk NAGMA / asidosis hiperkloremik)</div>
         <div className="grid grid-cols-3 gap-3">
-          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Na⁺ urin</label><input type="number" value={uNa} onChange={e=>setUNa(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
-          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">K⁺ urin</label><input type="number" value={uK} onChange={e=>setUK(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
-          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Cl⁻ urin</label><input type="number" value={uClU} onChange={e=>setUClU(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Na⁺ urin</label><DecimalInput value={uNa} onChange={e=>setUNa(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">K⁺ urin</label><DecimalInput value={uK} onChange={e=>setUK(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
+          <div className="space-y-1.5"><label className="text-xs font-bold text-[var(--label-secondary)] uppercase tracking-wider">Cl⁻ urin</label><DecimalInput value={uClU} onChange={e=>setUClU(e.target.value)} placeholder="mEq/L" className="px-3 py-2.5 bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-[#38383A] rounded-xl text-sm font-bold text-slate-900 dark:text-white outline-none placeholder:font-normal placeholder:opacity-70 w-full min-w-0" /></div>
         </div>
         {armed && u && (
           <div className="space-y-1">

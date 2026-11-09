@@ -35,6 +35,7 @@ import { RenalAkiStaging } from './components/RenalAkiStaging';
 import { RenalHdIndikasi } from './components/RenalHdIndikasi';
 import { RenalOsmolBun } from './components/RenalOsmolBun';
 import { patientGenderToClinical } from '../../utils/patientContext';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 export default function KalkulatorRenal() {
   const patient = usePatientStore();
@@ -535,9 +536,8 @@ export default function KalkulatorRenal() {
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Usia</span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input
-                        id="renal-age"
-                        type="number" inputMode="decimal"
+                      <DecimalInput
+                        id="renal-age" inputMode="decimal"
                         value={age} 
                         onChange={e => setAge(e.target.value)} 
                         placeholder="cth: 53" 
@@ -564,9 +564,8 @@ export default function KalkulatorRenal() {
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input
-                        id="renal-weight"
-                        type="number" inputMode="decimal"
+                      <DecimalInput
+                        id="renal-weight" inputMode="decimal"
                         value={weight} 
                         onChange={e => setWeight(e.target.value)} 
                         placeholder="cth: 72" 
@@ -579,9 +578,8 @@ export default function KalkulatorRenal() {
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Tinggi Badan</span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input
-                        id="renal-height"
-                        type="number" inputMode="decimal"
+                      <DecimalInput
+                        id="renal-height" inputMode="decimal"
                         value={height} 
                         onChange={e => setHeight(e.target.value)} 
                         placeholder="cth: 168" 
@@ -615,9 +613,8 @@ export default function KalkulatorRenal() {
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Serum (SCr)</span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input
-                        id="renal-scr"
-                        type="number" inputMode="decimal"
+                      <DecimalInput
+                        id="renal-scr" inputMode="decimal"
                         value={scrVal} 
                         onChange={e => setScrVal(e.target.value)} 
                         placeholder={scrUnit === 'mg' ? 'cth: 1.25' : 'cth: 110'} 
@@ -922,9 +919,8 @@ export default function KalkulatorRenal() {
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Serum</span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input
-                        id="renal-sna"
-                        type="number" inputMode="decimal"
+                      <DecimalInput
+                        id="renal-sna" inputMode="decimal"
                         value={sna} 
                         onChange={e => setSna(e.target.value)} 
                         placeholder="cth: 138" 
@@ -937,9 +933,8 @@ export default function KalkulatorRenal() {
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Serum (SCr)</span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input
-                        id="renal-scr2"
-                        type="number" inputMode="decimal"
+                      <DecimalInput
+                        id="renal-scr2" inputMode="decimal"
                         value={scr} 
                         onChange={e => setScr(e.target.value)} 
                         placeholder="cth: 2.1" 
@@ -955,8 +950,7 @@ export default function KalkulatorRenal() {
                       Ureum Serum <span className="text-[9px] text-slate-500 font-normal">(opsional)</span>
                     </span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input 
-                        type="number" 
+                      <DecimalInput 
                         value={sureum} 
                         onChange={e => setSureum(e.target.value)} 
                         placeholder="opsional" 
@@ -979,9 +973,8 @@ export default function KalkulatorRenal() {
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Urin (UNa)</span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input
-                        id="renal-una"
-                        type="number" inputMode="decimal"
+                      <DecimalInput
+                        id="renal-una" inputMode="decimal"
                         value={una} 
                         onChange={e => setUna(e.target.value)} 
                         placeholder="cth: 80" 
@@ -994,9 +987,8 @@ export default function KalkulatorRenal() {
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Urin (UCr)</span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input
-                        id="renal-ucr"
-                        type="number" inputMode="decimal"
+                      <DecimalInput
+                        id="renal-ucr" inputMode="decimal"
                         value={ucr} 
                         onChange={e => setUcr(e.target.value)} 
                         placeholder="cth: 120" 
@@ -1011,8 +1003,7 @@ export default function KalkulatorRenal() {
                       Ureum Urin <span className="text-[9px] text-slate-500 font-normal">(opsional)</span>
                     </span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <input 
-                        type="number" 
+                      <DecimalInput 
                         value={uureum} 
                         onChange={e => setUureum(e.target.value)} 
                         placeholder="opsional" 

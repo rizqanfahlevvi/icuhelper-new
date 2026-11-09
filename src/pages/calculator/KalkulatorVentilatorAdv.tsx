@@ -16,6 +16,7 @@ import {
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
 // Baris label-kiri / input-kanan yang membungkus saat sempit (font besar / layar 360 px) — tidak overflow.
@@ -179,7 +180,7 @@ export default function KalkulatorVentilatorAdv() {
     <div className={`${ROW} ${tone}`}>
       <label htmlFor={id} className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{label}</label>
       <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-        <input id={id} type="number" inputMode="decimal" className={inputCls + (calc.isMissing(id) ? MISSING_RING : '')} value={value} placeholder={placeholder} onChange={e => set(e.target.value)} />
+        <DecimalInput id={id} inputMode="decimal" className={inputCls + (calc.isMissing(id) ? MISSING_RING : '')} value={value} placeholder={placeholder} onChange={e => set(e.target.value)} />
       </div>
     </div>
   );
@@ -209,7 +210,7 @@ export default function KalkulatorVentilatorAdv() {
           <div className={ROW}>
             <label htmlFor="va-ibw" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">PBW / IBW (kg)</label>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <input id="va-ibw" type="number" inputMode="decimal" className={inputCls} value={ibw} onChange={e => setIbw(e.target.value)} />
+              <DecimalInput id="va-ibw" inputMode="decimal" className={inputCls} value={ibw} onChange={e => setIbw(e.target.value)} />
               {patientPbw && ibw !== patientPbw && (
                 <button type="button" onClick={() => setIbw(patientPbw)} className="shrink-0 text-[11px] font-semibold text-[var(--accent)] hover:underline whitespace-nowrap">
                   PBW pasien {patientPbw}

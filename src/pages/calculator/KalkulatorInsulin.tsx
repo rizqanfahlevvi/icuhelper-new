@@ -14,6 +14,7 @@ import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 import { toneFromColorClass } from '../../utils/barTone';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 export default function KalkulatorInsulin() {
   const patient = usePatientStore();
@@ -221,21 +222,21 @@ export default function KalkulatorInsulin() {
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-bb')} value={bb} onChange={e=>setBb(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-bb')} value={bb} onChange={e=>setBb(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-6 text-left">kg</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-gds')} value={gds} onChange={e=>setGds(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-gds')} value={gds} onChange={e=>setGds(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target GDS</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={target} onChange={e=>setTarget(e.target.value)} placeholder="150" />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={target} onChange={e=>setTarget(e.target.value)} placeholder="150" />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
@@ -245,7 +246,7 @@ export default function KalkulatorInsulin() {
                     <div className="flex items-center justify-between px-4 py-3 gap-4">
                        <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">TDD Sblmnya (opsi)</span>
                        <div className="flex-1 flex items-center justify-end gap-2">
-                         <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={tddPrev} onChange={e=>setTddPrev(e.target.value)} />
+                         <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={tddPrev} onChange={e=>setTddPrev(e.target.value)} />
                          <span className="text-xs font-semibold text-slate-500 w-10 text-left">unit</span>
                        </div>
                     </div>
@@ -424,21 +425,21 @@ export default function KalkulatorInsulin() {
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-gds')} value={hipoGds} onChange={e=>setHipoGds(e.target.value)} placeholder="mis: 45" />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-gds')} value={hipoGds} onChange={e=>setHipoGds(e.target.value)} placeholder="mis: 45" />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-bb')} value={hipoBb} onChange={e=>setHipoBb(e.target.value)} />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-bb')} value={hipoBb} onChange={e=>setHipoBb(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-6 text-left">kg</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target GDS</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={hipoTarget} onChange={e=>setHipoTarget(e.target.value)} placeholder="150" />
+                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={hipoTarget} onChange={e=>setHipoTarget(e.target.value)} placeholder="150" />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>

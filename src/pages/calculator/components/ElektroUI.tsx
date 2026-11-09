@@ -1,4 +1,5 @@
 import React, { type Dispatch, type SetStateAction } from 'react';
+import { DecimalInput } from '../../../components/ui/DecimalInput';
 
 type StrSetter = Dispatch<SetStateAction<string>>;
 
@@ -23,7 +24,7 @@ export function FieldRow({ label, sub, children }: { label: React.ReactNode; sub
 export function NumField({ value, onChange, placeholder, unit, step = 'any' }: { value: string; onChange: StrSetter; placeholder?: string; unit?: string; step?: string }) {
   return (
     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-      <input type="number" inputMode="decimal" step={step} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={inputCls} />
+      <DecimalInput inputMode="decimal" step={step} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={inputCls} />
       {unit !== undefined && <span className="text-xs font-semibold text-slate-500 w-12 text-left">{unit}</span>}
     </div>
   );

@@ -5,6 +5,7 @@ import { stageAki, type AkiResult } from '../../../utils/aki';
 import { CalcActionBar } from '../../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../../hooks/useCalcTrigger';
 import { akiSummary } from '../../../utils/cairanObatSummary';
+import { DecimalInput } from '../../../components/ui/DecimalInput';
 
 const STAGE_STYLE: Record<number, { desc: string; color: string }> = {
   0: { desc: 'Tidak memenuhi kriteria AKI', color: 'text-emerald-600 dark:text-emerald-400' },
@@ -62,14 +63,14 @@ export function RenalAkiStaging() {
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
           <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Baseline</span>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <input id="aki-scr-base" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-base')}`} value={baselineScr} onChange={e=>setBaselineScr(e.target.value)} placeholder="nilai stabil sebelum sakit" />
+            <DecimalInput id="aki-scr-base" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-base')}`} value={baselineScr} onChange={e=>setBaselineScr(e.target.value)} placeholder="nilai stabil sebelum sakit" />
             <span className="text-xs text-slate-500 w-10">mg/dL</span>
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
           <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Saat Ini</span>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <input id="aki-scr-cur" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-cur')}`} value={currentScr} onChange={e=>setCurrentScr(e.target.value)} placeholder="terbaru" />
+            <DecimalInput id="aki-scr-cur" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-cur')}`} value={currentScr} onChange={e=>setCurrentScr(e.target.value)} placeholder="terbaru" />
             <span className="text-xs text-slate-500 w-10">mg/dL</span>
           </div>
         </div>
@@ -84,21 +85,21 @@ export function RenalAkiStaging() {
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
           <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={weight} onChange={e=>setWeight(e.target.value)} placeholder="kg" />
+            <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={weight} onChange={e=>setWeight(e.target.value)} placeholder="kg" />
             <span className="text-xs text-slate-500 w-10">kg</span>
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
           <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Total UO</span>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineOutput} onChange={e=>setUrineOutput(e.target.value)} placeholder="mL" />
+            <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineOutput} onChange={e=>setUrineOutput(e.target.value)} placeholder="mL" />
             <span className="text-xs text-slate-500 w-10">mL</span>
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
           <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Durasi Evaluasi</span>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineDuration} onChange={e=>setUrineDuration(e.target.value)} placeholder="jam" />
+            <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineDuration} onChange={e=>setUrineDuration(e.target.value)} placeholder="jam" />
             <span className="text-xs text-slate-500 w-10">jam</span>
           </div>
         </div>

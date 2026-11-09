@@ -10,6 +10,7 @@ import { useClinicalStore } from '../store/useClinicalStore';
 import { ClinicalDataForm } from '../components/patient/ClinicalDataForm';
 import { cleanClinicalRecord, cleanTimestamps, formatDataAge } from '../utils/patientContext';
 import { AbbrLegend } from '../components/ui/AbbrLegend';
+import { DecimalInput } from '../components/ui/DecimalInput';
 
 export default function PatientsPage() {
   const { 
@@ -550,8 +551,7 @@ export default function PatientsPage() {
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Nilai Usia ({formData.ageUnit})
                   </label>
-                  <input
-                    type="number"
+                  <DecimalInput
                     inputMode="decimal"
                     required
                     placeholder="0"
@@ -573,8 +573,7 @@ export default function PatientsPage() {
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Berat Badan (kg)</label>
                   <div className="relative">
-                    <input
-                      type="number"
+                    <DecimalInput
                       inputMode="decimal"
                       step="any"
                       placeholder="0"
@@ -589,8 +588,7 @@ export default function PatientsPage() {
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tinggi Badan (cm)</label>
                   <div className="relative">
-                    <input
-                      type="number"
+                    <DecimalInput
                       inputMode="decimal"
                       step="any"
                       placeholder="0"

@@ -13,6 +13,7 @@ import { vtTarget } from '../../utils/ventilation';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 export default function KalkulatorIBW() {
   const patient = usePatientStore();
@@ -194,7 +195,7 @@ export default function KalkulatorIBW() {
             <div className="flex items-center justify-between px-4 py-3 gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Tinggi Badan</span>
               <div className="flex-1 flex items-center justify-end gap-2">
-                <input id="ibw-height" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('ibw-height') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} value={height} onChange={e=>setHeight(e.target.value)} placeholder="165" />
+                <DecimalInput id="ibw-height" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('ibw-height') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} value={height} onChange={e=>setHeight(e.target.value)} placeholder="165" />
                 <span className="text-xs font-semibold text-slate-500 w-6 text-left">cm</span>
               </div>
             </div>
@@ -202,7 +203,7 @@ export default function KalkulatorIBW() {
             <div className="flex items-center justify-between px-4 py-3 gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Aktual</span>
               <div className="flex-1 flex items-center justify-end gap-2">
-                <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={actualBW} onChange={e=>setActualBW(e.target.value)} placeholder="70" />
+                <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={actualBW} onChange={e=>setActualBW(e.target.value)} placeholder="70" />
                 <span className="text-xs font-semibold text-slate-500 w-6 text-left">kg</span>
               </div>
             </div>
@@ -210,7 +211,7 @@ export default function KalkulatorIBW() {
             <div className="flex items-center justify-between px-4 py-3 gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Usia</span>
               <div className="flex-1 flex items-center justify-end gap-2">
-                <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={age} onChange={e=>setAge(e.target.value)} placeholder="45" />
+                <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={age} onChange={e=>setAge(e.target.value)} placeholder="45" />
                 <span className="text-xs font-semibold text-slate-500 w-6 text-left">th</span>
               </div>
             </div>
@@ -218,7 +219,7 @@ export default function KalkulatorIBW() {
             <div className="flex items-center justify-between px-4 py-3 gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Hb Aktual (Opsi)</span>
               <div className="flex-1 flex items-center justify-end gap-2">
-                <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={hb} onChange={e=>setHb(e.target.value)} placeholder="—" />
+                <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={hb} onChange={e=>setHb(e.target.value)} placeholder="—" />
                 <span className="text-xs font-semibold text-slate-500 w-8 text-left">g/dL</span>
               </div>
             </div>

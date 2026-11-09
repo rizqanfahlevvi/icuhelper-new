@@ -11,6 +11,7 @@ import { weightPlausibilityWarning } from '../../utils/validation';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 // Beautiful organic SVG paths for a human mannequin
 const SVG_PATHS = {
@@ -241,8 +242,7 @@ export default function KalkulatorBurn() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wider">Usia (Tahun)</label>
-                  <input
-                    type="number"
+                  <DecimalInput
                     value={localAge}
                     placeholder="tahun"
                     onChange={(e) => setLocalAge(e.target.value)}
@@ -252,9 +252,8 @@ export default function KalkulatorBurn() {
                 <div>
                   <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wider">Berat Badan</label>
                   <div className="relative">
-                    <input
+                    <DecimalInput
                       id="burn-weight"
-                      type="number"
                       inputMode="decimal"
                       aria-invalid={calc.isMissing('burn-weight')}
                       value={localWeight}
@@ -293,8 +292,7 @@ export default function KalkulatorBurn() {
               <div>
                 <label className="block text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 uppercase tracking-wider">Jam Sejak Luka Bakar <span className="normal-case font-normal">(opsional)</span></label>
                 <div className="relative">
-                  <input
-                    type="number"
+                  <DecimalInput
                     value={hoursElapsed}
                     onChange={(e) => setHoursElapsed(e.target.value)}
                     min="0"

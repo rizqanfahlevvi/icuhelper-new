@@ -19,6 +19,7 @@ import {
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 export default function KalkulatorAnionGap() {
   const patient = usePatientStore();
@@ -94,9 +95,8 @@ export default function KalkulatorAnionGap() {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Natrium (Na) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
-          <input
+          <DecimalInput
             id="ag-na"
-            type="number"
             inputMode="decimal"
             aria-invalid={calc.isMissing('ag-na')}
             value={na}
@@ -110,9 +110,8 @@ export default function KalkulatorAnionGap() {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Klorida (Cl) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
-          <input
+          <DecimalInput
             id="ag-cl"
-            type="number"
             inputMode="decimal"
             aria-invalid={calc.isMissing('ag-cl')}
             value={cl}
@@ -126,9 +125,8 @@ export default function KalkulatorAnionGap() {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Bikarbonat (HCO₃) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
-          <input
+          <DecimalInput
             id="ag-hco3"
-            type="number"
             inputMode="decimal"
             aria-invalid={calc.isMissing('ag-hco3')}
             value={hco3}
@@ -142,8 +140,7 @@ export default function KalkulatorAnionGap() {
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Albumin <span className="text-xs text-slate-500 font-normal">(g/dL, Opsional)</span>
           </label>
-          <input
-            type="number"
+          <DecimalInput
             inputMode="decimal"
             value={albumin}
             onChange={(e) => setAlbumin(e.target.value)}

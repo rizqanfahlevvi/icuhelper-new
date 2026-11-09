@@ -12,6 +12,7 @@ import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcActionBar } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 import { rsbiSummary } from '../../utils/respirasiSummary';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 interface WeaningResult {
   rsbi: string;
@@ -157,15 +158,15 @@ export default function WeaningIndex() {
           <div className="space-y-3">
             <div>
               <label htmlFor="wean-rr" className="text-xs font-medium text-muted-foreground mb-1 block">RR Spontan (/mnt)</label>
-              <input id="wean-rr" type="number" inputMode="decimal" className={INPUT_CLS + (calc.isMissing('wean-rr') ? MISSING_RING : '')} placeholder="cth: 18" value={rr} onChange={e => setRr(e.target.value)} />
+              <DecimalInput id="wean-rr" inputMode="decimal" className={INPUT_CLS + (calc.isMissing('wean-rr') ? MISSING_RING : '')} placeholder="cth: 18" value={rr} onChange={e => setRr(e.target.value)} />
             </div>
             <div>
               <label htmlFor="wean-vt" className="text-xs font-medium text-muted-foreground mb-1 block">VT Spontan (mL)</label>
-              <input id="wean-vt" type="number" inputMode="decimal" className={INPUT_CLS + (calc.isMissing('wean-vt') ? MISSING_RING : '')} placeholder="cth: 400" value={vt} onChange={e => setVt(e.target.value)} />
+              <DecimalInput id="wean-vt" inputMode="decimal" className={INPUT_CLS + (calc.isMissing('wean-vt') ? MISSING_RING : '')} placeholder="cth: 400" value={vt} onChange={e => setVt(e.target.value)} />
             </div>
             <div>
               <label htmlFor="wean-bb" className="text-xs font-medium text-muted-foreground mb-1 block">BB Prediksi / PBW (kg)</label>
-              <input id="wean-bb" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 61.4" value={bb} onChange={e => setBb(e.target.value)} />
+              <DecimalInput id="wean-bb" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 61.4" value={bb} onChange={e => setBb(e.target.value)} />
               {patientPbw && bb !== patientPbw && (
                 <button
                   type="button"
@@ -178,25 +179,25 @@ export default function WeaningIndex() {
             </div>
             <div>
               <label htmlFor="wean-mv" className="text-xs font-medium text-muted-foreground mb-1 block">MV (Menit Volume, L/mnt)</label>
-              <input id="wean-mv" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 7.2" value={mv} onChange={e => setMv(e.target.value)} />
+              <DecimalInput id="wean-mv" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 7.2" value={mv} onChange={e => setMv(e.target.value)} />
             </div>
           </div>
           <div className="space-y-3">
             <div>
               <label htmlFor="wean-mip" className="text-xs font-medium text-muted-foreground mb-1 block">MIP / NIF (cmH₂O) <span className="opacity-50">(opsional)</span></label>
-              <input id="wean-mip" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="misal -35" value={mip} onChange={e => setMip(e.target.value)} />
+              <DecimalInput id="wean-mip" inputMode="decimal" className={INPUT_CLS} placeholder="misal -35" value={mip} onChange={e => setMip(e.target.value)} />
             </div>
             <div>
               <label htmlFor="wean-mep" className="text-xs font-medium text-muted-foreground mb-1 block">MEP (cmH₂O) <span className="opacity-50">(opsional)</span></label>
-              <input id="wean-mep" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="normal >60" value={mep} onChange={e => setMep(e.target.value)} />
+              <DecimalInput id="wean-mep" inputMode="decimal" className={INPUT_CLS} placeholder="normal >60" value={mep} onChange={e => setMep(e.target.value)} />
             </div>
             <div>
               <label htmlFor="wean-peep" className="text-xs font-medium text-muted-foreground mb-1 block">PEEP saat ini (cmH₂O)</label>
-              <input id="wean-peep" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 5" value={peep} onChange={e => setPeep(e.target.value)} />
+              <DecimalInput id="wean-peep" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 5" value={peep} onChange={e => setPeep(e.target.value)} />
             </div>
             <div>
               <label htmlFor="wean-ps" className="text-xs font-medium text-muted-foreground mb-1 block">PS saat ini (cmH₂O)</label>
-              <input id="wean-ps" type="number" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 8" value={ps} onChange={e => setPs(e.target.value)} />
+              <DecimalInput id="wean-ps" inputMode="decimal" className={INPUT_CLS} placeholder="cth: 8" value={ps} onChange={e => setPs(e.target.value)} />
             </div>
           </div>
         </div>

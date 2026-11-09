@@ -6,6 +6,7 @@ import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton'
 import { serumOsmolality, ureumToBun, type UreaUnit } from '../../../utils/sodium';
 import { UnifiedSyncBanner, type SyncField } from '../../../components/UnifiedSyncBanner';
 import { bunFromUreum, ureumFromBun } from '../../../utils/clinicalUnits';
+import { DecimalInput } from '../../../components/ui/DecimalInput';
 
 export function RenalOsmolBun() {
   // Osmolalitas
@@ -97,28 +98,28 @@ export function RenalOsmolBun() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Sodium (Na)</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input id="osm-na" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-na')}`} value={sna} onChange={e=>setSna(e.target.value)} placeholder="140" />
+              <DecimalInput id="osm-na" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-na')}`} value={sna} onChange={e=>setSna(e.target.value)} placeholder="140" />
               <span className="text-xs text-slate-500 w-12">mEq/L</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input id="osm-urea" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-urea')}`} value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
+              <DecimalInput id="osm-urea" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-urea')}`} value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
               <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Glukosa</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input id="osm-glu" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-glu')}`} value={glucose} onChange={e=>setGlucose(e.target.value)} placeholder="100" />
+              <DecimalInput id="osm-glu" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-glu')}`} value={glucose} onChange={e=>setGlucose(e.target.value)} placeholder="100" />
               <span className="text-xs text-slate-500 w-12">mg/dL</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 bg-blue-50/50 dark:bg-blue-900/10">
             <span className="text-[13px] font-semibold text-blue-700 dark:text-blue-400 flex-1 min-w-[7rem]">Osm Terukur (Opsi)</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input type="number" inputMode="decimal" className="w-full bg-blue-50 dark:bg-blue-900/20 border-none rounded-lg px-3 py-2 text-right font-bold text-blue-700 focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={measuredOsm} onChange={e=>setMeasuredOsm(e.target.value)} placeholder="Lab" />
+              <DecimalInput inputMode="decimal" className="w-full bg-blue-50 dark:bg-blue-900/20 border-none rounded-lg px-3 py-2 text-right font-bold text-blue-700 focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={measuredOsm} onChange={e=>setMeasuredOsm(e.target.value)} placeholder="Lab" />
               <span className="text-xs text-blue-500/70 w-12">mOsm</span>
             </div>
           </div>
@@ -156,14 +157,14 @@ export function RenalOsmolBun() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
+              <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
               <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scrRatio} onChange={e=>setScrRatio(e.target.value)} placeholder="1.0" />
+              <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scrRatio} onChange={e=>setScrRatio(e.target.value)} placeholder="1.0" />
               <span className="text-xs text-slate-500 w-12">mg/dL</span>
             </div>
           </div>

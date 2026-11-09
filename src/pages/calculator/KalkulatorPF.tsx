@@ -12,6 +12,7 @@ import { hco3FromHH, fio2ToPercentString, Tone } from '../../utils/abg';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
 import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 // Disamakan dengan modul ABG (utils/oxygenation.ts): klasifikasi Berlin 2012 + Global 2023,
 // gagal napas tipe 1/2 (StatPearls; tipe 2 = PaCO₂ >45 DENGAN pH <7,35), OI tanpa ambang dewasa.
@@ -254,7 +255,7 @@ export default function KalkulatorPF() {
           <div className={ROW}>
             <label htmlFor="pf-pao2" className={ROW_LABEL}>PaO₂ ABG</label>
             <div className={ROW_FIELD}>
-              <input id="pf-pao2" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('pf-pao2') ? MISSING_RING : ''}`} placeholder="80" value={pao2} onChange={e => setPao2(e.target.value)} />
+              <DecimalInput id="pf-pao2" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('pf-pao2') ? MISSING_RING : ''}`} placeholder="80" value={pao2} onChange={e => setPao2(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mmHg</span>
             </div>
           </div>
@@ -294,10 +295,9 @@ export default function KalkulatorPF() {
                 </div>
 
                 {/* Input */}
-                <input
+                <DecimalInput
                   id="pf-fio2"
                   aria-label="FiO₂"
-                  type="number"
                   inputMode="decimal"
                   step={fio2DirectMode === 'decimal' ? '0.01' : '1'}
                   min={fio2DirectMode === 'decimal' ? '0.21' : '21'}
@@ -338,7 +338,7 @@ export default function KalkulatorPF() {
                 </select>
                 {!device.startsWith('venturi') && (
                   <div className="flex items-center justify-end gap-2 bg-white dark:bg-[#1C1C1E] rounded-md px-2 py-1 shadow-sm border border-slate-200 dark:border-slate-800">
-                    <input type="number" className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all" placeholder="O₂" value={flow} onChange={e => setFlow(e.target.value)} />
+                    <DecimalInput className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all" placeholder="O₂" value={flow} onChange={e => setFlow(e.target.value)} />
                     <span className="text-[11px] font-semibold text-slate-500">L/m</span>
                   </div>
                 )}
@@ -362,7 +362,7 @@ export default function KalkulatorPF() {
             {fio2Mode !== 'lowflow' && support === 'hfno' && (
               <div className="flex items-center justify-end gap-2">
                 <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">Flow HFNC</span>
-                <input type="number" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white text-[14px]" placeholder="L/m" value={hfnoFlow} onChange={e => setHfnoFlow(e.target.value)} />
+                <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white text-[14px]" placeholder="L/m" value={hfnoFlow} onChange={e => setHfnoFlow(e.target.value)} />
               </div>
             )}
             <p className="text-[11px] text-slate-500">Menentukan kelayakan klasifikasi ARDS (Berlin butuh PEEP/CPAP ≥5; Global 2023 menerima HFNC ≥30 L/m).</p>
@@ -371,7 +371,7 @@ export default function KalkulatorPF() {
           <div className={ROW}>
             <label htmlFor="pf-paw" className={ROW_LABEL} title="Mean airway pressure dari ventilator — bukan MAP arteri">Paw (tekanan jalan napas rerata)</label>
             <div className={ROW_FIELD}>
-              <input id="pf-paw" type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="14" value={map} onChange={e => setMap(e.target.value)} />
+              <DecimalInput id="pf-paw" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="14" value={map} onChange={e => setMap(e.target.value)} />
               <span className="text-[11px] font-semibold text-slate-500 w-12 text-left">cmH₂O</span>
             </div>
           </div>
@@ -393,7 +393,7 @@ export default function KalkulatorPF() {
               <button className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${spo2Source === 'abg' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setSpo2Source('abg')}>ABG SaO₂</button>
             </div>
             <div className="flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="94" value={spo2} onChange={e => setSpo2(e.target.value)} aria-label="SpO₂ / SaO₂ (%)" inputMode="decimal" />
+              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="94" value={spo2} onChange={e => setSpo2(e.target.value)} aria-label="SpO₂ / SaO₂ (%)" inputMode="decimal" />
               <span className="text-[11px] font-semibold text-slate-500 w-6 text-left">%</span>
             </div>
           </div>
@@ -401,7 +401,7 @@ export default function KalkulatorPF() {
           <div className={ROW}>
             <label htmlFor="pf-pplat" className={ROW_LABEL}>Pplat</label>
             <div className={ROW_FIELD}>
-              <input id="pf-pplat" type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="25" value={pplat} onChange={e => setPplat(e.target.value)} />
+              <DecimalInput id="pf-pplat" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="25" value={pplat} onChange={e => setPplat(e.target.value)} />
               <span className="text-[11px] font-semibold text-slate-500 w-12 text-left">cmH₂O</span>
             </div>
           </div>
@@ -409,7 +409,7 @@ export default function KalkulatorPF() {
           <div className={ROW}>
             <label htmlFor="pf-peep" className={ROW_LABEL}>PEEP</label>
             <div className={ROW_FIELD}>
-              <input id="pf-peep" type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="5" value={peep} onChange={e => setPeep(e.target.value)} />
+              <DecimalInput id="pf-peep" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="5" value={peep} onChange={e => setPeep(e.target.value)} />
               <span className="text-[11px] font-semibold text-slate-500 w-12 text-left">cmH₂O</span>
             </div>
           </div>
@@ -417,7 +417,7 @@ export default function KalkulatorPF() {
           <div className={ROW}>
             <label htmlFor="pf-paco2" className={ROW_LABEL}>PaCO₂ ABG</label>
             <div className={ROW_FIELD}>
-              <input id="pf-paco2" type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional" value={paco2} onChange={e => setPaco2(e.target.value)} />
+              <DecimalInput id="pf-paco2" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional" value={paco2} onChange={e => setPaco2(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mmHg</span>
             </div>
           </div>
@@ -425,7 +425,7 @@ export default function KalkulatorPF() {
           <div className={ROW}>
             <label htmlFor="pf-ph" className={ROW_LABEL}>pH ABG</label>
             <div className={ROW_FIELD}>
-              <input id="pf-ph" type="number" inputMode="decimal" step="0.01" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional (tipe 2)" value={ph} onChange={e => setPh(e.target.value)} />
+              <DecimalInput id="pf-ph" inputMode="decimal" step="0.01" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional (tipe 2)" value={ph} onChange={e => setPh(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left"></span>
             </div>
           </div>

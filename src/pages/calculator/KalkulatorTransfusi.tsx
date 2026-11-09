@@ -27,6 +27,7 @@ import {
   redCellVolumeMl, bagsFromVolume, cryoBags, randomDonorUnits, plateletRiseRange,
   PRC_BAG_ML, WB_BAG_ML, WB_K_FACTOR, FFP_BAG_ML, RD_UNIT_ML,
 } from '../../utils/transfusion';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 interface TransfusiResult {
   type: 'prc' | 'wb' | 'ffp' | 'tc' | 'cryo';
@@ -360,9 +361,8 @@ export default function KalkulatorTransfusi() {
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan Pasien</span>
             <div className="flex items-center gap-2">
-              <input 
-                id="bb_transfusion"
-                type="number" inputMode="decimal"
+              <DecimalInput 
+                id="bb_transfusion" inputMode="decimal"
                 className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('bb_transfusion')}`} 
                 value={bb} 
                 onChange={e => setBb(e.target.value)} 
@@ -378,9 +378,8 @@ export default function KalkulatorTransfusi() {
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Hemoglobin (Hb) Aktual</span>
                 <div className="flex items-center gap-2">
-                  <input 
-                    id="hb_actual"
-                    type="number" 
+                  <DecimalInput 
+                    id="hb_actual" 
                     step="0.1" inputMode="decimal"
                     className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('hb_actual')}`} 
                     value={hb} 
@@ -394,9 +393,8 @@ export default function KalkulatorTransfusi() {
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Hemoglobin (Hb)</span>
                 <div className="flex items-center gap-2">
-                  <input 
-                    id="hb_target"
-                    type="number" 
+                  <DecimalInput 
+                    id="hb_target" 
                     step="0.1" inputMode="decimal"
                     className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('hb_target')}`} 
                     value={hbt} 
@@ -446,9 +444,8 @@ export default function KalkulatorTransfusi() {
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">INR Aktual <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">(opsional)</span></span>
-                <input 
-                  id="ffp_inr_input"
-                  type="number" 
+                <DecimalInput 
+                  id="ffp_inr_input" 
                   step="0.1" 
                   className="w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm" 
                   value={ffpInr} 
@@ -498,9 +495,8 @@ export default function KalkulatorTransfusi() {
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Trombosit Aktual</span>
                 <div className="flex items-center gap-2">
-                  <input 
-                    id="tc_plt_actual"
-                    type="number" inputMode="decimal"
+                  <DecimalInput 
+                    id="tc_plt_actual" inputMode="decimal"
                     className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('tc_plt_actual')}`} 
                     value={tcPlt} 
                     onChange={e => setTcPlt(e.target.value)} 
@@ -513,9 +509,8 @@ export default function KalkulatorTransfusi() {
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Trombosit</span>
                 <div className="flex items-center gap-2">
-                  <input 
-                    id="tc_plt_target"
-                    type="number" inputMode="decimal"
+                  <DecimalInput 
+                    id="tc_plt_target" inputMode="decimal"
                     className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('tc_plt_target')}`} 
                     value={tcPltt} 
                     onChange={e => setTcPltt(e.target.value)} 
@@ -574,9 +569,8 @@ export default function KalkulatorTransfusi() {
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Fibrinogen Aktual</span>
                 <div className="flex items-center gap-2">
-                  <input 
-                    id="cryo_fib_actual"
-                    type="number" 
+                  <DecimalInput 
+                    id="cryo_fib_actual" 
                     step="0.01" inputMode="decimal"
                     className={`w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2.5 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('cryo_fib_actual')}`} 
                     value={cryoFib} 

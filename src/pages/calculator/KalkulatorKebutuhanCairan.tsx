@@ -21,6 +21,7 @@ import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 import {
   basalSummary, totalCairanSummary, kumulatifSummary, overloadSummary, balance24Summary, type BarSummary,
 } from '../../utils/cairanObatSummary';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 type CairanTab = 'basal' | 'total' | 'balance' | 'kumulatif' | 'overload';
 const CAIRAN_TABS: { id: CairanTab; label: string }[] = [
@@ -362,9 +363,8 @@ export default function KalkulatorKebutuhanCairan() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input 
-                id="cairan-bw"
-                type="number" inputMode="decimal"
+              <DecimalInput 
+                id="cairan-bw" inputMode="decimal"
                 value={bw} 
                 onChange={e => {setBw(e.target.value); setFoDry(e.target.value);}} 
                 placeholder="70" 
@@ -483,8 +483,7 @@ export default function KalkulatorKebutuhanCairan() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Suhu Tubuh</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input 
-                type="number" step="0.1"
+              <DecimalInput step="0.1"
                 value={temp} 
                 onChange={e => setTemp(e.target.value)} 
                 placeholder="37.0" 
@@ -522,8 +521,7 @@ export default function KalkulatorKebutuhanCairan() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target UO <span className="font-normal text-slate-500">(pantau)</span></span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input 
-                type="number" step="0.1"
+              <DecimalInput step="0.1"
                 value={uoTgt} 
                 onChange={e => setUoTgt(e.target.value)} 
                 placeholder="0.5" 
@@ -540,8 +538,7 @@ export default function KalkulatorKebutuhanCairan() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">NGT / GT</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input 
-                type="number" value={ngt} onChange={e => setNgt(e.target.value)} placeholder="0" 
+              <DecimalInput value={ngt} onChange={e => setNgt(e.target.value)} placeholder="0" 
                 className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mL</span>
@@ -551,8 +548,7 @@ export default function KalkulatorKebutuhanCairan() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Drain / Kateter</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input 
-                type="number" value={drain} onChange={e => setDrain(e.target.value)} placeholder="0" 
+              <DecimalInput value={drain} onChange={e => setDrain(e.target.value)} placeholder="0" 
                 className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mL</span>
@@ -562,8 +558,7 @@ export default function KalkulatorKebutuhanCairan() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Lainnya</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input 
-                type="number" value={other} onChange={e => setOther(e.target.value)} placeholder="0" 
+              <DecimalInput value={other} onChange={e => setOther(e.target.value)} placeholder="0" 
                 className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mL</span>
@@ -668,9 +663,8 @@ export default function KalkulatorKebutuhanCairan() {
           {cumbalDays.map((val, i) => (
             <div key={i} className="flex flex-col gap-1">
               <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">H {i + 1}</label>
-              <input
-                id={`cairan-h${i + 1}`}
-                type="number" inputMode="decimal"
+              <DecimalInput
+                id={`cairan-h${i + 1}`} inputMode="decimal"
                 value={val}
                 onChange={e => {
                   const newDays = [...cumbalDays];
@@ -732,9 +726,8 @@ export default function KalkulatorKebutuhanCairan() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Kering / Baseline</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input 
-                id="cairan-fo-dry"
-                type="number" inputMode="decimal"
+              <DecimalInput 
+                id="cairan-fo-dry" inputMode="decimal"
                 value={foDry} 
                 onChange={e => setFoDry(e.target.value)} 
                 placeholder="60" 
@@ -746,9 +739,8 @@ export default function KalkulatorKebutuhanCairan() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Saat Ini</span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <input 
-                id="cairan-fo-current"
-                type="number" inputMode="decimal"
+              <DecimalInput 
+                id="cairan-fo-current" inputMode="decimal"
                 value={foCurrent} 
                 onChange={e => setFoCurrent(e.target.value)} 
                 placeholder="66" 
@@ -807,9 +799,8 @@ export default function KalkulatorKebutuhanCairan() {
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between px-3 py-2.5 gap-2">
                 <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300 min-w-0">{item.label}</span>
-                <input
-                  id={`cairan-fb-${item.key}`}
-                  type="number" inputMode="decimal"
+                <DecimalInput
+                  id={`cairan-fb-${item.key}`} inputMode="decimal"
                   value={(fbInputs as any)[item.key]} 
                   onChange={e => setFbInputs({...fbInputs, [item.key]: e.target.value})} 
                   placeholder="0" 
@@ -833,9 +824,8 @@ export default function KalkulatorKebutuhanCairan() {
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between px-3 py-2.5 gap-2">
                 <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300 min-w-0">{item.label}</span>
-                <input
-                  id={`cairan-fb-out-${item.key}`}
-                  type="number" inputMode="decimal"
+                <DecimalInput
+                  id={`cairan-fb-out-${item.key}`} inputMode="decimal"
                   value={(fbOutputs as any)[item.key]} 
                   onChange={e => setFbOutputs({...fbOutputs, [item.key]: e.target.value})} 
                   placeholder="0" 

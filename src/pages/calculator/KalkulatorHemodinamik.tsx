@@ -20,6 +20,7 @@ import {
 } from '../../data/hemodynamicDrugs';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
+import { DecimalInput } from '../../components/ui/DecimalInput';
 
 const NEE_TONE: Record<'normal' | 'warning' | 'danger', CalcTone> = { normal: 'good', warning: 'warn', danger: 'bad' };
 
@@ -311,9 +312,8 @@ export default function KalkulatorHemodinamik() {
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
           <label htmlFor="hemo-bw" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[8rem]">Berat Badan Pasien</label>
           <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-            <input
+            <DecimalInput
               id="hemo-bw"
-              type="number"
               inputMode="decimal"
               value={bw}
               onChange={(e) => setBw(e.target.value)}
@@ -423,8 +423,7 @@ export default function KalkulatorHemodinamik() {
                   <div className="flex items-center justify-between mb-1.5 gap-2">
                     <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">Dosis</span>
                     <div className="flex items-center gap-1.5">
-                      <input
-                        type="number"
+                      <DecimalInput
                         min={drug.doseMin}
                         max={drug.doseMax}
                         step={drug.doseStep}
