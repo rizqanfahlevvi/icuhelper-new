@@ -1,193 +1,58 @@
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Calculator,
   Pill,
   Activity,
   BookOpen,
-  Droplets,
-  Wind,
-  ListChecks,
   ChevronRight,
-  Zap,
-  FlaskConical,
-  Scale,
-  HeartPulse,
-  TestTube2,
-  Brain,
-  Baby,
   BarChart2,
   BookMarked,
   User,
   Plus,
-  X,
   Star,
   Linkedin,
   Clock,
+  type LucideIcon,
 } from "lucide-react";
-import { usePatientStore, PatientData } from "../store/usePatientStore";
-import { useClinicalStore } from "../store/useClinicalStore";
+import { usePatientStore } from "../store/usePatientStore";
 import { useFavoritesStore } from "../store/useFavoritesStore";
 import { useRecentToolsStore } from "../store/useRecentToolsStore";
 import {
   ALL_FAVORITABLE_ITEMS,
   getFavoritableItemByPath,
 } from "../data/favoritableItems";
+import LogoIcon from "../components/ui/LogoIcon";
 import { AbbrLegend } from '../components/ui/AbbrLegend';
 
-function PatientEditorSheet({ onClose }: { onClose: () => void }) {
-  const patient = usePatientStore();
+type PillarCategory = 'Kalkulator' | 'Skoring' | 'Teori';
 
-  const [formData, setFormData] = useState<Partial<PatientData>>({
-    nama: patient.nama,
-    ageYears: patient.ageYears,
-    weightKg: patient.weightKg,
-    mrsDate: patient.mrsDate || new Date().toISOString().split("T")[0],
-    gender: patient.gender,
-  });
+const countByCategory = (cat: PillarCategory) =>
+  ALL_FAVORITABLE_ITEMS.filter((it) => it.category === cat).length;
 
-  const handleSave = () => {
-    patient.setPatientData(formData);
-    onClose();
-  };
-
-  // Reset = tutup pasien aktif (data kerja klinis ikut dikosongkan oleh patientContextSync)
-  // atau, pada sesi tanpa pasien, kosongkan juga data klinis sesi.
-  const handleReset = () => {
-    const wasAnonymous = !patient.activePatientId;
-    patient.resetPatientData();
-    if (wasAnonymous) useClinicalStore.getState().clearStore();
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end">
-      <div
-        className="absolute inset-0 bg-[var(--bg-overlay)] backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-      <div className="bg-[var(--bg-elevated)] w-full rounded-t-[16px] relative z-40 animate-in slide-in-from-bottom-full duration-200 border-t border-[var(--glass-border)] shadow-[var(--shadow-2)] flex flex-col max-h-[85vh]">
-        <div className="flex justify-between items-center p-4 border-b border-[var(--separator)]">
-          <button
-            onClick={onClose}
-            className="text-[var(--accent)] text-[17px]"
-          >
-            Batal
-          </button>
-          <h2 className="font-semibold text-[17px] tracking-tight text-[var(--label-primary)]">
-            Data Pasien
-          </h2>
-          <button
-            onClick={handleSave}
-            className="font-semibold text-[var(--accent)] text-[17px]"
-          >
-            Simpan
-          </button>
-        </div>
-        <div className="flex flex-col p-4 gap-4 overflow-y-auto pb-10 no-scrollbar">
-          <div className="ios-list" style={{ margin: 0 }}>
-            <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 80 }}>
-                Nama
-              </span>
-              <input
-                type="text"
-                placeholder="Nama Pasien"
-                value={formData.nama}
-                onChange={(e) =>
-                  setFormData({ ...formData, nama: e.target.value })
-                }
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]"
-              />
-            </div>
-            <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 80 }}>
-                Gender
-              </span>
-              <select
-                value={formData.gender}
-                onChange={(e) =>
-                  setFormData({ ...formData, gender: e.target.value as any })
-                }
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)] appearance-none"
-              >
-                <option value="">Pilih</option>
-                <option value="L">Laki-laki (L)</option>
-                <option value="P">Perempuan (P)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="ios-section" style={{ padding: "0 4px 6px" }}>
-            <span className="label">Antropometri & Perawatan</span>
-          </div>
-
-          <div className="ios-list" style={{ margin: 0 }}>
-            <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 120 }}>
-                Usia (Tahun)
-              </span>
-              <input
-                type="number"
-                inputMode="decimal"
-                placeholder="0"
-                value={formData.ageYears}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    ageYears: e.target.value,
-                    agePrecise: e.target.value + " thn",
-                  })
-                }
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]"
-              />
-            </div>
-            <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 120 }}>
-                Berat (kg)
-              </span>
-              <input
-                type="number"
-                inputMode="decimal"
-                placeholder="0"
-                value={formData.weightKg}
-                onChange={(e) =>
-                  setFormData({ ...formData, weightKg: e.target.value })
-                }
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)]"
-              />
-            </div>
-            <div className="ios-row">
-              <span className="ios-row-label" style={{ width: 120 }}>
-                Tanggal MRS
-              </span>
-              <input
-                type="date"
-                value={formData.mrsDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, mrsDate: e.target.value })
-                }
-                className="flex-1 bg-transparent border-none outline-none text-right font-medium text-[var(--label-primary)] cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <button
-            onClick={handleReset}
-            className="mt-4 p-3 bg-[var(--bg-tertiary)] border border-[var(--separator)] rounded-[12px] text-[var(--danger)] font-medium"
-          >
-            Reset Data
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+const PILLARS: {
+  path: string;
+  title: string;
+  desc: string;
+  icon: LucideIcon;
+  tint: string;
+  countCategory?: PillarCategory;
+  unit?: string;
+}[] = [
+  { path: '/calculator', title: 'Kalkulator Medis', icon: Calculator, tint: 'var(--sys-teal)', countCategory: 'Kalkulator', unit: 'alat',
+    desc: 'Cairan, elektrolit, P/F & ventilator, ginjal, insulin, nutrisi, transfusi, ABG.' },
+  { path: '/scoring', title: 'Skoring Klinis', icon: BarChart2, tint: 'var(--sys-orange)', countCategory: 'Skoring', unit: 'skor',
+    desc: 'SOFA, APACHE II, CAM-ICU, RASS, CPIS, Wells, dan lainnya.' },
+  { path: '/pharmacy', title: 'Obat & Cairan', icon: Pill, tint: 'var(--sys-indigo)',
+    desc: 'Dosis & laju infus, penyesuaian ginjal, interaksi obat, komposisi cairan IV.' },
+  { path: '/theory', title: 'Teori Klinis', icon: BookOpen, tint: 'var(--sys-green)', countCategory: 'Teori', unit: 'topik',
+    desc: 'Sepsis & syok, gagal napas, ventilator, SAT/SBT, AKI/CRRT, DKA/HHS, B1–B6.' },
+  { path: '/reference', title: 'Referensi & Glosarium', icon: BookMarked, tint: 'var(--sys-blue)',
+    desc: 'Literatur & guideline rujukan, plus glosarium singkatan.' },
+];
 
 export default function Home() {
   const navigate = useNavigate();
   const patient = usePatientStore();
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const { favorites, toggleFavorite } = useFavoritesStore();
   const recentPaths = useRecentToolsStore((state) => state.recentPaths);
 
@@ -214,40 +79,29 @@ export default function Home() {
     .slice(0, 3);
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden w-full overflow-x-hidden">
-      {/* Hero Header Section */}
-      <div className="pt-2 overflow-x-hidden">
-        <div className="inline-flex items-start sm:items-center gap-1.5 px-3 py-2 sm:py-1 rounded-xl sm:rounded-full bg-teal-500/10 border border-teal-500/20 mb-3.5 w-full sm:w-auto overflow-hidden">
-          <span className="text-[11px] font-bold text-teal-600 dark:text-teal-400 tracking-wide uppercase leading-snug whitespace-normal break-words flex-1">
-            ⚡ Your Daily Companion in ER & Intensive Care
-          </span>
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-5 pb-6 overflow-x-hidden">
+      {/* Hero ringkas — di ponsel nama app & logo sudah ada di header, jadi cukup tagline + pembuat */}
+      <div className="flex items-center gap-2.5 min-w-0 pt-1">
+        <LogoIcon className="hidden md:block w-9 h-9 flex-shrink-0" />
+        <div className="min-w-0 flex-1">
+          <h1 className="hidden md:block text-[20px] font-extrabold tracking-tight text-[var(--label-primary)] leading-tight">
+            ICU<span className="text-[var(--accent)]">Helper</span>
+          </h1>
+          <p className="text-[13px] text-[var(--label-secondary)] leading-snug">
+            Pendamping harian di IGD &amp; ICU
+            <span aria-hidden="true"> · </span>
+            <a
+              href="https://id.linkedin.com/in/rizqanfahlevvi/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-semibold text-[var(--sys-blue)] hover:underline"
+              aria-label="Dibuat oleh Rizqanfahlevvi — buka profil LinkedIn"
+            >
+              <Linkedin className="w-3 h-3 flex-shrink-0 fill-current" />
+              oleh Rizqanfahlevvi
+            </a>
+          </p>
         </div>
-
-        <div className="mb-2 leading-tight">
-          <span className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
-            ICU/ER
-          </span>
-          <span className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
-            {" "}
-            Helper
-          </span>
-        </div>
-
-        <div className="mb-3">
-          <a
-            href="https://id.linkedin.com/in/rizqanfahlevvi/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20 text-[#0077b5] dark:text-[#00a0dc] transition-all duration-150 font-bold text-[11px] tracking-wider cursor-pointer max-w-full"
-          >
-            <Linkedin className="w-3.5 h-3.5 flex-shrink-0 fill-current" />
-            <span className="truncate">MADE BY RIZQANFAHLEVVI</span>
-          </a>
-        </div>
-        <p className="text-muted-foreground text-[13px] md:text-sm max-w-md">
-          Akses cepat kalkulator klinis, skoring kritis, manajemen infus dosis
-          obat, dan referensi literatur berbasis bukti.
-        </p>
       </div>
 
       {/* Patient Summary Card */}
@@ -299,7 +153,7 @@ export default function Home() {
                     <User size={10} /> {patient.gender || "-"}
                   </span>
                   <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded-md border border-blue-100 dark:border-blue-800/30">
-                    {patient.category || "-"}
+                    <span className="capitalize">{patient.category || "-"}</span>
                   </span>
                 </div>
               </div>
@@ -312,10 +166,10 @@ export default function Home() {
                 </div>
                 <div className="text-[13px] font-bold text-slate-700 dark:text-slate-200 flex items-baseline gap-0.5">
                   {patient.agePrecise
-                    ? patient.agePrecise.replace(/ thn| bln/g, "")
+                    ? patient.agePrecise.replace(/\s*(thn|tahun|bln|bulan)\s*$/i, "")
                     : patient.ageYears || "-"}
                   <span className="text-[9px] text-slate-400 font-sans font-semibold">
-                    {patient.agePrecise?.includes("bln") ? "BLN" : "THN"}
+                    {/bln|bulan/i.test(patient.agePrecise || "") ? "BLN" : "THN"}
                   </span>
                 </div>
               </div>
@@ -364,9 +218,9 @@ export default function Home() {
               if (!item) return null;
               const Icon = item.icon || Activity;
               return (
-                <div
+                <Link
                   key={item.path + index}
-                  onClick={() => navigate(item.path)}
+                  to={item.path}
                   className="flex-shrink-0 w-[140px] snap-start bg-card border border-border/80 rounded-xl p-3 shadow-sm hover:border-blue-500/40 hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer"
                 >
                   <div className="space-y-2">
@@ -382,7 +236,7 @@ export default function Home() {
                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
@@ -461,188 +315,51 @@ export default function Home() {
         )}
       </div>
 
-      {/* 4 Pilar Utama Grid */}
+      {/* Pilar modul klinis — angka dihitung otomatis dari daftar menu */}
       <div className="space-y-3">
         <div className="ios-section" style={{ padding: "0 4px" }}>
-          <span className="label">Pilar Modul Klinis</span>
+          <span className="label">Modul Klinis</span>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Card 1: Kalkulator Medis */}
-          <div
-            onClick={() => navigate("/calculator")}
-            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-teal-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
-          >
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 dark:text-teal-400 flex items-center justify-center">
-                  <Calculator className="w-5 h-5" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {PILLARS.map((pl) => {
+            const Icon = pl.icon;
+            const n = pl.countCategory ? countByCategory(pl.countCategory) : null;
+            return (
+              <Link
+                key={pl.path}
+                to={pl.path}
+                className="group p-4 bg-card border border-border/80 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex items-start gap-3"
+              >
+                <span
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ color: pl.tint, backgroundColor: `color-mix(in srgb, ${pl.tint} 12%, transparent)` }}
+                >
+                  <Icon className="w-5 h-5" />
                 </span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase bg-muted/60 p-1 px-2.5 rounded-full">
-                  14 Alat
-                </span>
-              </div>
-              <div>
-                <h3 className="text-[15px] font-extrabold text-foreground group-hover:text-teal-600 dark:text-teal-400 dark:group-hover:text-teal-400 transition-colors">
-                  Kalkulator Medis
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Estimasi eGFR, parameter ventilator awal (ARDSNet), koreksi
-                  defisit elektrolit, sliding scale insulin, kebutuhan cairan
-                  basal, dan indeks NLR.
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                eGFR
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                ARDSNet VT
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                Elektrolit
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                Insulin
-              </span>
-            </div>
-          </div>
-
-          {/* Card 2: Skoring Klinis */}
-          <div
-            onClick={() => navigate("/scoring")}
-            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-orange-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
-          >
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-                  <BarChart2 className="w-5 h-5" />
-                </span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase bg-muted/60 p-1 px-2.5 rounded-full">
-                  7 Skor Medis
-                </span>
-              </div>
-              <div>
-                <h3 className="text-[15px] font-extrabold text-foreground group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                  Skoring Klinis
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Sistem klasifikasi tingkat keparahan penyakit dan stratifikasi
-                  risiko mortalitas intensif: APACHE II, SOFA, CAM-ICU
-                  (Delirium), RASS, CPIS, dan BFS.
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                APACHE II
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                SOFA
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                CAM-ICU
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                RASS
-              </span>
-            </div>
-          </div>
-
-          {/* Card 3: iObat & Cairan */}
-          <div
-            onClick={() => navigate("/pharmacy")}
-            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-indigo-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
-          >
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                  <Pill className="w-5 h-5" />
-                </span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase bg-muted/60 p-1 px-2.5 rounded-full">
-                  146 Obat
-                </span>
-              </div>
-              <div>
-                <h3 className="text-[15px] font-extrabold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                  Drip Obat & Cairan (iObat)
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Infusi syringe pump (vasopressor/sedative), protokol intubasi
-                  cepat RSI (induction doses), panduan tipe cairan, dan checker
-                  interaksi obat kritis.
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                Laju Infus
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                Intubasi RSI
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                Cairan
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                Interaksi
-              </span>
-            </div>
-          </div>
-
-          {/* Card 4: Referensi & Teori */}
-          <div
-            onClick={() => navigate("/reference")}
-            className="group cursor-pointer p-5 bg-card border border-border/80 rounded-2xl shadow-sm hover:border-emerald-500/50 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between min-h-[175px]"
-          >
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                  <BookMarked className="w-5 h-5" />
-                </span>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase bg-muted/60 p-1 px-2.5 rounded-full">
-                  54 Literatur
-                </span>
-              </div>
-              <div>
-                <h3 className="text-[15px] font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                  Referensi & Teori Klinis
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Panduan tatalaksana Sepsis-3, resusitasi syok, pendekatan
-                  gagal napas, strategi SAT/SBT pembebasan ventilator, asuhan
-                  B1-B6, dan 54+ literatur rujukan.
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                Sepsis-3
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                Resusitasi Syok
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                SAT & SBT
-              </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 bg-muted text-muted-foreground rounded-md">
-                B1-B6
-              </span>
-            </div>
-          </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-[15px] font-extrabold text-foreground truncate">{pl.title}</h3>
+                    {n !== null && (
+                      <span className="text-[10.5px] font-bold text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full flex-shrink-0">
+                        {n} {pl.unit}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[12.5px] text-muted-foreground mt-0.5 leading-snug">{pl.desc}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[var(--label-tertiary)] flex-shrink-0 self-center" />
+              </Link>
+            );
+          })}
         </div>
       </div>
 
       <AbbrLegend
         terms={[
-          'ICU', 'ER', 'MRS', 'THN', 'BLN', 'eGFR', 'ARDSNet', 'VT', 'NLR', 'APACHE', 'SOFA', 'CAM-ICU', 'RASS',
-          'CPIS', 'BFS', 'RSI', 'SAT', 'SBT',
+          'ICU', 'MRS', 'THN', 'BLN', 'P/F', 'ABG', 'APACHE', 'SOFA', 'CAM-ICU', 'RASS',
+          'CPIS', 'IV', 'SAT', 'SBT', 'AKI', 'CRRT', 'DKA', 'HHS',
         ]}
       />
-      {isEditorOpen && (
-        <PatientEditorSheet onClose={() => setIsEditorOpen(false)} />
-      )}
     </div>
   );
 }

@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Home, Calculator, Pill, Menu as MenuIcon, BookOpen, Activity, 
-  ArrowDownCircle, Monitor, Settings, History, BookText, ChevronRight, ChevronLeft, X, Sun, Moon, User, Users, LogOut,
-  ShieldAlert, Lock, ExternalLink, Star, Search, WifiOff, Clock, CheckCircle
+import {
+  Home, Calculator, Pill, Menu as MenuIcon, BookOpen, BarChart2, FlaskConical, ClipboardList, BookMarked,
+  ArrowDownCircle, Monitor, Settings, History, ChevronLeft, X, Sun, Moon, Users, LogOut,
+  ShieldAlert, Lock, ExternalLink, Star, Search, WifiOff, Clock, CheckCircle, LayoutGrid,
+  type LucideIcon,
 } from 'lucide-react';
+import {
+  activeMobileTab, hasInAppHistory, isNearExpiry, parentPath, readSeenBannerKey,
+  shouldShowSubscriptionBanner, subscriptionBannerKey, writeSeenBannerKey, type MobileTabId,
+} from '../../utils/shellNav';
+import { parseExpiryDate } from '../../utils/subscription';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useRecentToolsStore } from '../../store/useRecentToolsStore';
 import { getFavoritableItemByPath } from '../../data/favoritableItems';
@@ -20,17 +26,34 @@ import GlobalSearch from './GlobalSearch';
 type NavItem = {
   name: string;
   path: string;
-  icon: any;
-  showInMobileTab?: boolean;
+  icon: LucideIcon;
 };
+
+/** Tab nav bawah ponsel — ringkasan menu lengkap; "Lainnya" membuka laci menu. */
+const MOBILE_TABS: { id: MobileTabId; label: string; path?: string; icon: LucideIcon }[] = [
+  { id: 'home', label: 'Home', path: '/', icon: Home },
+  { id: 'patients', label: 'Pasien', path: '/patients', icon: Users },
+  { id: 'calculator', label: 'Kalkulator', path: '/calculator', icon: Calculator },
+  { id: 'scoring', label: 'Skoring', path: '/scoring', icon: BarChart2 },
+  { id: 'more', label: 'Lainnya', icon: LayoutGrid },
+];
 
 function SubscriptionBanner({ normalizedSubscriptionStatus, userProfile, isAuthorized }: { normalizedSubscriptionStatus: string, userProfile: any, isAuthorized: boolean }) {
   const [isVisible, setIsVisible] = useState(true);
+  // Kunci "sudah dilihat" dibaca SEKALI saat mount → banner tetap terlihat sepanjang sesi
+  // pertama, lalu tidak muncul lagi di pembukaan berikutnya (kecuali status berubah / ≤7 hari).
+  const seenAtMount = useRef<string | null>(readSeenBannerKey());
+  const expiredAt = parseExpiryDate(userProfile?.subscriptionExpiredAt);
+  const bannerKey = subscriptionBannerKey(normalizedSubscriptionStatus, expiredAt);
+  const shouldShow = isAuthorized && shouldShowSubscriptionBanner(normalizedSubscriptionStatus, expiredAt, seenAtMount.current, new Date());
+  const nearExpiry = isNearExpiry(expiredAt, new Date());
 
-  if (!isVisible || !isAuthorized) return null;
-  if (normalizedSubscriptionStatus !== 'trial' && normalizedSubscriptionStatus !== 'active') return null;
+  useEffect(() => {
+    if (shouldShow && !nearExpiry) writeSeenBannerKey(bannerKey);
+  }, [shouldShow, nearExpiry, bannerKey]);
 
-  const expiredAt = userProfile?.subscriptionExpiredAt?.toDate();
+  if (!isVisible || !shouldShow) return null;
+
   let dateText = "batas waktu belum ditentukan";
   if (expiredAt) {
     const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
@@ -87,19 +110,19 @@ function SubscriptionBanner({ normalizedSubscriptionStatus, userProfile, isAutho
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { name: 'Home', path: '/', icon: Home, showInMobileTab: true },
-  { name: 'Pasien', path: '/patients', icon: User, showInMobileTab: true },
-  { name: 'Kalkulator', path: '/calculator', icon: Calculator, showInMobileTab: true },
+  { name: 'Home', path: '/', icon: Home },
+  { name: 'Pasien', path: '/patients', icon: Users },
+  { name: 'Kalkulator', path: '/calculator', icon: Calculator },
   { name: 'Obat & Cairan', path: '/pharmacy', icon: Pill },
-  { name: 'Skoring', path: '/scoring', icon: Activity },
+  { name: 'Skoring', path: '/scoring', icon: BarChart2 },
   { name: 'Teori', path: '/theory', icon: BookOpen },
-  { name: 'ABG', path: '/abg', icon: Activity },
+  { name: 'ABG', path: '/abg', icon: FlaskConical },
   { name: 'Weaning', path: '/weaning', icon: ArrowDownCircle },
   { name: 'Monitoring', path: '/monitoring', icon: Monitor },
-  { name: 'Protokol ICU', path: '/setting', icon: BookText },
+  { name: 'Protokol ICU', path: '/setting', icon: ClipboardList },
   { name: 'Riwayat', path: '/riwayat', icon: History },
-  { name: 'Referensi', path: '/reference', icon: BookText },
-  { name: 'Pengaturan', path: '/settings', icon: Settings, showInMobileTab: true }
+  { name: 'Referensi', path: '/reference', icon: BookMarked },
+  { name: 'Pengaturan', path: '/settings', icon: Settings }
 ];
 
 export default function MainLayout() {
@@ -135,6 +158,14 @@ export default function MainLayout() {
     if (navItem) return navItem.name;
     return 'Menu';
   };
+
+  // "Kembali" aman: tanpa riwayat dalam app (dibuka dari tautan/shortcut) → ke halaman induk.
+  const handleBack = () => {
+    if (hasInAppHistory(window.history.state)) navigate(-1);
+    else navigate(parentPath(location.pathname), { replace: true });
+  };
+
+  const activeTab = activeMobileTab(location.pathname);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -232,7 +263,7 @@ export default function MainLayout() {
     if (!userProfile) return null;
     
     // SEMENTARA: Karena verifikasi/subscription dinonaktifkan, tampilkan Akses Penuh
-    const dotColor = "var(--sys-green, #34c759)";
+    const dotColor = "var(--sys-green)";
     const text = "Akses Penuh";
 
     return (
@@ -397,7 +428,7 @@ export default function MainLayout() {
       onTouchMove={handleTouchMove}
     >
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:flex flex-col fixed inset-y-0 border-r border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-tertiary)] z-10 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-[240px]' : 'w-[80px]'}`}>
+      <aside className={`hidden md:flex flex-col fixed inset-y-0 border-r border-[var(--separator)] bg-[var(--bg-tertiary)] z-10 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-[240px]' : 'w-[80px]'}`}>
         <div className={`flex ${isSidebarExpanded ? 'items-center justify-center px-4' : 'flex-col items-center justify-center px-2'} mt-6 mb-4 h-8`}>
           <div className="flex items-center justify-center gap-3">
             <LogoIcon className="w-8 h-8 flex-shrink-0" />
@@ -528,59 +559,106 @@ export default function MainLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <main className={`flex-1 min-w-0 relative flex flex-col h-screen overflow-hidden transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[80px]'}`}>
-        {/* Unified Top Bar */}
-        <header className="ios-nav justify-between relative">
-          {/* Left Brand and Menu Toggles */}
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => {
-                if (window.innerWidth < 768) {
-                  setIsMobileMenuOpen(true);
-                } else {
-                  setIsSidebarExpanded(!isSidebarExpanded);
-                }
-              }}
-              className="p-1.5 flex items-center justify-center rounded-lg text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)] transition-colors flex-shrink-0"
-              title="Toggle Menu"
+      <main className={`flex-1 min-w-0 relative flex flex-col h-dvh overflow-hidden transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[80px]'}`}>
+        {/* Unified Top Bar
+            Ponsel : halaman induk → logo + judul; halaman anak → ‹ Kembali + judul (sub-nav digabung ke sini).
+            Desktop: ≡ melipat sidebar + brand; sub-nav terpisah tetap di bawah header. */}
+        <header
+          className="ios-nav justify-between relative gap-2"
+          style={{ paddingTop: 'env(safe-area-inset-top, 0px)', height: 'calc(60px + env(safe-area-inset-top, 0px))' }}
+        >
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            {/* Desktop: ≡ melipat sidebar (di ponsel menu lengkap ada di tab "Lainnya") */}
+            <button
+              onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
+              className="hidden md:flex p-1.5 items-center justify-center rounded-lg text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)] transition-colors flex-shrink-0"
+              title="Lipat / buka sidebar"
+              aria-label="Lipat atau buka sidebar"
             >
               <MenuIcon size={20} />
             </button>
-            <div className="flex items-center gap-2 ml-1">
+            <div className="hidden md:flex items-center gap-2 ml-1">
               <LogoIcon className="w-6 h-6 flex-shrink-0" />
-              <h1 className="font-bold text-[16px] tracking-[0px] text-[var(--label-primary)] overflow-hidden whitespace-nowrap hidden md:block">ICU<span className="text-[var(--accent)]">Helper</span></h1>
+              <span className="font-bold text-[16px] tracking-[0px] text-[var(--label-primary)] overflow-hidden whitespace-nowrap">ICU<span className="text-[var(--accent)]">Helper</span></span>
+            </div>
+
+            {/* Ponsel */}
+            <div className="flex md:hidden items-center gap-1.5 min-w-0 flex-1">
+              {isParentMenu ? (
+                <LogoIcon className="w-7 h-7 flex-shrink-0" />
+              ) : (
+                <button
+                  onClick={handleBack}
+                  className="flex items-center text-[var(--accent)] font-medium -ml-1.5 pr-1 text-[15px] min-h-[44px] flex-shrink-0 active:opacity-60"
+                  aria-label="Kembali"
+                >
+                  <ChevronLeft size={24} className="stroke-[2.5]" />
+                  <span className="hidden min-[360px]:inline">Kembali</span>
+                </button>
+              )}
+              <h1 className="font-semibold text-[16px] tracking-tight text-[var(--label-primary)] truncate min-w-0">
+                {getPageTitle()}
+              </h1>
             </div>
           </div>
 
-          {/* Right Navigation: profile dropdown, separator, and theme switcher */}
-          <div className="flex items-center gap-2.5 z-10 relative">
+          {/* Right Navigation */}
+          <div className="flex items-center gap-1 sm:gap-2.5 z-10 relative flex-shrink-0">
+            {/* Indikator offline — ponsel: ikon kecil saja saat offline */}
+            {!isOnline && (
+              <span
+                className="sm:hidden flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                role="status"
+                aria-label="Mode offline"
+                title="Mode offline — app tetap bisa dipakai, data tersimpan di perangkat."
+              >
+                <WifiOff size={14} />
+              </span>
+            )}
             {!isOnline ? (
               <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400" title="Anda sedang dalam mode offline.">
                 <WifiOff size={12} />
-                <span className="text-[10px] font-bold uppercase tracking-wider">Offline Mode</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">Offline</span>
               </div>
             ) : (
               <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400" title="Aplikasi ini siap digunakan tanpa koneksi internet.">
                 <div className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">Offline Ready</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">Siap Offline</span>
               </div>
             )}
-            
+
+            {/* Favorit — ponsel (desktop: di sub-nav) */}
+            {favoritableItem && !isParentMenu && (
+              <button
+                onClick={() => toggleFavorite(location.pathname)}
+                className="md:hidden w-9 h-11 flex items-center justify-center rounded-full text-[var(--label-secondary)] active:bg-[var(--fill-secondary)]"
+                aria-label={isCurrentFav ? 'Hapus dari Favorit' : 'Simpan ke Favorit'}
+                aria-pressed={isCurrentFav}
+              >
+                <Star
+                  size={19}
+                  className={isCurrentFav ? 'fill-[var(--sys-yellow)] text-[var(--sys-yellow)]' : 'text-[var(--label-secondary)]'}
+                />
+              </button>
+            )}
+
             {user && (
-              <div ref={profileDropdownRef} className="flex items-center relative">
+              <div ref={profileDropdownRef} className="flex items-center relative order-last md:order-none">
                 <button
                   type="button"
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  className="flex items-center gap-2 px-1.5 sm:px-2 py-1.5 rounded-xl hover:bg-[var(--fill-secondary)] transition-colors"
+                  className="flex items-center gap-2 px-1 sm:px-2 py-1.5 rounded-xl hover:bg-[var(--fill-secondary)] transition-colors"
+                  aria-label="Menu profil"
+                  aria-expanded={isProfileDropdownOpen}
                 >
                   <span className="text-sm font-semibold text-[var(--label-primary)] truncate max-w-[120px] md:max-w-[180px] hidden sm:inline">
                     Hi, {getFullNameWithPrefix()}
                   </span>
-                  <div className="w-8 h-8 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none flex-shrink-0 border border-[var(--glass-border)] flex">
+                  <div className="w-8 h-8 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-sm select-none flex-shrink-0 border border-[var(--glass-border)]">
                     {getInitialFromProfile()}
                   </div>
                 </button>
-                
+
                 <AnimatePresence>
                   {isProfileDropdownOpen && (
                     <motion.div
@@ -588,7 +666,7 @@ export default function MainLayout() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-[calc(100%+8px)] right-0 w-64 p-3.5 rounded-2xl border border-[#c2c6d4] dark:border-[#3a3d44] bg-[var(--bg-secondary)] flex flex-col gap-3 shadow-lg z-[100] origin-top-right"
+                      className="absolute top-[calc(100%+8px)] right-0 w-64 p-3.5 rounded-2xl border border-[var(--separator)] bg-[var(--bg-secondary)] flex flex-col gap-3 shadow-lg z-[100] origin-top-right"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] flex items-center justify-center font-bold text-lg select-none flex-shrink-0">
@@ -605,6 +683,15 @@ export default function MainLayout() {
                         </div>
                       </div>
                       <div className="border-t border-[var(--separator)] pt-2.5 flex flex-col gap-1">
+                        {/* Tema — di ponsel dipindah ke sini dari header */}
+                        <button
+                          type="button"
+                          onClick={toggleTheme}
+                          className="md:hidden w-full min-h-[44px] px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-[var(--label-primary)] hover:bg-[var(--fill-secondary)] transition-colors cursor-pointer"
+                        >
+                          {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+                          <span>{isDarkMode ? 'Mode Terang' : 'Mode Gelap'}</span>
+                        </button>
                         {isAdminUser(user, userProfile) ? (
                           <button
                             type="button"
@@ -612,7 +699,7 @@ export default function MainLayout() {
                               setIsProfileDropdownOpen(false);
                               navigate('/admin');
                             }}
-                            className="w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-blue-600 hover:bg-blue-600/10 transition-colors cursor-pointer"
+                            className="w-full min-h-[44px] px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-[var(--sys-blue)] hover:bg-[var(--sys-blue)]/10 transition-colors cursor-pointer"
                           >
                             <ShieldAlert size={14} />
                             <span>Admin Panel</span>
@@ -624,7 +711,7 @@ export default function MainLayout() {
                             setIsProfileDropdownOpen(false);
                             handleLogout();
                           }}
-                          className="w-full py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-[#ff3b30] hover:bg-[#ff3b30]/10 transition-colors cursor-pointer"
+                          className="w-full min-h-[44px] px-3 rounded-lg flex items-center justify-center gap-2 text-xs font-bold text-[var(--sys-red)] hover:bg-[var(--sys-red)]/10 transition-colors cursor-pointer"
                         >
                           <LogOut size={14} />
                           <span>Keluar</span>
@@ -635,24 +722,27 @@ export default function MainLayout() {
                 </AnimatePresence>
               </div>
             )}
-            <button onClick={() => setIsSearchOpen(true)} className="ios-nav-btn mr-1" aria-label="Search">
-              <Search size={18} />
+            <button onClick={() => setIsSearchOpen(true)} className="ios-nav-btn w-10 justify-center md:mr-1" aria-label="Cari">
+              <Search size={19} />
             </button>
-            <div className="w-[1px] h-4 bg-[var(--separator)]"></div>
-            <button onClick={toggleTheme} className="ios-nav-btn ml-1" aria-label="Toggle theme">
-              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+            {/* Tema — desktop saja (di ponsel ada di menu profil). Dibungkus karena .ios-nav-btn
+                (CSS di luar layer) mengalahkan utilitas `hidden`. */}
+            <div className="hidden md:flex items-center">
+              <div className="w-[1px] h-4 bg-[var(--separator)]"></div>
+              <button onClick={toggleTheme} className="ios-nav-btn ml-1" aria-label={isDarkMode ? 'Mode terang' : 'Mode gelap'}>
+                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+            </div>
           </div>
         </header>
 
-        {/* iOS-Style Sub Navigation Bar */}
+        {/* Sub-nav (desktop saja — di ponsel sudah digabung ke header) */}
         {!isParentMenu && (
-          <div className="h-[46px] flex items-center justify-between px-2.5 sm:px-4 bg-[var(--bg-secondary)] sticky top-[60px] z-20 w-full relative">
-            {/* Left: Back button with standard iOS blue Chevron and text */}
+          <div className="hidden md:flex h-[46px] items-center justify-between px-2.5 sm:px-4 bg-[var(--bg-secondary)] sticky top-[60px] z-20 w-full relative">
             <div className="flex items-center min-w-[80px]">
               {location.pathname !== '/' && (
                 <button
-                  onClick={() => navigate(-1)}
+                  onClick={handleBack}
                   className="flex items-center gap-0.5 text-[var(--accent)] hover:opacity-80 transition-opacity font-medium -ml-1 text-[15px] py-1 cursor-pointer"
                   title="Kembali"
                 >
@@ -662,26 +752,24 @@ export default function MainLayout() {
               )}
             </div>
 
-            {/* Center: Screen Title */}
             <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none max-w-[170px] sm:max-w-xs md:max-w-md text-center">
               <h2 className="font-semibold text-[15px] tracking-tight text-[var(--label-primary)] truncate">
                 {getPageTitle()}
               </h2>
             </div>
 
-            {/* Right: iOS Star Favorite Toggle Button */}
             <div className="flex items-center justify-end min-w-[80px]">
               {favoritableItem && (
                 <button
                   onClick={() => toggleFavorite(location.pathname)}
-                  className="p-1 px-2.5 rounded-full hover:bg-[var(--fill-secondary)] text-[var(--label-secondary)] hover:text-[#ffcc00] transition-all flex items-center gap-1 cursor-pointer"
+                  className="p-1 px-2.5 rounded-full hover:bg-[var(--fill-secondary)] text-[var(--label-secondary)] hover:text-[var(--sys-yellow)] transition-all flex items-center gap-1 cursor-pointer"
                   title={isCurrentFav ? "Hapus dari Favorit" : "Simpan ke Favorit"}
                 >
-                  <Star 
-                    size={16} 
-                    className={`transition-all duration-200 ${isCurrentFav ? 'fill-[#ffcc00] text-[#ffcc00] stroke-[#ffcc00] scale-110' : 'text-[var(--label-secondary)]'}`} 
+                  <Star
+                    size={16}
+                    className={`transition-all duration-200 ${isCurrentFav ? 'fill-[var(--sys-yellow)] text-[var(--sys-yellow)] scale-110' : 'text-[var(--label-secondary)]'}`}
                   />
-                  <span className={`text-[12px] font-medium hidden sm:inline ${isCurrentFav ? 'text-[#ffcc00] font-semibold' : 'text-[var(--label-secondary)]'}`}>
+                  <span className={`text-[12px] font-medium hidden sm:inline ${isCurrentFav ? 'text-[var(--sys-yellow)] font-semibold' : 'text-[var(--label-secondary)]'}`}>
                     {isCurrentFav ? 'Favorit' : 'Suka'}
                   </span>
                 </button>
@@ -689,7 +777,6 @@ export default function MainLayout() {
             </div>
           </div>
         )}
-
         {/* Mobile App Sidebar Drawer */}
         <AnimatePresence>
           {isMobileMenuOpen && (
@@ -719,6 +806,7 @@ export default function MainLayout() {
                   </div>
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
+                    aria-label="Tutup menu"
                     className="p-1 rounded-full bg-[var(--fill-tertiary)] text-[var(--label-secondary)] hover:text-[var(--label-primary)]"
                   >
                     <X size={20} />
@@ -792,7 +880,7 @@ export default function MainLayout() {
         <SubscriptionBanner normalizedSubscriptionStatus={normalizedSubscriptionStatus} userProfile={userProfile} isAuthorized={isAuthorized} />
 
         {/* Scrollable Viewport */}
-        <div className={`flex-1 min-w-0 max-w-full px-2.5 sm:px-3 md:px-4 pb-[100px] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
+        <div className={`flex-1 min-w-0 max-w-full px-2.5 sm:px-3 md:px-4 pb-[calc(var(--bottom-nav-h)+24px)] md:pb-0 flex flex-col relative ${isLocked ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden no-scrollbar'}`} id="main-scrollable-viewport">
           {isLocked && (
             <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-auto bg-white/45 dark:bg-black/45 backdrop-blur-md"
                  id="verification-restriction-overlay"
@@ -803,8 +891,8 @@ export default function MainLayout() {
                 <div 
                   className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-[var(--accent-fg)]"
                   style={{ 
-                    background: "linear-gradient(135deg, var(--sys-orange, #ff9500), #ffb340)",
-                    boxShadow: "0 4px 12px rgba(255, 149, 0, 0.25)"
+                    background: "var(--sys-orange)",
+                    boxShadow: "var(--shadow-2)"
                   }}
                 >
                   <Lock size={28} />
@@ -823,7 +911,7 @@ export default function MainLayout() {
                   rel="noopener noreferrer"
                   className="w-full font-bold px-5 py-3 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 text-xs cursor-pointer hover:opacity-90"
                   style={{ 
-                    backgroundColor: "var(--sys-orange, #ff9500)", 
+                    backgroundColor: "var(--sys-orange)", 
                     color: "var(--accent-fg)",
                     minHeight: "44px" 
                   }}
@@ -843,74 +931,45 @@ export default function MainLayout() {
         </div>
       </main>
 
-      {/* Mobile Fixed Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 inset-x-0 z-20 border-t border-[var(--separator)] bg-[var(--material-chrome)] backdrop-blur-md h-[74px] md:hidden shadow-[0_-3px_12px_rgba(0,0,0,0.08)] select-none">
-        <div className="flex items-stretch h-full w-full justify-around px-2">
-          {/* Home Tab */}
-          <Link
-            to="/"
-            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
-              location.pathname === '/'
-                ? 'text-[var(--accent)] font-semibold' 
-                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
-            }`}
-          >
-            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/' ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <Home className="w-[24px] h-[24px]" strokeWidth={location.pathname === '/' ? 2.5 : 2} />
-            </div>
-          </Link>
-
-          {/* Pasien Tab */}
-          <Link
-            to="/patients"
-            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
-              location.pathname === '/patients' || location.pathname.startsWith('/patients/')
-                ? 'text-[var(--accent)] font-semibold' 
-                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
-            }`}
-          >
-            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/patients' || location.pathname.startsWith('/patients/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <Users className="w-[24px] h-[24px]" strokeWidth={location.pathname === '/patients' || location.pathname.startsWith('/patients/') ? 2.5 : 2} />
-            </div>
-          </Link>
-
-          {/* Kalkulator Tab */}
-          <Link
-            to="/calculator"
-            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
-              location.pathname === '/calculator' || location.pathname.startsWith('/calculator/')
-                ? 'text-[var(--accent)] font-semibold' 
-                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
-            }`}
-          >
-            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/calculator' || location.pathname.startsWith('/calculator/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <Calculator className="w-[24px] h-[24px]" strokeWidth={location.pathname === '/calculator' || location.pathname.startsWith('/calculator/') ? 2.5 : 2} />
-            </div>
-          </Link>
-
-          {/* Skoring Tab */}
-          <Link
-            to="/scoring"
-            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 ${
-              location.pathname === '/scoring' || location.pathname.startsWith('/scoring/')
-                ? 'text-[var(--accent)] font-semibold' 
-                : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
-            }`}
-          >
-            <div className={`p-1.5 rounded-xl transition-all ${location.pathname === '/scoring' || location.pathname.startsWith('/scoring/') ? 'bg-[var(--accent-tint)] scale-105' : ''}`}>
-              <Activity className="w-[24px] h-[24px]" strokeWidth={location.pathname === '/scoring' || location.pathname.startsWith('/scoring/') ? 2.5 : 2} />
-            </div>
-          </Link>
-
-          {/* Menu / Lainnya Tab */}
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className={`flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-all text-center relative z-10 text-[var(--label-tertiary)] hover:text-[var(--label-primary)]`}
-          >
-            <div className="p-1.5 rounded-xl transition-all">
-              <MenuIcon className="w-[24px] h-[24px]" strokeWidth={2} />
-            </div>
-          </button>
+      {/* Mobile Fixed Bottom Navigation Bar — ringkasan menu; "Lainnya" = menu lengkap */}
+      <nav
+        aria-label="Navigasi utama"
+        className="fixed bottom-0 inset-x-0 z-20 border-t border-[var(--separator)] bg-[var(--material-chrome)] backdrop-blur-md md:hidden shadow-[0_-3px_12px_rgba(0,0,0,0.08)] select-none"
+        style={{ height: 'var(--bottom-nav-h)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
+        <div className="flex items-stretch h-full w-full justify-around px-1">
+          {MOBILE_TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            const Icon = tab.icon;
+            const cls = `flex-1 h-full flex flex-col items-center justify-center gap-0.5 transition-colors text-center relative z-10 ${
+              isActive ? 'text-[var(--accent)]' : 'text-[var(--label-tertiary)] hover:text-[var(--label-primary)]'
+            }`;
+            const inner = (
+              <>
+                <span className={`px-3 py-1 rounded-full transition-colors ${isActive ? 'bg-[var(--accent-tint)]' : ''}`}>
+                  <Icon className="w-[22px] h-[22px]" strokeWidth={isActive ? 2.5 : 2} />
+                </span>
+                <span className={`text-[10.5px] leading-none ${isActive ? 'font-bold' : 'font-medium'}`}>{tab.label}</span>
+              </>
+            );
+            return tab.path ? (
+              <Link key={tab.id} to={tab.path} className={cls} aria-label={tab.label} aria-current={isActive ? 'page' : undefined}>
+                {inner}
+              </Link>
+            ) : (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setIsMobileMenuOpen(true)}
+                className={cls}
+                aria-label="Lainnya — buka menu lengkap"
+                aria-haspopup="dialog"
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {inner}
+              </button>
+            );
+          })}
         </div>
       </nav>
       <ProfilePopup 

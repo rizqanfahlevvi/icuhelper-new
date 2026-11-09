@@ -41,6 +41,9 @@ export const ALL_FAVORITABLE_ITEMS: FavoritableItem[] = [
   { path: '/calculator/renal', name: 'Renal / CrCl', category: 'Kalkulator', desc: 'Kalkulasi klirens kreatinin (eGFR) & dosis ginjal', icon: Activity },
   { path: '/calculator/transfusi', name: 'Kebutuhan Transfusi', category: 'Kalkulator', desc: 'Estimasi volume kolf PRC / WB untuk target Hb', icon: Droplets },
   { path: '/calculator/ventilator-adv', name: 'Ventilator Advanced', category: 'Kalkulator', desc: 'Tahanan jalan napas, compliance, & dead space', icon: Wind },
+  { path: '/calculator/hemodinamik', name: 'Hemodynamic Support', category: 'Kalkulator', desc: 'Vasopresor/inotropik, profil reseptor & skor NEE', icon: HeartPulse },
+  { path: '/calculator/burn', name: 'Luka Bakar / Burn', category: 'Kalkulator', desc: 'TBSA Rule of Nines & Parkland', icon: Activity },
+  { path: '/calculator/anion-gap', name: 'Anion Gap', category: 'Kalkulator', desc: 'Koreksi Anion & Osmolar Gap', icon: Activity },
 
   // SCORING
   { path: '/scoring/sofa', name: 'SOFA Score', category: 'Skoring', desc: 'Sequential Organ Failure Assessment derajat disfungsi organ', icon: BarChart2 },
@@ -50,13 +53,14 @@ export const ALL_FAVORITABLE_ITEMS: FavoritableItem[] = [
   { path: '/scoring/bfs', name: 'BFS/CFS', category: 'Skoring', desc: 'Bedside Frailty Scale & Clinical Frailty Scale', icon: ClipboardList },
   { path: '/scoring/candida', name: 'Candida Score', category: 'Skoring', desc: 'Stratifikasi risiko infeksi jamur candida invasif', icon: Activity },
   { path: '/scoring/cpis', name: 'CPIS Score', category: 'Skoring', desc: 'Clinical Pulmonary Infection Score deteksi VAP dini', icon: FileText },
+  { path: '/scoring/wells', name: 'Wells Score', category: 'Skoring', desc: 'Penilaian klinis risiko Emboli Paru (PE/DVT)', icon: ClipboardList },
 
   // FLUIDS & DRUGS DIRECT ROUTES
-  { path: '/pharmacy', name: 'Obat & Cairan', category: 'Referensi', desc: 'Database 146 obat kritis, dosis induksi RSI, interaksi & cairan IV', icon: Pill },
+  { path: '/pharmacy', name: 'Obat & Cairan', category: 'Referensi', desc: 'Database obat kritis, dosis induksi RSI, interaksi & cairan IV', icon: Pill },
   { path: '/abg', name: 'AGD (Asam-Basa)', category: 'Kalkulator', desc: 'Interpretasi gas darah arteri komprehensif (Boston)', icon: Activity },
   { path: '/weaning', name: 'Weaning Evaluator', category: 'Kalkulator', desc: 'Evaluasi kesiapan ekstubasi & RSBI index', icon: Wind },
   { path: '/monitoring', name: 'Monitor Bedside', category: 'Referensi', desc: 'Visualisasi asuhan ventilasi mekanis harian', icon: Activity },
-  { path: '/reference', name: 'Peralatan & Literatur', category: 'Referensi', desc: '54+ bukti sains, pustaka rujukan, & sitasi medis', icon: BookMarked },
+  { path: '/reference', name: 'Peralatan & Literatur', category: 'Referensi', desc: 'Literatur & guideline rujukan, plus glosarium singkatan', icon: BookMarked },
 
   // THEORY
   { path: '/theory/sepsis', name: 'Teori Sepsis-3', category: 'Teori', desc: 'Klinis epidemiologi, diagnosis, & tatalaksana sepsis', icon: BookOpen },
@@ -73,6 +77,8 @@ export const ALL_FAVORITABLE_ITEMS: FavoritableItem[] = [
   { path: '/theory/padis', name: 'Guideline PADIS', category: 'Teori', desc: 'Pain, Agitation, Delirium, Immobility, Sleep', icon: BookOpen },
   { path: '/theory/tik', name: 'Manajemen TIK', category: 'Teori', desc: 'Tatalaksana Peningkatan Tekanan Intrakranial', icon: BookOpen },
   { path: '/theory/vent-dasar', name: 'Mode Ventilator Dasar', category: 'Teori', desc: 'VC, PC, SIMV, dan PSV', icon: BookOpen },
+  { path: '/theory/fisiologi', name: 'Fisiologi Ventilasi Mekanik', category: 'Teori', desc: 'Mekanika respirasi dan interaksi paru-ventilator', icon: BookOpen },
+  { path: '/theory/cardiac-rhythm', name: 'Cardiac Rhythm Guide', category: 'Teori', desc: 'Aritmia life-threatening & EKG', icon: BookOpen },
 ];
 
 export function getFavoritableItemByPath(path: string): FavoritableItem | undefined {

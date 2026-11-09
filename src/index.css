@@ -183,7 +183,21 @@ button, a[role], input, select { touch-action: manipulation; }
 }
 
 .animate-page-route {
-  animation: page-route-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  /* `backwards` (bukan `forwards`): setelah animasi selesai pembungkus kembali ke
+     transform: none. Dengan `forwards` tersisa transform matrix identitas yang
+     menjadikan pembungkus "containing block" → modal/sheet `position: fixed` di
+     dalam halaman terkurung di konten (tertimpa banner & nav bawah, ikut tergulir). */
+  animation: page-route-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* ── Tinggi nav bawah ponsel (termasuk safe-area iPhone) ──────────────────────
+   Dipakai elemen yang menempel di atas nav bawah (mis. bilah hitung). ≥md: tidak
+   ada nav bawah → 0px. */
+:root {
+  --bottom-nav-h: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 768px) {
+  :root { --bottom-nav-h: 0px; }
 }
 
 /* ── Theme Transition for Smooth Switches ── */

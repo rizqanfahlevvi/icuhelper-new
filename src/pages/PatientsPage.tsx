@@ -42,7 +42,7 @@ export default function PatientsPage() {
   const [formData, setFormData] = useState({
     nama: '',
     category: 'dewasa' as 'dewasa' | 'geriatri',
-    gender: 'L' as '' | 'L' | 'P',
+    gender: '' as '' | 'L' | 'P',
     ageUnit: 'tahun' as 'tahun' | 'bulan',
     ageInput: '',
     weightKg: '',
@@ -56,7 +56,7 @@ export default function PatientsPage() {
     setFormData({
       nama: '',
       category: 'dewasa',
-      gender: 'L',
+      gender: '', // jangan menebak — dokter memilih sendiri
       ageUnit: 'tahun',
       ageInput: '',
       weightKg: '',
@@ -263,7 +263,7 @@ export default function PatientsPage() {
         {/* Modal Pop-up Rekam Medis (Klinis & Lab) dengan Auto-Save */}
         <>
           {isLabFormOpen && (
-            <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+            <div className="fixed inset-0 !m-0 flex items-center justify-center p-4 z-50">
               {/* Backdrop */}
               <div 
                 className="absolute inset-0 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200" 
@@ -469,7 +469,7 @@ export default function PatientsPage() {
 
       {/* Slide-Up Form Modal Sheet */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-end">
+        <div className="fixed inset-0 !m-0 z-50 flex flex-col justify-end">
           <div 
             className="absolute inset-0 bg-[var(--bg-overlay)] backdrop-blur-sm transition-opacity" 
             onClick={() => setIsFormOpen(false)} 
@@ -504,27 +504,30 @@ export default function PatientsPage() {
               {/* Form Row: Kategori & Gender */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Kategori ICU</label>
+                  <label htmlFor="pf-category" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Kategori</label>
                   <select
+                    id="pf-category"
                     value={formData.category}
                     onChange={e => setFormData({ ...formData, category: e.target.value as any })}
                     className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--separator)] rounded-xl text-sm font-semibold text-[var(--label-primary)] outline-hidden"
                   >
-                    <option value="dewasa">Dewasa (&lt; 65 Thn)</option>
-                    <option value="geriatri">Geriatri (&ge; 65 Thn)</option>
+                    <option value="dewasa">Dewasa (&lt;65)</option>
+                    <option value="geriatri">Geriatri (&ge;65)</option>
                   </select>
+                  <span className="text-[11px] text-muted-foreground">Otomatis dari usia; bisa diubah.</span>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jenis Kelamin</label>
+                  <label htmlFor="pf-gender" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Jenis Kelamin</label>
                   <select
+                    id="pf-gender"
                     value={formData.gender}
                     onChange={e => setFormData({ ...formData, gender: e.target.value as any })}
                     className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--separator)] rounded-xl text-sm font-semibold text-[var(--label-primary)] outline-hidden"
                   >
+                    <option value="">Pilih…</option>
                     <option value="L">Laki-laki (L)</option>
                     <option value="P">Perempuan (P)</option>
-                    <option value="">Tidak Ditentukan</option>
                   </select>
                 </div>
               </div>
