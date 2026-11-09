@@ -2,6 +2,8 @@ import { useHistoryStore } from '../store/useHistoryStore';
 import { Trash2, ExternalLink, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
+import { AbbrLegend } from '../components/ui/AbbrLegend';
+import { abbrInText, primaryAbbrKeys } from '../utils/abbrDetect';
 
 export default function Riwayat() {
   const history = useHistoryStore((state) => state.entries);
@@ -39,6 +41,13 @@ export default function Riwayat() {
     const d = new Date(ts);
     return `${d.toLocaleDateString('id-ID')} ${d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
   };
+
+  // Singkatan yang tertulis pada riwayat yang tampil (label modul, judul, ringkasan).
+  // (maks 30 entri — murah dihitung tiap render)
+  const abbrTerms = abbrInText(
+    primaryAbbrKeys(),
+    ...history.flatMap((e) => [MODULE_META[e.module]?.label ?? e.module, e.label, e.summary]),
+  );
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
@@ -103,6 +112,8 @@ export default function Riwayat() {
           </div>
         )}
       </div>
+
+      <AbbrLegend terms={abbrTerms} />
     </div>
   );
 }

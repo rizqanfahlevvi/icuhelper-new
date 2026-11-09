@@ -8,6 +8,7 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { calcIbw } from '../../utils/anthropometry';
 import { rsbi as calcRsbi, interpretRsbi, RSBI_THRESHOLD } from '../../utils/ventilation';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function WeaningIndex() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -362,6 +363,13 @@ export default function WeaningIndex() {
           </div>
         </div>
       </section>
+      <AbbrLegend
+        terms={[
+          'RSBI', 'SBT', 'RR', 'VT', 'PBW', 'TB', 'BB', 'MV', 'MIP', 'NIF', 'MEP', 'PImax', 'PEEP', 'PS', 'RASS',
+          'NMB', 'GBS', 'VC-vital', 'ATS', 'ACCP', 'SpO2', 'FiO2', 'HR', 'ETT', 'PPOK', 'NIV', 'HFNC', 'ICU', 'IV',
+          'BNP', 'VIDD', 'CAM-ICU',
+        ]}
+      />
     </div>
   );
 }

@@ -33,6 +33,7 @@ import {
   ALL_FAVORITABLE_ITEMS,
   getFavoritableItemByPath,
 } from "../data/favoritableItems";
+import { AbbrLegend } from '../components/ui/AbbrLegend';
 
 function PatientEditorSheet({ onClose }: { onClose: () => void }) {
   const patient = usePatientStore();
@@ -633,6 +634,12 @@ export default function Home() {
         </div>
       </div>
 
+      <AbbrLegend
+        terms={[
+          'ICU', 'ER', 'MRS', 'THN', 'BLN', 'eGFR', 'ARDSNet', 'VT', 'NLR', 'APACHE', 'SOFA', 'CAM-ICU', 'RASS',
+          'CPIS', 'BFS', 'RSI', 'SAT', 'SBT',
+        ]}
+      />
       {isEditorOpen && (
         <PatientEditorSheet onClose={() => setIsEditorOpen(false)} />
       )}

@@ -2,6 +2,7 @@ import React from 'react';
 import { Activity, AlertTriangle, Monitor, HeartPulse, LineChart, Star } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function MonitoringIndex() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -238,6 +239,18 @@ export default function MonitoringIndex() {
           </Card>
         </div>
       </section>
+
+      <AbbrLegend
+
+        terms={[
+
+          'ICU', 'DOPE', 'ETT', 'CXR', 'PIP', 'SpO2', 'TD', 'BVM', 'Pplat', 'PEEP', 'VT', 'IBW', 'ARDS', 'PPOK',
+
+          'GBS', 'MG', 'PaO2', 'PaCO2', 'VILI', 'VAP', 'HOB', 'CHX', 'SAT', 'SBT', 'VIDD', 'PSV', 'RR', 'I:E', 'P-V',
+
+        ]}
+
+      />
 
     </div>
   );

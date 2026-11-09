@@ -5,6 +5,9 @@ import { CF_FLUIDS } from './data';
 import { FluidItem } from './types';
 import FluidModal from './FluidModal';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { abbrInText } from '../../utils/abbrDetect';
+import { FLUID_ABBR } from './abbr';
 
 const CATEGORIES = [
   { id: 'semua', label: 'Semua' },
@@ -61,6 +64,13 @@ export default function CairanIndex(props: CairanIndexProps) {
 
   const totalPages = Math.ceil(filteredFluids.length / itemsPerPage);
   const currentFluids = filteredFluids.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Singkatan pada kartu yang sedang tampil (nama, label, osmolaritas, 2 komposisi pertama) + teks header.
+  const listAbbr = abbrInText(
+    FLUID_ABBR,
+    'cairan IV · SSC 2021',
+    ...currentFluids.flatMap((f) => [f.name, f.badge, f.osm, ...f.comp.slice(0, 2).map((c) => `${c.l}: ${c.v}`)]),
+  );
 
   const getCatColorClass = (cat: string) => {
     switch (cat) {
@@ -238,8 +248,10 @@ export default function CairanIndex(props: CairanIndexProps) {
         </div>
       )}
 
+      <AbbrLegend terms={listAbbr} />
+
       {/* Modal */}
-      <FluidModal 
+      <FluidModal
         fluid={selectedFluid} 
         onClose={() => setSelectedFluid(null)} 
       />

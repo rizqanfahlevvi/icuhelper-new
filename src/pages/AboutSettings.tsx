@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useSettingsStore, FontFamily, FontWeight, ThemeMode } from '../store/settingsStore';
 import { getStorageEstimate, refreshCacheAndReload, performHardReset, StorageEstimateInfo } from '../utils/cacheUtils';
+import { AbbrLegend } from '../components/ui/AbbrLegend';
 
 export default function AboutSettings() {
   const [activeTab, setActiveTab] = useState<'settings' | 'about'>('settings');
@@ -742,6 +743,12 @@ export default function AboutSettings() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <AbbrLegend
+          terms={activeTab === 'settings'
+            ? ['ICU', 'IV']
+            : ['ICU', 'ABG', 'IBW', 'SOFA', 'APACHE', 'RASS', 'CAM-ICU', 'ACLS']}
+        />
       </div>
     </div>
   );

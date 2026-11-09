@@ -14,6 +14,9 @@ import {
 } from 'lucide-react';
 import { ICU_DRUGS } from './data';
 import { UnifiedInteraction, SMART_RULES, matchDrugWithInteractionTarget, checkPairInteraction } from './interactionUtils';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { abbrInText } from '../../utils/abbrDetect';
+import { DRUG_ABBR } from './abbr';
 
 const CATEGORY_TABS = [
   { id: 'all', name: 'Semua', icon: '📋' },
@@ -166,6 +169,12 @@ export default function DrugInteractionChecker({
 
     return list;
   }, [selectedDrugs]);
+
+  // Singkatan di hasil interaksi yang tampil (deskripsi, manajemen, referensi) + teks statis "ICU".
+  const abbrTerms = useMemo(
+    () => abbrInText(DRUG_ABBR, 'ICU', ...interactions.flatMap((ix) => [...ix.descriptions, ...ix.managements, ...ix.references])),
+    [interactions],
+  );
 
   // Statistics counters
   const counters = useMemo(() => {
@@ -640,6 +649,8 @@ export default function DrugInteractionChecker({
           )}
         </div>
       )}
+
+      <AbbrLegend terms={abbrTerms} />
     </div>
   );
 }

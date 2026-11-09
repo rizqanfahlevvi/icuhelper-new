@@ -1,5 +1,7 @@
 import React from 'react';
 import { Wind, Activity, Heart, Brain, Scissors, Stethoscope, AlertTriangle, Info } from 'lucide-react';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { Abbr } from '../../components/ui/Abbr';
 
 export default function SettingIndex() {
   const Card = ({ title, icon, colorClass, children }: { title: string, icon: React.ReactNode, colorClass: string, children: React.ReactNode }) => (
@@ -67,7 +69,7 @@ export default function SettingIndex() {
                 </ul>
               </div>
               <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-200 dark:border-blue-500/20">
-                <div className="text-xs font-bold text-blue-700 dark:text-blue-400 mb-1 flex items-center gap-1.5"><Activity className="w-3 h-3"/> Evaluasi ROX Index</div>
+                <div className="text-xs font-bold text-blue-700 dark:text-blue-400 mb-1 flex items-center gap-1.5"><Activity className="w-3 h-3"/> <span>Evaluasi <Abbr k="ROX" /> Index</span></div>
                 <div className="text-[var(--label-secondary)]">(SpO₂ / FiO₂) / RR</div>
                 <div className="text-xs mt-1 text-[var(--label-primary)]">Diukur jam ke-2, 6, 12. Jika <strong>&lt; 3.85</strong> indikasi intubasi tinggi.</div>
               </div>
@@ -300,6 +302,13 @@ export default function SettingIndex() {
           </Card>
         </div>
       </div>
+      <AbbrLegend
+        terms={[
+          'ABG', 'ARDS', 'ARDSNet', 'VT', 'IBW', 'HFNC', 'ROX', 'SpO2', 'FiO2', 'RR', 'NIV', 'BiPAP', 'IPAP', 'EPAP',
+          'CPAP', 'PPOK', 'GI', 'WOB', 'BTS', 'ICS', 'PEEP', 'Pplat', 'P/F', 'VC', 'VC-vital', 'VC-AC', 'PC-AC', 'I:E',
+          'IV', 'GCS', 'PaCO2', 'MIP', 'MEP', 'NIF',
+        ]}
+      />
     </div>
   );
 }

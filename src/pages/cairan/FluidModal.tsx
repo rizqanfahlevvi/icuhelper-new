@@ -2,16 +2,23 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { FluidItem } from './types';
 import { X, Droplets, AlertTriangle, AlertCircle, Info, Beaker } from 'lucide-react';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { abbrInText, collectText } from '../../utils/abbrDetect';
+import { FLUID_ABBR } from './abbr';
 
 interface FluidModalProps {
   fluid: FluidItem | null;
   onClose: () => void;
 }
 
+/** Field yang tidak ditampilkan sebagai teks klinis (referensi = nama jurnal/uji). */
+const NON_TEXT_FIELDS = new Set(['id', 'img', 'cat', 'ref']);
+
 export default function FluidModal({ fluid, onClose }: FluidModalProps) {
   if (!fluid) return null;
 
   const pkgData = fluid.packageData;
+  const abbrTerms = abbrInText(FLUID_ABBR, collectText(fluid, NON_TEXT_FIELDS));
 
   const getBadgeClass = (cat: string) => {
     switch (cat) {
@@ -181,6 +188,8 @@ export default function FluidModal({ fluid, onClose }: FluidModalProps) {
                </ul>
              </section>
            )}
+
+           <AbbrLegend terms={abbrTerms} />
 
            {/* References */}
            {fluid.ref && fluid.ref.length > 0 && (

@@ -1279,7 +1279,7 @@ export default function KalkulatorTransfusi() {
         terms={[
           'PRC', 'WB', 'FFP', 'TC', 'Hb', 'Hct', 'BB', 'EBV', 'INR', 'PT', 'APTT', 'PCC', 'MTP', 'RD', 'SDA', 'PV',
           'DIC', 'CVC', 'TACO', 'CHF', 'CKD', 'FNHTR', 'SAGM', 'iCa', 'QTc', 'EKG', 'Rh', 'PICU', 'ICU', 'IV', 'IM',
-          'RCT', 'RS', 'BDRS', 'PMK', 'AS-negara', 'AABB', 'ICTMG', 'BSH', 'BCSH', 'ASH', 'ESAIC', 'NICE', 'NG', 'WHO',
+          'RCT', 'RS', 'BDRS', 'PMK', 'AS-negara', 'AABB', 'ICTMG', 'BSH', 'BCSH', 'ASH', 'ESAIC', 'NICE', 'NG-NICE', 'WHO',
         ]}
       />
     </div>

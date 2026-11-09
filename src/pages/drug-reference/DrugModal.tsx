@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { DrugItem } from './types';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { abbrInText, collectText } from '../../utils/abbrDetect';
+import { DRUG_ABBR } from './abbr';
 
 interface Props {
   drug: DrugItem;
@@ -9,8 +12,16 @@ interface Props {
   activeEgfr: string;
 }
 
+/** Field internal yang tidak tampil sebagai teks. */
+const NON_TEXT_FIELDS = new Set(['id', 'pump_drug_key', 'ref_id']);
+
 export default function DrugModal({ drug, onClose, activeEgfr }: Props) {
   const [activeTab, setActiveTab] = useState('umum');
+  // Seluruh tab (legenda per obat); label statis modal: ICU, PK/PD, eGFR, HD, CRRT, Kategori FDA.
+  const abbrTerms = useMemo(
+    () => abbrInText(DRUG_ABBR, 'ICU · PK/PD · eGFR · HD · CRRT · FDA', collectText(drug, NON_TEXT_FIELDS)),
+    [drug],
+  );
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-safe pb-safe">
@@ -386,6 +397,8 @@ export default function DrugModal({ drug, onClose, activeEgfr }: Props) {
               )}
             </div>
           )}
+
+          <AbbrLegend terms={abbrTerms} />
         </div>
       </div>
     </div>,

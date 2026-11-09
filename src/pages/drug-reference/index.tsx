@@ -9,6 +9,7 @@ import DrugInteractionChecker from './DrugInteractionChecker';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { checkPairInteraction } from './interactionUtils';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 const CATEGORIES = [
   { id: 'all', label: 'Semua Obat', color: 'bg-muted-foreground' },
@@ -507,6 +508,12 @@ export default function DrugReference(props: DrugReferenceProps) {
 
           <VasopressorFlowchart />
           <SedationLadder />
+          <AbbrLegend
+            terms={[
+              'ICU', 'NMB', 'GI', 'eGFR', 'CKD', 'HD', 'CRRT', 'RRT', 'IV', 'PO', 'SSC', 'MAP', 'NE', 'ScvO2', 'CI', 'PE',
+              'PTX', 'SCCM', 'PADIS', 'RASS', 'PRN', 'CPOT', 'GABA', 'ARDS', 'P/F', 'TG', 'PRIS', 'RSE', 'EEG',
+            ]}
+          />
         </>
       ) : (
         <DrugInteractionChecker selectedDrugs={selectedDrugs} setSelectedDrugs={setSelectedDrugs} />

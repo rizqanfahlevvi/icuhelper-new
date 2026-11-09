@@ -9,6 +9,7 @@ import { usePatientStore, Patient } from '../store/usePatientStore';
 import { useClinicalStore } from '../store/useClinicalStore';
 import { ClinicalDataForm } from '../components/patient/ClinicalDataForm';
 import { cleanClinicalRecord, cleanTimestamps, formatDataAge } from '../utils/patientContext';
+import { AbbrLegend } from '../components/ui/AbbrLegend';
 
 export default function PatientsPage() {
   const { 
@@ -303,6 +304,13 @@ export default function PatientsPage() {
               {/* Scrollable Modal Content */}
               <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-6">
                 <ClinicalDataForm />
+                {/* Singkatan pada label variabel (registri src/utils/clinicalVariables.ts) */}
+                <AbbrLegend
+                  terms={[
+                    'TD', 'MAP', 'HR', 'RR', 'SpO2', 'GCS', 'FiO2', 'PEEP', 'EPAP', 'AGD', 'PaCO2', 'PaO2', 'HCO3', 'Hb', 'WBC',
+                    'MCV', 'MCH', 'MCHC', 'GDS', 'GDP', 'GD', 'PP-prandial', 'HbA1c', 'LDL', 'HDL', 'SGOT', 'SGPT', 'AST', 'ALT',
+                  ]}
+                />
                 <p className="text-center text-[11px] text-muted-foreground pt-2">
                   Setiap nilai tersimpan otomatis ke pasien ini dan dipakai bersama oleh seluruh kalkulator, skoring, dan modul AGD.
                 </p>
@@ -623,6 +631,8 @@ export default function PatientsPage() {
           </form>
         </div>
       )}
+
+      <AbbrLegend terms={['ICU', 'ABG', 'AGD', 'BB', 'TB', 'MRS']} />
 
     </div>
   );
