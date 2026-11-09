@@ -222,25 +222,25 @@ export default function KalkulatorDrug() {
 
           <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+              <label htmlFor="drug-rsi-bb" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</label>
               <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                 <DecimalInput
                   id="drug-rsi-bb" inputMode="decimal"
                   value={ituBb}
                   onChange={e => setItuBb(e.target.value)}
                   placeholder="70"
-                  className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${trRsi.isMissing('drug-rsi-bb') ? MISSING_RING : ''}`}
+                  className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${trRsi.isMissing('drug-rsi-bb') ? MISSING_RING : ''}`}
                 />
                 <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
               </div>
             </div>
 
             <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Skenario Klinis</span>
-              <select 
+              <label htmlFor="drug-skenario-klinis" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Skenario Klinis</label>
+              <select id="drug-skenario-klinis" 
                 value={ituScenario}
                 onChange={e => setItuScenario(e.target.value as keyof typeof RSI_SCENARIOS)}
-                className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
+                className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
               >
                 <option value="general">Kondisi umum / Elektif</option>
                 <option value="shock">Syok / Instabilitas Hemo</option>
@@ -251,11 +251,11 @@ export default function KalkulatorDrug() {
             </div>
 
             <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Pilihan NMB</span>
-              <select 
+              <label htmlFor="drug-pilihan-nmb" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Pilihan NMB</label>
+              <select id="drug-pilihan-nmb" 
                 value={ituNmb}
                 onChange={e => setItuNmb(e.target.value)}
-                className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+                className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
               >
                 <option value="roc_rsi">Rocuronium RSI (1.2)</option>
                 <option value="sux">Suksinilkolin (1.5)</option>
@@ -404,25 +404,25 @@ export default function KalkulatorDrug() {
 
           <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+              <label htmlFor="drug-icu-bb" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</label>
               <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                 <DecimalInput
                   id="drug-icu-bb" inputMode="decimal"
                   value={icuBb}
                   onChange={e => setIcuBb(e.target.value)}
                   placeholder="70"
-                  className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${trIcu.isMissing('drug-icu-bb') ? MISSING_RING : ''}`}
+                  className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${trIcu.isMissing('drug-icu-bb') ? MISSING_RING : ''}`}
                 />
                 <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
               </div>
             </div>
 
             <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Target Sedasi RASS</span>
-              <select 
+              <label htmlFor="drug-target-sedasi-rass" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Target Sedasi RASS</label>
+              <select id="drug-target-sedasi-rass" 
                 value={icuRass}
                 onChange={e => setIcuRass(e.target.value)}
-                className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
+                className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
               >
                 <option value="light">Sedasi Ringan (RASS -1..0)</option>
                 <option value="moderate">Sedasi Sedang (RASS -2..-3)</option>
@@ -431,11 +431,11 @@ export default function KalkulatorDrug() {
             </div>
 
             <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Tingkat Nyeri</span>
-              <select 
+              <label htmlFor="drug-tingkat-nyeri" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Tingkat Nyeri</label>
+              <select id="drug-tingkat-nyeri" 
                 value={icuPain}
                 onChange={e => setIcuPain(e.target.value)}
-                className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
+                className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
               >
                 <option value="mild">Nyeri Ringan / CPOT 0–2</option>
                 <option value="moderate">Nyeri Sedang / CPOT 3–5</option>

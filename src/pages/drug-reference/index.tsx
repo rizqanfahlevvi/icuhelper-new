@@ -323,7 +323,7 @@ export default function DrugReference(props: DrugReferenceProps) {
                 placeholder="Cari obat..." 
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
+                className="min-h-[44px] w-full pl-9 pr-8 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
               />
               {searchTerm && (
                 <button onClick={() => setSearchTerm('')} className="absolute left-[calc(100%-28px)] top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -342,7 +342,7 @@ export default function DrugReference(props: DrugReferenceProps) {
           <select 
             value={sortOrder} 
             onChange={e => setSortOrder(e.target.value)}
-            className="px-2 py-1.5 bg-background border border-border rounded-md text-xs font-medium focus:outline-none"
+            className="min-h-[44px] px-2 py-1.5 bg-background border border-border rounded-md text-xs font-medium focus:outline-none"
           >
             <option value="name">A–Z Nama</option>
             <option value="category">Kategori</option>

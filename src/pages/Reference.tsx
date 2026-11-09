@@ -69,7 +69,7 @@ export default function Reference() {
           </div>
           <input
             type="text"
-            className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+            className="min-h-[44px] w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all"
             placeholder="Cari panduan, penulis, topik, jurnal, atau singkatan..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

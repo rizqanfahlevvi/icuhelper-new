@@ -96,30 +96,30 @@ export function RenalOsmolBun() {
         </h3>
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Sodium (Na)</span>
+            <label htmlFor="osm-na" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Sodium (Na)</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput id="osm-na" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-na')}`} value={sna} onChange={e=>setSna(e.target.value)} placeholder="140" />
+              <DecimalInput id="osm-na" inputMode="decimal" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-na')}`} value={sna} onChange={e=>setSna(e.target.value)} placeholder="140" />
               <span className="text-xs text-slate-500 w-12">mEq/L</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput id="osm-urea" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-urea')}`} value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
-              <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
+              <DecimalInput id="osm-urea" inputMode="decimal" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-urea')}`} value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
+              <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="min-h-[44px] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Glukosa</span>
+            <label htmlFor="osm-glu" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Glukosa</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput id="osm-glu" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-glu')}`} value={glucose} onChange={e=>setGlucose(e.target.value)} placeholder="100" />
+              <DecimalInput id="osm-glu" inputMode="decimal" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-glu')}`} value={glucose} onChange={e=>setGlucose(e.target.value)} placeholder="100" />
               <span className="text-xs text-slate-500 w-12">mg/dL</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 bg-blue-50/50 dark:bg-blue-900/10">
-            <span className="text-[13px] font-semibold text-blue-700 dark:text-blue-400 flex-1 min-w-[7rem]">Osm Terukur (Opsi)</span>
+            <label htmlFor="osm-osm-terukur-opsi" className="text-[13px] font-semibold text-blue-700 dark:text-blue-400 flex-1 min-w-[7rem]">Osm Terukur (Opsi)</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput inputMode="decimal" className="w-full bg-blue-50 dark:bg-blue-900/20 border-none rounded-lg px-3 py-2 text-right font-bold text-blue-700 focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={measuredOsm} onChange={e=>setMeasuredOsm(e.target.value)} placeholder="Lab" />
+              <DecimalInput id="osm-osm-terukur-opsi" inputMode="decimal" className="min-h-[44px] w-full bg-blue-50 dark:bg-blue-900/20 border-none rounded-lg px-3 py-2 text-right font-bold text-blue-700 focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={measuredOsm} onChange={e=>setMeasuredOsm(e.target.value)} placeholder="Lab" />
               <span className="text-xs text-blue-500/70 w-12">mOsm</span>
             </div>
           </div>
@@ -157,14 +157,14 @@ export function RenalOsmolBun() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
-              <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
+              <DecimalInput inputMode="decimal" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
+              <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="min-h-[44px] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin</span>
+            <label htmlFor="osm-kreatinin" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scrRatio} onChange={e=>setScrRatio(e.target.value)} placeholder="1.0" />
+              <DecimalInput id="osm-kreatinin" inputMode="decimal" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scrRatio} onChange={e=>setScrRatio(e.target.value)} placeholder="1.0" />
               <span className="text-xs text-slate-500 w-12">mg/dL</span>
             </div>
           </div>

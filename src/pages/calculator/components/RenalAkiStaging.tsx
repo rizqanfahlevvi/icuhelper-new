@@ -61,16 +61,16 @@ export function RenalAkiStaging() {
       <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <div className="p-3 text-[12px] font-bold text-slate-500 uppercase tracking-wide">Kriteria Serum Kreatinin</div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Baseline</span>
+          <label htmlFor="aki-scr-base" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Baseline</label>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <DecimalInput id="aki-scr-base" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-base')}`} value={baselineScr} onChange={e=>setBaselineScr(e.target.value)} placeholder="nilai stabil sebelum sakit" />
+            <DecimalInput id="aki-scr-base" inputMode="decimal" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-base')}`} value={baselineScr} onChange={e=>setBaselineScr(e.target.value)} placeholder="nilai stabil sebelum sakit" />
             <span className="text-xs text-slate-500 w-10">mg/dL</span>
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Saat Ini</span>
+          <label htmlFor="aki-scr-cur" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Saat Ini</label>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <DecimalInput id="aki-scr-cur" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-cur')}`} value={currentScr} onChange={e=>setCurrentScr(e.target.value)} placeholder="terbaru" />
+            <DecimalInput id="aki-scr-cur" inputMode="decimal" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-cur')}`} value={currentScr} onChange={e=>setCurrentScr(e.target.value)} placeholder="terbaru" />
             <span className="text-xs text-slate-500 w-10">mg/dL</span>
           </div>
         </div>
@@ -83,23 +83,23 @@ export function RenalAkiStaging() {
       <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <div className="p-3 text-[12px] font-bold text-slate-500 uppercase tracking-wide">Kriteria Urine Output (UO)</div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+          <label htmlFor="aki-berat-badan" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</label>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={weight} onChange={e=>setWeight(e.target.value)} placeholder="kg" />
+            <DecimalInput id="aki-berat-badan" inputMode="decimal" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={weight} onChange={e=>setWeight(e.target.value)} placeholder="kg" />
             <span className="text-xs text-slate-500 w-10">kg</span>
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Total UO</span>
+          <label htmlFor="aki-total-uo" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Total UO</label>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineOutput} onChange={e=>setUrineOutput(e.target.value)} placeholder="mL" />
+            <DecimalInput id="aki-total-uo" inputMode="decimal" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineOutput} onChange={e=>setUrineOutput(e.target.value)} placeholder="mL" />
             <span className="text-xs text-slate-500 w-10">mL</span>
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Durasi Evaluasi</span>
+          <label htmlFor="aki-durasi-evaluasi" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Durasi Evaluasi</label>
           <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-            <DecimalInput inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineDuration} onChange={e=>setUrineDuration(e.target.value)} placeholder="jam" />
+            <DecimalInput id="aki-durasi-evaluasi" inputMode="decimal" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineDuration} onChange={e=>setUrineDuration(e.target.value)} placeholder="jam" />
             <span className="text-xs text-slate-500 w-10">jam</span>
           </div>
         </div>

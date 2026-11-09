@@ -365,7 +365,7 @@ export default function PatientsPage() {
             placeholder="Cari pasien berdasarkan nama..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--separator)] rounded-xl text-sm outline-hidden focus:border-[var(--accent)] font-medium text-[var(--label-primary)] shadow-2xs"
+            className="min-h-[44px] w-full pl-10 pr-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--separator)] rounded-xl text-sm outline-hidden focus:border-[var(--accent)] font-medium text-[var(--label-primary)] shadow-2xs"
           />
         </div>
 
