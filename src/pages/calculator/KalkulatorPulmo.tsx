@@ -6,6 +6,8 @@ import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { fio2ToPercentString } from '../../utils/abg';
+import { curb65Group, psiIsClassI, psiClass, smartCopRisk } from '../../utils/pneumonia';
+import { interpretAa, expectedAaRoomAir } from '../../utils/oxygenation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 
@@ -226,30 +228,33 @@ export default function KalkulatorPulmo() {
       rows.push({ n: 'U — Urea', d: 'Tidak dimasukkan', p: 0 });
     }
 
+    const missing: string[] = [];
+    if (!ureumMgdl) missing.push('Urea');
     if (curbRr) {
       const r = parseFloat(curbRr) >= 30 ? 1 : 0;
       rows.push({ n: 'R — Respiratory Rate (≥30)', d: r ? 'Ya' : 'Tidak', p: r });
       score += r;
-    }
+    } else { rows.push({ n: 'R — Respiratory Rate', d: 'Tidak diisi', p: 0 }); missing.push('RR'); }
 
-    if (curbSbp && curbDbp) {
-      const b = (parseFloat(curbSbp) < 90 || parseFloat(curbDbp) <= 60) ? 1 : 0;
-      rows.push({ n: 'B — Blood Pressure', d: b ? 'Ya (Hipotensi)' : 'Tidak', p: b });
+    if (curbSbp || curbDbp) {
+      const b = ((curbSbp && parseFloat(curbSbp) < 90) || (curbDbp && parseFloat(curbDbp) <= 60)) ? 1 : 0;
+      rows.push({ n: 'B — Blood Pressure (TDS <90 / TDD ≤60)', d: b ? 'Ya (Hipotensi)' : 'Tidak', p: b });
       score += b;
-    }
+      if (!b && (!curbSbp || !curbDbp)) missing.push(!curbSbp ? 'TDS' : 'TDD');
+    } else { rows.push({ n: 'B — Blood Pressure', d: 'Tidak diisi', p: 0 }); missing.push('Tekanan darah'); }
 
     if (curbAge) {
       const a = parseFloat(curbAge) >= 65 ? 1 : 0;
       rows.push({ n: '65 — Usia (≥65)', d: a ? 'Ya' : 'Tidak', p: a });
       score += a;
-    }
+    } else { rows.push({ n: '65 — Usia', d: 'Tidak diisi', p: 0 }); missing.push('Usia'); }
 
-    let interp, act, cls;
-    if (score <= 1) { interp = 'Risiko Rendah'; act = 'Rawat jalan. Mortalitas ~1.5%'; cls = 'text-teal-500'; }
-    else if (score === 2) { interp = 'Risiko Sedang'; act = 'Rawat inap, terapi IV. Mortalitas ~9.2%'; cls = 'text-amber-500'; }
-    else { interp = 'Risiko Tinggi'; act = 'Rawat inap, pertimbangkan ICU. Mortalitas 22-57%'; cls = 'text-red-500'; }
+    // Mortalitas per skor kohort derivasi Lim 2003 (dulu skor ≥3 ditulis "22–57%").
+    const g = curb65Group(score);
+    const cls = g.tone === 'low' ? 'text-teal-500' : g.tone === 'mid' ? 'text-amber-500' : 'text-red-500';
+    const act = missing.length ? `${g.act} · SKOR PARSIAL — belum diisi: ${missing.join(', ')} (dihitung 0, skor bisa lebih tinggi).` : g.act;
 
-    setCurbRes({ score, rows, interp, act, cls });
+    setCurbRes({ score, rows, interp: g.interp, act, cls });
   };
 
   const calcPSI = () => {
@@ -265,7 +270,8 @@ export default function KalkulatorPulmo() {
       (!isNaN(parseFloat(psiTemp)) && (parseFloat(psiTemp) < 35 || parseFloat(psiTemp) >= 40)) ||
       (!isNaN(parseFloat(psiHr)) && parseFloat(psiHr) >= 125)
     );
-    const isClassI = age < 50 && !hasComorbid && !hasAbnormalVitals;
+    // Fine 1997: kelas I bila usia ≤50 (dulu <50 — usia tepat 50 tidak bisa kelas I).
+    const isClassI = psiIsClassI(age, !!hasComorbid, !!hasAbnormalVitals);
 
     let score = psiSex === 'f' ? Math.max(age - 10, 0) : age;
     const rows: {name: string; pts: number; detail: string}[] = [];
@@ -312,21 +318,17 @@ export default function KalkulatorPulmo() {
     add('Efusi pleura (CXR)', psiEffusion ? 10 : 0, psiEffusion ? 'Ya +10' : 'Tidak');
 
     let riskClass: string, mortality: string, disposition: string, cls: string, dispositionCls: string;
-    if (isClassI) {
-      riskClass = 'Class I'; mortality = '~0.1%'; disposition = 'Rawat Jalan';
-      cls = 'text-green-500'; dispositionCls = 'text-green-600';
-    } else if (score <= 70) {
-      riskClass = 'Class II'; mortality = '~0.6%'; disposition = 'Rawat Jalan';
-      cls = 'text-green-500'; dispositionCls = 'text-green-600';
+    // Mortalitas 30 hari: kelas I–III = rentang antar-kohort Fine 1997 (abstrak); IV–V nilai satu kohort.
+    const pc = psiClass(score, isClassI);
+    riskClass = pc.cls; mortality = pc.mortality;
+    if (isClassI || score <= 70) {
+      disposition = 'Rawat Jalan'; cls = 'text-green-500'; dispositionCls = 'text-green-600';
     } else if (score <= 90) {
-      riskClass = 'Class III'; mortality = '~2.8%'; disposition = 'Rawat Inap Singkat / Observasi Ketat';
-      cls = 'text-amber-400'; dispositionCls = 'text-amber-600';
+      disposition = 'Rawat Inap Singkat / Observasi Ketat'; cls = 'text-amber-400'; dispositionCls = 'text-amber-600';
     } else if (score <= 130) {
-      riskClass = 'Class IV'; mortality = '~8.2%'; disposition = 'Rawat Inap';
-      cls = 'text-orange-500'; dispositionCls = 'text-orange-600';
+      disposition = 'Rawat Inap'; cls = 'text-orange-500'; dispositionCls = 'text-orange-600';
     } else {
-      riskClass = 'Class V'; mortality = '~29.2%'; disposition = 'Rawat Inap / ICU';
-      cls = 'text-red-500'; dispositionCls = 'text-red-600';
+      disposition = 'Rawat Inap / ICU'; cls = 'text-red-500'; dispositionCls = 'text-red-600';
     }
 
     setPsiRes({ score, riskClass, mortality, disposition, cls, dispositionCls, rows, isClassI });
@@ -343,26 +345,12 @@ export default function KalkulatorPulmo() {
     if (scO2) score += 2;
     if (scPh) score += 2;
 
-    let risk = '';
-    let desc = '';
-    let cls = '';
-    if (score <= 2) {
-      risk = 'Risiko Rendah';
-      desc = 'Mortalitas ~1% — Rawat Jalan / Ruang Rawat Biasa';
-      cls = 'text-green-500 dark:text-green-400';
-    } else if (score <= 4) {
-      risk = 'Risiko Sedang';
-      desc = 'Mortalitas ~12% — Pertimbangkan HCU / Observasi Ketat';
-      cls = 'text-amber-500 dark:text-amber-400';
-    } else if (score <= 6) {
-      risk = 'Risiko Tinggi';
-      desc = 'Mortalitas ~33% — Evaluasi ICU / Intervensi Ventilator';
-      cls = 'text-orange-500 dark:text-orange-400';
-    } else {
-      risk = 'Risiko Sangat Tinggi';
-      desc = 'Mortalitas ~67% — Admisi ICU / Indikasi Ventilator/Vasopresor';
-      cls = 'text-red-600 dark:text-red-400';
-    }
+    // SMART-COP memprediksi kebutuhan bantuan napas intensif/vasopresor (IRVS), BUKAN mortalitas
+    // (dulu dilabeli "Mortalitas 1/12/33/67%").
+    const sr = smartCopRisk(score);
+    const risk = sr.risk;
+    const desc = sr.desc;
+    const cls = sr.tone === 'low' ? 'text-green-500 dark:text-green-400' : sr.tone === 'mid' ? 'text-amber-500 dark:text-amber-400' : sr.tone === 'high' ? 'text-orange-500 dark:text-orange-400' : 'text-red-600 dark:text-red-400';
 
     setSmartCopRes({ score, risk, desc, cls });
   };
@@ -385,15 +373,14 @@ export default function KalkulatorPulmo() {
 
     const paO2calc = f * (patm - 47) - pco2 / 0.8;
     const aaGrad = paO2calc - po2;
-    const normalAa = !isNaN(age) ? (age / 4 + 4) : 15;
+    // Interpretasi sama dengan modul ABG (utils/oxygenation): normal ≈ usia/4 + 4 pada udara
+    // ruang; pada FiO₂ >0,21 A-a normal ikut melebar → pakai P/F (dulu ambang 35/100 tak bersumber).
+    const normalAa = !isNaN(age) ? expectedAaRoomAir(age) : NaN;
+    const ia = interpretAa(aaGrad, f, !isNaN(age) ? age : null);
+    const ai = ia.text;
+    const ac = ia.tone === 'red' ? 'text-red-500' : ia.tone === 'amber' ? 'text-amber-500' : ia.tone === 'emerald' ? 'text-teal-500' : 'text-slate-500';
 
-    let ai: string, ac: string;
-    if (aaGrad <= normalAa) { ai = 'Normal — hipoksemia kemungkinan dari hipoventilasi murni (periksa PaCO₂)'; ac = 'text-teal-500'; }
-    else if (aaGrad <= 35) { ai = 'Meningkat ringan — V/Q mismatch ringan'; ac = 'text-amber-500'; }
-    else if (aaGrad <= 100) { ai = 'Meningkat signifikan — V/Q mismatch, gangguan difusi, atau shunt parsial'; ac = 'text-amber-500'; }
-    else { ai = '⚠ Meningkat berat — pertimbangkan shunt besar (intrakardiak / intrapulmoner)'; ac = 'text-red-500'; }
-
-    setAaRes({ grad: aaGrad.toFixed(1), calc: paO2calc.toFixed(1), po2, normal: normalAa.toFixed(0), ai, ac, fio2pct: (f*100).toFixed(0), fio2dec: f.toFixed(2) });
+    setAaRes({ grad: aaGrad.toFixed(1), calc: paO2calc.toFixed(1), po2, normal: isNaN(normalAa) ? '—' : normalAa.toFixed(0), ai, ac, fio2pct: (f*100).toFixed(0), fio2dec: f.toFixed(2) });
   };
 
   return (
@@ -965,7 +952,7 @@ export default function KalkulatorPulmo() {
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center">
              <div className={`text-[12px] font-bold uppercase tracking-wider mb-1 ${aaRes.ac}`}>A-a Gradient</div>
              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">{aaRes.grad} <span className="text-[15px] font-semibold text-slate-500">mmHg</span></div>
-             <div className="text-[13px] text-slate-700 dark:text-slate-300 mb-5 font-medium">Normal ≤ {aaRes.normal} mmHg</div>
+             <div className="text-[13px] text-slate-700 dark:text-slate-300 mb-5 font-medium">{aaRes.normal !== '—' ? `Normal udara ruang ≤ ${aaRes.normal} mmHg (usia/4 + 4)` : 'Isi usia untuk perkiraan normal (usia/4 + 4)'}</div>
 
              <div className="grid grid-cols-2 gap-3 mb-5">
                <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-100 dark:border-slate-800 p-3 rounded-xl">
@@ -997,7 +984,7 @@ export default function KalkulatorPulmo() {
                    },
                    {
                      label: 'Langkah 3 — Bandingkan dengan normal sesuai usia:',
-                     formula: `Normal ≈ (usia/4) + 4 = ${aaRes.normal} mmHg${aaAge ? '' : ' (default 15 tanpa usia)'}\nHasil: ${aaRes.grad} vs ${aaRes.normal}`,
+                     formula: aaAge ? `Normal udara ruang ≈ (usia/4) + 4 = ${aaRes.normal} mmHg\nHasil: ${aaRes.grad} vs ${aaRes.normal}` : `Isi usia untuk perkiraan normal (usia/4 + 4)\nHasil: ${aaRes.grad} mmHg`,
                      note: aaRes.ai,
                    },
                  ]}
@@ -1010,7 +997,7 @@ export default function KalkulatorPulmo() {
                  module="aa_gradient"
                  label={`A-a Grad: ${aaRes.grad} mmHg`}
                  inputs={{ aaFio2Mode, aaFio2Raw, aaPaco2, aaPao2, aaPatm, aaAge }}
-                 summary={`A-a Gradient: ${aaRes.grad} mmHg (Normal: ~${aaRes.normal} mmHg). ${aaRes.ai.split('—')[0]}`}
+                 summary={`A-a Gradient: ${aaRes.grad} mmHg (Normal: ~${aaRes.normal} mmHg). ${aaRes.ai.split('→')[0]}`}
                  className="w-full bg-blue-600 hover:bg-blue-700"
                />
              </div>
