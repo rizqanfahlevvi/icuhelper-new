@@ -954,9 +954,9 @@ export default function KalkulatorPulmo() {
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-col px-4 py-3 gap-2">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">FiO₂ {getFio2Hint()}</span>
-              <div className="flex-1 flex flex-col items-end gap-1">
+              <div className="flex-1 min-w-[8rem] flex flex-col items-end gap-1">
                 <div className="flex items-center gap-1 bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg self-end mb-1">
                   <button className={`px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'decimal' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('decimal')}>Desimal</button>
                   <button className={`px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'percent' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('percent')}>Persen</button>
