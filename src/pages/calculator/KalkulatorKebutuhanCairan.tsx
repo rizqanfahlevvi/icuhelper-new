@@ -16,6 +16,21 @@ import {
   type VentMode, type SweatLevel, type FluidRequirementResult,
 } from '../../utils/fluids';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import {
+  basalSummary, totalCairanSummary, kumulatifSummary, overloadSummary, balance24Summary, type BarSummary,
+} from '../../utils/cairanObatSummary';
+
+type CairanTab = 'basal' | 'total' | 'balance' | 'kumulatif' | 'overload';
+const CAIRAN_TABS: { id: CairanTab; label: string }[] = [
+  { id: 'basal', label: 'Basal' },
+  { id: 'total', label: 'Total' },
+  { id: 'balance', label: 'Balance 24 j' },
+  { id: 'kumulatif', label: 'Kumulatif' },
+  { id: 'overload', label: 'Overload' },
+];
+const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
 
 interface RosePhase {
   label: string; colorText: string; bgBorder: string;
@@ -60,6 +75,9 @@ const ROSE_DATA: Record<string, RosePhase> = {
 export default function KalkulatorKebutuhanCairan() {
   const patient = usePatientStore();
   const clinicalStore = useClinicalStore();
+
+  // Satu bagian per tab (dulu 5 bagian bertumpuk dengan 5 tombol Hitung).
+  const [tab, setTab] = useState<CairanTab>('basal');
 
   // Box 1
   const [bw, setBw] = useState('');
@@ -118,14 +136,13 @@ export default function KalkulatorKebutuhanCairan() {
       setFoDry(data.weightKg);
     }
     if (data.temp) setTemp(data.temp);
-    setB1Res(null);
-    setB2Res(null);
   };
 
   const calcBasal = () => {
     const w = parseFloat(bw);
     const t = parseInt(targetMaint);
-    if (!w) return;
+    // Input belum lengkap → kosongkan hasil (tidak boleh ada hasil basi).
+    if (!w) { setB1Res(null); return; }
 
     const icuDay = w * t;
     const icuHr = icuDay / 24;
@@ -179,7 +196,7 @@ export default function KalkulatorKebutuhanCairan() {
   const calcCumulative = () => {
     const values = cumbalDays.map(v => v === '' ? null : parseFloat(v));
     const filledDays = values.filter(v => v !== null) as number[];
-    if (filledDays.length === 0) return;
+    if (filledDays.length === 0) { setCumbalRes(null); return; }
 
     let cumulative = 0;
     const history = values.map((v, i) => {
@@ -217,7 +234,7 @@ export default function KalkulatorKebutuhanCairan() {
   const calcFluidOverload = () => {
     const dry = parseFloat(foDry);
     const curr = parseFloat(foCurrent);
-    if (!dry || !curr || dry <= 0 || curr <= 0) return;
+    if (!dry || !curr || dry <= 0 || curr <= 0) { setFoRes(null); return; }
 
     const diffKg = curr - dry;
     const diffML = diffKg * 1000;
@@ -250,6 +267,8 @@ export default function KalkulatorKebutuhanCairan() {
   };
 
   const calcFluidBalance = () => {
+    // Belum ada angka sama sekali → tidak ada hasil (bukan "balance 0").
+    if (![...Object.values(fbInputs), ...Object.values(fbOutputs)].some(v => v.trim() !== '')) { setFbRes(null); return; }
     const totalIn = (parseFloat(fbInputs.iv)||0) + (parseFloat(fbInputs.med)||0) + (parseFloat(fbInputs.nutri)||0) + (parseFloat(fbInputs.bolus)||0) + (parseFloat(fbInputs.oral)||0);
     const totalOut = (parseFloat(fbOutputs.uo)||0) + (parseFloat(fbOutputs.iwl)||0) + (parseFloat(fbOutputs.ngt)||0) + (parseFloat(fbOutputs.drain)||0) + (parseFloat(fbOutputs.other)||0);
     const balance = totalIn - totalOut;
@@ -275,37 +294,90 @@ export default function KalkulatorKebutuhanCairan() {
     setFbRes({ totalIn, totalOut, balance, color, label, msg });
   };
 
+  // Satu pemicu per tab: Hitung sekali → setelah itu hasil tab tsb ikut berubah otomatis.
+  const bwFilled = parseFloat(bw) > 0;
+  const trBasal = useCalcTrigger({ compute: calcBasal, deps: [bw, targetMaint], required: [{ id: 'cairan-bw', label: 'Berat badan', filled: bwFilled }] });
+  const trTotal = useCalcTrigger({
+    compute: calcCorrection,
+    deps: [bw, targetMaint, temp, vent, sweat, uoTgt, ngt, drain, other],
+    required: [{ id: 'cairan-bw', label: 'Berat badan', filled: bwFilled }],
+  });
+  const trBalance = useCalcTrigger({
+    compute: calcFluidBalance,
+    deps: [fbInputs, fbOutputs],
+    required: [{ id: 'cairan-fb-iv', label: 'Minimal satu input/output', filled: [...Object.values(fbInputs), ...Object.values(fbOutputs)].some(v => v.trim() !== '') }],
+  });
+  const trKumulatif = useCalcTrigger({
+    compute: calcCumulative,
+    deps: [cumbalDays, foDry, bw],
+    required: [{ id: 'cairan-h1', label: 'Balans minimal 1 hari', filled: cumbalDays.some(v => v.trim() !== '') }],
+  });
+  const trOverload = useCalcTrigger({
+    compute: calcFluidOverload,
+    deps: [foDry, foCurrent],
+    required: [
+      { id: 'cairan-fo-dry', label: 'BB kering', filled: parseFloat(foDry) > 0 },
+      { id: 'cairan-fo-current', label: 'BB saat ini', filled: parseFloat(foCurrent) > 0 },
+    ],
+  });
+  const tr = { basal: trBasal, total: trTotal, balance: trBalance, kumulatif: trKumulatif, overload: trOverload }[tab];
+  const ring = (id: string) => (tr.isMissing(id) ? MISSING_RING : '');
+  const bar: BarSummary | null =
+    tab === 'basal' ? (b1Res ? basalSummary(b1Res.icuDay, b1Res.icuHr, targetMaint) : null)
+    : tab === 'total' ? (b2Res ? totalCairanSummary(b2Res.total, b2Res.rateMlH, rose ? ROSE_DATA[rose].label : null) : null)
+    : tab === 'balance' ? (fbRes ? balance24Summary(fbRes.balance, fbRes.totalIn, fbRes.totalOut, fbRes.label) : null)
+    : tab === 'kumulatif' ? (cumbalRes ? kumulatifSummary(cumbalRes.cumulative, cumbalRes.days, cumbalRes.label) : null)
+    : (foRes ? overloadSummary(foRes.foPercent, foRes.diffKg, foRes.label) : null);
+  const barLabel = { basal: 'Hitung Cairan Basal', total: 'Hitung Total Kebutuhan', balance: 'Hitung Balance 24 Jam', kumulatif: 'Hitung Balans Kumulatif', overload: 'Hitung Fluid Overload' }[tab];
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
+
+      {/* Pilih bagian — satu bagian tampil sekaligus */}
+      <div role="tablist" aria-label="Bagian kalkulator cairan" className="flex flex-wrap w-full bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl gap-1">
+        {CAIRAN_TABS.map(t => (
+          <button
+            key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`flex-1 min-w-[5.5rem] px-2 py-2 text-[12px] font-bold rounded-lg whitespace-nowrap transition-colors ${tab === t.id ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
       
-      {/* SECTION 1: Kebutuhan Cairan Basal */}
+      {/* SECTION 1: Kebutuhan Cairan Basal (BB & target maintenance juga dipakai tab Total) */}
+      {(tab === 'basal' || tab === 'total') && (
       <div className="flex flex-col gap-0">
         <h2 className="mt-2 mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
-          <Droplets className="w-4 h-4 text-blue-500" /> Kebutuhan Cairan Basal ICU
+          <Droplets className="w-4 h-4 text-blue-500" /> {tab === 'basal' ? 'Kebutuhan Cairan Basal ICU' : 'Berat Badan & Maintenance'}
         </h2>
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <input 
-                type="number" 
+                id="cairan-bw"
+                type="number" inputMode="decimal"
                 value={bw} 
-                onChange={e => {setBw(e.target.value); setB1Res(null); setB2Res(null); setFoDry(e.target.value);}} 
+                onChange={e => {setBw(e.target.value); setFoDry(e.target.value);}} 
                 placeholder="70" 
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+                className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ring('cairan-bw')}`}
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target Maint.</span>
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Maint.</span>
             <select 
-              className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+              className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
               value={targetMaint} 
               onChange={e => setTargetMaint(e.target.value)}
             >
@@ -317,15 +389,9 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
         </div>
 
-        <div className="mt-4">
-          <button onClick={calcBasal} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-             Hitung Cairan Basal
-          </button>
-        </div>
-
-          {b1Res && <InputWarning message={weightPlausibilityWarning(parseFloat(bw))} />}
-          {b1Res && (
-            <div className="mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+          {tab === 'basal' && b1Res && <InputWarning message={weightPlausibilityWarning(parseFloat(bw))} />}
+          {tab === 'basal' && b1Res && (
+            <div id="cairan-hasil" className="scroll-mt-4 mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
               <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                 Hasil Kalkulasi Basal
               </h2>
@@ -381,11 +447,11 @@ export default function KalkulatorKebutuhanCairan() {
             </div>
           )}
       </div>
-
-      <hr className="border-slate-200 dark:border-slate-800" />
+      )}
 
       {/* SECTION 2: Koreksi & Total */}
-      <div className="flex flex-col gap-0 mt-4">
+      {tab === 'total' && (
+      <div className="flex flex-col gap-0">
         <h2 className="mt-2 mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
           <Activity className="w-4 h-4 text-indigo-500" /> Faktor Koreksi & Total Kebutuhan
         </h2>
@@ -414,9 +480,9 @@ export default function KalkulatorKebutuhanCairan() {
         </div>
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Suhu Tubuh</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Suhu Tubuh</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <input 
                 type="number" step="0.1"
                 value={temp} 
@@ -428,10 +494,10 @@ export default function KalkulatorKebutuhanCairan() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Status Ventilasi <span className="font-normal text-slate-500">(info IWL)</span></span>
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Status Ventilasi <span className="font-normal text-slate-500">(info IWL)</span></span>
             <select 
-              className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
+              className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
               value={vent} onChange={e => setVent(e.target.value as VentMode)}
             >
               <option value="spontan">Napas spontan</option>
@@ -440,10 +506,10 @@ export default function KalkulatorKebutuhanCairan() {
             </select>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Diaphoresis</span>
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Diaphoresis</span>
             <select 
-              className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
+              className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
               value={sweat} onChange={e => setSweat(e.target.value as SweatLevel)}
             >
               <option value="none">Tidak ada</option>
@@ -453,9 +519,9 @@ export default function KalkulatorKebutuhanCairan() {
             </select>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target UO <span className="font-normal text-slate-500">(pantau)</span></span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target UO <span className="font-normal text-slate-500">(pantau)</span></span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <input 
                 type="number" step="0.1"
                 value={uoTgt} 
@@ -471,9 +537,9 @@ export default function KalkulatorKebutuhanCairan() {
             <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-300 select-none">Kehilangan Abnormal Terukur (mL/hari)</span>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">NGT / GT</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">NGT / GT</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <input 
                 type="number" value={ngt} onChange={e => setNgt(e.target.value)} placeholder="0" 
                 className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
@@ -482,9 +548,9 @@ export default function KalkulatorKebutuhanCairan() {
             </div>
           </div>
           
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Drain / Kateter</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Drain / Kateter</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <input 
                 type="number" value={drain} onChange={e => setDrain(e.target.value)} placeholder="0" 
                 className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
@@ -493,9 +559,9 @@ export default function KalkulatorKebutuhanCairan() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Lainnya</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Lainnya</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <input 
                 type="number" value={other} onChange={e => setOther(e.target.value)} placeholder="0" 
                 className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
@@ -505,14 +571,8 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
         </div>
 
-        <div className="mt-4">
-          <button onClick={calcCorrection} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-             Hitung Total Kebutuhan
-          </button>
-        </div>
-
           {b2Res && (
-            <div className="mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+            <div id="cairan-hasil" className="scroll-mt-4 mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
               <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
                 <div className="p-4 bg-slate-50 dark:bg-[#2C2C2E]">
                   <div className="space-y-1.5 mb-2">
@@ -595,11 +655,11 @@ export default function KalkulatorKebutuhanCairan() {
             </div>
           )}
       </div>
-
-      <hr className="border-slate-200 dark:border-slate-800" />
+      )}
 
       {/* SECTION 3: Balans Kumulatif */}
-      <div className="flex flex-col gap-0 mt-4">
+      {tab === 'kumulatif' && (
+      <div className="flex flex-col gap-0">
         <h2 className="mt-2 mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
           <Calculator className="w-4 h-4 text-emerald-500" /> Balans Kumulatif 7 Hari
         </h2>
@@ -608,8 +668,9 @@ export default function KalkulatorKebutuhanCairan() {
           {cumbalDays.map((val, i) => (
             <div key={i} className="flex flex-col gap-1">
               <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">H {i + 1}</label>
-              <input 
-                type="number" 
+              <input
+                id={`cairan-h${i + 1}`}
+                type="number" inputMode="decimal"
                 value={val}
                 onChange={e => {
                   const newDays = [...cumbalDays];
@@ -617,20 +678,14 @@ export default function KalkulatorKebutuhanCairan() {
                   setCumbalDays(newDays);
                 }}
                 placeholder="±mL"
-                className="w-full bg-slate-50 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 outline-none text-center font-mono font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/50 text-[13px] transition-all"
+                className={`w-full bg-slate-50 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 outline-none text-center font-mono font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/50 text-[13px] transition-all${i === 0 ? ring('cairan-h1') : ''}`}
               />
             </div>
           ))}
         </div>
 
-        <div className="mt-4">
-          <button onClick={calcCumulative} className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-             Hitung Balans Kumulatif
-          </button>
-        </div>
-
         {cumbalRes && (
-          <div className="mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+          <div id="cairan-hasil" className="scroll-mt-4 mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
             <div className={`p-4 rounded-xl border ${cumbalRes.color}`}>
               <div className="font-bold mb-1 text-sm">{cumbalRes.label}</div>
               <div className="text-2xl font-bold font-mono my-2">{cumbalRes.cumulative >= 0 ? '+' : ''}{cumbalRes.cumulative} mL</div>
@@ -664,52 +719,48 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
         )}
       </div>
-
-      <hr className="border-slate-200 dark:border-slate-800" />
+      )}
 
       {/* SECTION 4: Fluid Overload Assessment */}
-      <div className="flex flex-col gap-0 mt-4">
+      {tab === 'overload' && (
+      <div className="flex flex-col gap-0">
         <h2 className="mt-2 mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
           <Scale className="w-4 h-4 text-amber-500" /> Fluid Overload Assessment
         </h2>
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BB Kering / Baseline</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Kering / Baseline</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <input 
-                type="number" 
+                id="cairan-fo-dry"
+                type="number" inputMode="decimal"
                 value={foDry} 
                 onChange={e => setFoDry(e.target.value)} 
                 placeholder="60" 
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/50 text-[14px] transition-all"
+                className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/50 text-[14px] transition-all${ring('cairan-fo-dry')}`}
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BB Saat Ini</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Saat Ini</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <input 
-                type="number" 
+                id="cairan-fo-current"
+                type="number" inputMode="decimal"
                 value={foCurrent} 
                 onChange={e => setFoCurrent(e.target.value)} 
                 placeholder="66" 
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/50 text-[14px] transition-all"
+                className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/50 text-[14px] transition-all${ring('cairan-fo-current')}`}
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-4">
-          <button onClick={calcFluidOverload} className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-             Hitung Fluid Overload
-          </button>
-        </div>
-
         {foRes && (
-          <div className="mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+          <div id="cairan-hasil" className="scroll-mt-4 mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
             <div className={`p-4 rounded-xl border ${foRes.color}`}>
               <div className="font-bold mb-1 text-sm">{foRes.label}</div>
               <div className="flex items-baseline gap-2 mb-2">
@@ -732,11 +783,11 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
         )}
       </div>
-
-      <hr className="border-slate-200 dark:border-slate-800" />
+      )}
 
       {/* SECTION 5: Fluid Balance 24 Jam Aktual */}
-      <div className="flex flex-col gap-0 mt-4">
+      {tab === 'balance' && (
+      <div className="flex flex-col gap-0">
         <h2 className="mt-2 mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide flex items-center gap-2">
           <Droplets className="w-4 h-4 text-cyan-500" /> Fluid Balance 24 Jam
         </h2>
@@ -755,13 +806,14 @@ export default function KalkulatorKebutuhanCairan() {
               { key: 'oral', label: 'Input Oral/NGT' }
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between px-3 py-2.5 gap-2">
-                <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300 flex-shrink-0">{item.label}</span>
-                <input 
-                  type="number" 
+                <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300 min-w-0">{item.label}</span>
+                <input
+                  id={`cairan-fb-${item.key}`}
+                  type="number" inputMode="decimal"
                   value={(fbInputs as any)[item.key]} 
                   onChange={e => setFbInputs({...fbInputs, [item.key]: e.target.value})} 
                   placeholder="0" 
-                  className="w-20 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[13px] transition-all"
+                  className={`w-20 shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[13px] transition-all${item.key === 'iv' ? ring('cairan-fb-iv') : ''}`}
                 />
               </div>
             ))}
@@ -780,27 +832,22 @@ export default function KalkulatorKebutuhanCairan() {
               { key: 'other', label: 'Output Lain' }
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between px-3 py-2.5 gap-2">
-                <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300 flex-shrink-0">{item.label}</span>
-                <input 
-                  type="number" 
+                <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300 min-w-0">{item.label}</span>
+                <input
+                  id={`cairan-fb-out-${item.key}`}
+                  type="number" inputMode="decimal"
                   value={(fbOutputs as any)[item.key]} 
                   onChange={e => setFbOutputs({...fbOutputs, [item.key]: e.target.value})} 
                   placeholder="0" 
-                  className="w-20 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[13px] transition-all"
+                  className="w-20 shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[13px] transition-all"
                 />
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-4">
-          <button onClick={calcFluidBalance} className="w-full py-3.5 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-             Hitung Balance Aktual
-          </button>
-        </div>
-
         {fbRes && (
-          <div className="mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
+          <div id="cairan-hasil" className="scroll-mt-4 mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
             <div className={`p-4 rounded-xl border ${fbRes.color}`}>
               <div className="font-bold mb-1 text-sm">{fbRes.label}</div>
               <div className="text-3xl font-bold font-mono my-2">{fbRes.balance >= 0 ? '+' : ''}{fbRes.balance.toFixed(0)} mL</div>
@@ -835,6 +882,7 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
         )}
       </div>
+      )}
 
       <Accordion title="📖 Teori & Referensi: Terapi Cairan & IWL">
         <ul className="pl-4 space-y-2 list-disc text-slate-600 dark:text-slate-400 text-sm">
@@ -860,6 +908,16 @@ export default function KalkulatorKebutuhanCairan() {
           'ROSE', 'PLR', 'PPV', 'SVV', 'GI', 'IV', 'BB', 'BBI', 'IMT', 'JK', 'RRT', 'CRRT', 'NICE', 'CG', 'MAP', 'UO',
           'ARDS', 'AKI', 'FO', 'ICU', 'IWL', 'NGT', 'GT', 'WSD', 'HFNC', 'NIV', 'TPN', 'EN', 'PN', 'OR-odds',
         ]}
+      />
+      <CalcActionBar
+        armed={tr.armed}
+        onCalculate={tr.trigger}
+        label={barLabel}
+        summary={bar?.text ?? null}
+        summaryTone={bar?.tone ?? 'neutral'}
+        caption={bar?.caption}
+        missing={tr.missing}
+        resultTargetId="cairan-hasil"
       />
     </div>
   );
