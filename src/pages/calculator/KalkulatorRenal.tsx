@@ -28,6 +28,7 @@ import { creatinineMgFromUmol, creatinineUmolFromMg } from '../../utils/clinical
 import { RenalAkiStaging } from './components/RenalAkiStaging';
 import { RenalHdIndikasi } from './components/RenalHdIndikasi';
 import { RenalOsmolBun } from './components/RenalOsmolBun';
+import { patientGenderToClinical } from '../../utils/patientContext';
 
 export default function KalkulatorRenal() {
   const patient = usePatientStore();
@@ -65,7 +66,7 @@ export default function KalkulatorRenal() {
     
     const parentGender = patient.gender || clinicalStore.data.gender || '';
     if (parentGender) {
-      setSex(parentGender.toLowerCase() === 'p' ? 'f' : 'm');
+      setSex(patientGenderToClinical(parentGender) === 'f' ? 'f' : 'm');
     }
 
     const parentWeight = patient.weightKg || clinicalStore.data.weight || '';
@@ -87,7 +88,7 @@ export default function KalkulatorRenal() {
   const handleAutofill = (data: { weightKg: string; heightCm?: string; age?: string; gender?: string }) => {
     if (data.age) setAge(data.age);
     if (data.gender) {
-      setSex(data.gender.toLowerCase() === 'p' ? 'f' : 'm');
+      setSex(patientGenderToClinical(data.gender) === 'f' ? 'f' : 'm');
     }
     if (data.weightKg) setWeight(data.weightKg);
     if (data.heightCm) setHeight(data.heightCm);

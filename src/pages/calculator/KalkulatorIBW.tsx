@@ -8,6 +8,7 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { patientGenderToClinical } from '../../utils/patientContext';
 
 export default function KalkulatorIBW() {
   const patient = usePatientStore();
@@ -36,7 +37,7 @@ export default function KalkulatorIBW() {
 
     const parentGender = patient.gender || clinicalStore.data.gender || '';
     if (parentGender) {
-      setSex(parentGender.toLowerCase() === 'p' ? 'f' : 'm');
+      setSex(patientGenderToClinical(parentGender) === 'f' ? 'f' : 'm');
     }
 
     if (clinicalStore.data.hb) setHb(clinicalStore.data.hb);
@@ -54,7 +55,7 @@ export default function KalkulatorIBW() {
     if (data.heightCm) setHeight(data.heightCm);
     if (data.age) setAge(data.age);
     if (data.gender) {
-      setSex(data.gender.toLowerCase() === 'p' ? 'f' : 'm');
+      setSex(patientGenderToClinical(data.gender) === 'f' ? 'f' : 'm');
     }
     if (clinicalStore.data.hb) setHb(clinicalStore.data.hb);
 

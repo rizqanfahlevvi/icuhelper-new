@@ -13,6 +13,7 @@ import { NatriumResult } from './components/ElektroNatrium';
 import { useKaliumState, KaliumInputs, KaliumResult } from './components/ElektroKalium';
 import { useKalsiumState, KalsiumInputs, KalsiumResult } from './components/ElektroKalsium';
 import { useMagnesiumState, MagnesiumInputs, MagnesiumResult } from './components/ElektroMagnesium';
+import { patientGenderToClinical } from '../../utils/patientContext';
 
 // Klasifikasi gejala hiponatremia (Spasovski 2014, ERBP/ESE/ESICM).
 // Indikasi NaCl 3% ditentukan oleh GEJALA, bukan angka natrium semata.
@@ -91,7 +92,7 @@ export default function KalkulatorElektro() {
 
     const parentGender = patient.gender || clinicalStore.data.gender || '';
     if (parentGender) {
-      setSex(parentGender.toLowerCase() === 'p' ? 'f' : 'm');
+      setSex(patientGenderToClinical(parentGender) === 'f' ? 'f' : 'm');
     }
     const parentAge = patient.ageYears || clinicalStore.data.age || '';
     if (parentAge) setAge(parentAge);
@@ -114,7 +115,7 @@ export default function KalkulatorElektro() {
     if (data.weightKg) setBw(data.weightKg);
     if (data.age) setAge(data.age);
     if (data.gender) {
-      setSex(data.gender.toLowerCase() === 'p' ? 'f' : 'm');
+      setSex(patientGenderToClinical(data.gender) === 'f' ? 'f' : 'm');
     }
     // Pull any available clinically saved data as well
     if (clinicalStore.data.na) setNa(clinicalStore.data.na);
