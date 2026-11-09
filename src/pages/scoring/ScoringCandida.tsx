@@ -3,6 +3,7 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { Activity, ShieldAlert } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
 
 export default function ScoringCandida() {
   const [tpn, setTpn] = useState(false);
@@ -25,7 +26,7 @@ export default function ScoringCandida() {
 
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+         <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
              <h2 className="text-xl font-bold flex items-center gap-2">
                <ShieldAlert className="w-5 h-5 text-emerald-500" />
@@ -39,7 +40,7 @@ export default function ScoringCandida() {
            </div>
          </div>
 
-         <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg text-sm text-amber-700 dark:text-amber-500 mb-6">
+         <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg text-sm text-amber-700 dark:text-amber-500 mb-4 md:mb-6">
            <strong>📌 Indikasi:</strong> Pasien ICU non-neutropenik untuk menentukan perlu-tidaknya antijamur empiris.
          </div>
 
@@ -81,7 +82,7 @@ export default function ScoringCandida() {
             </label>
          </div>
 
-         <div className={`mt-6 p-4 rounded-xl border ${isHighRisk ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-500'}`}>
+         <div id="candida-hasil" className={`scroll-mt-4 mt-6 p-4 rounded-xl border ${isHighRisk ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-500'}`}>
             <div className="font-bold text-sm mb-1">{isHighRisk ? 'Risiko Tinggi Infeksi Candida (Skor ≥ 3)' : 'Risiko Rendah Infeksi Candida (Skor < 3)'}</div>
             <div className="text-sm opacity-90 text-slate-800 dark:text-slate-200">
               {isHighRisk 
@@ -102,6 +103,13 @@ export default function ScoringCandida() {
           📚 León C et al. (Candida Score original) Crit Care Med 2006;34:730 · León C et al. (validasi prospektif) Crit Care Med 2009;37:1624 · Pappas PG et al. (IDSA 2016) Clin Infect Dis 2016;62:e1 · Cornely OA et al. (ECMM/ISHAM/ASM global guideline) Lancet Infect Dis 2025;25:e280
         </div>
       </Accordion>
+      <CalcActionBar
+        mode="live"
+        summary={`Candida Score ${total} · ${isHighRisk ? 'Risiko tinggi' : 'Risiko rendah'}`}
+        summaryTone={isHighRisk ? 'bad' : 'good'}
+        caption={isHighRisk ? 'Skor ≥ 3 · ketuk untuk pilihan antijamur' : 'Skor < 3 · ketuk untuk rincian'}
+        resultTargetId="candida-hasil"
+      />
       <AbbrLegend terms={['ICU', 'TPN', 'NPT', 'SOFA', 'IDSA', 'NPV', 'DPJP', 'ECMM', 'ISHAM', 'ASM']} />
     </div>
   );

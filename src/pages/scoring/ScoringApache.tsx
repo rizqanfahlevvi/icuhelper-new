@@ -5,6 +5,9 @@ import { Accordion } from '../../components/ui/Accordion';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { toneFromColorClass } from '../../utils/barTone';
 import { fio2ToPercentString, fio2FromStoreString } from '../../utils/abg';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
@@ -49,6 +52,14 @@ export default function ScoringApache() {
   };
 
   const result = calculateScore();
+  const totalColor = result.total > 15 ? 'text-red-500' : 'text-cyan-500';
+
+  // Hitung sekali → hasil tampil & selalu mengikuti input (dihitung ulang tiap render).
+  const calc = useCalcTrigger({
+    compute: () => {},
+    deps: [],
+    required: [{ id: 'apache-age', label: 'Usia', filled: age.trim() !== '' }],
+  });
 
   const syncFields = useMemo(() => {
     return [
@@ -84,7 +95,7 @@ export default function ScoringApache() {
 
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+         <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
              <h2 className="text-xl font-bold flex items-center gap-2">
                <Stethoscope className="w-5 h-5 text-cyan-500" />
@@ -94,7 +105,7 @@ export default function ScoringApache() {
            </div>
          </div>
 
-         <div className="bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-500 p-3 rounded-lg text-sm mb-6">
+         <div className="bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-500 p-3 rounded-lg text-sm mb-4 md:mb-6">
             <strong>📌 Catatan:</strong> Gunakan nilai <strong>terburuk</strong> dalam 24 jam pertama masuk ICU. Parameter yang tidak diukur dihitung 0 poin (dianggap normal), sehingga skor bisa lebih rendah dari sebenarnya — kelengkapan ditampilkan di hasil.
          </div>
 
@@ -106,7 +117,7 @@ export default function ScoringApache() {
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Usia (tahun)</label>
-                  <input type="number" value={age} onChange={e => setAge(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Cth: 65" />
+                  <input id="apache-age" type="number" inputMode="numeric" value={age} onChange={e => setAge(e.target.value)} className={`${calc.isMissing('apache-age') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all`} placeholder="Cth: 65" />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Tipe masuk ICU</label>
@@ -217,11 +228,12 @@ export default function ScoringApache() {
             </div>
          </div>
 
-         <div className="mt-8 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm relative overflow-hidden">
+         {calc.armed && calc.missing.length === 0 && (
+         <div id="apache-hasil" className="scroll-mt-4 mt-8 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm relative overflow-hidden">
             <div className="flex flex-col md:flex-row gap-6 justify-between items-center px-2">
               <div className="text-center md:text-left">
                 <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-1">APACHE-II SCORE TOTAL</div>
-                <div className={`text-5xl font-black ${result.total > 15 ? 'text-red-500' : 'text-cyan-500'}`}>{result.total}</div>
+                <div className={`text-5xl font-black ${totalColor}`}>{result.total}</div>
                 <div className="text-sm font-medium mt-2">
                    Mortalitas RS (non-operatif, Knaus 1985): <span className="text-foreground font-bold">{result.mort}</span>
                 </div>
@@ -286,6 +298,7 @@ export default function ScoringApache() {
               </div>
             )}
          </div>
+         )}
       </div>
 
       <Accordion title="📖 Teori APACHE-II Score (Knaus et al. 1985)">
@@ -311,6 +324,16 @@ export default function ScoringApache() {
           📚 Knaus WA et al. (APACHE-II original) Crit Care Med 1985;13:818 · Zimmerman JE et al. (APACHE-IV validasi) Crit Care Med 2006;34:1297 · Raith EP et al. (SOFA lebih baik dari APACHE-II era Sepsis-3) JAMA 2017;317:290
         </div>
       </Accordion>
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung APACHE II"
+        summary={calc.missing.length === 0 ? `APACHE II ${result.total} · mortalitas RS ${result.mort}` : null}
+        summaryTone={toneFromColorClass(totalColor)}
+        caption={`${result.filled}/12 parameter fisiologis${result.complete ? '' : ' — skor minimal'} · non-operatif (Knaus 1985)`}
+        missing={calc.missing}
+        resultTargetId="apache-hasil"
+      />
       <AbbrLegend
         terms={[
           'APACHE', 'APS', 'ICU', 'NYHA', 'PPOK', 'MAP', 'HR', 'RR', 'GCS', 'FiO2', 'PaO2', 'PaCO2', 'AGD', 'A-a',

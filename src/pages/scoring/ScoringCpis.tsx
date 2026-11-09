@@ -3,6 +3,7 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { Wind } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
 
 export default function ScoringCpis() {
   const [f1, setF1] = useState<number | null>(null);
@@ -35,7 +36,7 @@ export default function ScoringCpis() {
 
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+         <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
              <h2 className="text-xl font-bold flex items-center gap-2">
                <Wind className="w-5 h-5 text-teal-500" />
@@ -105,6 +106,7 @@ export default function ScoringCpis() {
            </div>
          </div>
 
+         <div id="cpis-hasil" className="scroll-mt-4">
          {!complete ? (
            <div className="mt-6 p-4 rounded-xl border bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm">
              Jawab ke-6 item ({answered}/6) untuk melihat interpretasi. Bila kultur belum keluar, pilih "Belum ada hasil / tidak ada patogen" (CPIS modifikasi Singh dinilai tanpa kultur pada awal).
@@ -119,6 +121,7 @@ export default function ScoringCpis() {
             </div>
          </div>
          )}
+         </div>
       </div>
 
       <Accordion title="📖 Teori CPIS — VAP Diagnosis & De-eskalasi Singh">
@@ -132,6 +135,14 @@ export default function ScoringCpis() {
           📚 Pugin J et al. (CPIS original) Am Rev Respir Dis 1991;143:1121 · Singh N et al. (modified CPIS + de-eskalasi) Am J Respir Crit Care Med 2000;162:505 · Kalil AC et al. (IDSA/ATS HAP/VAP 2016) Clin Infect Dis 2016;63:e61 · Torres A et al. (ERS/ESICM/ESCMID/ALAT HAP/VAP 2017) Eur Respir J 2017;50:1700582
         </div>
       </Accordion>
+      <CalcActionBar
+        mode="live"
+        summary={complete ? `CPIS ${total} · ${isVap ? 'VAP kemungkinan besar' : 'VAP kurang mungkin'}` : null}
+        summaryTone={isVap ? 'bad' : 'good'}
+        caption={complete ? (isVap ? 'CPIS > 6 · ketuk untuk tindakan' : 'CPIS ≤ 6 · ketuk untuk tindakan') : undefined}
+        resultTargetId="cpis-hasil"
+        emptyText={`Jawab ke-6 item (${answered}/6) untuk melihat skor`}
+      />
       <AbbrLegend terms={['CPIS', 'VAP', 'HAP', 'PaO2', 'FiO2', 'ARDS', 'ATS', 'IDSA', 'ERS', 'ESICM', 'ESCMID', 'ALAT']} />
     </div>
   );

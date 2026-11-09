@@ -3,6 +3,8 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { Activity } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { toneFromColorClass } from '../../utils/barTone';
 
 const CFS_LEVELS = [
   { val: 1, label: '1 - Sangat Bugar (Very Fit)', desc: 'Energik, aktif, motivasi tinggi, berolahraga rutin. Kondisi paling prima untuk usianya.', c: 'text-green-500', bg: 'bg-green-500/10 border-green-500/20', interp: 'Tidak Frail', detail: 'Risiko rendah, toleransi intervensi ICU baik. Tidak ada pembatasan berbasis frailty.' },
@@ -26,7 +28,7 @@ export default function ScoringBfs() {
 
       <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+         <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
              <h2 className="text-xl font-bold flex items-center gap-2">
                <Activity className="w-5 h-5 text-blue-500" />
@@ -36,16 +38,18 @@ export default function ScoringBfs() {
            </div>
          </div>
 
-         <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg text-sm text-amber-700 dark:text-amber-500 mb-6">
+         <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg text-sm text-amber-700 dark:text-amber-500 mb-4 md:mb-6">
            <strong>📌 Petunjuk:</strong> Pilih kategori yang paling sesuai kondisi pasien <em>sebelum</em> sakit akut (status fungsional baseline 2 minggu yang lalu).
          </div>
 
-         <div className="flex flex-col-reverse lg:flex-row gap-6">
-           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+         <div className="flex flex-col lg:flex-row gap-6">
+           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-4" role="radiogroup" aria-label="Tingkat CFS">
              {CFS_LEVELS.map((item) => (
                <button
                  key={item.val}
                  onClick={() => setScoreObj(item)}
+                 role="radio"
+                 aria-checked={scoreObj?.val === item.val}
                  className={`w-full text-left p-2.5 border rounded-xl transition-all ${
                    scoreObj?.val === item.val
                      ? `bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm ring-1 ring-blue-500`
@@ -65,7 +69,7 @@ export default function ScoringBfs() {
              ))}
            </div>
 
-           <div className="lg:w-1/3 shrink-0">
+           <div id="bfs-hasil" className="lg:w-1/3 shrink-0 scroll-mt-4">
               {scoreObj ? (
                 <div className={`p-5 border rounded-2xl ${scoreObj.bg} sticky top-24`}>
                   <div className="text-sm font-semibold opacity-80 uppercase tracking-widest mb-1">CFS Score</div>
@@ -79,7 +83,7 @@ export default function ScoringBfs() {
                   </div>
                 </div>
               ) : (
-                <div className="p-5 border border-dashed rounded-2xl flex flex-col items-center justify-center text-center h-full min-h-[300px] text-muted-foreground">
+                <div className="hidden lg:flex p-5 border border-dashed rounded-2xl flex-col items-center justify-center text-center h-full min-h-[300px] text-muted-foreground">
                   <Activity className="w-8 h-8 mb-3 opacity-20" />
                   <p>Pilih tingkat frailty pasien di sebelahnya untuk melihat interpretasi dan implikasi klinis.</p>
                 </div>
@@ -99,6 +103,14 @@ export default function ScoringBfs() {
           📚 Rockwood K et al. (CFS original) CMAJ 2005;173:489 · Rockwood K, Theou O (CFS versi 2.0) Can Geriatr J 2020;23:210 · Muscedere J et al. (frailty & luaran ICU, meta-analisis) Intensive Care Med 2017;43:1105 · Bagshaw SM et al. (frailty pada pasien kritis) CMAJ 2014;186:E95
         </div>
       </Accordion>
+      <CalcActionBar
+        mode="live"
+        summary={scoreObj ? `CFS ${scoreObj.val} · ${scoreObj.interp}` : null}
+        summaryTone={toneFromColorClass(scoreObj?.c)}
+        caption={scoreObj ? 'Ketuk untuk implikasi ICU' : undefined}
+        resultTargetId="bfs-hasil"
+        emptyText="Pilih tingkat frailty pra-sakit"
+      />
       <AbbrLegend terms={['BFS', 'CFS', 'ICU', 'ADL', 'IADL', 'RR-risiko']} />
     </div>
   );

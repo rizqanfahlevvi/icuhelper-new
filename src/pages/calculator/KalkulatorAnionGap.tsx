@@ -17,6 +17,8 @@ import {
   anionGap, deltaRatio, normalizeAgUpper, DELTA_BAND_LABEL, DELTA_RATIO_CAUTION, AG_ALBUMIN_NORMAL_G_DL,
 } from '../../utils/acidBase';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 
 export default function KalkulatorAnionGap() {
   const patient = usePatientStore();
@@ -60,9 +62,21 @@ export default function KalkulatorAnionGap() {
     : null;
   const deltaTone = dd?.band === 'murni' ? 'text-emerald-600 dark:text-emerald-400' : dd?.band === 'campuran' ? 'text-amber-600 dark:text-amber-400' : 'text-destructive';
 
+  // Hitung sekali → hasil tampil & selalu mengikuti input (nilai turunan dihitung tiap render).
+  const calc = useCalcTrigger({
+    compute: () => {},
+    deps: [],
+    required: [
+      { id: 'ag-na', label: 'Na', filled: !isNaN(naVal) },
+      { id: 'ag-cl', label: 'Cl', filled: !isNaN(clVal) },
+      { id: 'ag-hco3', label: 'HCO₃', filled: !isNaN(hco3Val) },
+    ],
+  });
+  const show = calc.armed && ag !== null;
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="hidden md:flex items-center gap-3 mb-6">
         <Link to="/calculator" className="p-2 -ml-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
@@ -81,10 +95,13 @@ export default function KalkulatorAnionGap() {
             Natrium (Na) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
           <input
+            id="ag-na"
             type="number"
+            inputMode="decimal"
+            aria-invalid={calc.isMissing('ag-na')}
             value={na}
             onChange={(e) => setNa(e.target.value)}
-            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]"
             placeholder="140"
           />
         </div>
@@ -94,10 +111,13 @@ export default function KalkulatorAnionGap() {
             Klorida (Cl) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
           <input
+            id="ag-cl"
             type="number"
+            inputMode="decimal"
+            aria-invalid={calc.isMissing('ag-cl')}
             value={cl}
             onChange={(e) => setCl(e.target.value)}
-            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]"
             placeholder="104"
           />
         </div>
@@ -107,10 +127,13 @@ export default function KalkulatorAnionGap() {
             Bikarbonat (HCO₃) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
           <input
+            id="ag-hco3"
             type="number"
+            inputMode="decimal"
+            aria-invalid={calc.isMissing('ag-hco3')}
             value={hco3}
             onChange={(e) => setHco3(e.target.value)}
-            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]"
             placeholder="24"
           />
         </div>
@@ -121,9 +144,10 @@ export default function KalkulatorAnionGap() {
           </label>
           <input
             type="number"
+            inputMode="decimal"
             value={albumin}
             onChange={(e) => setAlbumin(e.target.value)}
-            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]"
             placeholder="4.0"
             step="0.1"
           />
@@ -134,13 +158,13 @@ export default function KalkulatorAnionGap() {
         </div>
       </div>
 
-      {(ag !== null) && <InputWarning messages={[
+      {show && <InputWarning messages={[
         rangeWarning(naVal, 100, 180, 'Na', ' mEq/L'),
         rangeWarning(clVal, 70, 130, 'Cl', ' mEq/L'),
         rangeWarning(hco3Val, 3, 45, 'HCO₃', ' mEq/L'),
       ]} />}
-      {(ag !== null) && (
-        <div className="bg-primary/10 border border-primary/20 rounded-2xl p-5 space-y-4">
+      {show && (
+        <div id="ag-hasil" className="scroll-mt-4 bg-primary/10 border border-primary/20 rounded-2xl p-5 space-y-4">
           <div>
             <div className="text-sm text-primary mb-1">Anion Gap (AG)</div>
             <div className="text-3xl font-bold text-primary">
@@ -181,7 +205,7 @@ export default function KalkulatorAnionGap() {
         </div>
       )}
 
-      {(ag !== null) && (
+      {show && (
         <CalcSteps
           tone="blue"
           steps={[
@@ -205,7 +229,7 @@ export default function KalkulatorAnionGap() {
         />
       )}
 
-      {(ag !== null) && (
+      {show && (
         <ClinicalReport
           title="Kalkulator Anion Gap"
           patientInfo={{ name: patient.nama || '' }}
@@ -232,7 +256,7 @@ export default function KalkulatorAnionGap() {
         />
       )}
 
-      {(ag !== null) && (
+      {show && (
         <SaveToHistoryButton
           module="anion_gap"
           label={`Anion Gap: ${ag.toFixed(1)}`}
@@ -252,6 +276,16 @@ export default function KalkulatorAnionGap() {
           📚 Kraut JA, Madias NE. Serum anion gap: its uses and limitations in clinical medicine. Clin J Am Soc Nephrol. 2007;2(1):162-174. · Figge J, et al. Anion gap and hypoalbuminemia. Crit Care Med. 1998;26:1807-10. · Wrenn K. The delta (Δ) gap: an approach to mixed acid-base disorders. Ann Emerg Med. 1990;19:1310-3. · Rastegar A. Use of the ΔAG/ΔHCO₃⁻ ratio in the diagnosis of mixed acid-base disorders. J Am Soc Nephrol. 2007;18:2429-31.
         </div>
       </Accordion>
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung Anion Gap"
+        summary={ag !== null ? `AG ${ag.toFixed(1)} mEq/L${correctedAg !== null ? ` · terkoreksi ${correctedAg.toFixed(1)}` : ''}` : null}
+        summaryTone={agRes?.high ? 'bad' : 'neutral'}
+        caption={ag !== null ? `${agRes?.high ? 'AG TINGGI' : 'Normal'} (batas atas ${agUpper})${deltaRatioVal !== null ? ` · Δ rasio ${deltaRatioVal.toFixed(2)}` : ''}` : undefined}
+        missing={calc.missing}
+        resultTargetId="ag-hasil"
+      />
       <AbbrLegend terms={['AG', 'HAGMA', 'NAGMA', 'HCO3', 'ISE', 'ABG', 'ICU']} />
     </div>
   );
