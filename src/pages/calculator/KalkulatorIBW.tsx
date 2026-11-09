@@ -10,6 +10,7 @@ import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { patientGenderToClinical } from '../../utils/patientContext';
 import { vtTarget } from '../../utils/ventilation';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function KalkulatorIBW() {
   const patient = usePatientStore();
@@ -510,6 +511,14 @@ export default function KalkulatorIBW() {
           📚 ardsnet2000, devine1974, singer2023
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'IBW', 'BBI', 'TB', 'BB', 'BW', 'AdjBW', 'ABW', 'ABW-aktual', 'BMI', 'IMT', 'BSA', 'LBW', 'LPT', 'EBV',
+          'REE', 'MABL', 'Hb', 'PRC', 'VT', 'PBW', 'MV', 'RR', 'PEEP', 'FiO2', 'Pplat', 'ARDS', 'ARDSNet', 'PPOK',
+          'VC-AC', 'PC-AC', 'PC', 'SIMV', 'PSV', 'VC-vital', 'ASPEN', 'ESPEN', 'ATS', 'ESICM', 'SCCM', 'ICU', 'LMWH',
+          'APTT', 'Vd', 'FRC', 'TLC', 'VILI',
+        ]}
+      />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { weightPlausibilityWarning } from '../../utils/validation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { basalBolusPlan, glucoseGramsEstimate, type InsulinCondition, type MealStatus } from '../../utils/insulin';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function KalkulatorInsulin() {
   const patient = usePatientStore();
@@ -516,6 +517,12 @@ export default function KalkulatorInsulin() {
         </div>
       </Accordion>
 
+      <AbbrLegend
+        terms={[
+          'GDS', 'TDD', 'BBC', 'SS', 'CF', 'NPO', 'BB', 'IV', 'SC', 'IM', 'NGT', 'ICU', 'GFR', 'HD', 'ADA', 'PERKENI',
+          'DM', 'D40', 'D10', 'RCT', 'DPJP',
+        ]}
+      />
       <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 text-center">
         Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis atau keputusan DPJP. Selalu verifikasi target glukosa dan dosis dengan dokter/apoteker.
       </div>

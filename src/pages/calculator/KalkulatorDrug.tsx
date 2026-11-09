@@ -8,6 +8,7 @@ import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 const RSI_SCENARIOS = {
   general: { label: 'Kondisi umum', ind: 'Propofol', nmb: 'Suksinilkolin / Rocuronium' },
@@ -542,6 +543,13 @@ export default function KalkulatorDrug() {
         <br />STRIVE Hi Trial, Anaesthesia (2021)
       </div>
 
+      <AbbrLegend
+        terms={[
+          'RSI', 'ICU', 'TIK', 'ICP', 'NMB', 'IV', 'AHA', 'CPOT', 'NRS', 'RASS', 'ARDS', 'EKG', 'SpO2', 'EtCO2',
+          'PADIS', 'SCCM', 'ETT', 'SAT', 'SBT', 'ABC-protokol', 'BVM', 'NRM', 'VT', 'IBW', 'CXR', 'NGT', 'MH', 'CICO',
+          'BB', 'DPJP',
+        ]}
+      />
       <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 text-center">
         Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis, keputusan DPJP/intensivist, atau kondisi aktual pasien. Konfirmasi dosis ke apoteker sebelum pemberian.
       </div>

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Calculator, Dna, Droplets, HeartPulse, Syringe, Activity, FileDigit, Star, Zap } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 const CALCULATORS = [
   { path: 'cairan', name: 'Kalkulator Cairan', icon: Droplets, desc: 'Kebutuhan cairan & resusitasi' },
@@ -75,6 +76,7 @@ export default function CalculatorIndex() {
           );
         })}
       </div>
+      <AbbrLegend terms={['RSI', 'ICU', 'IBW', 'TV', 'NEE', 'NLR', 'P/F', 'PaO2', 'FiO2', 'CrCl', 'GFR', 'Hb', 'PRC', 'WB', 'TBSA']} />
     </div>
   );
 }

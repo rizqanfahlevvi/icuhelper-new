@@ -16,6 +16,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 import {
   anionGap, deltaRatio, normalizeAgUpper, DELTA_BAND_LABEL, DELTA_RATIO_CAUTION, AG_ALBUMIN_NORMAL_G_DL,
 } from '../../utils/acidBase';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function KalkulatorAnionGap() {
   const patient = usePatientStore();
@@ -251,6 +252,7 @@ export default function KalkulatorAnionGap() {
           📚 Kraut JA, Madias NE. Serum anion gap: its uses and limitations in clinical medicine. Clin J Am Soc Nephrol. 2007;2(1):162-174. · Figge J, et al. Anion gap and hypoalbuminemia. Crit Care Med. 1998;26:1807-10. · Wrenn K. The delta (Δ) gap: an approach to mixed acid-base disorders. Ann Emerg Med. 1990;19:1310-3. · Rastegar A. Use of the ΔAG/ΔHCO₃⁻ ratio in the diagnosis of mixed acid-base disorders. J Am Soc Nephrol. 2007;18:2429-31.
         </div>
       </Accordion>
+      <AbbrLegend terms={['AG', 'HAGMA', 'NAGMA', 'HCO3', 'ISE', 'ABG', 'ICU']} />
     </div>
   );
 }

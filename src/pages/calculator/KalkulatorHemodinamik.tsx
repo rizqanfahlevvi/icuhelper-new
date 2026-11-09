@@ -18,6 +18,7 @@ import {
   getReceptorProfileForDose,
   calculatePumpRateMlPerHour,
 } from '../../data/hemodynamicDrugs';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 interface ActiveDrug {
   id: string;
@@ -710,6 +711,7 @@ export default function KalkulatorHemodinamik() {
           </div>
         </div>
       </Accordion>
+      <AbbrLegend terms={['NEE', 'NE', 'MAP', 'SVR', 'SSC', 'SCAI', 'BB', 'DPJP']} />
     </div>
   );
 }

@@ -14,6 +14,7 @@ import { useKaliumState, KaliumInputs, KaliumResult } from './components/Elektro
 import { useKalsiumState, KalsiumInputs, KalsiumResult } from './components/ElektroKalsium';
 import { useMagnesiumState, MagnesiumInputs, MagnesiumResult } from './components/ElektroMagnesium';
 import { patientGenderToClinical } from '../../utils/patientContext';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 // Klasifikasi gejala hiponatremia (Spasovski 2014, ERBP/ESE/ESICM).
 // Indikasi NaCl 3% ditentukan oleh GEJALA, bukan angka natrium semata.
@@ -457,6 +458,15 @@ export default function KalkulatorElektro() {
           📚 <strong>Hiponatremia:</strong> Spasovski G, et al. Eur J Endocrinol 2014;170:G1 / Nephrol Dial Transplant 2014;29(Suppl 2):i1 · Verbalis JG, et al. Am J Med 2013;126(10 Suppl 1):S1 · Adrogué HJ, Madias NE. NEJM 2000;342:1581 · Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280 · See XY, et al. J Crit Care Med 2024;10:209 · El Hage L, et al. AACE Clin Case Rep 2018;5:e172 · Vera MA, et al. Lab Med 2022;53:e105. <strong>Hipernatremia:</strong> Adrogué HJ, Madias NE. NEJM 2000;342:1493 · Miller NE, et al. Am Fam Physician 2023;108:476 · Chauhan K, et al. CJASN 2019;14:656 · Chacon-Palma G, et al. Kidney360 2025;6:1305. <strong>Kalium:</strong> Kardalas E, et al. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · Goyal A, et al. JAMA 2012;307:157 · O'Brien B, et al. JAMA 2024;332:979 · Ford S, et al. Aust Prescr 2026;49:194 · Jessen MK, et al. Resuscitation 2025;208:110489. <strong>Kalsium:</strong> Turner J, et al. Endocr Connect 2016;5:G7 · Walsh J, et al. Endocr Connect 2016;5:G9. <strong>Magnesium:</strong> Hansen BA, Bruserud Ø. J Intensive Care 2018;6:21. <strong>Umum:</strong> Sterns RH. NEJM 2015;372:55.
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'ODS', 'SIADH', 'D5W', 'DDAVP', 'TBW', 'BB', 'GI', 'DKA', 'HHS', 'DI', 'ADH', 'NGT', 'NSAID', 'AKI', 'CRRT',
+          'BUN', 'eGFR', 'CrCl', 'GDS', 'ISE', 'Osm', 'RR-risiko', 'RS', 'EKG', 'ICU', 'KCl', 'IV', 'SC', 'IMA',
+          'CABG', 'D10', 'D40', 'D50', 'SfE', 'NPO', 'CKD', 'VBG', 'AF', 'CVC', 'NICE', 'CG', 'KSR', 'KAD', 'ACEi',
+          'ARB', 'MRA', 'ESKD', 'RAAS-i', 'HD', 'ILCOR', 'PTH', 'PPI', 'KDOQI', 'ROMK', 'TURP', 'SSRI', 'HTS', 'UOP',
+          'IWL', 'ATN',
+        ]}
+      />
     </div>
   );
 }
