@@ -24,41 +24,67 @@ export interface FavoritableItem {
   category: 'Kalkulator' | 'Skoring' | 'Teori' | 'Referensi';
   desc: string;
   icon: React.ComponentType<any>;
+  /** Kelompok sistem organ untuk indeks Kalkulator/Skoring. */
+  group?: ToolGroup;
 }
+
+export type ToolGroup =
+  | 'respirasi' | 'asam-basa' | 'ginjal' | 'kardio' | 'cairan-obat' | 'metabolik' | 'lainnya'
+  | 'keparahan' | 'neuro' | 'infeksi';
+
+/** Urutan & label kelompok di indeks Kalkulator. */
+export const CALC_GROUPS: { id: ToolGroup; label: string }[] = [
+  { id: 'respirasi', label: 'Respirasi & Ventilator' },
+  { id: 'asam-basa', label: 'Asam-Basa & Elektrolit' },
+  { id: 'kardio', label: 'Kardiovaskular & Hemodinamik' },
+  { id: 'cairan-obat', label: 'Cairan, Obat & Transfusi' },
+  { id: 'ginjal', label: 'Ginjal' },
+  { id: 'metabolik', label: 'Metabolik & Nutrisi' },
+  { id: 'lainnya', label: 'Lainnya' },
+];
+
+/** Urutan & label kelompok di indeks Skoring. */
+export const SCORING_GROUPS: { id: ToolGroup; label: string }[] = [
+  { id: 'keparahan', label: 'Keparahan & Prognosis' },
+  { id: 'neuro', label: 'Neurologi, Sedasi & Delirium' },
+  { id: 'infeksi', label: 'Infeksi' },
+  { id: 'kardio', label: 'Kardiovaskular & Tromboemboli' },
+  { id: 'lainnya', label: 'Frailty & Lainnya' },
+];
 
 export const ALL_FAVORITABLE_ITEMS: FavoritableItem[] = [
   // CALCULATORS
-  { path: '/calculator/cairan', name: 'Kalkulator Cairan', category: 'Kalkulator', desc: 'Kebutuhan cairan basal & koreksi resusitasi', icon: Droplets },
-  { path: '/calculator/drug', name: 'Drip Obat / Vasopresor', category: 'Kalkulator', desc: 'Dosis drip, syringe pump, dan gtt infus', icon: Syringe },
-  { path: '/calculator/electro', name: 'Koreksi Elektrolit', category: 'Kalkulator', desc: 'Koreksi cepat defisit Kalium, Natrium, dll', icon: Activity },
-  { path: '/calculator/ibw', name: 'IBW & Tidal Volume', category: 'Kalkulator', desc: 'Berat badan ideal & setting tidal volume ARDSNet', icon: Dna },
-  { path: '/calculator/insulin', name: 'Kalkulator Insulin', category: 'Kalkulator', desc: 'Titrasi & sliding scale drip insulin', icon: Syringe },
-  { path: '/calculator/nlr', name: 'Rasio NLR', category: 'Kalkulator', desc: 'Neutrophil-to-Lymphocyte Ratio indeks inflamasi', icon: FileDigit },
-  { path: '/calculator/nutrisi', name: 'Kalkulator Nutrisi', category: 'Kalkulator', desc: 'Perhitungan target kalori & klor enteral-parenteral', icon: HeartPulse },
-  { path: '/calculator/pf', name: 'P/F Ratio', category: 'Kalkulator', desc: 'Evaluasi PaO2/FiO2 & derajat ARDS', icon: Activity },
-  { path: '/calculator/pulmo', name: 'Pulmonologi', category: 'Kalkulator', desc: 'Skor CURB-65 & gradient A-a oksigenasi', icon: Option },
-  { path: '/calculator/pump', name: 'Syringe Pump', category: 'Kalkulator', desc: 'Perhitungan laju syringe pump umum', icon: Syringe },
-  { path: '/calculator/renal', name: 'Renal / CrCl', category: 'Kalkulator', desc: 'Kalkulasi klirens kreatinin (eGFR) & dosis ginjal', icon: Activity },
-  { path: '/calculator/transfusi', name: 'Kebutuhan Transfusi', category: 'Kalkulator', desc: 'Estimasi volume kolf PRC / WB untuk target Hb', icon: Droplets },
-  { path: '/calculator/ventilator-adv', name: 'Ventilator Advanced', category: 'Kalkulator', desc: 'Tahanan jalan napas, compliance, & dead space', icon: Wind },
-  { path: '/calculator/hemodinamik', name: 'Hemodynamic Support', category: 'Kalkulator', desc: 'Vasopresor/inotropik, profil reseptor & skor NEE', icon: HeartPulse },
-  { path: '/calculator/burn', name: 'Luka Bakar / Burn', category: 'Kalkulator', desc: 'TBSA Rule of Nines & Parkland', icon: Activity },
-  { path: '/calculator/anion-gap', name: 'Anion Gap', category: 'Kalkulator', desc: 'Koreksi Anion & Osmolar Gap', icon: Activity },
+  { path: '/calculator/cairan', name: 'Kalkulator Cairan', category: 'Kalkulator', desc: 'Kebutuhan cairan basal & koreksi resusitasi', icon: Droplets, group: 'cairan-obat' },
+  { path: '/calculator/drug', name: 'Intubasi & Sedasi ICU', category: 'Kalkulator', desc: 'Dosis obat RSI (induksi, pelumpuh otot) & sedasi-analgesia maintenance', icon: Syringe, group: 'cairan-obat' },
+  { path: '/calculator/electro', name: 'Koreksi Elektrolit', category: 'Kalkulator', desc: 'Koreksi cepat defisit Kalium, Natrium, dll', icon: Activity, group: 'asam-basa' },
+  { path: '/calculator/ibw', name: 'IBW & Tidal Volume', category: 'Kalkulator', desc: 'Berat badan ideal & setting tidal volume ARDSNet', icon: Dna, group: 'respirasi' },
+  { path: '/calculator/insulin', name: 'Kalkulator Insulin', category: 'Kalkulator', desc: 'Titrasi & sliding scale drip insulin', icon: Syringe, group: 'metabolik' },
+  { path: '/calculator/nlr', name: 'Rasio NLR', category: 'Kalkulator', desc: 'Neutrophil-to-Lymphocyte Ratio indeks inflamasi', icon: FileDigit, group: 'lainnya' },
+  { path: '/calculator/nutrisi', name: 'Kalkulator Nutrisi', category: 'Kalkulator', desc: 'Perhitungan target kalori & klor enteral-parenteral', icon: HeartPulse, group: 'metabolik' },
+  { path: '/calculator/pf', name: 'P/F Ratio', category: 'Kalkulator', desc: 'Evaluasi PaO2/FiO2 & derajat ARDS', icon: Activity, group: 'respirasi' },
+  { path: '/calculator/pulmo', name: 'Pulmonologi', category: 'Kalkulator', desc: 'Skor CURB-65 & gradient A-a oksigenasi', icon: Option, group: 'respirasi' },
+  { path: '/calculator/pump', name: 'Syringe Pump', category: 'Kalkulator', desc: 'Perhitungan laju syringe pump umum', icon: Syringe, group: 'cairan-obat' },
+  { path: '/calculator/renal', name: 'Renal / CrCl', category: 'Kalkulator', desc: 'Kalkulasi klirens kreatinin (eGFR) & dosis ginjal', icon: Activity, group: 'ginjal' },
+  { path: '/calculator/transfusi', name: 'Kebutuhan Transfusi', category: 'Kalkulator', desc: 'Estimasi volume kolf PRC / WB untuk target Hb', icon: Droplets, group: 'cairan-obat' },
+  { path: '/calculator/ventilator-adv', name: 'Ventilator Advanced', category: 'Kalkulator', desc: 'Tahanan jalan napas, compliance, & dead space', icon: Wind, group: 'respirasi' },
+  { path: '/calculator/hemodinamik', name: 'Hemodynamic Support', category: 'Kalkulator', desc: 'Vasopresor/inotropik, profil reseptor & skor NEE', icon: HeartPulse, group: 'kardio' },
+  { path: '/calculator/burn', name: 'Luka Bakar / Burn', category: 'Kalkulator', desc: 'TBSA Rule of Nines & Parkland', icon: Activity, group: 'cairan-obat' },
+  { path: '/calculator/anion-gap', name: 'Anion Gap', category: 'Kalkulator', desc: 'Koreksi Anion & Osmolar Gap', icon: Activity, group: 'asam-basa' },
 
   // SCORING
-  { path: '/scoring/sofa', name: 'SOFA Score', category: 'Skoring', desc: 'Sequential Organ Failure Assessment derajat disfungsi organ', icon: BarChart2 },
-  { path: '/scoring/apache', name: 'APACHE II Score', category: 'Skoring', desc: 'Sistem keparahan penyakit umum di ICU & proyeksi mortalitas', icon: ClipboardList },
-  { path: '/scoring/camicu', name: 'CAM-ICU', category: 'Skoring', desc: 'Asesmen konfusi & delirium di ruang intensif', icon: FileText },
-  { path: '/scoring/rass', name: 'RASS Score', category: 'Skoring', desc: 'Richmond Agitation-Sedation Scale evaluasi tingkat sedasi', icon: Activity },
-  { path: '/scoring/bfs', name: 'BFS/CFS', category: 'Skoring', desc: 'Bedside Frailty Scale & Clinical Frailty Scale', icon: ClipboardList },
-  { path: '/scoring/candida', name: 'Candida Score', category: 'Skoring', desc: 'Stratifikasi risiko infeksi jamur candida invasif', icon: Activity },
-  { path: '/scoring/cpis', name: 'CPIS Score', category: 'Skoring', desc: 'Clinical Pulmonary Infection Score deteksi VAP dini', icon: FileText },
-  { path: '/scoring/wells', name: 'Wells Score', category: 'Skoring', desc: 'Penilaian klinis risiko Emboli Paru (PE/DVT)', icon: ClipboardList },
+  { path: '/scoring/sofa', name: 'SOFA Score', category: 'Skoring', desc: 'Sequential Organ Failure Assessment derajat disfungsi organ', icon: BarChart2, group: 'keparahan' },
+  { path: '/scoring/apache', name: 'APACHE II Score', category: 'Skoring', desc: 'Sistem keparahan penyakit umum di ICU & proyeksi mortalitas', icon: ClipboardList, group: 'keparahan' },
+  { path: '/scoring/camicu', name: 'CAM-ICU', category: 'Skoring', desc: 'Asesmen konfusi & delirium di ruang intensif', icon: FileText, group: 'neuro' },
+  { path: '/scoring/rass', name: 'RASS Score', category: 'Skoring', desc: 'Richmond Agitation-Sedation Scale evaluasi tingkat sedasi', icon: Activity, group: 'neuro' },
+  { path: '/scoring/bfs', name: 'BFS/CFS', category: 'Skoring', desc: 'Bedside Frailty Scale & Clinical Frailty Scale', icon: ClipboardList, group: 'lainnya' },
+  { path: '/scoring/candida', name: 'Candida Score', category: 'Skoring', desc: 'Stratifikasi risiko infeksi jamur candida invasif', icon: Activity, group: 'infeksi' },
+  { path: '/scoring/cpis', name: 'CPIS Score', category: 'Skoring', desc: 'Clinical Pulmonary Infection Score deteksi VAP dini', icon: FileText, group: 'infeksi' },
+  { path: '/scoring/wells', name: 'Wells Score', category: 'Skoring', desc: 'Penilaian klinis risiko Emboli Paru (PE/DVT)', icon: ClipboardList, group: 'kardio' },
 
   // FLUIDS & DRUGS DIRECT ROUTES
   { path: '/pharmacy', name: 'Obat & Cairan', category: 'Referensi', desc: 'Database obat kritis, dosis induksi RSI, interaksi & cairan IV', icon: Pill },
-  { path: '/abg', name: 'AGD (Asam-Basa)', category: 'Kalkulator', desc: 'Interpretasi gas darah arteri komprehensif (Boston)', icon: Activity },
-  { path: '/weaning', name: 'Weaning Evaluator', category: 'Kalkulator', desc: 'Evaluasi kesiapan ekstubasi & RSBI index', icon: Wind },
+  { path: '/abg', name: 'AGD (Asam-Basa)', category: 'Kalkulator', desc: 'Interpretasi gas darah arteri komprehensif (Boston)', icon: Activity, group: 'asam-basa' },
+  { path: '/weaning', name: 'Weaning Evaluator', category: 'Kalkulator', desc: 'Evaluasi kesiapan ekstubasi & RSBI index', icon: Wind, group: 'respirasi' },
   { path: '/monitoring', name: 'Monitor Bedside', category: 'Referensi', desc: 'Visualisasi asuhan ventilasi mekanis harian', icon: Activity },
   { path: '/reference', name: 'Peralatan & Literatur', category: 'Referensi', desc: 'Literatur & guideline rujukan, plus glosarium singkatan', icon: BookMarked },
 
