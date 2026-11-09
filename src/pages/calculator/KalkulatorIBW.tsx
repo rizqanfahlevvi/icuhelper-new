@@ -11,6 +11,8 @@ import { useClinicalStore } from '../../store/useClinicalStore';
 import { patientGenderToClinical } from '../../utils/patientContext';
 import { vtTarget } from '../../utils/ventilation';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 
 export default function KalkulatorIBW() {
   const patient = usePatientStore();
@@ -74,10 +76,12 @@ export default function KalkulatorIBW() {
 
     if (!h || isNaN(h)) {
       setCalcError('Masukkan tinggi badan');
+      setResults(null); // jangan biarkan hasil lama tampil saat input tidak valid
       return;
     }
     if (sex === '') {
       setCalcError('Pilih jenis kelamin — BBI (Devine) laki-laki & perempuan berbeda 4,5 kg.');
+      setResults(null);
       return;
     }
 
@@ -155,6 +159,16 @@ export default function KalkulatorIBW() {
     });
   };
 
+  // Hitung sekali → setelah itu hasil ikut berubah otomatis (tidak ada hasil basi).
+  const calc = useCalcTrigger({
+    compute: () => calculate(),
+    deps: [sex, height, actualBW, age, condition, hb],
+    required: [
+      { id: 'ibw-sex', label: 'Jenis kelamin', filled: sex !== '' },
+      { id: 'ibw-height', label: 'Tinggi badan', filled: parseFloat(height) > 0 },
+    ],
+  });
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
@@ -170,7 +184,7 @@ export default function KalkulatorIBW() {
          <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex justify-between px-4 py-3 items-center gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32">Jenis Kelamin</span>
-              <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={sex} onChange={e=>setSex(e.target.value as 'm'|'f'|'')}>
+              <select id="ibw-sex" className={`flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('ibw-sex') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} value={sex} onChange={e=>setSex(e.target.value as 'm'|'f'|'')}>
                 <option value="">— Pilih —</option>
                 <option value="m">Laki-laki</option>
                 <option value="f">Perempuan</option>
@@ -180,7 +194,7 @@ export default function KalkulatorIBW() {
             <div className="flex items-center justify-between px-4 py-3 gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Tinggi Badan</span>
               <div className="flex-1 flex items-center justify-end gap-2">
-                <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={height} onChange={e=>setHeight(e.target.value)} placeholder="165" />
+                <input id="ibw-height" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('ibw-height') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} value={height} onChange={e=>setHeight(e.target.value)} placeholder="165" />
                 <span className="text-xs font-semibold text-slate-500 w-6 text-left">cm</span>
               </div>
             </div>
@@ -230,15 +244,10 @@ export default function KalkulatorIBW() {
          </div>
       </div>
       
-      <div className="mt-4">
-        <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-          Hitung IBW & Parameter
-        </button>
-        {calcError && <p className="text-sm text-destructive mt-2 text-center">{calcError}</p>}
-      </div>
+      {calc.armed && calcError && <p className="text-sm text-destructive mt-2 text-center">{calcError}</p>}
 
         {results && (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 mt-6">
+          <div id="ibw-hasil" className="scroll-mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300 mt-6">
             <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
               <div className="p-4 bg-slate-50 dark:bg-slate-900/20">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -511,6 +520,17 @@ export default function KalkulatorIBW() {
           📚 ARDSNet. NEJM 2000;342:1301 · Devine BJ. Drug Intell Clin Pharm 1974;8:650 · Singer P et al. (ESPEN) Clin Nutr 2023;42:1671
         </div>
       </Accordion>
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung IBW & Parameter"
+        summary={results ? `IBW ${results.ibwR.toFixed(1)} kg · VT ${results.vtLowML}–${results.vtHighML} mL` : null}
+        summaryTone="info"
+        caption={results ? `${results.vtLow}–${results.vtHigh} mL/kg IBW · ${results.vtNote}` : undefined}
+        missing={calc.missing}
+        resultTargetId="ibw-hasil"
+        emptyText={calcError || 'Lengkapi data untuk melihat hasil'}
+      />
       <AbbrLegend
         terms={[
           'IBW', 'BBI', 'TB', 'BB', 'BW', 'AdjBW', 'ABW', 'ABW-aktual', 'BMI', 'IMT', 'BSA', 'LBW', 'LPT', 'EBV',
