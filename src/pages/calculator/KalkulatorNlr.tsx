@@ -8,6 +8,7 @@ import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncB
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function KalkulatorNlr() {
   const patient = usePatientStore();
@@ -399,6 +400,12 @@ export default function KalkulatorNlr() {
           📚 Zahorec R. (2001) Ratio of neutrophil to lymphocyte. Bratisl Lek Listy; Hu B et al. (2014) SII Index. Clin Cancer Res. Forget P (2017) What is the normal value of the neutrophil-to-lymphocyte ratio?
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'NLR', 'PLR-rasio', 'SII', 'MLR', 'WBC', 'PLT', 'AMI', 'ICU', 'IGD', 'HIV', 'AIDS', 'COVID-19', 'AUC',
+          'TB-paru',
+        ]}
+      />
     </div>
   );
 }

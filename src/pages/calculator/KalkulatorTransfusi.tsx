@@ -12,6 +12,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
 import { InputWarning } from '../../components/ui/InputWarning';
@@ -1274,6 +1275,13 @@ export default function KalkulatorTransfusi() {
         </Accordion>
       </div>
 
+      <AbbrLegend
+        terms={[
+          'PRC', 'WB', 'FFP', 'TC', 'Hb', 'Hct', 'BB', 'EBV', 'INR', 'PT', 'APTT', 'PCC', 'MTP', 'RD', 'SDA', 'PV',
+          'DIC', 'CVC', 'TACO', 'CHF', 'CKD', 'FNHTR', 'SAGM', 'iCa', 'QTc', 'EKG', 'Rh', 'PICU', 'ICU', 'IV', 'IM',
+          'RCT', 'RS', 'BDRS', 'PMK', 'AS-negara', 'AABB', 'ICTMG', 'BSH', 'BCSH', 'ASH', 'ESAIC', 'NICE', 'NG', 'WHO',
+        ]}
+      />
     </div>
   );
 }

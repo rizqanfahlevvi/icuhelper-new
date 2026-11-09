@@ -11,6 +11,7 @@ import { useClinicalStore } from '../../store/useClinicalStore';
 import { useHistoryStore } from '../../store/useHistoryStore';
 import { infusionRateMlH, isFlatUnit, doseRangeStatus, propofolAbovePrisThreshold, type InfusionUnit } from '../../utils/infusion';
 import { InputWarning } from '../../components/ui/InputWarning';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 const PUMP_CATEGORIES = {
   sedasi:      [['fentanyl','Fentanyl'],['morphin','Morfin'],['midazolam','Midazolam'],['propofol','Propofol 1%'],['dexmed','Dexmedetomidine'],['thiopental','Thiopental (Tiopol)']],
@@ -284,6 +285,7 @@ export default function KalkulatorPump() {
           📚 Overgaard CB et al. (2008) Inotropes and vasopressors. Circulation; Levy B et al. Intensive Care Med.
         </div>
       </Accordion>
+      <AbbrLegend terms={['BB', 'PRIS', 'CK', 'EKG', 'MAP', 'HR', 'DPJP', 'UO', 'NE', 'SSC', 'SCCM', 'AF', 'HOCM']} />
     </div>
   );
 }

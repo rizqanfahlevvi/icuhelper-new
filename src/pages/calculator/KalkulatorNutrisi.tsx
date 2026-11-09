@@ -14,6 +14,7 @@ import {
   nutritionTargets, refeedingStart, enteralVolume, pnLimits, espenPhaseFactor, ESPEN_EE_PER_KG,
   type NutritionPhase, type NutritionCondition, type NutritionSex, type NutritionResult, type Range, type TargetBlock,
 } from '../../utils/nutrition';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 type Route = 'en' | 'pn' | 'mixed';
 
@@ -434,6 +435,12 @@ export default function KalkulatorNutrisi() {
         </div>
       </Accordion>
 
+      <AbbrLegend
+        terms={[
+          'ICU', 'ARDS', 'AKI', 'HD', 'CRRT', 'KRT', 'EN', 'PN', 'TPN', 'NGT', 'NICE', 'CG', 'ASPEN', 'ESPEN', 'SCCM',
+          'IMT', 'BB', 'BBI', 'TB', 'JK', 'ABW', 'IV', 'GI', 'RCT', 'NRS-2002', 'RS', 'DPJP',
+        ]}
+      />
       <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 text-center">
         Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis, ahli gizi klinik, atau keputusan DPJP.
       </div>

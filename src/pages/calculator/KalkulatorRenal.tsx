@@ -4,6 +4,8 @@ import { useHistoryStore } from '../../store/useHistoryStore';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import type { AbbrKey } from '../../utils/abbreviations';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
@@ -1146,6 +1148,20 @@ export default function KalkulatorRenal() {
       {activeTab === 'osmol_bun' && <RenalOsmolBun />}
       {activeTab === 'hd_indikasi' && <RenalHdIndikasi />}
 
+      <AbbrLegend terms={[...RENAL_ABBR_BASE, ...RENAL_ABBR_TAB[activeTab]]} />
     </div>
   );
 }
+
+/** Singkatan per tab (header halaman selalu tampil → `RENAL_ABBR_BASE`). */
+const RENAL_ABBR_BASE: readonly AbbrKey[] = ['AKI', 'LFG', 'eGFR', 'FENa', 'FEUrea', 'HD'];
+const RENAL_ABBR_TAB: Record<'gfr_crcl' | 'fena_feurea' | 'aki_stage' | 'hd_indikasi' | 'osmol_bun', readonly AbbrKey[]> = {
+  gfr_crcl: [
+    'GFR', 'CrCl', 'SCr', 'CKD-EPI', 'MDRD', 'KDIGO', 'CKD', 'PGK', 'IDMS', 'IBW', 'AdjBW', 'ABW-aktual', 'BBI', 'BB', 'TB',
+    'BMI', 'BSA', 'ICU', 'IV', 'SC',
+  ],
+  fena_feurea: ['SCr', 'SNa', 'UNa', 'UCr', 'SUrea', 'UUrea', 'BUN', 'ATN'],
+  aki_stage: ['KDIGO', 'SCr', 'UO', 'RRT'],
+  osmol_bun: ['BUN', 'Osm', 'Cr', 'ATN'],
+  hd_indikasi: ['RRT', 'KDIGO', 'AEIOU', 'EKG', 'BUN'],
+};

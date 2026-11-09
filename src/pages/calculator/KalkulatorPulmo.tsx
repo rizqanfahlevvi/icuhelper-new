@@ -10,6 +10,7 @@ import { curb65Group, psiIsClassI, psiClass, smartCopRisk } from '../../utils/pn
 import { interpretAa, expectedAaRoomAir } from '../../utils/oxygenation';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function KalkulatorPulmo() {
   const patient = usePatientStore();
@@ -1016,6 +1017,13 @@ export default function KalkulatorPulmo() {
           📚 Lim WS et al. (2003) Guidelines CAP; Fine MJ et al. (1997) NEJM PSI; Charles PG et al. (2008) Clin Infect Dis SMART-COP; Metlay JP et al. (2019) AJRCCM ATS/IDSA Guidelines.
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'CURB-65', 'PSI', 'PORT', 'SMART-COP', 'IRVS', 'CAP', 'ATS', 'IDSA', 'A-a', 'PAO2-alveolar', 'PaO2', 'PaCO2',
+          'FiO2', 'SpO2', 'P/F', 'Patm', 'JK', 'RR', 'TDS', 'TDD-diastolik', 'SBP', 'BP', 'HR', 'GDS', 'Ht', 'BUN',
+          'CHF', 'CXR', 'WBC', 'ICU', 'IGD', 'CPAP', 'ILD', 'V/Q',
+        ]}
+      />
     </div>
   );
 }

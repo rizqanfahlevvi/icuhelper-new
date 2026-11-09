@@ -15,6 +15,7 @@ import {
   fluidRequirement, fluidOverloadFromBalance, IWL_ML_PER_KG_DAY, SWEAT_EXTRA_ML, FEVER_THRESHOLD_C,
   type VentMode, type SweatLevel, type FluidRequirementResult,
 } from '../../utils/fluids';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 interface RosePhase {
   label: string; colorText: string; bgBorder: string;
@@ -854,6 +855,12 @@ export default function KalkulatorKebutuhanCairan() {
           [6] Sakr Y et al. Crit Care Med 2017;45:386–94.
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'ROSE', 'PLR', 'PPV', 'SVV', 'GI', 'IV', 'BB', 'BBI', 'IMT', 'JK', 'RRT', 'CRRT', 'NICE', 'CG', 'MAP', 'UO',
+          'ARDS', 'AKI', 'FO', 'ICU', 'IWL', 'NGT', 'GT', 'WSD', 'HFNC', 'NIV', 'TPN', 'EN', 'PN', 'OR-odds',
+        ]}
+      />
     </div>
   );
 }

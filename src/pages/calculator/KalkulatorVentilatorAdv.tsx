@@ -13,6 +13,7 @@ import {
   drivingPressure, staticCompliance, mechanicalPower, assumedInspTime, airwayResistance,
   meanAirwayPressureEstimate, alveoliHighPeep, vtTarget, MP_RISK_THRESHOLD, type VentCondition, type VtTarget,
 } from '../../utils/ventilation';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 interface VentResult {
   dp: number; cstat: number | null; mp: number;
@@ -393,6 +394,13 @@ export default function KalkulatorVentilatorAdv() {
           📚 Fan E et al. ATS/ESICM/SCCM ARDS guideline. AJRCCM 2017;195:1253–63 · Amato MBP et al. NEJM 2015;372:747–55 · Gattinoni L et al. Intensive Care Med 2016;42:1567–75 · Serpa Neto A et al. Intensive Care Med 2018;44:1914–22 · Serpa Neto A et al. JAMA 2012;308:1651–9 · ARDS Network. NEJM 2000;342:1301–8 · Brower RG et al. (ALVEOLI). NEJM 2004;351:327–36 · Guérin C et al. (PROSEVA). NEJM 2013;368:2159–68 · Matthay MA et al. Global definition of ARDS. AJRCCM 2024;209:37–47.
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'ARDS', 'PPOK', 'PBW', 'IBW', 'RR', 'RR-risiko', 'PEEP', 'Ppeak', 'Pplat', 'mPaw', 'ΔP', 'DP', 'Cstat',
+          'Raw', 'Ti', 'I:E', 'VE', 'MP', 'VT', 'OI', 'OSI', 'SpO2', 'FiO2', 'PaO2', 'P/F', 'AGD', 'ETT', 'ARDSNet',
+          'S/F', 'CT', 'USG', 'ATS', 'ESICM', 'SCCM',
+        ]}
+      />
     </div>
   );
 }

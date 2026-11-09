@@ -11,6 +11,7 @@ import {
   RespSupport, SUPPORT_LABEL, ARDS_OTHER_CRITERIA, pfLabel, ardsOxygenation, classifyRespFailure,
 } from '../../utils/oxygenation';
 import { hco3FromHH, fio2ToPercentString, Tone } from '../../utils/abg';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 // Disamakan dengan modul ABG (utils/oxygenation.ts): klasifikasi Berlin 2012 + Global 2023,
 // gagal napas tipe 1/2 (StatPearls; tipe 2 = PaCO₂ >45 DENGAN pH <7,35), OI tanpa ambang dewasa.
@@ -745,6 +746,13 @@ export default function KalkulatorPF() {
 
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'P/F', 'S/F', 'PaO2', 'FiO2', 'SpO2', 'SaO2', 'PaCO2', 'HCO3', 'AGD', 'ABG', 'PEEP', 'EPAP', 'CPAP', 'MAP',
+          'Paw', 'MV-mekanik', 'OI', 'OSI', 'DP', 'ΔP', 'Pplat', 'VT', 'IBW', 'Crs', 'ARDS', 'ARDSNet', 'VILI', 'HFNC',
+          'HFNO', 'NIV', 'NRM', 'ECMO', 'VV', 'NMBA', 'PPOK', 'MG', 'FRC', 'CT', 'USG', 'ATS', 'ESICM', 'SCCM',
+        ]}
+      />
     </div>
   );
 }
