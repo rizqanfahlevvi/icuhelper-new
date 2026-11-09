@@ -1,4 +1,8 @@
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { ARDSNET_LOW_PEEP, ROX_HIGH_RISK, ROX_LOW_RISK } from '../../utils/oxygenation';
+
+const fmt = (n: number) => n.toLocaleString('id-ID');
 
 export default function TeoriFisiologi() {
   return (
@@ -31,7 +35,7 @@ export default function TeoriFisiologi() {
               <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
                 <li>Vt 6 mL/kgBBi</li>
                 <li>Pplat &lt;30 cmH₂O</li>
-                <li>Driving pressure ≤14 cmH₂O</li>
+                <li>Driving pressure ≤15 cmH₂O</li>
                 <li>PEEP adekuat</li>
               </ul>
             </div>
@@ -65,7 +69,7 @@ export default function TeoriFisiologi() {
               <tr className="text-foreground">
                 <td className="p-2 font-bold">Driving Pressure</td>
                 <td className="p-2 font-mono text-primary">Pplat − PEEP</td>
-                <td className="p-2">&lt;14 cmH₂O</td>
+                <td className="p-2">≤15 cmH₂O</td>
                 <td className="p-2 text-destructive font-bold">Sering &gt;18</td>
               </tr>
             </tbody>
@@ -86,8 +90,8 @@ export default function TeoriFisiologi() {
           <div className="bg-muted/30 rounded-lg p-3 border border-border">
             <div className="font-bold text-foreground mb-1">Time Constant (τ = R × C)</div>
             <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
-              <li>Normal: ~0.2–0.3 detik</li>
-              <li>5 × τ = waktu pengisian/pengosongan penuh</li>
+              <li>Contoh: R 10 cmH₂O/L/detik × C 0,05 L/cmH₂O = 0,5 detik</li>
+              <li>Ekspirasi pasif ±95% selesai dalam 3τ, ±99% dalam 5τ</li>
               <li>PPOK: τ memanjang → risiko autoPEEP</li>
               <li>ARDS: τ memendek (C rendah) → heterogenitas</li>
             </ul>
@@ -97,7 +101,7 @@ export default function TeoriFisiologi() {
         <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Cara Ukur Pplat & DP di Bedside</h3>
         <ul className="list-disc pl-5 mb-3 space-y-1 text-muted-foreground text-[12px]">
           <li><strong className="text-foreground">Inspiratory Hold 0.5 detik:</strong> Tekanan akhir yang terbaca = Pplat. Lakukan saat pasien tidak ada usaha napas spontan.</li>
-          <li><strong className="text-foreground">Driving Pressure:</strong> DP = Pplat − PEEP. Target ≤14 cmH₂O. Jika DP &gt;14 dengan Vt 6 mL/kgBBi → turunkan Vt ke 4–5 mL/kgBBi, toleransi permissive hypercapnia (pH ≥7.20).</li>
+          <li><strong className="text-foreground">Driving Pressure:</strong> DP = Pplat − PEEP. Target ≤15 cmH₂O (risiko kematian meningkat di atas ±15; Amato 2015). Jika DP &gt;15 dengan Vt 6 mL/kgBBi → pertimbangkan turunkan Vt bertahap sampai minimal 4 mL/kgBBi, toleransi permissive hypercapnia (pH ≥7.20).</li>
           <li><strong className="text-foreground">Catatan:</strong> Pplat hanya valid bila tidak ada usaha napas spontan aktif — nilai tidak akurat jika pasien fighting ventilator.</li>
         </ul>
         <p className="mt-2 text-[11px] italic text-muted-foreground">📚 Amato MB et al. NEJM 2015;372:747 · ARDSNet NEJM 2000;342:1301 · Slutsky AS & Ranieri VM NEJM 2013;369:2126</p>
@@ -139,13 +143,13 @@ export default function TeoriFisiologi() {
               <tr className="border-b border-border text-foreground">
                 <td className="p-2 font-bold">Pplat</td>
                 <td className="p-2 font-bold text-primary">&lt;30 cmH₂O</td>
-                <td className="p-2 font-bold text-primary">&lt;28 cmH₂O</td>
+                <td className="p-2 font-bold text-primary">&lt;30 cmH₂O</td>
                 <td className="p-2 text-muted-foreground">Ukur dengan inspiratory hold. Pplat &gt;30 → ↑ VILI</td>
               </tr>
               <tr className="border-b border-border text-foreground">
                 <td className="p-2 font-bold">Driving Pressure</td>
-                <td className="p-2 font-bold text-primary">≤14 cmH₂O</td>
-                <td className="p-2 font-bold text-primary">≤14 cmH₂O</td>
+                <td className="p-2 font-bold text-primary">≤15 cmH₂O</td>
+                <td className="p-2 font-bold text-primary">≤15 cmH₂O</td>
                 <td className="p-2 text-muted-foreground">Prediktor mortalitas lebih kuat dari Vt atau Pplat saja</td>
               </tr>
               <tr className="text-foreground">
@@ -173,13 +177,13 @@ export default function TeoriFisiologi() {
             <thead>
               <tr className="bg-muted text-muted-foreground border-b border-border">
                 <th className="p-2">FiO₂</th>
-                <td className="p-2">0.3</td><td className="p-2">0.4</td><td className="p-2">0.5</td><td className="p-2">0.6</td><td className="p-2">0.7</td><td className="p-2">0.8</td><td className="p-2">0.9</td><td className="p-2">1.0</td>
+                {ARDSNET_LOW_PEEP.map(([f]) => <td key={f} className="p-2">{f.toFixed(1).replace('.', ',')}</td>)}
               </tr>
             </thead>
             <tbody>
               <tr className="text-foreground">
                 <th className="p-2 bg-muted text-muted-foreground font-bold">PEEP</th>
-                <td className="p-2">5</td><td className="p-2">5–8</td><td className="p-2">8–10</td><td className="p-2">10</td><td className="p-2">10–12</td><td className="p-2">14</td><td className="p-2">14</td><td className="p-2 font-bold">18–24</td>
+                {ARDSNET_LOW_PEEP.map(([f, peep]) => <td key={f} className="p-2">{peep}</td>)}
               </tr>
             </tbody>
           </table>
@@ -198,13 +202,13 @@ export default function TeoriFisiologi() {
             </thead>
             <tbody>
               <tr className="border-b border-border text-foreground"><td className="p-2">Normal</td><td className="p-2 font-bold">≥400</td><td className="p-2">Fungsi paru normal</td><td className="p-2">—</td></tr>
-              <tr className="border-b border-border text-foreground"><td className="p-2 text-amber-600 dark:text-amber-400 font-bold">ARDS Mild</td><td className="p-2 font-bold">200–300</td><td className="p-2">PEEP ≥5, NIV/HFNC dapat dicoba</td><td className="p-2">~27%</td></tr>
-              <tr className="border-b border-border text-foreground"><td className="p-2 text-orange-600 dark:text-orange-400 font-bold">ARDS Moderate</td><td className="p-2 font-bold">100–200</td><td className="p-2">Prone mulai dipertimbangkan</td><td className="p-2">~32%</td></tr>
-              <tr className="text-foreground"><td className="p-2 text-destructive font-bold">ARDS Severe</td><td className="p-2 font-bold text-destructive">&lt;100</td><td className="p-2">Prone ≥16 jam/hari (rekomendasi kuat), ECMO jika refrakter</td><td className="p-2 text-destructive font-bold">~45%</td></tr>
+              <tr className="border-b border-border text-foreground"><td className="p-2 text-amber-600 dark:text-amber-400 font-bold">ARDS Mild</td><td className="p-2 font-bold">&gt;200 s/d ≤300</td><td className="p-2">PEEP ≥5, NIV/HFNC dapat dicoba dengan pemantauan ketat</td><td className="p-2">~27%</td></tr>
+              <tr className="border-b border-border text-foreground"><td className="p-2 text-orange-600 dark:text-orange-400 font-bold">ARDS Moderate</td><td className="p-2 font-bold">&gt;100 s/d ≤200</td><td className="p-2">PEEP lebih tinggi dipertimbangkan; prone ≥16 jam/hari bila P/F &lt;150</td><td className="p-2">~32%</td></tr>
+              <tr className="text-foreground"><td className="p-2 text-destructive font-bold">ARDS Severe</td><td className="p-2 font-bold text-destructive">≤100</td><td className="p-2">Prone ≥16 jam/hari, ECMO jika refrakter</td><td className="p-2 text-destructive font-bold">~45%</td></tr>
             </tbody>
           </table>
         </div>
-        <p className="text-[12px] text-muted-foreground mb-4">⚠️ P/F hanya valid pada <strong className="text-foreground">PEEP ≥5 cmH₂O</strong> dan diukur dari ABG. Jika ABG tidak tersedia → gunakan S/F ratio.</p>
+        <p className="text-[12px] text-muted-foreground mb-4">⚠️ Kategori Berlin mensyaratkan <strong className="text-foreground">PEEP/CPAP ≥5 cmH₂O</strong> dan PaO₂ dari ABG; estimasi mortalitas dari kohort Berlin (Ranieri 2012). Indikasi prone: P/F &lt;150 dengan FiO₂ ≥0,6 (PROSEVA; ESICM 2023). Jika ABG tidak tersedia → gunakan S/F ratio.</p>
 
         <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">S/F Ratio — Surrogate P/F Tanpa ABG</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-[12px]">
@@ -215,14 +219,14 @@ export default function TeoriFisiologi() {
               <li><strong className="text-foreground">S/F 235</strong> ≈ P/F 200 (batas moderate)</li>
               <li><strong className="text-foreground">S/F 150</strong> ≈ P/F 100 (batas severe)</li>
             </ul>
-            <p className="mt-2 text-[11px] italic opacity-80">Valid bila SpO₂ ≤97% (hindari ceiling effect)</p>
+            <p className="mt-2 text-[11px] italic opacity-80">Rice 2007: S/F ≈ 64 + 0,84 × P/F. Valid bila SpO₂ ≤97% (hindari ceiling effect)</p>
           </div>
           <div className="bg-muted/30 rounded-lg p-3 border border-border">
             <div className="font-bold text-foreground mb-2">Kapan Pakai S/F</div>
             <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
               <li>ABG tidak tersedia segera</li>
               <li>Monitor tren oksigenasi serial</li>
-              <li>Skrining ARDS pada HFNC/NIV (Global ARDS 2023)</li>
+              <li>Skrining ARDS pada HFNC ≥30 L/menit atau NIV (definisi Global ARDS 2024)</li>
             </ul>
           </div>
         </div>
@@ -234,25 +238,22 @@ export default function TeoriFisiologi() {
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
                 <tr className="bg-muted text-muted-foreground border-b border-border">
-                  <th className="p-2">Waktu</th><th className="p-2">ROX &gt;4.88</th><th className="p-2">ROX &lt;3.85</th>
+                  <th className="p-2">Jam ke-</th><th className="p-2">Risiko rendah</th><th className="p-2">Risiko tinggi gagal HFNC</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border text-foreground">
-                  <td className="p-2">2 jam</td>
-                  <td className="p-2 text-emerald-600 dark:text-emerald-400 font-bold">HFNC likely success ✓</td>
-                  <td className="p-2 text-destructive font-bold">Risiko gagal ↑, pertimbangkan eskalasi</td>
-                </tr>
-                <tr className="text-foreground">
-                  <td className="p-2">6 & 12 jam</td>
-                  <td className="p-2 text-emerald-600 dark:text-emerald-400 font-bold">Lanjutkan HFNC ✓</td>
-                  <td className="p-2 text-destructive font-bold">Pertimbangkan intubasi / NIV</td>
-                </tr>
+                {(Object.keys(ROX_HIGH_RISK) as (keyof typeof ROX_HIGH_RISK)[]).map((h) => (
+                  <tr key={h} className="border-b border-border text-foreground">
+                    <td className="p-2">{h}</td>
+                    <td className="p-2 text-emerald-600 dark:text-emerald-400 font-bold">≥{fmt(ROX_LOW_RISK)} — lanjutkan HFNC</td>
+                    <td className="p-2 text-destructive font-bold">&lt;{fmt(ROX_HIGH_RISK[h])} — pertimbangkan intubasi</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
-        <p className="mt-2 text-[11px] italic text-muted-foreground">📚 Matthay MA et al. AJRCCM 2023;209:37 · Grasselli G et al. (ESICM ARDS) ICM 2023;49:727 · Roca O et al. (ROX index) AJRCCM 2019;199:1368</p>
+        <p className="mt-2 text-[11px] italic text-muted-foreground">📚 Ranieri VM et al. (Berlin) JAMA 2012;307:2526 · Matthay MA et al. AJRCCM 2024;209:37 · Grasselli G et al. (ESICM ARDS) ICM 2023;49:727 · Guérin C et al. (PROSEVA) NEJM 2013;368:2159 · Rice TW et al. Chest 2007;132:410 · Roca O et al. (ROX index) AJRCCM 2019;199:1368</p>
       </Accordion>
 
       <Accordion title="📖 Mode Ventilasi — VC, PC, PSV, PRVC">
@@ -400,12 +401,14 @@ export default function TeoriFisiologi() {
         </div>
         <ul className="list-disc pl-5 mb-3 space-y-1 text-muted-foreground text-[12px]">
           <li><strong className="text-foreground">Faktor risiko:</strong> Drive napas tinggi (hipoksemia, demam, agitasi), compliance rendah, Vt spontan &gt;8 mL/kgBBi</li>
-          <li><strong className="text-foreground">Deteksi:</strong> P0.1 &gt;4 cmH₂O = drive napas tinggi. Vt spontan besar. Dyssynchrony berulang.</li>
+          <li><strong className="text-foreground">Deteksi:</strong> P0.1 &gt;3,5–4 cmH₂O = dorongan/usaha napas tinggi (Telias 2020). Vt spontan besar. Dyssynchrony berulang.</li>
           <li><strong className="text-foreground">Manajemen:</strong> Atasi penyebab drive tinggi → sedasi-analgesia → ↓ level PS → pertimbangkan switch VC-AC atau NMB jangka pendek bila P-SILI berat</li>
           <li><strong className="text-foreground">Paradoks NIV:</strong> Drive napas sangat tinggi pada NIV → P-SILI → delay intubasi memperburuk ARDS. Evaluasi ketat di 1–2 jam pertama.</li>
         </ul>
-        <p className="mt-2 text-[11px] italic text-muted-foreground">📚 Blanch L et al. ICM 2015;41:772 · Grieco DL et al. (NIV-SILI) NEJM 2020;382:1112 · Slutsky AS & Ranieri VM NEJM 2013;369:2126</p>
+        <p className="mt-2 text-[11px] italic text-muted-foreground">📚 Blanch L et al. ICM 2015;41:633 · Brochard L et al. (P-SILI) AJRCCM 2017;195:438 · Telias I et al. AJRCCM 2020;201:1086 · Slutsky AS & Ranieri VM NEJM 2013;369:2126</p>
       </Accordion>
+
+      <AbbrLegend terms={['VT', 'PEEP', 'Pplat', 'PIP', 'DP', 'VILI', 'P-SILI', 'ARDS', 'PPOK', 'BBI', 'RR', 'FiO2', 'SpO2', 'PaO2', 'P/F', 'S/F', 'ABG', 'ROX', 'HFNC', 'NIV', 'CPAP', 'ECMO', 'VC-AC', 'PC-AC', 'PSV', 'PS', 'PRVC', 'SIMV', 'SBT', 'NMB', 'P0.1', 'ESICM', 'ATS', 'SCCM', 'ACCP']} />
 
       <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
         <h3 className="font-bold text-[14px] text-foreground mb-3">📚 Referensi Utama</h3>
@@ -414,11 +417,15 @@ export default function TeoriFisiologi() {
           <li>Amato MB, Meade MO, Slutsky AS, et al. Driving pressure and survival in ARDS. <em>N Engl J Med</em>. 2015;372:747.</li>
           <li>Fan E, Del Sorbo L, Goligher EC, et al. ATS/ESICM/SCCM guideline: mechanical ventilation in adult patients with ARDS. <em>Am J Respir Crit Care Med</em>. 2017;195:1253.</li>
           <li>Slutsky AS, Ranieri VM. Ventilator-induced lung injury. <em>N Engl J Med</em>. 2013;369:2126.</li>
-          <li>Matthay MA, et al. A new global definition of acute respiratory distress syndrome. <em>Am J Respir Crit Care Med</em>. 2023;209:37.</li>
+          <li>Matthay MA, et al. A new global definition of acute respiratory distress syndrome. <em>Am J Respir Crit Care Med</em>. 2024;209:37.</li>
+          <li>Ranieri VM, et al. Acute respiratory distress syndrome: the Berlin Definition. <em>JAMA</em>. 2012;307:2526.</li>
+          <li>Guérin C, et al. Prone positioning in severe acute respiratory distress syndrome (PROSEVA). <em>N Engl J Med</em>. 2013;368:2159.</li>
+          <li>Rice TW, et al. Comparison of the SpO₂/FiO₂ ratio and the PaO₂/FiO₂ ratio in patients with acute lung injury or ARDS. <em>Chest</em>. 2007;132:410.</li>
           <li>Grasselli G, et al. ESICM guidelines on ARDS: definition, phenotyping and respiratory support. <em>Intensive Care Med</em>. 2023;49:727.</li>
           <li>Roca O, et al. ROX index for predicting HFNC outcome. <em>Am J Respir Crit Care Med</em>. 2019;199:1368.</li>
-          <li>Blanch L, et al. Asynchronies during mechanical ventilation are associated with mortality. <em>Intensive Care Med</em>. 2015;41:772.</li>
-          <li>Grieco DL, et al. Patient self-inflicted lung injury (P-SILI). <em>N Engl J Med</em>. 2020;382:1112.</li>
+          <li>Blanch L, et al. Asynchronies during mechanical ventilation are associated with mortality. <em>Intensive Care Med</em>. 2015;41:633.</li>
+          <li>Brochard L, Slutsky A, Pesenti A. Mechanical ventilation to minimize progression of lung injury in acute respiratory failure. <em>Am J Respir Crit Care Med</em>. 2017;195:438.</li>
+          <li>Telias I, et al. Airway occlusion pressure as an estimate of respiratory drive and inspiratory effort during assisted ventilation. <em>Am J Respir Crit Care Med</em>. 2020;201:1086.</li>
           <li>Tobin MJ. Advances in mechanical ventilation. <em>N Engl J Med</em>. 2001;344:1986.</li>
           <li>Ouellette DR, et al. Liberation from mechanical ventilation: ATS/ACCP guideline. <em>Chest</em>. 2017;151:166.</li>
         </ul>

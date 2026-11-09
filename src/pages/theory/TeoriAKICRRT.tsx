@@ -28,7 +28,7 @@ export default function TeoriAKICRRT() {
               </ul>
             </div>
           </div>
-          <p className="mt-3 text-warning font-semibold">⚠️ Penting: Diagnosis AKI adalah sindrom klinis — selalu cari etiologi dan fenotip spesifik untuk tatalaksana yang tepat [1].</p>
+          <p className="mt-3 text-amber-600 dark:text-amber-400 font-semibold">⚠️ Penting: Diagnosis AKI adalah sindrom klinis — selalu cari etiologi dan fenotip spesifik untuk tatalaksana yang tepat [1].</p>
         </div>
 
         </div>
@@ -44,7 +44,7 @@ export default function TeoriAKICRRT() {
               </thead>
               <tbody>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold whitespace-nowrap">Stage 1</td><td className="p-2 text-muted-foreground">↑ ≥0.3 mg/dL dlm 48j, atau ↑ 1.5–1.9× baseline</td><td className="p-2 text-muted-foreground">&lt;0.5 mL/kg/jam slm 6–12 jam</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold whitespace-nowrap">Stage 2</td><td className="p-2 text-muted-foreground">↑ 2.0–2.9× baseline</td><td className="p-2 text-warning font-bold">&lt;0.5 mL/kg/jam slm ≥12 jam</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold whitespace-nowrap">Stage 2</td><td className="p-2 text-muted-foreground">↑ 2.0–2.9× baseline</td><td className="p-2 text-amber-600 dark:text-amber-400 font-bold">&lt;0.5 mL/kg/jam slm ≥12 jam</td></tr>
                 <tr className="text-foreground"><td className="p-2 font-bold whitespace-nowrap text-destructive">Stage 3</td><td className="p-2 text-muted-foreground">↑ ≥3× baseline, ATAU Cr ≥4 mg/dL, ATAU inisiasi RRT</td><td className="p-2 text-destructive font-bold">&lt;0.3 mL/kg/jam ≥24 jam, ATAU anuria ≥12 jam</td></tr>
               </tbody>
             </table>
@@ -95,8 +95,8 @@ export default function TeoriAKICRRT() {
             </ul>
           </div>
           
-          <div className="p-3 bg-success/10 border border-success/30 rounded-lg text-foreground text-[12px] mb-4">
-            <strong className="text-success text-[14px] block mb-2">Timing Non-Emergensi (STARRT-AKI Trial)</strong>
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-foreground text-[12px] mb-4">
+            <strong className="text-emerald-600 dark:text-emerald-400 text-[14px] block mb-2">Timing Non-Emergensi (STARRT-AKI Trial)</strong>
             <p className="text-muted-foreground">Pada RCT terbaru, "Accelerated" RRT tdk memberi benefit dibanding "Standard-wait" jika indikasi emergensi tak terpenuhi. Justru inisiasi prematur bisa menunda recovery ginjal alamiah dan timbul komplikasi kateter [3, 4].</p>
           </div>
           <p className="mt-3 text-[11px] italic text-muted-foreground">

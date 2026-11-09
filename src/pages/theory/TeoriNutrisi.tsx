@@ -25,8 +25,8 @@ export default function TeoriNutrisi() {
               <table className="w-full text-left border-collapse text-[12px]">
                 <thead><tr className="bg-muted text-muted-foreground border-b border-border"><th className="p-1">Fase</th><th className="p-1">Waktu</th><th className="p-1">Target Kalori</th></tr></thead>
                 <tbody>
-                  <tr className="border-b border-border"><td className="p-1 font-bold text-foreground">Acute Early</td><td className="p-1 text-muted-foreground">0–48 jam</td><td className="p-1 text-warning">50–70% target</td></tr>
-                  <tr className="border-b border-border"><td className="p-1 font-bold text-foreground">Acute Late</td><td className="p-1 text-muted-foreground">48 jam–7 hari</td><td className="p-1 text-success">70–100% target</td></tr>
+                  <tr className="border-b border-border"><td className="p-1 font-bold text-foreground">Acute Early</td><td className="p-1 text-muted-foreground">0–48 jam</td><td className="p-1 text-amber-600 dark:text-amber-400">50–70% target</td></tr>
+                  <tr className="border-b border-border"><td className="p-1 font-bold text-foreground">Acute Late</td><td className="p-1 text-muted-foreground">48 jam–7 hari</td><td className="p-1 text-emerald-600 dark:text-emerald-400">70–100% target</td></tr>
                   <tr><td className="p-1 font-bold text-foreground">Recovery</td><td className="p-1 text-muted-foreground">&gt;7 hari</td><td className="p-1 text-primary">100–125% target</td></tr>
                 </tbody>
               </table>
@@ -48,10 +48,10 @@ export default function TeoriNutrisi() {
               </thead>
               <tbody>
                 <tr className="border-b border-border text-foreground">
-                  <td className="p-2 font-bold">Fase akut 0–48 jam</td><td className="p-2 text-warning font-semibold">50–70% target (10–15 kkal/kg/hari)</td><td className="p-2 text-muted-foreground">Avoid over-feeding; endogenous catabolism masih bermakna</td>
+                  <td className="p-2 font-bold">Fase akut 0–48 jam</td><td className="p-2 text-amber-600 dark:text-amber-400 font-semibold">50–70% target (10–15 kkal/kg/hari)</td><td className="p-2 text-muted-foreground">Avoid over-feeding; endogenous catabolism masih bermakna</td>
                 </tr>
                 <tr className="border-b border-border text-foreground">
-                  <td className="p-2 font-bold">Setelah 48 jam (stabil)</td><td className="p-2 text-success font-semibold">25–30 kkal/kg IBW/hari</td><td className="p-2 text-muted-foreground">Gunakan IBW (Ideal Body Weight), bukan actual BW pada obese</td>
+                  <td className="p-2 font-bold">Setelah 48 jam (stabil)</td><td className="p-2 text-emerald-600 dark:text-emerald-400 font-semibold">25–30 kkal/kg IBW/hari</td><td className="p-2 text-muted-foreground">Gunakan IBW (Ideal Body Weight), bukan actual BW pada obese</td>
                 </tr>
                 <tr className="border-b border-border text-foreground">
                   <td className="p-2 font-bold">Obesitas (BMI ≥30)</td><td className="p-2">11–14 kkal/kg actual BW <br/>(atau 22–25 kkal/kg IBW)</td><td className="p-2 text-muted-foreground">Hypocaloric high-protein feeding — hindari overfeeding</td>
@@ -76,7 +76,7 @@ export default function TeoriNutrisi() {
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">ICU umum (non-obese)</td><td className="p-2 text-primary font-bold">1.2–2.0 g/kg IBW/hari</td><td className="p-2 text-muted-foreground">Mulai 1.2, eskalasi bertahap</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Obesitas (BMI ≥30)</td><td className="p-2 text-primary font-bold">2.0–2.5 g/kg IBW/hari</td><td className="p-2 text-muted-foreground">Protein tinggi untuk preservasi lean mass</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Luka bakar (&gt;30% BSA)</td><td className="p-2 font-semibold">2.0–2.5 g/kg/hari</td><td className="p-2 text-muted-foreground">Hiperkatabolisme ekstrem</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">AKI tanpa dialisis</td><td className="p-2 text-warning font-semibold">0.8–1.0 g/kg/hari</td><td className="p-2 text-muted-foreground">Batasi protein untuk kurangi uremia</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">AKI tanpa dialisis</td><td className="p-2 text-amber-600 dark:text-amber-400 font-semibold">0.8–1.0 g/kg/hari</td><td className="p-2 text-muted-foreground">Batasi protein untuk kurangi uremia</td></tr>
                 <tr className="text-foreground"><td className="p-2 font-bold">CRRT (CVVH/CVVHDF)</td><td className="p-2 text-destructive font-bold">1.5–2.0 g/kg/hari</td><td className="p-2 text-muted-foreground">Kehilangan asam amino via membran ~10–15 g/hari</td></tr>
               </tbody>
             </table>
@@ -88,8 +88,8 @@ export default function TeoriNutrisi() {
         </Accordion>
 
         <Accordion title="📖 Enteral vs Parenteral — Kapan, Bagaimana & Monitoring">
-          <div className="p-3 bg-success/10 border border-success/30 rounded-lg text-foreground mb-4 text-center">
-            <strong className="text-success text-[14px]">🏥 Prinsip Utama: "If the gut works, use it!"</strong>
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-foreground mb-4 text-center">
+            <strong className="text-emerald-600 dark:text-emerald-400 text-[14px]">🏥 Prinsip Utama: "If the gut works, use it!"</strong>
             <p className="text-muted-foreground mt-1 text-[12px]">Nutrisi enteral mempertahankan integritas mukosa usus, mencegah translokasi bakteri, dan lebih fisiologis. Parenteral hanya jika enteral tidak mungkin atau tidak mencukupi.</p>
           </div>
 
@@ -125,8 +125,8 @@ export default function TeoriNutrisi() {
         </Accordion>
 
         <Accordion title="📖 Refeeding Syndrome — Risiko, Patofisiologi & Pencegahan">
-          <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg text-foreground mb-4">
-            <h3 className="font-bold text-[14px] text-warning mb-1">⚠️ Refeeding Syndrome</h3>
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-foreground mb-4">
+            <h3 className="font-bold text-[14px] text-amber-600 dark:text-amber-400 mb-1">⚠️ Refeeding Syndrome</h3>
             <p className="text-[12px] text-muted-foreground mb-2">Terjadi ketika pemberian nutrisi (terutama KH) terlalu cepat setelah puasa panjang. Insulin surge → K, Mg, Phos masuk sel drastis → hipofosfatemia, hipokalemia akut → aritmia, RF, kematian.</p>
             <ul className="list-disc pl-5 m-0 space-y-1 text-muted-foreground text-[12px]">
               <li><strong className="text-foreground">Risiko (NICE):</strong> BMI rendah (&lt;16), anoriksia, NPO &gt;5-10 hari.</li>

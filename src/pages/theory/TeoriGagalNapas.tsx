@@ -1,4 +1,5 @@
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function TeoriGagalNapas() {
   return (
@@ -33,17 +34,18 @@ export default function TeoriGagalNapas() {
         </div>
 
         <div className="p-4 bg-teal-500/10 border border-teal-500/30 rounded-lg text-foreground mb-4 text-[13px]">
-          <div className="font-bold text-[14px] mb-2 text-teal-600 dark:text-teal-400">Global Definition of ARDS (2023)</div>
-          <p>Matthay MA et al. Am J Respir Crit Care Med 2023 memperbarui definisi Berlin 2012 dengan: <br/>
-          (1) menambahkan HFNC ≥30 L/mnt dengan FiO₂ ≥0.4 dan NIV/CPAP sebagai setting yang memenuhi kriteria; <br/>
-          (2) SpO₂/FiO₂ ≤315 dapat menggantikan PaO₂/FiO₂ jika AGD tidak tersedia; <br/>
-          (3) tidak lagi mensyaratkan bilateral infiltrat simetris ketat.</p>
-          <p className="mt-2 text-[12px] opacity-80 text-teal-700 dark:text-teal-300"><em>Matthay MA et al. Am J Respir Crit Care Med (2023) [3].</em></p>
+          <div className="font-bold text-[14px] mb-2 text-teal-600 dark:text-teal-400">Global Definition of ARDS (2024)</div>
+          <p>Matthay MA et al. (Am J Respir Crit Care Med 2024) memperluas definisi Berlin 2012 dengan: <br/>
+          (1) pasien dengan HFNO ≥30 L/mnt (tanpa syarat FiO₂ tertentu) — selain NIV/CPAP PEEP ≥5 — sudah dapat didiagnosis ARDS (kategori non-intubasi); <br/>
+          (2) SpO₂/FiO₂ ≤315 (bila SpO₂ ≤97%) dapat menggantikan PaO₂/FiO₂ ≤300; <br/>
+          (3) opasitas bilateral tetap disyaratkan, tetapi USG paru diterima sebagai modalitas pencitraan; <br/>
+          (4) di fasilitas terbatas, PEEP, laju aliran O₂, atau alat bantu napas tertentu tidak disyaratkan.</p>
+          <p className="mt-2 text-[12px] opacity-80 text-teal-700 dark:text-teal-300"><em>Matthay MA et al. Am J Respir Crit Care Med 2024;209:37 [3].</em></p>
         </div>
 
         <p className="mt-2 text-[11px] italic text-muted-foreground mb-4">
           📚 Berlin Definition. JAMA 2012;307:2526 · 
-          Matthay MA et al. (Global ARDS Definition 2023) Am J Respir Crit Care Med 2023;209:37 · 
+          Matthay MA et al. (Global ARDS Definition) Am J Respir Crit Care Med 2024;209:37 · 
           Grasselli G et al. (ESICM ARDS Guidelines 2023) ICM 2023;49:727
         </p>
 
@@ -65,7 +67,7 @@ export default function TeoriGagalNapas() {
                   <td className="p-2 font-bold">V/Q Mismatch</td>
                   <td className="p-2">Alveoli ventilasi tidak sepadan dengan perfusi (atau sebaliknya). Penyebab hipoksemia tersering.</td>
                   <td className="p-2">Pneumonia, PPOK, asma, PE, edema paru</td>
-                  <td className="p-2 text-success font-semibold">Respons baik</td>
+                  <td className="p-2 text-emerald-600 dark:text-emerald-400 font-semibold">Respons baik</td>
                 </tr>
                 <tr className="border-b border-border text-foreground">
                   <td className="p-2 font-bold">Shunt (Qs/Qt)</td>
@@ -77,19 +79,19 @@ export default function TeoriGagalNapas() {
                   <td className="p-2 font-bold">Difusi Terganggu</td>
                   <td className="p-2">Penebalan membran alveolar-kapiler → ↓ transfer O₂.</td>
                   <td className="p-2">Fibrosis paru, sarkoidosis, pneumonitis</td>
-                  <td className="p-2 text-success font-semibold">Respons baik (istirahat)</td>
+                  <td className="p-2 text-emerald-600 dark:text-emerald-400 font-semibold">Respons baik (istirahat)</td>
                 </tr>
                 <tr className="border-b border-border text-foreground">
                   <td className="p-2 font-bold">Hipoventilasi</td>
                   <td className="p-2">A-a gradient NORMAL. PAO₂ ↓ karena PaCO₂ ↑.</td>
                   <td className="p-2">OHS, overdosis opiat, NMD</td>
-                  <td className="p-2 text-success font-semibold">Respons sangat baik</td>
+                  <td className="p-2 text-emerald-600 dark:text-emerald-400 font-semibold">Respons sangat baik</td>
                 </tr>
                 <tr className="text-foreground">
                   <td className="p-2 font-bold">FiO₂ Rendah</td>
                   <td className="p-2">Tekanan parsial O₂ inspirasi rendah. A-a gradient normal.</td>
                   <td className="p-2">Ketinggian, ruang terkurung</td>
-                  <td className="p-2 text-success font-semibold">Respons baik</td>
+                  <td className="p-2 text-emerald-600 dark:text-emerald-400 font-semibold">Respons baik</td>
                 </tr>
               </tbody>
             </table>
@@ -98,14 +100,14 @@ export default function TeoriGagalNapas() {
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">A-a Gradient</h3>
           <ul className="list-disc pl-5 mb-4 space-y-1 text-muted-foreground">
             <li><strong className="text-foreground">Formula:</strong> A-a = PAO₂ − PaO₂ = [FiO₂ × (Patm − PH₂O) − PaCO₂/RQ] − PaO₂</li>
-            <li><strong className="text-foreground">Normal:</strong> 5–15 mmHg pada usia muda; meningkat dengan usia: ~2.5 + (0.21 × usia)</li>
+            <li><strong className="text-foreground">Normal (udara ruang):</strong> 5–15 mmHg pada usia muda; meningkat dengan usia. Kalkulator AGD memakai perkiraan praktis <strong className="text-foreground">usia/4 + 4</strong>; rumus Mellemgaard (2,5 + 0,21 × usia) memberi angka sedikit lebih rendah (usia 60: 19 vs 15 mmHg). Nilai normal meningkat bila FiO₂ dinaikkan.</li>
             <li><strong className="text-foreground">A-a normal + hipoksemia:</strong> Hipoventilasi murni atau FiO₂ rendah</li>
             <li><strong className="text-foreground">A-a meningkat + hipoksemia:</strong> V/Q mismatch, shunt, atau difusi terganggu</li>
           </ul>
 
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Prone Positioning pada ARDS Berat</h3>
           <ul className="list-disc pl-5 mb-4 space-y-1 text-muted-foreground">
-            <li><strong className="text-foreground">PROSEVA trial (Guérin C et al. NEJM 2013;368:2159):</strong> Prone &gt;16 jam/hari pada P/F &lt;150 → mortalitas 28 hari ↓ dari 32.8% menjadi 16% (RR 0.39, NNT ~6). Rekomendasi kuat untuk ARDS berat (P/F &lt;150, SSC/ATS 2017).</li>
+            <li><strong className="text-foreground">PROSEVA trial (Guérin C et al. NEJM 2013;368:2159):</strong> Prone &gt;16 jam/hari pada P/F &lt;150 → mortalitas 28 hari ↓ dari 32,8% menjadi 16,0% (HR 0,39; NNT ~6). Rekomendasi kuat prone &gt;12 jam/hari untuk ARDS berat (ATS/ESICM/SCCM 2017); ESICM 2023: prone untuk ARDS sedang–berat dengan P/F &lt;150.</li>
             <li><strong className="text-foreground">Mekanisme:</strong> Redistribusi ventilasi ke daerah dorsal yang lebih banyak, ↓ shunt, ↓ overdistensi ventral, ↑ drainase sekret, ↓ kompresi jantung ke paru.</li>
             <li><strong className="text-foreground">Kontraindikasi relatif:</strong> Fraktur tulang belakang tidak stabil, luka bakar anterior luas, tekanan intrakranial meningkat, kehamilan trimester III.</li>
           </ul>
@@ -123,9 +125,8 @@ export default function TeoriGagalNapas() {
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Driving Pressure (DP) pada ARDS</h3>
           <ul className="list-disc pl-5 mb-3 space-y-1 text-muted-foreground">
             <li><strong className="text-foreground">Definisi:</strong> DP = Plateau pressure − PEEP = VT / Compliance sistem respirasi. Mencerminkan "stress" efektif pada paru yang masih aerasi.</li>
-            <li><strong className="text-foreground">Amato MB et al. NEJM 2015;372:747:</strong> Analisis observasional multicenter — DP &gt;14 cmH₂O dikaitkan dengan mortalitas lebih tinggi, bahkan setelah koreksi VT dan PEEP. Target DP ≤14 cmH₂O rasional.</li>
-            <li><strong className="text-foreground">DRIVINGARDS trial (NEJM Evidence 2023):</strong> RCT pertama driving pressure-guided ventilation — tren protektif namun belum mencapai signifikansi statistik. Mendukung pendekatan DP-guided sebagai strategi tambahan, namun belum cukup untuk mengubah standar manajemen saat ini [8].</li>
-            <li><strong className="text-foreground">Praktis:</strong> Jika VT 6 mL/kgIBW menghasilkan DP &gt;14 → turunkan VT ke 4–5 mL/kgIBW; jika perlu, toleransi permissive hypercapnia.</li>
+            <li><strong className="text-foreground">Amato MB et al. NEJM 2015;372:747:</strong> Analisis data individual dari beberapa RCT — DP yang lebih tinggi (risiko naik nyata di atas ±15 cmH₂O) berhubungan dengan mortalitas lebih tinggi, terlepas dari VT dan PEEP. Ini data asosiasi; strategi yang dipandu DP belum terbukti oleh RCT. Target praktis ≤15 cmH₂O (sama dengan kalkulator ventilator).</li>
+            <li><strong className="text-foreground">Praktis:</strong> Jika VT 6 mL/kgIBW menghasilkan DP &gt;15 → pertimbangkan turunkan VT bertahap sampai minimal 4 mL/kgIBW; jika perlu, toleransi permissive hypercapnia (pH ≥7,20).</li>
           </ul>
           <p className="mt-2 text-[11px] italic text-muted-foreground mb-2">
             📚 Amato MB et al. NEJM 2015;372:747 · 
@@ -174,8 +175,8 @@ export default function TeoriGagalNapas() {
           <ul className="list-disc pl-5 mb-3 space-y-1 text-muted-foreground">
             <li><strong className="text-foreground">Normal:</strong> VD/VT = 0.3 (30% dari setiap napas adalah dead space)</li>
             <li><strong className="text-foreground">ARDS berat:</strong> VD/VT bisa mencapai 0.6–0.7 → butuh VE sangat tinggi untuk normocapnia</li>
-            <li><strong className="text-foreground">Formula Bohr:</strong> VD/VT = (PaCO₂ − PeCO₂) / PaCO₂</li>
-            <li><strong className="text-foreground">VD/VT &gt;0.6 di ARDS:</strong> Prediktor mortalitas independen (Nuckton TJ. NEJM 2002) [9].</li>
+            <li><strong className="text-foreground">Formula Bohr–Enghoff:</strong> VD/VT = (PaCO₂ − PeCO₂) / PaCO₂</li>
+            <li><strong className="text-foreground">VD/VT tinggi di awal ARDS:</strong> prediktor mortalitas independen — tiap kenaikan 0,05 menaikkan odds kematian 45% (Nuckton TJ. NEJM 2002) [10].</li>
             <li><strong className="text-foreground">Klinis:</strong> VD/VT tinggi → weaning sulit meski kekuatan otot normal.</li>
           </ul>
         </Accordion>
@@ -186,8 +187,8 @@ export default function TeoriGagalNapas() {
             <li><strong className="text-foreground">Mekanisme:</strong> Anestesi umum → ↓ FRC 20–30% → penutupan jalan napas kecil → atelektasis → V/Q mismatch → hipoksemia</li>
             <li><strong className="text-foreground">Faktor risiko:</strong> Obesitas, operasi abdominal/torakal, PPOK, merokok, usia lanjut, nyeri post-op (splinting)</li>
             <li><strong className="text-foreground">Penatalaksanaan:</strong> PEEP ≥5 cmH₂O, rekruitmen maneuver, CPAP post-op, analgesia adekuat, early mobilisasi, spirometri insentif</li>
-            <li><strong className="text-foreground">NIV profilaksis post-op:</strong> Efektif menurunkan re-intubasi pada pasien risiko tinggi (ECLAIR trial, Jaber 2016)</li>
-            <li><strong className="text-foreground">HFNC post-op abdominal:</strong> OPERA trial (2024) — HFNC vs O₂ konvensional, tidak superior untuk composite outcome, namun lebih nyaman</li>
+            <li><strong className="text-foreground">NIV terapeutik pasca-bedah abdomen:</strong> pada gagal napas hipoksemik yang timbul ≤7 hari pasca-operasi, NIV menurunkan reintubasi dibanding O₂ standar (NIVAS — Jaber, JAMA 2016) [11]</li>
+            <li><strong className="text-foreground">HFNC profilaksis pasca-ekstubasi bedah abdomen mayor:</strong> tidak menurunkan hipoksemia dibanding O₂ standar (OPERA — Futier, ICM 2016) [12]</li>
           </ul>
           
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Tipe IV — Hipoperfusi / Syok</h3>
@@ -195,9 +196,11 @@ export default function TeoriGagalNapas() {
             <li><strong className="text-foreground">Mekanisme:</strong> Syok → DO₂ tidak memenuhi VO₂ → metabolisme anaerob → laktat asidosis → gagal napas sebagai organ failure</li>
             <li><strong className="text-foreground">DO₂ = CO × CaO₂ × 10</strong> — CO = cardiac output, CaO₂ = Hb × 1.34 × SaO₂ + (PaO₂ × 0.003)</li>
             <li><strong className="text-foreground">Interaksi ventilasi-sirkulasi:</strong> Ventilasi mekanik meningkatkan tekanan intratorakal → ↓ preload → ↓ CO → perburukan syok. Resusitasi hemodinamik harus bersamaan.</li>
-            <li><strong className="text-foreground">Tatalaksana prioritas Tipe IV:</strong> (1) Resusitasi hemodinamik, (2) Source control, (3) Ventilasi mekanik untuk mengurangi WOB otot napas (redistribusi DO₂) [10].</li>
+            <li><strong className="text-foreground">Tatalaksana prioritas Tipe IV:</strong> (1) Resusitasi hemodinamik, (2) Source control, (3) Ventilasi mekanik untuk mengurangi WOB otot napas (redistribusi DO₂).</li>
           </ul>
         </Accordion>
+
+        <AbbrLegend terms={['PaO2', 'PaCO2', 'FiO2', 'SpO2', 'P/F', 'S/F', 'A-a', 'AGD', 'ARDS', 'HFNC', 'HFNO', 'NIV', 'CPAP', 'PEEP', 'VT', 'DP', 'RR', 'NMB', 'RASS', 'RCT', 'NNT', 'IBW', 'PPOK', 'GBS', 'PE', 'DO2', 'VO2', 'CO', 'ESICM', 'ATS', 'SCCM', 'PAO2', 'VD/VT', 'VE', 'VA', 'VCO2', 'WOB', 'FRC', 'OHS', 'BZD', 'MG', 'SMA', 'ALS', 'CaO2', 'PeCO2', 'RQ', 'PH2O', 'Patm']} />
 
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
@@ -206,16 +209,16 @@ export default function TeoriGagalNapas() {
           <ul className="list-decimal pl-5 space-y-2 text-muted-foreground text-[12px]">
             <li>West JB. Respiratory Physiology: The Essentials. 10th ed. 2016.</li>
             <li>Roussos C, Koutsoukou A. Respiratory failure. <em>Eur Respir J Suppl</em>. 2003.</li>
-            <li>Matthay MA, et al. A New Global Definition of Acute Respiratory Distress Syndrome. <em>Am J Respir Crit Care Med</em>. 2023.</li>
-            <li>Guérin C, et al. Prone positioning in severe acute respiratory distress syndrome. <em>N Engl J Med</em>. 2013.</li>
-            <li>Papazian L, et al. Neuromuscular blockers in early acute respiratory distress syndrome. <em>N Engl J Med</em>. 2010.</li>
-            <li>Moss M, et al. Early Neuromuscular Blockade in the Acute Respiratory Distress Syndrome (ROSE). <em>N Engl J Med</em>. 2019.</li>
-            <li>Amato MB, et al. Driving pressure and survival in the acute respiratory distress syndrome. <em>N Engl J Med</em>. 2015.</li>
-            <li>Jaber S, et al. Driving Pressure-Guided Ventilation for ARDS (DRIVINGARDS). <em>NEJM Evidence</em>. 2023.</li>
-            <li>Nuckton TJ, et al. Pulmonary dead-space fraction as a risk factor for death in the acute respiratory distress syndrome. <em>N Engl J Med</em>. 2002.</li>
-            <li>Jaber S, et al. Noninvasive ventilation to prevent require intubation in high-risk patients. <em>Intensive Care Med</em>. 2016.</li>
-            <li>Grasselli G et al. (ESICM ARDS 2023) <em>Intensive Care Med</em>. 2023;49:727.</li>
-            <li>Amato MB et al. <em>N Engl J Med</em>. 2015;372:747.</li>
+            <li>Matthay MA, et al. A New Global Definition of Acute Respiratory Distress Syndrome. <em>Am J Respir Crit Care Med</em>. 2024;209:37.</li>
+            <li>ARDS Definition Task Force (Ranieri VM, et al.). Acute respiratory distress syndrome: the Berlin Definition. <em>JAMA</em>. 2012;307:2526.</li>
+            <li>Grasselli G, et al. ESICM guidelines on acute respiratory distress syndrome. <em>Intensive Care Med</em>. 2023;49:727.</li>
+            <li>Guérin C, et al. Prone positioning in severe acute respiratory distress syndrome (PROSEVA). <em>N Engl J Med</em>. 2013;368:2159.</li>
+            <li>Papazian L, et al. Neuromuscular blockers in early acute respiratory distress syndrome (ACURASYS). <em>N Engl J Med</em>. 2010;363:1107.</li>
+            <li>Moss M, et al. Early Neuromuscular Blockade in the Acute Respiratory Distress Syndrome (ROSE). <em>N Engl J Med</em>. 2019;380:1997.</li>
+            <li>Amato MB, et al. Driving pressure and survival in the acute respiratory distress syndrome. <em>N Engl J Med</em>. 2015;372:747.</li>
+            <li>Nuckton TJ, et al. Pulmonary dead-space fraction as a risk factor for death in the acute respiratory distress syndrome. <em>N Engl J Med</em>. 2002;346:1281.</li>
+            <li>Jaber S, et al. Effect of noninvasive ventilation on tracheal reintubation among patients with hypoxemic respiratory failure following abdominal surgery (NIVAS). <em>JAMA</em>. 2016;315:1345.</li>
+            <li>Futier E, et al. Effect of early postextubation high-flow nasal cannula vs conventional oxygen therapy on hypoxaemia after major abdominal surgery (OPERA). <em>Intensive Care Med</em>. 2016;42:1888.</li>
           </ul>
         </div>
       </div>

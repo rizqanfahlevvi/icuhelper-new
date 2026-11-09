@@ -36,8 +36,8 @@ export default function TeoriB1B6() {
               </thead>
               <tbody>
                 <tr className="border-b border-border text-foreground"><td className="p-2">Umum / pasca-resusitasi</td><td className="p-2 font-bold text-primary">94–98%</td><td className="p-2 text-muted-foreground">Hindari hiperoksia</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">ARDS sedang–berat</td><td className="p-2 font-bold text-warning">88–95%</td><td className="p-2 text-muted-foreground">Toleransi hipoksemia permisif</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">PPOK / hiperkania kronik</td><td className="p-2 font-bold text-warning">88–92%</td><td className="p-2 text-muted-foreground">Hindari supresi drive napas</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2">ARDS sedang–berat</td><td className="p-2 font-bold text-amber-600 dark:text-amber-400">88–95%</td><td className="p-2 text-muted-foreground">Toleransi hipoksemia permisif</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2">PPOK / hiperkania kronik</td><td className="p-2 font-bold text-amber-600 dark:text-amber-400">88–92%</td><td className="p-2 text-muted-foreground">Hindari supresi drive napas</td></tr>
                 <tr className="text-foreground"><td className="p-2">Stroke / post-cardiac arrest</td><td className="p-2 font-bold text-primary">94–98%</td><td className="p-2 text-muted-foreground">Hiperoksia berbahaya untuk otak</td></tr>
               </tbody>
             </table>

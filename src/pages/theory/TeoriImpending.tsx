@@ -1,4 +1,10 @@
+import { Fragment } from 'react';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { HACOR_TABLE, HACOR_CUTOFF, HACOR_MAX } from '../../utils/hacor';
+import { ROX_HIGH_RISK, ROX_LOW_RISK } from '../../utils/oxygenation';
+
+const fmt = (n: number) => n.toLocaleString('id-ID');
 
 export default function TeoriImpending() {
   return (
@@ -7,10 +13,10 @@ export default function TeoriImpending() {
         <h1 className="text-2xl font-bold tracking-tight text-destructive flex items-center gap-2 mb-2">
           Impending Respiratory Failure — Pengenalan Dini
         </h1>
-        
+
         <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive mb-4 text-[13px]">
           <div className="font-bold text-[14px] mb-2">Definisi & Kriteria Impending Gagal Napas</div>
-          <p>Impending respiratory failure adalah kondisi di mana pasien berisiko tinggi mengalami gagal napas dalam waktu dekat jika tidak diintervensi. <strong>Jendela kritis: 30–60 menit</strong> sebelum dekompensasi total.</p>
+          <p>Impending respiratory failure adalah kondisi di mana pasien berisiko tinggi mengalami gagal napas dalam waktu dekat jika tidak diintervensi. Tanda-tanda di bawah menandakan otot napas mendekati kelelahan — <strong>nilai ulang dalam hitungan menit, bukan jam</strong>.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
             <div>
               <p><strong>Tanda Klinis Utama:</strong></p>
@@ -31,76 +37,75 @@ export default function TeoriImpending() {
                 <li>Takikardia kompensatorik (HR &gt;120)</li>
                 <li>Paradoxal pulse (pulsus paradoksus &gt;10 mmHg) → asma berat</li>
                 <li>SpO₂ &lt;90% meski dengan O₂ tinggi</li>
-                <li>Pola napas Cheyne-Stokes atau Kussmaul</li>
+                <li>Pola napas abnormal (Cheyne-Stokes; Kussmaul pada asidosis metabolik berat)</li>
               </ul>
             </div>
           </div>
-          <p className="mt-2 text-[12px] opacity-80 text-muted-foreground"><em>Berdasarkan kriteria GINA 2024 dan GOLD 2024 [1, 2].</em></p>
+          <p className="mt-2 text-[12px] opacity-80 text-muted-foreground"><em>Dirangkum dari Roussos & Koutsoukou 2003 dan Tobin 1990 [1, 2].</em></p>
         </div>
 
         </div>
 
         <Accordion title="📖 HACOR Score — Prediksi Kegagalan NIV" defaultOpen={true}>
-          <p className="mb-2 text-muted-foreground">HACOR score memprediksi kegagalan NIV dalam 1 jam pertama penggunaan. Skor ≥5 → kemungkinan gagal NIV tinggi → pertimbangkan intubasi awal. <strong>AUC 0.88</strong> (validasi multisenter).</p>
+          <p className="mb-2 text-muted-foreground">
+            HACOR (Heart rate, Acidosis, Consciousness, Oxygenation, Respiratory rate) dinilai pada pasien hipoksemik yang mendapat NIV. Rentang skor 0–{HACOR_MAX}.
+            Skor <strong>&gt;{HACOR_CUTOFF} pada jam ke-1 NIV</strong> memprediksi gagal NIV (sensitivitas 72,6%, spesifisitas 90,2%; <strong>AUC 0,88</strong> pada kohort uji) [3].
+          </p>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
                 <tr className="bg-muted text-muted-foreground border-b border-border">
-                  <th className="p-2">Parameter</th><th className="p-2">Nilai</th><th className="p-2">Skor</th>
+                  <th className="p-2">Parameter</th><th className="p-2">Nilai</th><th className="p-2">Poin</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border text-foreground"><td rowSpan={3} className="p-2 align-top border-b border-border">Heart Rate (/mnt)</td><td className="p-2">≤120</td><td className="p-2 font-bold">0</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">121–150</td><td className="p-2 font-bold text-warning">1</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">&gt;150</td><td className="p-2 font-bold text-destructive">2</td></tr>
-                
-                <tr className="border-b border-border text-foreground"><td rowSpan={3} className="p-2 align-top border-b border-border">Acidosis (pH)</td><td className="p-2">≥7.35</td><td className="p-2 font-bold">0</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">7.25–7.34</td><td className="p-2 font-bold text-destructive">2</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">&lt;7.25</td><td className="p-2 font-bold text-destructive">4</td></tr>
-                
-                <tr className="border-b border-border text-foreground"><td rowSpan={3} className="p-2 align-top border-b border-border">Consciousness (GCS)</td><td className="p-2">15</td><td className="p-2 font-bold">0</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">13–14</td><td className="p-2 font-bold text-destructive">2</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">≤12</td><td className="p-2 font-bold text-destructive">4</td></tr>
-                
-                <tr className="border-b border-border text-foreground"><td rowSpan={3} className="p-2 align-top border-b border-border">Oxygenation (P/F ratio)</td><td className="p-2">≥200</td><td className="p-2 font-bold">0</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">101–200</td><td className="p-2 font-bold text-destructive">3</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">≤100</td><td className="p-2 font-bold text-destructive">5</td></tr>
-                
-                <tr className="border-b border-border text-foreground"><td rowSpan={3} className="p-2 align-top">Respiratory Rate (/mnt)</td><td className="p-2">≤30</td><td className="p-2 font-bold">0</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2">31–40</td><td className="p-2 font-bold text-warning">1</td></tr>
-                <tr className="text-foreground"><td className="p-2">&gt;40</td><td className="p-2 font-bold text-destructive">2</td></tr>
+                {HACOR_TABLE.map((param) => (
+                  <Fragment key={param.key}>
+                    {param.bands.map((band, i) => (
+                      <tr key={band.range} className="border-b border-border text-foreground">
+                        {i === 0 && <td rowSpan={param.bands.length} className="p-2 align-top border-b border-border">{param.label}</td>}
+                        <td className="p-2">{band.range}</td>
+                        <td className={`p-2 font-bold ${band.points === 0 ? '' : band.points <= 2 ? 'text-amber-600 dark:text-amber-400' : 'text-destructive'}`}>{band.points}</td>
+                      </tr>
+                    ))}
+                  </Fragment>
+                ))}
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-muted-foreground"><strong>Interpretasi:</strong> Skor 0–4: NIV kemungkinan berhasil · Skor ≥5: Risiko gagal NIV tinggi → intubasi</p>
-          <p className="mt-1 text-muted-foreground"><strong>Update 2024:</strong> HACOR divalidasi juga untuk prediksi kegagalan HFNC pada pneumonia dan COVID-19 (sensitifitas 83%, spesifisitas 74%) [3, 4].</p>
+          <p className="mt-3 text-muted-foreground"><strong>Interpretasi:</strong> Skor ≤{HACOR_CUTOFF} pada jam ke-1 → NIV dapat dilanjutkan dengan pemantauan ketat · Skor &gt;{HACOR_CUTOFF} → risiko gagal NIV tinggi; pada kohort Duan, intubasi dini (≤12 jam) pada kelompok ini berhubungan dengan mortalitas rumah sakit yang lebih rendah [3].</p>
+          <p className="mt-2 text-[11px] italic text-muted-foreground">📚 Duan J et al. Intensive Care Med 2017;43:192</p>
         </Accordion>
 
         <Accordion title="📖 ROX Index — Prediksi Kegagalan HFNC">
-          <p className="mb-2 text-muted-foreground"><strong>ROX Index = (SpO₂/FiO₂) / RR spontan</strong></p>
-          <p className="mb-3 text-muted-foreground">Dikembangkan untuk memprediksi kebutuhan intubasi pada pasien yang mendapat HFNC. Dihitung pada jam ke-2, 6, dan 12 setelah mulai HFNC.</p>
+          <p className="mb-2 text-muted-foreground"><strong>ROX Index = (SpO₂/FiO₂) ÷ RR spontan</strong> (FiO₂ dalam fraksi, mis. 0,6)</p>
+          <p className="mb-3 text-muted-foreground">Dikembangkan untuk memprediksi kebutuhan intubasi pada pasien pneumonia yang mendapat HFNC. Ambang risiko tinggi <strong>berbeda menurut jam sejak HFNC dimulai</strong> — sama dengan yang dipakai Kalkulator AGD/oksigenasi [5].</p>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
                 <tr className="bg-muted text-muted-foreground border-b border-border">
-                  <th className="p-2">ROX Index</th><th className="p-2">Interpretasi</th><th className="p-2">Tindakan</th>
+                  <th className="p-2">Jam ke-</th><th className="p-2">Risiko rendah</th><th className="p-2">Zona menengah</th><th className="p-2">Risiko tinggi gagal HFNC</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-semibold">≥4.88</td><td className="p-2"><span className="px-2 py-0.5 rounded-full bg-success/20 text-success text-[10px] font-bold">Risiko rendah gagal HFNC</span></td><td className="p-2">Lanjutkan HFNC, monitor tiap 4–6 jam</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-semibold">3.85–4.87</td><td className="p-2"><span className="px-2 py-0.5 rounded-full bg-warning/20 text-warning text-[10px] font-bold">Intermediate</span></td><td className="p-2">Evaluasi ulang ketat tiap 2 jam</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-semibold">2.85–3.84</td><td className="p-2"><span className="px-2 py-0.5 rounded-full bg-destructive/20 text-destructive text-[10px] font-bold">Risiko tinggi</span></td><td className="p-2">Pertimbangkan eskalasi ke NIV/intubasi</td></tr>
-                <tr className="text-foreground"><td className="p-2 font-semibold">&lt;2.85 pada jam 12</td><td className="p-2"><span className="px-2 py-0.5 rounded-full bg-destructive/20 text-destructive text-[10px] font-bold">Intubasi sangat mungkin</span></td><td className="p-2">Spesifisitas 91.4% untuk intubasi dalam 24 jam</td></tr>
+                {(Object.keys(ROX_HIGH_RISK) as (keyof typeof ROX_HIGH_RISK)[]).map((h) => (
+                  <tr key={h} className="border-b border-border text-foreground">
+                    <td className="p-2 font-semibold">{h}</td>
+                    <td className="p-2 text-emerald-600 dark:text-emerald-400 font-bold">≥{fmt(ROX_LOW_RISK)}</td>
+                    <td className="p-2 text-amber-600 dark:text-amber-400 font-bold">{fmt(ROX_HIGH_RISK[h])}–&lt;{fmt(ROX_LOW_RISK)}</td>
+                    <td className="p-2 text-destructive font-bold">&lt;{fmt(ROX_HIGH_RISK[h])}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
           <ul className="list-disc pl-5 mt-3 space-y-1 text-muted-foreground">
-            <li><strong className="text-foreground">ROX-HR (2021):</strong> ROX + Heart Rate → ROX-HR = ROX / HR × 100. Meningkatkan akurasi prediksi pada sepsis + hipoksemia. Cut-off &lt;4.6 pada jam 2 [5].</li>
-            <li><strong className="text-foreground">Keterbatasan:</strong> Tidak valid untuk pasien PPOK (RR rendah kronik), kardiogenik edema paru murni, atau immunocompromised berat [6].</li>
-            <li><strong className="text-foreground">FLORALI trial update (2023):</strong> HFNC superior vs O₂ masker dan NIV pada hipoksemia akut non-PPOK; benefit lebih besar pada P/F &lt;200 [7].</li>
+            <li><strong className="text-foreground">Tindakan:</strong> risiko rendah → lanjutkan HFNC & pantau; zona menengah → nilai ulang 1–2 jam (ROX yang terus naik = prognosis lebih baik); risiko tinggi → pertimbangkan intubasi, jangan menunda.</li>
+            <li><strong className="text-foreground">Keterbatasan:</strong> kohort pengembangan ROX adalah pasien pneumonia [5, 6] — penerapan pada PPOK hiperkapnik, edema paru kardiogenik, atau imunokompromais berat belum tervalidasi baik.</li>
+            <li><strong className="text-foreground">FLORALI (2015):</strong> pada gagal napas hipoksemik non-hiperkapnik, angka intubasi hari ke-28 tidak berbeda bermakna antara HFNC, O₂ standar, dan NIV (38% vs 47% vs 50%; P=0,18). Mortalitas 90 hari lebih rendah dengan HFNC; pada subgrup P/F ≤200 (analisis post-hoc) intubasi lebih rendah dengan HFNC [7].</li>
           </ul>
           <p className="mt-2 text-[11px] italic text-muted-foreground">
-            📚 Frat JP et al. (FLORALI) NEJM 2015;372:2185 · 
+            📚 Frat JP et al. (FLORALI) NEJM 2015;372:2185 ·
             Roca O et al. (ROX index) Am J Respir Crit Care Med 2019;199:1368
           </p>
         </Accordion>
@@ -116,11 +121,11 @@ export default function TeoriImpending() {
               <li><strong className="text-foreground">Interface:</strong> Full-face mask (paling efektif), helmet CPAP (lebih nyaman, lebih baik untuk ARDS ringan), nasal mask (PPOK kronik)</li>
             </ul>
             <p className="mt-2 text-[11px] italic text-muted-foreground">
-              📚 Rochwerg B et al. (ERS/ATS NIV 2017) Eur Respir J 2017;50:1602426 · 
+              📚 Rochwerg B et al. (ERS/ATS NIV 2017) Eur Respir J 2017;50:1602426 ·
               Antonelli M et al. NEJM 1998;339:429 · Plant PK et al. (NIV COPD) Lancet 2000;355:1931
             </p>
           </div>
-          
+
           <div className="mb-4">
             <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Indikasi HFNC (High Flow Nasal Cannula)</h3>
             <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
@@ -132,23 +137,24 @@ export default function TeoriImpending() {
           </div>
 
           <div>
-            <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Intubasi Segera — Indikasi Mutlak [8, 9]</h3>
+            <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Intubasi Segera — Indikasi [8, 9]</h3>
             <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
               <li>Henti napas atau apnea</li>
               <li>GCS ≤8 atau tidak dapat proteksi jalan napas</li>
               <li>Syok berat disertai gagal napas (perlu sedasi dalam)</li>
               <li>SpO₂ &lt;85% meski FiO₂ 1.0 via HFNC/NIV</li>
-              <li>HACOR Score ≥5 setelah 1 jam NIV</li>
-              <li>ROX &lt;3.85 setelah 12 jam HFNC (atau &lt;2.85 pada jam 12)</li>
+              <li>HACOR &gt;{HACOR_CUTOFF} pada jam ke-1 NIV</li>
+              <li>ROX di bawah ambang risiko tinggi: &lt;{fmt(ROX_HIGH_RISK['2'])} (jam 2), &lt;{fmt(ROX_HIGH_RISK['6'])} (jam 6), &lt;{fmt(ROX_HIGH_RISK['12'])} (jam 12)</li>
               <li>Agitasi ekstrem, tidak kooperatif dengan NIV/HFNC</li>
               <li>Perburukan klinis progresif meski terapi optimal</li>
             </ul>
             <p className="mt-2 text-[11px] italic text-muted-foreground">
-              📚 Brown CA et al. Walls Manual 6th ed. 2023 · 
-              Brown CA et al. (first-pass success & mortalitas) NEJM 2023;389:1943
+              📚 Rochwerg B et al. Eur Respir J 2017;50:1602426 · Brown CA et al. Walls Manual of Emergency Airway Management, 6th ed.
             </p>
           </div>
         </Accordion>
+
+        <AbbrLegend terms={['RR', 'HR', 'SCM', 'SpO2', 'FiO2', 'PaO2', 'PaCO2', 'P/F', 'NIV', 'HFNC', 'HACOR', 'GCS', 'AUC', 'ROX', 'PPOK', 'IPAP', 'EPAP', 'CPAP', 'BiPAP', 'ARDS', 'PEEP', 'ERS', 'ATS', 'COVID-19']} />
 
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
@@ -157,16 +163,15 @@ export default function TeoriImpending() {
           <ul className="list-decimal pl-5 space-y-2 text-muted-foreground text-[12px]">
             <li>Roussos C, Koutsoukou A. Respiratory failure. <em>Eur Respir J Suppl</em>. 2003;47:3s-14s.</li>
             <li>Tobin MJ. Respiratory monitoring. <em>JAMA</em>. 1990;264:244.</li>
-            <li>Duan J, et al. Assessment of heart rate, acidosis, consciousness, oxygenation, and respiratory rate to predict noninvasive ventilation failure in hypoxemic patients. <em>Intensive Care Med</em>. 2017.</li>
-            <li>Antonelli M, et al. A comparison of noninvasive positive-pressure ventilation and conventional mechanical ventilation in patients with acute respiratory failure. <em>N Engl J Med</em>. 1998.</li>
-            <li>Roca O, et al. An index combining respiratory rate and oxygenation to predict outcome of nasal high-flow therapy. <em>Am J Respir Crit Care Med</em>. 2019.</li>
-            <li>Roca O, et al. Predicting success of high-flow nasal cannula in pneumonia patients with hypoxemic respiratory failure: The utility of the ROX index. <em>J Crit Care</em>. 2016.</li>
-            <li>Frat JP, et al. High-flow oxygen through nasal cannula in acute hypoxemic respiratory failure. <em>N Engl J Med</em>. 2015.</li>
-            <li>Rochwerg B, et al. Official ERS/ATS clinical practice guidelines: noninvasive ventilation for acute respiratory failure. <em>Eur Respir J</em>. 2017.</li>
-            <li>Grieco DL, et al. High-flow nasal oxygen vs noninvasive ventilation in patients with acute hypoxemic respiratory failure. <em>JAMA</em>. 2021.</li>
+            <li>Duan J, et al. Assessment of heart rate, acidosis, consciousness, oxygenation, and respiratory rate to predict noninvasive ventilation failure in hypoxemic patients. <em>Intensive Care Med</em>. 2017;43:192.</li>
+            <li>Antonelli M, et al. A comparison of noninvasive positive-pressure ventilation and conventional mechanical ventilation in patients with acute respiratory failure. <em>N Engl J Med</em>. 1998;339:429.</li>
+            <li>Roca O, et al. An index combining respiratory rate and oxygenation to predict outcome of nasal high-flow therapy. <em>Am J Respir Crit Care Med</em>. 2019;199:1368.</li>
+            <li>Roca O, et al. Predicting success of high-flow nasal cannula in pneumonia patients with hypoxemic respiratory failure: The utility of the ROX index. <em>J Crit Care</em>. 2016;35:200.</li>
+            <li>Frat JP, et al. High-flow oxygen through nasal cannula in acute hypoxemic respiratory failure. <em>N Engl J Med</em>. 2015;372:2185.</li>
+            <li>Rochwerg B, et al. Official ERS/ATS clinical practice guidelines: noninvasive ventilation for acute respiratory failure. <em>Eur Respir J</em>. 2017;50:1602426.</li>
+            <li>Grieco DL, et al. Effect of helmet noninvasive ventilation vs high-flow nasal oxygen on days free of respiratory support in patients with COVID-19 and moderate to severe hypoxemic respiratory failure (HENIVOT). <em>JAMA</em>. 2021;325:1731.</li>
             <li>Plant PK et al. (NIV COPD) <em>Lancet</em>. 2000;355:1931.</li>
-            <li>Brown CA et al. Walls Manual of Emergency Airway Management 6th ed. 2023.</li>
-            <li>Brown CA et al. (first-pass success & mortalitas) <em>N Engl J Med</em>. 2023;389:1943.</li>
+            <li>Brown CA, Sakles JC, Mick NW (eds). The Walls Manual of Emergency Airway Management. 6th ed.</li>
           </ul>
         </div>
       </div>

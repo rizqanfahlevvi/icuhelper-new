@@ -100,10 +100,10 @@ export default function TeoriSepsis() {
               </div>
             </div>
 
-            <div className="flex gap-3 items-start p-3 bg-warning/10 border border-warning/20 rounded-lg">
-              <div className="w-8 h-8 rounded-full bg-warning/20 text-warning flex items-center justify-center shrink-0 font-bold">5</div>
+            <div className="flex gap-3 items-start p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 font-bold">5</div>
               <div>
-                <h4 className="font-bold text-[13px] text-warning mb-1">Mulai Vasopressor</h4>
+                <h4 className="font-bold text-[13px] text-amber-600 dark:text-amber-400 mb-1">Mulai Vasopressor</h4>
                 <p className="text-[12px] text-muted-foreground">Jika MAP tetap &lt; 65 mmHg selama atau setelah resusitasi cairan, segera mulai <strong>Norepinefrin</strong>. Jangan tunggu cairan 30cc/kg habis jika syok sangat berat.</p>
               </div>
             </div>
@@ -119,7 +119,7 @@ export default function TeoriSepsis() {
         </Accordion>
 
         <Accordion title="📖 Antibiotik Empiris Sepsis — Berdasarkan Sumber Infeksi">
-          <div className="p-2 bg-warning/10 border border-warning/30 rounded text-warning text-[11px] mb-3 font-semibold">
+          <div className="p-2 bg-amber-500/10 border border-amber-500/30 rounded text-amber-600 dark:text-amber-400 text-[11px] mb-3 font-semibold">
             ⚠️ Selalu sesuaikan dengan pola kuman & sensitivitas lokal (antibiogram institusi). Deeskalasi dalam 48–72 jam berdasarkan kultur.
           </div>
           
@@ -194,7 +194,7 @@ export default function TeoriSepsis() {
                   <td className="p-2 font-bold">Vasopressin (ADH)</td>
                   <td className="p-2 text-muted-foreground">V1 receptor → vasokonstriksi langsung</td>
                   <td className="p-2">0.03 unit/mnt (fixed)</td>
-                  <td className="p-2 font-bold text-warning">Add-on jika NE &gt;0.25 (NE-sparing)</td>
+                  <td className="p-2 font-bold text-amber-600 dark:text-amber-400">Add-on jika NE &gt;0.25 (NE-sparing)</td>
                 </tr>
                 <tr className="border-b border-border text-foreground">
                   <td className="p-2 font-bold">Epinefrin</td>

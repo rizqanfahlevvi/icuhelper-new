@@ -27,7 +27,7 @@ export default function TeoriSyok() {
                 <tbody>
                   <tr className="border-b border-border text-foreground"><td className="p-1 font-bold text-destructive">🔴 Distributif</td><td className="p-1 text-muted-foreground">Maldistribusi aliran → SVR ↓↓, CO ↑</td></tr>
                   <tr className="border-b border-border text-foreground"><td className="p-1 font-bold text-primary">🔵 Hipovolemik</td><td className="p-1 text-muted-foreground">Volume intravaskular ↓ → preload ↓ → CO ↓</td></tr>
-                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold text-warning">🟡 Kardiogenik</td><td className="p-1 text-muted-foreground">Kegagalan pompa → CO ↓, afterload ↑</td></tr>
+                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold text-amber-600 dark:text-amber-400">🟡 Kardiogenik</td><td className="p-1 text-muted-foreground">Kegagalan pompa → CO ↓, afterload ↑</td></tr>
                   <tr className="text-foreground"><td className="p-1 font-bold text-orange-500">🟠 Obstruktif</td><td className="p-1 text-muted-foreground">Hambatan mekanik aliran → CO ↓</td></tr>
                 </tbody>
               </table>
@@ -166,7 +166,7 @@ export default function TeoriSyok() {
               </ul>
             </div>
             <div className="p-3 bg-muted/40 rounded-lg">
-              <h4 className="font-bold text-[14px] text-warning mb-2">🩸 S — Pipes (Pembuluh Darah)</h4>
+              <h4 className="font-bold text-[14px] text-amber-600 dark:text-amber-400 mb-2">🩸 S — Pipes (Pembuluh Darah)</h4>
               <ul className="list-disc pl-5 text-muted-foreground text-[12px] space-y-1">
                 <li><strong className="text-foreground">Aorta abdominal:</strong> AAA — diameter &gt;3 cm</li>
                 <li><strong className="text-foreground">Vena femoralis/poplitea:</strong> DVT — tidak kompresibel</li>

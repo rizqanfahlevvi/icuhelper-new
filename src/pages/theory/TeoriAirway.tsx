@@ -1,4 +1,5 @@
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function TeoriAirway() {
   return (
@@ -94,7 +95,7 @@ export default function TeoriAirway() {
             </table>
           </div>
 
-          <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg text-warning text-[12px] mb-3">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-600 dark:text-amber-400 text-[12px] mb-3">
             <strong>⚠ Kontraindikasi Relatif NIV:</strong> Kesadaran menurun tidak kooperatif · Vomiting aktif · Obstruksi mekanik · Perdarahan aktif saluran napas · Tidak mampu melindungi airway
           </div>
         </Accordion>
@@ -149,9 +150,9 @@ export default function TeoriAirway() {
               <table className="w-full text-left border-collapse text-[12px] mb-3">
                 <thead><tr className="bg-muted text-muted-foreground border-b border-border"><th className="p-1">Kelas</th><th className="p-1">Struktur Terlihat</th><th className="p-1">Implikasi Laryngoskopi</th></tr></thead>
                 <tbody>
-                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold">I</td><td className="p-1 text-muted-foreground">Uvula, tonsil, palatum mole, palatum durum terlihat penuh</td><td className="p-1 text-success">Mudah — Cormack-Lehane I/II hampir pasti</td></tr>
-                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold">II</td><td className="p-1 text-muted-foreground">Uvula, palatum mole &amp; durum terlihat; tonsil tertutup sebagian</td><td className="p-1 text-success">Umumnya mudah</td></tr>
-                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold">III</td><td className="p-1 text-muted-foreground">Hanya dasar uvula dan palatum mole terlihat</td><td className="p-1 text-warning">Kemungkinan sulit — pertimbangkan VL atau bougie</td></tr>
+                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold">I</td><td className="p-1 text-muted-foreground">Uvula, tonsil, palatum mole, palatum durum terlihat penuh</td><td className="p-1 text-emerald-600 dark:text-emerald-400">Mudah — Cormack-Lehane I/II hampir pasti</td></tr>
+                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold">II</td><td className="p-1 text-muted-foreground">Uvula, palatum mole &amp; durum terlihat; tonsil tertutup sebagian</td><td className="p-1 text-emerald-600 dark:text-emerald-400">Umumnya mudah</td></tr>
+                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold">III</td><td className="p-1 text-muted-foreground">Hanya dasar uvula dan palatum mole terlihat</td><td className="p-1 text-amber-600 dark:text-amber-400">Kemungkinan sulit — pertimbangkan VL atau bougie</td></tr>
                   <tr className="text-foreground"><td className="p-1 font-bold">IV</td><td className="p-1 text-muted-foreground">Hanya palatum durum terlihat, uvula tidak terlihat sama sekali</td><td className="p-1 text-destructive">Diprediksi sulit — VL atau awake intubation</td></tr>
                 </tbody>
               </table>
@@ -161,8 +162,8 @@ export default function TeoriAirway() {
               <table className="w-full text-left border-collapse text-[12px]">
                 <thead><tr className="bg-muted text-muted-foreground border-b border-border"><th className="p-1">Jumlah Kriteria Positif</th><th className="p-1">Strategi yang Direkomendasikan</th></tr></thead>
                 <tbody>
-                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold text-success">0–1 positif</td><td className="p-1">Airway diprediksi mudah — DL atau VL, pilih sesuai ketersediaan dan preferensi operator</td></tr>
-                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold text-warning">2–3 positif</td><td className="p-1">Airway diprediksi sulit — <strong>VL sebagai pilihan utama</strong>, siapkan bougie, backup SGA</td></tr>
+                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold text-emerald-600 dark:text-emerald-400">0–1 positif</td><td className="p-1">Airway diprediksi mudah — DL atau VL, pilih sesuai ketersediaan dan preferensi operator</td></tr>
+                  <tr className="border-b border-border text-foreground"><td className="p-1 font-bold text-amber-600 dark:text-amber-400">2–3 positif</td><td className="p-1">Airway diprediksi sulit — <strong>VL sebagai pilihan utama</strong>, siapkan bougie, backup SGA</td></tr>
                   <tr className="text-foreground"><td className="p-1 font-bold text-destructive">4–5 positif</td><td className="p-1">Airway sangat sulit — pertimbangkan <strong>awake intubation</strong>, alert spesialis/anestesi, siapkan surgical airway</td></tr>
                 </tbody>
               </table>
@@ -170,7 +171,7 @@ export default function TeoriAirway() {
           </div>
 
           <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg text-foreground text-[12px] mb-3">
-            Tidak ada alat prediksi tunggal yang sempurna. LEMON digunakan sebagai <em>gestalt</em> klinis — satu kriteria sangat positif (misal angioedema masif) sudah cukup untuk mengubah strategi. [4, 5, 2]
+            Tidak ada alat prediksi tunggal yang sempurna. LEMON digunakan sebagai <em>gestalt</em> klinis — satu kriteria sangat positif (misal angioedema masif) sudah cukup untuk mengubah strategi. [4, 5]
           </div>
         </Accordion>
 
@@ -194,7 +195,7 @@ export default function TeoriAirway() {
                   <td className="p-2 text-muted-foreground">
                     <ul className="list-disc pl-4 space-y-1">
                       <li><strong>Head up 20–25°</strong> (semua pasien, kecuali kontraindikasi)</li>
-                      <li><strong>NIV BiPAP/CPAP</strong> — superior vs HFNC untuk mencegah desaturasi (FLORALI-2, <em>Lancet Respir Med</em> 2019;7:e26; meta-analisis 11 RCT, <em>Frontiers Med</em> 2024)</li>
+                      <li><strong>Preoksigenasi dengan NIV</strong> — vs masker O₂: hipoksemia saat intubasi lebih jarang (9,1% vs 18,5%; PREOXI, NEJM 2024) [11]; vs HFNC: secara keseluruhan tidak berbeda bermakna, keuntungan NIV hanya pada subgrup P/F ≤200 (FLORALI-2, analisis post-hoc) [6]</li>
                       <li><strong>HFNC 60 L/mnt FiO₂ 100%</strong> bila NIV tidak toleran</li>
                       <li><strong>Apneic oxygenation</strong> via nasal kanul 15 L/mnt selama prosedur laryngoskopi</li>
                     </ul>
@@ -205,19 +206,19 @@ export default function TeoriAirway() {
                   <td className="p-2 text-destructive">MAP &lt;65 mmHg atau hipotensi relatif</td>
                   <td className="p-2 text-muted-foreground">
                     <ul className="list-disc pl-4 space-y-1">
-                      <li><strong>Push-dose epinefrin</strong> 10–20 mcg IV bolus tiap 2–5 mnt (encerkan 1 mg/10 mL → 0,1 mg/mL; ambil 0,1–0,2 mL lalu encerkan lagi bila perlu) — manfaat BP ada, outcome mortality masih kontroversial (2024 meta-analysis)</li>
+                      <li><strong>Push-dose epinefrin</strong> 5–20 mcg IV bolus tiap 2–5 mnt. Siapkan konsentrasi baku <strong>10 mcg/mL</strong>: ambil 1 mL epinefrin 0,1 mg/mL (atau encerkan dulu 1 mg dalam 10 mL) lalu tambah 9 mL NaCl 0,9% → beri 0,5–2 mL. Hindari menyedot volume sangat kecil (0,1–0,2 mL) — rawan salah dosis 10×; beri label jelas (Holden 2018) [16]. Bukti luaran klinis masih terbatas.</li>
                       <li><strong>Push-dose efedrin</strong> 5–10 mg IV sebagai alternatif</li>
                       <li><strong>Norepinefrin</strong> 0,1–0,3 mcg/kg/mnt dimulai sebelum induksi bila hipotensi jelas</li>
-                      <li>Bolus cairan 250–500 mL sebelum induksi bila hypovolemia nyata</li>
+                      <li>Bolus cairan 250–500 mL sebelum induksi hanya bila hipovolemia nyata — bolus 500 mL rutin tidak mencegah kolaps kardiovaskular saat intubasi (PREPARE II, JAMA 2022) [7]</li>
                     </ul>
                   </td>
                 </tr>
                 <tr className="text-foreground">
                   <td className="p-2 font-bold">Metabolik</td>
-                  <td className="p-2 text-warning">pH &lt;7,1 + PCO₂ &lt;35 (asidosis metabolik terkompensasi)</td>
+                  <td className="p-2 text-amber-600 dark:text-amber-400">pH &lt;7,1 + PCO₂ &lt;35 (asidosis metabolik terkompensasi)</td>
                   <td className="p-2 text-muted-foreground">
                     <ul className="list-disc pl-4 space-y-1">
-                      <li><strong>NaHCO₃ 100 mEq IV</strong> slow infusion sebelum intubasi</li>
+                      <li>Bikarbonat rutin pra-intubasi <strong>tidak didukung bukti</strong>. BICAR-ICU (pH ≤7,20): bikarbonat tidak menurunkan mortalitas keseluruhan, manfaat hanya pada subgrup AKI berat [15]. Prioritas: preoksigenasi dengan NIV, minimalkan apnea, siapkan ventilator dengan RR tinggi.</li>
                       <li>Pasca intubasi: <strong>pertahankan minute ventilation</strong> (RR × VT) sesuai pre-intubasi — jangan biarkan RR turun mendadak pada asidosis metabolik terkompensasi (hilangnya kompensasi respiratorik → pH jatuh drastis)</li>
                     </ul>
                   </td>
@@ -260,7 +261,7 @@ export default function TeoriAirway() {
                   <td className="p-2 font-bold">Teknik RSI</td>
                   <td className="p-2 text-muted-foreground">
                     <strong>RSI Standard:</strong> Fentanyl 1–3 mcg/kg IV → (ketamine 1–2 mg/kg <em>atau</em> etomidate 0,3 mg/kg) → suksinilkolin 1,5 mg/kg <em>atau</em> rocuronium 1,2 mg/kg<br/>
-                    <strong>RSI Modifikasi:</strong> Tanpa NMB bila kontraindikasi (hiperkalsemia, cedera medula spinalis &gt;72 jam, rhabdomiolisis, hiperkalemia berat untuk suksinilkolin)<br/>
+                    <strong>Kontraindikasi suksinilkolin</strong> (pakai rocuronium 1,2 mg/kg): hiperkalemia, riwayat/risiko hipertermia maligna, luka bakar/crush/cedera medula spinalis atau stroke &gt;72 jam, penyakit neuromuskular/denervasi, imobilisasi lama, rabdomiolisis<br/>
                     <strong>Awake intubation:</strong> Bila predicted very difficult airway — topikalisasi lidokain, sedasi minimal, pasien kooperatif
                   </td>
                 </tr>
@@ -273,7 +274,7 @@ export default function TeoriAirway() {
           </div>
 
           <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg text-foreground text-[12px] mb-3">
-            <strong>First-pass success &gt;95%</strong> dikaitkan dengan penurunan mortalitas in-hospital. Setiap attempt tambahan meningkatkan risiko komplikasi: desaturasi, trauma, edema, cardiac arrest [2, 8, 9].
+            <strong>Kejar keberhasilan percobaan pertama.</strong> Setiap percobaan tambahan meningkatkan efek samping (desaturasi, intubasi esofagus, aspirasi, aritmia, henti jantung) [12]. Pada pasien kritis, keberhasilan percobaan pertama 85,1% dengan VL vs 70,8% dengan DL (DEVICE, NEJM 2023) [2, 8, 9].
           </div>
         </Accordion>
 
@@ -287,7 +288,7 @@ export default function TeoriAirway() {
             </ul>
           </div>
 
-          <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Hierarki Rencana Cadangan — Plan A–D (DAS 2025)</h3>
+          <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Hierarki Rencana Cadangan — Plan A–D (DAS 2015, dipertahankan DAS 2025)</h3>
           <div className="overflow-x-auto mb-4">
             <table className="w-full text-left border-collapse text-[12px]">
               <thead>
@@ -302,8 +303,8 @@ export default function TeoriAirway() {
                   <td className="p-2 text-muted-foreground">Maks 3 attempt. Setiap attempt: optimasi posisi, ukuran blade, operator. Gunakan bougie sejak attempt ke-2 bila Cormack-Lehane III–IV.</td>
                 </tr>
                 <tr className="border-b border-border text-foreground">
-                  <td className="p-2 font-bold text-center bg-warning/10 text-warning">Plan B</td>
-                  <td className="p-2 font-bold text-warning">Supraglottic Airway (SGA)</td>
+                  <td className="p-2 font-bold text-center bg-amber-500/10 text-amber-600 dark:text-amber-400">Plan B</td>
+                  <td className="p-2 font-bold text-amber-600 dark:text-amber-400">Supraglottic Airway (SGA)</td>
                   <td className="p-2 text-muted-foreground">LMA, i-gel, atau SGA lain untuk <strong>rescue oxygenation</strong>. Masukkan bila intubasi gagal atau saat menunggu eskalasi bantuan. Bukan solusi definitif tapi jembatan kritis.</td>
                 </tr>
                 <tr className="border-b border-border text-foreground">
@@ -322,7 +323,7 @@ export default function TeoriAirway() {
 
           <h3 className="font-bold text-[13px] text-destructive uppercase tracking-wider mb-2 border-b border-destructive/30 pb-1 mt-4">CICO Protocol — Langkah-Langkah eFONA</h3>
           <div className="p-2 bg-destructive/5 border border-destructive/20 rounded-md text-destructive text-[11px] mb-3">
-            <strong>⚠ Narrow-bore cannula cricothyrotomy (14G) TIDAK lagi direkomendasikan</strong> sebagai Plan D — DAS 2025 mendeprekasi teknik ini karena failure rate ~60% (jet ventilation pressure-related barotrauma, kinking, dislodgement). <strong>Surgical eFONA (scalpel-bougie) = standar saat ini.</strong>
+            <strong>⚠ Narrow-bore cannula cricothyrotomy (14G) TIDAK lagi direkomendasikan</strong> sebagai Plan D — sejak DAS 2015 teknik yang direkomendasikan adalah <strong>scalpel-bougie-tube</strong>; audit NAP4 mencatat kegagalan krikotiroidotomi kanula ±60% (ventilasi jet: barotrauma, tertekuk, terlepas) [13, 14]. DAS 2025 mempertahankan struktur Plan A–D [10].
           </div>
           
           <div className="overflow-x-auto mb-4">
@@ -331,9 +332,9 @@ export default function TeoriAirway() {
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-destructive/10 text-destructive text-center">1</td><td className="p-2"><strong>Declare CICO</strong> secara verbal: "This is a CICO situation. I need help NOW."</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-destructive/10 text-destructive text-center">2</td><td className="p-2"><strong>Call for help</strong> — hubungi anestesi/bedah segera. Pertahankan SGA untuk rescue oxygenation sementara.</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-muted text-center">3</td><td className="p-2"><strong>Identifikasi membran krikotiroid</strong> — palpasi: kartilago tiroid → membran krikotiroid → kartilago krikoid.</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-muted text-center">4</td><td className="p-2"><strong>Insisi horizontal</strong> 1–1,5 cm dengan scalpel #10 pada membran krikotiroid. Incisi langsung masuk lumen.</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-muted text-center">5</td><td className="p-2"><strong>Finger entry</strong> — masukkan jari ke dalam insisi untuk memperlebar lumen dan konfirmasi posisi.</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-muted text-center">6</td><td className="p-2"><strong>Bougie masuk</strong> — arahkan bougie ke bawah (trachea distal). Konfirmasi: sentuh tracheal rings.</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-muted text-center">4</td><td className="p-2"><strong>Insisi tusuk transversal</strong> dengan scalpel #10 menembus membran krikotiroid (sisi tajam menghadap operator).</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-muted text-center">5</td><td className="p-2"><strong>Putar scalpel 90°</strong> (sisi tajam ke kaudal), tarik ke arah operator untuk membuka celah. Bila membran <em>tidak teraba</em>: insisi vertikal 8–10 cm di garis tengah, diseksi tumpul dengan jari untuk mengidentifikasi laring, lalu lanjutkan sama.</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold w-6 bg-muted text-center">6</td><td className="p-2"><strong>Luncurkan bougie</strong> di sepanjang sisi scalpel ke dalam trakea (arah kaudal), lalu lepas scalpel.</td></tr>
                 <tr className="text-foreground"><td className="p-2 font-bold w-6 bg-muted text-center">7</td><td className="p-2"><strong>ETT 6,0 cuff</strong> dimasukkan melalui bougie. Cuff dikembangkan. Ventilasi + konfirmasi ETCO₂ + auskultasi.</td></tr>
               </tbody>
             </table>
@@ -356,21 +357,29 @@ export default function TeoriAirway() {
           </div>
         </Accordion>
 
+        <AbbrLegend terms={['ICU', 'IGD', 'GCS', 'NGT', 'RR', 'NIV', 'PPOK', 'SpO2', 'HFNC', 'P/F', 'ARDS', 'GBS', 'VC-kapasitas', 'FiO2', 'ROX', 'BiPAP', 'IPAP', 'EPAP', 'CPAP', 'LEMON', 'BMI', 'VL', 'DL', 'SGA-airway', 'MAP', 'AKI', 'VT', 'RSI', 'NMB', 'ETT', 'BVM', 'EtCO2', 'CICO', 'eFONA', 'LMA', 'DAS', 'ASA', 'NAP4', 'IDS', 'ERS', 'ATS']} />
+
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
             📚 Referensi Utama
           </h3>
           <ul className="list-decimal pl-5 space-y-2 text-muted-foreground text-[12px]">
-            <li>Brown CA III, et al. <em>The Walls Manual of Emergency Airway Management</em>. 6th ed. 2023.</li>
-            <li>Brown CA. Airway management. <em>N Engl J Med</em>. 2023.</li>
-            <li>Rochwerg B, et al. Official ERS/ATS clinical practice guidelines: noninvasive ventilation for acute respiratory failure. <em>Eur Respir J</em>. 2017.</li>
-            <li>Reed MJ, et al. Can an airway assessment score predict difficulty at intubation in the emergency department? <em>Emerg Med J</em>. 2005.</li>
-            <li>Anesth Pain Med (PMC11078223) — Validasi LEMON vs IDS. 2024.</li>
-            <li>Frat JP, et al. (FLORALI-2). Non-invasive ventilation versus high-flow nasal cannula in hypoxemic patients with acute respiratory failure. <em>Lancet Respir Med</em>. 2019.</li>
-            <li>Zhong M, et al. Efficacy of prophylactic vasopressors in preventing post-intubation hypotension: a meta-analysis. <em>Front Med</em>. 2024.</li>
-            <li>Araújo, et al. Video versus direct laryngoscopy in critically ill patients. <em>Critical Care</em>. 2024.</li>
-            <li>Apfelbaum JL, et al. 2022 American Society of Anesthesiologists Practice Guidelines for Management of the Difficult Airway. <em>Anesthesiology</em>. 2022.</li>
-            <li>Ahmad I, et al. DAS Guidelines for Management of Unanticipated Difficult Intubation. <em>Br J Anaesth</em>. 2025.</li>
+            <li>Brown CA III, Sakles JC, Mick NW (eds). <em>The Walls Manual of Emergency Airway Management</em>. 6th ed.</li>
+            <li>Prekker ME, et al. Video versus direct laryngoscopy for tracheal intubation of critically ill adults (DEVICE). <em>N Engl J Med</em>. 2023;389:418.</li>
+            <li>Rochwerg B, et al. Official ERS/ATS clinical practice guidelines: noninvasive ventilation for acute respiratory failure. <em>Eur Respir J</em>. 2017;50:1602426.</li>
+            <li>Reed MJ, et al. Can an airway assessment score predict difficulty at intubation in the emergency department? <em>Emerg Med J</em>. 2005;22:99.</li>
+            <li>Validasi LEMON di <em>Anesth Pain Med</em>. 2024 (doi:10.5812/aapm-142921).</li>
+            <li>Frat JP, et al. Non-invasive ventilation versus high-flow nasal cannula oxygen therapy with apnoeic oxygenation for preoxygenation before intubation of patients with acute hypoxaemic respiratory failure (FLORALI-2). <em>Lancet Respir Med</em>. 2019;7:303.</li>
+            <li>Russell DW, et al. Effect of fluid bolus administration on cardiovascular collapse among critically ill patients undergoing tracheal intubation (PREPARE II). <em>JAMA</em>. 2022;328:270.</li>
+            <li>Araújo et al. Video versus direct laryngoscopy in critically ill patients: meta-analysis. <em>Critical Care</em>. 2024.</li>
+            <li>Apfelbaum JL, et al. 2022 American Society of Anesthesiologists Practice Guidelines for Management of the Difficult Airway. <em>Anesthesiology</em>. 2022;136:31.</li>
+            <li>Difficult Airway Society. DAS 2025 guidelines for management of unanticipated difficult tracheal intubation in adults. <em>Br J Anaesth</em>. 2026;136:283 (terbit daring Nov 2025).</li>
+            <li>Gibbs KW, et al. Noninvasive ventilation for preoxygenation during emergency intubation (PREOXI). <em>N Engl J Med</em>. 2024;390:2165.</li>
+            <li>Sakles JC, et al. The association between first attempt intubation success and adverse events in the emergency department. <em>Acad Emerg Med</em>. 2013;20:71.</li>
+            <li>Cook TM, et al. Major complications of airway management in the UK: results of the Fourth National Audit Project (NAP4). <em>Br J Anaesth</em>. 2011;106:617.</li>
+            <li>Frerk C, et al. Difficult Airway Society 2015 guidelines for management of unanticipated difficult intubation in adults. <em>Br J Anaesth</em>. 2015;115:827.</li>
+            <li>Jaber S, et al. Sodium bicarbonate therapy for patients with severe metabolic acidaemia in the ICU (BICAR-ICU). <em>Lancet</em>. 2018;392:31.</li>
+            <li>Holden D, et al. Safety considerations and guideline-based safe use recommendations for "bolus-dose" vasopressors in the emergency department. <em>Ann Emerg Med</em>. 2018;71:83.</li>
           </ul>
         </div>
       </div>

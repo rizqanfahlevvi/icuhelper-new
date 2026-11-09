@@ -25,8 +25,8 @@ export default function TeoriTIK() {
         <Accordion title="🧠 Konsep Dasar & Doktrin Monro-Kellie" defaultOpen={true}>
           <p className="text-[12px] text-muted-foreground mb-3">Volume intrakranial bersifat konstan dan terdiri dari tiga komponen: Jaringan Otak (80%), Darah Serebral (10%), dan Cairan Serebrospinal (10%). Peningkatan volume pada salah satu komponen harus dikompensasi oleh penurunan volume komponen lain. Jika kompensasi habis, TIK akan meningkat eksponensial.</p>
           
-          <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg text-foreground mt-3 font-mono text-[13px]">
-            <strong className="text-warning block mb-1">Target Hemodinamik Serebral:</strong>
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-foreground mt-3 font-mono text-[13px]">
+            <strong className="text-amber-600 dark:text-amber-400 block mb-1">Target Hemodinamik Serebral:</strong>
             <ul className="list-disc pl-5 text-muted-foreground space-y-1">
               <li>CPP (Cerebral Perfusion Pressure) = MAP - ICP</li>
               <li><strong className="text-foreground">Target CPP:</strong> 60 - 70 mmHg</li>
@@ -61,7 +61,7 @@ export default function TeoriTIK() {
             <li><strong className="text-foreground">Kontrol Kejang:</strong> Profilaksis anti-kejang sesuai indikasi.</li>
           </ul>
 
-          <h4 className="font-bold text-warning text-[13px] uppercase tracking-wider mb-2 border-b border-border pb-1 mt-6">Tier 2: Terapi Osmolar</h4>
+          <h4 className="font-bold text-amber-600 dark:text-amber-400 text-[13px] uppercase tracking-wider mb-2 border-b border-border pb-1 mt-6">Tier 2: Terapi Osmolar</h4>
           <p className="text-[12px] text-muted-foreground mb-2">Bila ICP tetap tinggi (&gt;20-22 mmHg), berikan terapi hiperosmolar untuk menarik air dari jaringan otak masuk ke intravaskuler.</p>
           <ul className="list-disc pl-5 space-y-2 text-[13px] text-muted-foreground mb-4">
             <li><strong className="text-foreground">Manitol 20%:</strong> Dosis 0.5 - 1 g/kgBB IV. Perhatikan status cairan. Tidak disarankan pada pasien hipotensi.</li>

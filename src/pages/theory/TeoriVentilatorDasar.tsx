@@ -1,6 +1,7 @@
 import { FileText, ArrowLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function TeoriVentilatorDasar() {
   return (
@@ -63,7 +64,7 @@ export default function TeoriVentilatorDasar() {
           <h4 className="font-bold text-foreground text-[13px] mb-2">Synchronized Intermittent Mandatory Ventilation</h4>
           <p className="text-[12px] text-muted-foreground mb-3">Mesin memberikan napas kontrol (mandatory) secara periodik, tetapi di sela-sela napas tersebut, pasien <strong className="text-foreground font-semibold">BISA</strong> bernapas spontan. Napas mesin disinkronkan dengan usaha napas pasien.</p>
           <ul className="list-disc pl-5 space-y-2 text-[13px] text-muted-foreground">
-            <li><strong className="text-foreground">Tujuan:</strong> Mencegah atrofi otot pernapasan, sering digunakan untuk weaning parsial (meskipun sekarang mulai ditinggalkan untuk weaning).</li>
+            <li><strong className="text-foreground">Weaning:</strong> Dulu dipakai untuk weaning bertahap, tetapi RCT menunjukkan SIMV <strong>memperpanjang</strong> weaning dibanding PSV atau T-piece (Brochard 1994; Esteban 1995) — tidak dianjurkan sebagai metode weaning.</li>
             <li><strong className="text-foreground">Kombinasi:</strong> Napas spontan biasanya dibantu dengan Pressure Support (PS) untuk mengatasi resistensi ETT (SIMV + PS).</li>
           </ul>
         </Accordion>
@@ -74,7 +75,7 @@ export default function TeoriVentilatorDasar() {
           </div>
           <ul className="list-disc pl-5 space-y-2 text-[13px] text-muted-foreground">
             <li><strong className="text-foreground">Syarat Utama:</strong> Pasien <strong className="text-destructive">HARUS</strong> memiliki drive napas (trigger) yang adekuat dan stabil.</li>
-            <li><strong className="text-foreground">Target Weaning:</strong> Mode ini adalah standar emas untuk proses <i>Spontaneous Breathing Trial</i> (SBT) sebelum ekstubasi.</li>
+            <li><strong className="text-foreground">Untuk SBT:</strong> ATS/ACCP 2017 menyarankan SBT awal <strong>dengan bantuan tekanan inspirasi 5–8 cmH₂O</strong> dibanding tanpa bantuan (T-piece/CPAP) — rekomendasi kondisional. SBT 30 menit dengan PS 8 cmH₂O menghasilkan ekstubasi berhasil lebih banyak dibanding T-piece 2 jam (Subirà, JAMA 2019).</li>
             <li><strong className="text-foreground">Setting:</strong> PEEP (umumnya 5-8), PS (umumnya 5-15 cmH2O), FiO2.</li>
           </ul>
         </Accordion>
@@ -101,16 +102,20 @@ export default function TeoriVentilatorDasar() {
           </div>
         </Accordion>
 
+        <AbbrLegend terms={['ICU', 'IGD', 'PEEP', 'CMV', 'VC-CMV', 'PC-CMV', 'AC-VC', 'VT', 'PIP', 'Pinsp', 'ARDS', 'SIMV', 'PS', 'PSV', 'ETT', 'SBT', 'FiO2', 'SpO2', 'IBW', 'RR', 'VC', 'CPAP', 'ATS', 'ACCP']} />
+
         <div className="mt-6 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
             📚 Referensi Utama
           </h3>
           <ol className="list-decimal pl-5 text-xs text-muted-foreground space-y-1.5">
             <li>Tobin, M. J. (2013). <i>Principles and practice of mechanical ventilation</i>. McGraw-Hill Education.</li>
-            <li>Chatburn, R. L., et al. (2014). Respiratory care equipment. <i>Jones &amp; Bartlett Learning</i>.</li>
-            <li>Hess, D. R., &amp; MacIntyre, N. R. (2011). <i>Mechanical ventilation</i>. Jones &amp; Bartlett Learning.</li>
-            <li>Esteban, A., et al. (2013). Evolution of mechanical ventilation in response to clinical research. <i>American journal of respiratory and critical care medicine</i>, 188(5), 562-569.</li>
-            <li>Perhimpunan Dokter Spesialis Anestesiologi dan Terapi Intensif Indonesia (PERDATIN). (2020). <i>Panduan Penggunaan Ventilator</i>.</li>
+            <li>Chatburn, R. L., El-Khatib, M., &amp; Mireles-Cabodevila, E. (2014). A taxonomy for mechanical ventilation: 10 fundamental maxims. <i>Respiratory Care</i>, 59(11), 1747-1763.</li>
+            <li>Esteban, A., et al. (2008). Evolution of mechanical ventilation in response to clinical research. <i>American Journal of Respiratory and Critical Care Medicine</i>, 177(2), 170-177.</li>
+            <li>Brochard, L., et al. (1994). Comparison of three methods of gradual withdrawal from ventilatory support during weaning from mechanical ventilation. <i>American Journal of Respiratory and Critical Care Medicine</i>, 150(4), 896-903.</li>
+            <li>Esteban, A., et al. (1995). A comparison of four methods of weaning patients from mechanical ventilation. <i>New England Journal of Medicine</i>, 332(6), 345-350.</li>
+            <li>Schmidt, G. A., et al. (2017). Official executive summary of an ATS/ACCP clinical practice guideline: liberation from mechanical ventilation in critically ill adults. <i>American Journal of Respiratory and Critical Care Medicine</i>, 195(1), 115-119.</li>
+            <li>Subirà, C., et al. (2019). Effect of pressure support vs T-piece ventilation strategies during spontaneous breathing trials on successful extubation. <i>JAMA</i>, 321(22), 2175-2182.</li>
             <li>The Acute Respiratory Distress Syndrome Network. (2000). Ventilation with lower tidal volumes as compared with traditional tidal volumes for acute lung injury and the acute respiratory distress syndrome. <i>New England Journal of Medicine</i>, 342(18), 1301-1308.</li>
           </ol>
         </div>

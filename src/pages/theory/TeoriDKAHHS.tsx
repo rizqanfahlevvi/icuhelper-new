@@ -16,7 +16,7 @@ export default function TeoriDKAHHS() {
               <p className="text-muted-foreground mt-1">Defisiensi insulin <em>absolut/relatif</em> + ↑ hormon kontraregulasi → lipolisis → <strong className="text-foreground">ketogenesis</strong> → asidosis metabolik anion gap tinggi.</p>
             </div>
             <div>
-              <p className="font-bold text-warning">🟠 HHS (Hyperosmolar Hyperglycemic State):</p>
+              <p className="font-bold text-amber-600 dark:text-amber-400">🟠 HHS (Hyperosmolar Hyperglycemic State):</p>
               <p className="text-muted-foreground mt-1">Insulin masih cukup untuk menekan ketogenesis namun tidak untuk mengontrol glukosa → hiperglikemia ekstrem + diuresis osmotik → <strong className="text-foreground">dehidrasi berat & hiperosmolalitas</strong>, ketosis minimal.</p>
             </div>
           </div>
@@ -39,7 +39,7 @@ export default function TeoriDKAHHS() {
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Ketonemia (BHB)</td><td className="p-2 font-bold text-destructive">≥3.0 mmol/L <span className="font-normal text-muted-foreground">(atau keton urin ≥2+)</span></td><td className="p-2">&lt;3.0 mmol/L <span className="text-muted-foreground">(minimal)</span></td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">pH arteri/vena</td><td className="p-2">&lt;7.3</td><td className="p-2">&gt;7.3</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Bikarbonat (HCO₃⁻)</td><td className="p-2">&lt;18 mmol/L</td><td className="p-2">&gt;18 mmol/L</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Osmolalitas efektif</td><td className="p-2">Bervariasi</td><td className="p-2 font-bold text-warning">&gt;300 mOsm/kg</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Osmolalitas efektif</td><td className="p-2">Bervariasi</td><td className="p-2 font-bold text-amber-600 dark:text-amber-400">&gt;300 mOsm/kg</td></tr>
                 <tr className="text-foreground"><td className="p-2 font-bold">Status mental</td><td className="p-2">Bervariasi (sering sadar)</td><td className="p-2">Sering ↓ (stupor/koma bila osm &gt;320)</td></tr>
               </tbody>
             </table>
@@ -103,14 +103,14 @@ export default function TeoriDKAHHS() {
             </table>
           </div>
           
-          <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg text-foreground text-[12px] mb-4">
-            <strong className="text-warning block mb-1">Transisi ke Insulin Subkutan</strong>
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-foreground text-[12px] mb-4">
+            <strong className="text-amber-600 dark:text-amber-400 block mb-1">Transisi ke Insulin Subkutan</strong>
             <p className="text-muted-foreground">Syarat: kriteria resolusi tercapai, pasien sadar &amp; bisa makan. <strong>OVERLAP WAJIB:</strong> berikan insulin basal subkutan 1–2 jam SEBELUM menghentikan infus IV (mencegah rebound ketoasidosis).</p>
           </div>
         </Accordion>
 
         <Accordion title="📖 Hiperglikemia Stres & Target Glukosa ICU">
-          <div className="p-3 bg-warning/10 border border-warning/30 rounded-lg text-foreground text-[12px] mb-4">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-foreground text-[12px] mb-4">
             <p className="text-muted-foreground">Hiperglikemia adalah hal yang <strong>SANGAT UMUM di ICU</strong> (40-80% pasien) meskipun tanpa riwayat diabetes. Disebabkan oleh hormon stres yang tinggi (sitokin, kortisol) dan resistensi insulin akut.</p>
           </div>
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Target Glukosa ICU (Konsensus 2024-2025)</h3>
