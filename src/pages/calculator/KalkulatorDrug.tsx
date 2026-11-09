@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Pill, Syringe, Clock, AlertTriangle, Info, RefreshCw, User, Activity, CheckCircle, Scale } from 'lucide-react';
+import { Pill, Syringe, Clock, AlertTriangle, Info, RefreshCw, User, CheckCircle, Scale } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
@@ -9,6 +9,12 @@ import { useClinicalStore } from '../../store/useClinicalStore';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+
+const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
+const RASS_LABEL: Record<string, string> = { light: 'Sedasi ringan', moderate: 'Sedasi sedang', deep: 'Sedasi dalam' };
+const PAIN_LABEL: Record<string, string> = { mild: 'Nyeri ringan', moderate: 'Nyeri sedang', severe: 'Nyeri berat' };
 
 const RSI_SCENARIOS = {
   general: { label: 'Kondisi umum', ind: 'Propofol', nmb: 'Suksinilkolin / Rocuronium' },
@@ -64,14 +70,13 @@ export default function KalkulatorDrug() {
       setItuBb(data.weightKg);
       setIcuBb(data.weightKg);
     }
-    setResRsi(null);
-    setResIcu(null);
   };
 
   const calcRsi = () => {
     const w = parseFloat(ituBb);
     if (!w) {
       setRsiError('Masukkan berat badan pasien yang valid');
+      setResRsi(null);
       return;
     }
     setRsiError('');
@@ -120,6 +125,7 @@ export default function KalkulatorDrug() {
     const w = parseFloat(icuBb);
     if (!w) {
       setIcuError('Masukkan berat badan pasien yang valid');
+      setResIcu(null);
       return;
     }
     setIcuError('');
@@ -152,6 +158,34 @@ export default function KalkulatorDrug() {
     setResIcu({ drugs });
   };
 
+  // Pemicu per panel: Hitung sekali → setelah itu dosis ikut berubah otomatis.
+  const trRsi = useCalcTrigger({
+    compute: calcRsi,
+    deps: [ituBb, ituScenario, ituNmb, ituPremed, ituLidocaine],
+    required: [{ id: 'drug-rsi-bb', label: 'Berat badan', filled: parseFloat(ituBb) > 0 }],
+  });
+  const trIcu = useCalcTrigger({
+    compute: calcIcu,
+    deps: [icuBb, icuRass, icuPain],
+    required: [{ id: 'drug-icu-bb', label: 'Berat badan', filled: parseFloat(icuBb) > 0 }],
+  });
+  const tr = panel === 'intubasi' ? trRsi : trIcu;
+  // Ringkasan bilah: nama obat + dosis & satuan PERSIS seperti di rincian (dibulatkan sama).
+  type DrugRow = { cat: string; n: string; d?: number; v?: number; u: string };
+  const rsiDrugs: DrugRow[] = resRsi ? resRsi.drugs : [];
+  const icuDrugs: DrugRow[] = resIcu ? resIcu.drugs : [];
+  const rsiInd = rsiDrugs.find(d => d.cat === 'Induksi / Sedasi');
+  const rsiNmb = rsiDrugs.find(d => d.cat === 'Pelumpuh Otot (NMB)');
+  const icuAnalg = icuDrugs.find(d => d.cat === 'Analgesia (Nyeri)');
+  const icuSed = icuDrugs.find(d => d.cat === 'Sedasi (Target RASS)');
+  // Baris utama = 1 obat (agar dosis tidak terpotong di layar sempit); obat kedua di keterangan.
+  const barSummary = panel === 'intubasi'
+    ? (resRsi && rsiInd && rsiNmb ? `${rsiInd.n} ${Math.round(rsiInd.d ?? 0)} ${rsiInd.u}` : null)
+    : (resIcu && icuAnalg && icuSed ? `${icuAnalg.n} ${icuAnalg.v} ${icuAnalg.u}` : null);
+  const barCaption = panel === 'intubasi'
+    ? (rsiNmb ? `${rsiNmb.n} ${Math.round(rsiNmb.d ?? 0)} ${rsiNmb.u} · ${RSI_SCENARIOS[ituScenario].label} · lengkap di rincian` : '')
+    : (icuSed ? `${icuSed.n} ${icuSed.v} ${icuSed.u} · ${RASS_LABEL[icuRass]} · ${PAIN_LABEL[icuPain]}` : '');
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden">
       <div className="mb-2">
@@ -180,45 +214,33 @@ export default function KalkulatorDrug() {
       {/* PANEL 1: RAPID SEQUENCE INTUBATION (RSI) */}
       {panel === 'intubasi' && (
         <div className="flex flex-col gap-0 mt-2">
-          <div className="mb-4">
-             <div className="w-full bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-4 flex gap-3 items-start">
-               <Info className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-               <div className="space-y-1">
-                 <p className="text-[11px] font-black uppercase tracking-wider text-red-600 dark:text-red-400">Rekomendasi Utama Skenario</p>
-                 <p className="text-[14px] font-bold text-slate-800 dark:text-slate-100">{RSI_SCENARIOS[ituScenario].label}</p>
-                 <ul className="text-[13px] font-medium text-slate-700 dark:text-slate-300 list-disc pl-4 space-y-0.5">
-                   <li>Induksi terpilih: <strong>{RSI_SCENARIOS[ituScenario].ind}</strong></li>
-                   <li>Relaksan Neuromuskular: <strong>{RSI_SCENARIOS[ituScenario].nmb}</strong></li>
-                 </ul>
-               </div>
-             </div>
-          </div>
 
           <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
             Parameter Skenario Intubasi
           </h2>
 
           <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-            <div className="flex items-center justify-between px-4 py-3 gap-4">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
-              <div className="flex-1 flex items-center justify-end gap-2">
-                <input 
-                  type="number" 
-                  value={ituBb} 
-                  onChange={e => setItuBb(e.target.value)} 
-                  placeholder="70" 
-                  className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+            <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+              <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+                <input
+                  id="drug-rsi-bb"
+                  type="number" inputMode="decimal"
+                  value={ituBb}
+                  onChange={e => setItuBb(e.target.value)}
+                  placeholder="70"
+                  className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${trRsi.isMissing('drug-rsi-bb') ? MISSING_RING : ''}`}
                 />
                 <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
               </div>
             </div>
 
-            <div className="flex justify-between px-4 py-3 items-center gap-4">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left max-w-[120px]">Skenario Klinis</span>
+            <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Skenario Klinis</span>
               <select 
                 value={ituScenario}
                 onChange={e => setItuScenario(e.target.value as keyof typeof RSI_SCENARIOS)}
-                className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
+                className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
               >
                 <option value="general">Kondisi umum / Elektif</option>
                 <option value="shock">Syok / Instabilitas Hemo</option>
@@ -228,12 +250,12 @@ export default function KalkulatorDrug() {
               </select>
             </div>
 
-            <div className="flex items-center justify-between px-4 py-3 gap-4">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Pilihan NMB</span>
+            <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Pilihan NMB</span>
               <select 
                 value={ituNmb}
                 onChange={e => setItuNmb(e.target.value)}
-                className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+                className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
               >
                 <option value="roc_rsi">Rocuronium RSI (1.2)</option>
                 <option value="sux">Suksinilkolin (1.5)</option>
@@ -262,24 +284,28 @@ export default function KalkulatorDrug() {
             </label>
           </div>
 
+          <div className="mt-4">
+             <div className="w-full bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-2xl p-4 flex gap-3 items-start">
+               <Info className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+               <div className="space-y-1">
+                 <p className="text-[11px] font-black uppercase tracking-wider text-red-600 dark:text-red-400">Rekomendasi Utama Skenario</p>
+                 <p className="text-[14px] font-bold text-slate-800 dark:text-slate-100">{RSI_SCENARIOS[ituScenario].label}</p>
+                 <ul className="text-[13px] font-medium text-slate-700 dark:text-slate-300 list-disc pl-4 space-y-0.5">
+                   <li>Induksi terpilih: <strong>{RSI_SCENARIOS[ituScenario].ind}</strong></li>
+                   <li>Relaksan Neuromuskular: <strong>{RSI_SCENARIOS[ituScenario].nmb}</strong></li>
+                 </ul>
+               </div>
+             </div>
+          </div>
           <div className="px-5 mt-4 text-[12px] text-slate-700 dark:text-slate-300 leading-relaxed text-center italic">
             * RSI memerlukan monitor EKG, SpO2, IV paten, dan perangkat intubasi cadangan.
           </div>
 
-          <div className="mt-4">
-            <button
-              onClick={calcRsi}
-              className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px] flex items-center justify-center gap-2"
-            >
-              <Activity className="w-5 h-5" />
-              Hitung Dosis Induksi RSI
-            </button>
-            {rsiError && <p className="text-sm text-destructive mt-2 text-center">{rsiError}</p>}
-          </div>
+
 
           {/* RESULTS FOR RSI */}
           {resRsi && (
-            <div className="animate-in fade-in slide-in-from-bottom-3 duration-300 mt-4 pb-6">
+            <div id="drug-hasil" className="scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300 mt-4 pb-6">
               {weightPlausibilityWarning(parseFloat(ituBb)) && (
                 <div className="mb-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/15 border border-amber-200 dark:border-amber-800/60 text-[12px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5">
                   <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -371,7 +397,55 @@ export default function KalkulatorDrug() {
       {/* PANEL 2: ICU MAINTENANCE (PADIS 2018) */}
       {panel === 'icu' && (
         <div className="flex flex-col gap-0 mt-2">
-          <div className="mb-4">
+
+          <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+            Parameter Analgesia & Sedasi Rumatan
+          </h2>
+
+          <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+              <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+                <input
+                  id="drug-icu-bb"
+                  type="number" inputMode="decimal"
+                  value={icuBb}
+                  onChange={e => setIcuBb(e.target.value)}
+                  placeholder="70"
+                  className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${trIcu.isMissing('drug-icu-bb') ? MISSING_RING : ''}`}
+                />
+                <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Target Sedasi RASS</span>
+              <select 
+                value={icuRass}
+                onChange={e => setIcuRass(e.target.value)}
+                className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
+              >
+                <option value="light">Sedasi Ringan (RASS -1..0)</option>
+                <option value="moderate">Sedasi Sedang (RASS -2..-3)</option>
+                <option value="deep">Sedasi Dalam (RASS -4..-5)</option>
+              </select>
+            </div>
+
+            <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
+              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Tingkat Nyeri</span>
+              <select 
+                value={icuPain}
+                onChange={e => setIcuPain(e.target.value)}
+                className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
+              >
+                <option value="mild">Nyeri Ringan / CPOT 0–2</option>
+                <option value="moderate">Nyeri Sedang / CPOT 3–5</option>
+                <option value="severe">Nyeri Berat / CPOT &gt; 5</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="mt-4">
             <div className="w-full bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-4 flex gap-3 items-start">
               <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
               <div className="space-y-1 w-full">
@@ -382,71 +456,15 @@ export default function KalkulatorDrug() {
               </div>
             </div>
           </div>
-
-          <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
-            Parameter Analgesia & Sedasi Rumatan
-          </h2>
-
-          <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-            <div className="flex items-center justify-between px-4 py-3 gap-4">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
-              <div className="flex-1 flex items-center justify-end gap-2">
-                <input 
-                  type="number" 
-                  value={icuBb} 
-                  onChange={e => setIcuBb(e.target.value)} 
-                  placeholder="70" 
-                  className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
-                />
-                <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
-              </div>
-            </div>
-
-            <div className="flex justify-between px-4 py-3 items-center gap-4">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left max-w-[120px]">Target Sedasi RASS</span>
-              <select 
-                value={icuRass}
-                onChange={e => setIcuRass(e.target.value)}
-                className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
-              >
-                <option value="light">Sedasi Ringan (RASS -1..0)</option>
-                <option value="moderate">Sedasi Sedang (RASS -2..-3)</option>
-                <option value="deep">Sedasi Dalam (RASS -4..-5)</option>
-              </select>
-            </div>
-
-            <div className="flex justify-between px-4 py-3 items-center gap-4">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left max-w-[120px]">Tingkat Nyeri</span>
-              <select 
-                value={icuPain}
-                onChange={e => setIcuPain(e.target.value)}
-                className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis"
-              >
-                <option value="mild">Nyeri Ringan / CPOT 0–2</option>
-                <option value="moderate">Nyeri Sedang / CPOT 3–5</option>
-                <option value="severe">Nyeri Berat / CPOT &gt; 5</option>
-              </select>
-            </div>
-          </div>
-
           <div className="px-5 mt-4 text-[12px] text-slate-700 dark:text-slate-300 leading-relaxed text-center italic">
             * Evaluasi target RASS dan CPOT secara berkala tiap 2-4 jam oleh perawat ruang intensif untuk melakukan titrasi laju drip obat.
           </div>
 
-          <div className="mt-4">
-            <button
-              onClick={calcIcu}
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px] flex items-center justify-center gap-2"
-            >
-              <Activity className="w-5 h-5" />
-              Hitung Laju Drip Rumatan
-            </button>
-            {icuError && <p className="text-sm text-destructive mt-2 text-center">{icuError}</p>}
-          </div>
+
 
           {/* RESULTS FOR ICU MAINTENANCE */}
           {resIcu && (
-            <div className="animate-in fade-in slide-in-from-bottom-3 duration-300 mt-4 pb-6">
+            <div id="drug-hasil" className="scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300 mt-4 pb-6">
               <h2 className="mb-2 text-[13px] font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                 Hasil Kalkulasi Laju Titrasi
               </h2>
@@ -549,6 +567,17 @@ export default function KalkulatorDrug() {
           'PADIS', 'SCCM', 'ETT', 'SAT', 'SBT', 'ABC-protokol', 'BVM', 'NRM', 'VT', 'IBW', 'CXR', 'NGT', 'MH', 'CICO',
           'BB', 'DPJP',
         ]}
+      />
+      <CalcActionBar
+        armed={tr.armed}
+        onCalculate={tr.trigger}
+        label={panel === 'intubasi' ? 'Hitung Dosis Induksi RSI' : 'Hitung Laju Drip Rumatan'}
+        summary={barSummary}
+        summaryTone="info"
+        caption={barSummary ? barCaption : undefined}
+        missing={tr.missing}
+        resultTargetId="drug-hasil"
+        emptyText={(panel === 'intubasi' ? rsiError : icuError) || 'Lengkapi data untuk melihat hasil'}
       />
       <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 text-center">
         Alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis, keputusan DPJP/intensivist, atau kondisi aktual pasien. Konfirmasi dosis ke apoteker sebelum pemberian.
