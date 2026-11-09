@@ -8,12 +8,30 @@ import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncB
 import { calcIbw } from '../../utils/anthropometry';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
+import { ardsOxygenation, ardsnetLowPeep, ARDS_OTHER_CRITERIA, SF_MAX_SPO2 } from '../../utils/oxygenation';
+import {
+  drivingPressure, staticCompliance, mechanicalPower, assumedInspTime, airwayResistance,
+  meanAirwayPressureEstimate, alveoliHighPeep, vtTarget, MP_RISK_THRESHOLD, type VentCondition, type VtTarget,
+} from '../../utils/ventilation';
+
+interface VentResult {
+  dp: number; cstat: number | null; mp: number;
+  resist: number | null; resistEstimated: boolean; ti: number | null;
+  mpaw: number; mpawEstimated: boolean;
+  ve: number; vtL: number;
+  pf: number | null; sf: number | null; sfValid: boolean; oi: number | null; osi: number | null;
+  berlin: string; global: string;
+  peepLow: string | null; peepHigh: string | null;
+  vtIbw: number | null; target: VtTarget; vIbw: number;
+  warnings: string[];
+  vVt: number; vRr: number; vPplat: number; vPeep: number; vPpeak: number; f: number | null; flowLpm: number | null;
+}
 
 export default function KalkulatorVentilatorAdv() {
   const patient = usePatientStore();
   const clinicalStore = useClinicalStore();
 
-  const [kondisi, setKondisi] = useState('normal');
+  const [kondisi, setKondisi] = useState<VentCondition>('normal');
   const [ibw, setIbw] = useState('');
   const [vt, setVt] = useState('');
   const [rr, setRr] = useState('');
@@ -21,15 +39,17 @@ export default function KalkulatorVentilatorAdv() {
   const [ppeak, setPpeak] = useState('');
   const [pplat, setPplat] = useState('');
   const [peep, setPeep] = useState('');
+  const [flow, setFlow] = useState('');
+  const [mpawIn, setMpawIn] = useState('');
   const [spo2, setSpo2] = useState('');
   const [pao2, setPao2] = useState('');
 
-  const [res, setRes] = useState<any>(null);
+  const [res, setRes] = useState<VentResult | null>(null);
 
-  // Auto-loaded on mount
   useEffect(() => {
     if (clinicalStore.data.rr) setRr(clinicalStore.data.rr);
     if (clinicalStore.data.peep) setPeep(clinicalStore.data.peep);
+    if (clinicalStore.data.fio2) setFio2(clinicalStore.data.fio2);
     if (clinicalStore.data.spo2) setSpo2(clinicalStore.data.spo2);
     if (clinicalStore.data.pao2) setPao2(clinicalStore.data.pao2);
   }, []);
@@ -42,49 +62,20 @@ export default function KalkulatorVentilatorAdv() {
     { key: 'pao2', label: 'PaO₂', value: pao2, setter: setPao2, unit: 'mmHg' },
   ], [rr, peep, fio2, spo2, pao2]);
 
-  // IBW/PBW (Devine) dari TB & JK pasien aktif — ditawarkan, tidak diisi diam-diam.
+  // PBW (Devine) dari TB & JK pasien aktif — ditawarkan, tidak diisi diam-diam.
   const patientPbw = useMemo(() => {
     const h = parseFloat(patient.heightCm);
     if (!(h > 0) || (patient.gender !== 'L' && patient.gender !== 'P')) return '';
     return calcIbw(h, patient.gender === 'P').toFixed(1);
   }, [patient.heightCm, patient.gender]);
 
-  const handleAutofill = (data: any) => {
+  const handleAutofill = () => {
     if (clinicalStore.data.rr) setRr(clinicalStore.data.rr);
     if (clinicalStore.data.peep) setPeep(clinicalStore.data.peep);
+    if (clinicalStore.data.fio2) setFio2(clinicalStore.data.fio2);
     if (clinicalStore.data.spo2) setSpo2(clinicalStore.data.spo2);
     if (clinicalStore.data.pao2) setPao2(clinicalStore.data.pao2);
     setRes(null);
-  };
-
-
-  const spo2ToPao2 = (s: number) => {
-    if (s <= 88) return 55;
-    if (s >= 100) return 145;
-    const table = [
-      { s: 88, p: 55 }, { s: 90, p: 60 }, { s: 92, p: 70 },
-      { s: 94, p: 79 }, { s: 96, p: 93 }, { s: 98, p: 113 }, { s: 100, p: 145 }
-    ];
-    for (let i = 0; i < table.length - 1; i++) {
-      if (s >= table[i].s && s <= table[i+1].s) {
-        const frac = (s - table[i].s) / (table[i+1].s - table[i].s);
-        return Math.round((table[i].p + frac * (table[i+1].p - table[i].p)) * 10) / 10;
-      }
-    }
-    return 100;
-  };
-
-  const getArdsnetPeep = (f: number, higher: boolean) => {
-    const tableLower = [ { f: 0.3, p: 5 }, { f: 0.4, p: 5 }, { f: 0.5, p: 8 }, { f: 0.6, p: 10 }, { f: 0.7, p: 10 }, { f: 0.8, p: 10 }, { f: 0.9, p: 14 }, { f: 1.0, p: 14 } ];
-    const tableHigher = [ { f: 0.3, p: 5 }, { f: 0.4, p: 8 }, { f: 0.5, p: 10 }, { f: 0.6, p: 14 }, { f: 0.7, p: 14 }, { f: 0.8, p: 16 }, { f: 0.9, p: 18 }, { f: 1.0, p: 22 } ];
-    const table = higher ? tableHigher : tableLower;
-    let best = table[0];
-    let minDiff = Math.abs(f - best.f);
-    for (let i = 1; i < table.length; i++) {
-      const diff = Math.abs(f - table[i].f);
-      if (diff < minDiff) { minDiff = diff; best = table[i]; }
-    }
-    return best.p;
   };
 
   const calculate = () => {
@@ -97,88 +88,74 @@ export default function KalkulatorVentilatorAdv() {
     const vFio2 = parseFloat(fio2);
     const vSpo2 = parseFloat(spo2);
     const vPao2 = parseFloat(pao2);
+    const vFlow = parseFloat(flow);
+    const vMpaw = parseFloat(mpawIn);
 
     if (!vVt || !vRr || !vPpeak || !vPplat || isNaN(vPeep)) return;
 
-    const dp = vPplat - vPeep;
-    const cstat = dp > 0 ? vVt / dp : 0;
+    const dp = drivingPressure(vPplat, vPeep);
+    const cstat = staticCompliance(vVt, dp);
+    const mp = mechanicalPower(vRr, vVt, vPpeak, dp);
     const vtL = vVt / 1000;
-    const mp = 0.098 * vRr * vtL * (vPpeak - Math.abs(dp) / 2);
-    
-    const ti = 60 / (vRr * 3);
-    const flowLSec = (vtL / ti);
-    const resist = flowLSec > 0 ? (vPpeak - vPplat) / flowLSec : 0;
-
     const ve = vtL * vRr;
-    
-    let pao2Used = null;
-    let isEstimated = false;
-    if (!isNaN(vPao2) && vPao2 > 0) {
-      pao2Used = vPao2;
-    } else if (!isNaN(vSpo2) && vSpo2 > 0) {
-      pao2Used = spo2ToPao2(vSpo2);
-      isEstimated = true;
-    }
 
-    let pfRatio = null;
-    let oi = null;
-    let osi = null;
-    const mapVent = (vPpeak + 2 * vPeep) / 3;
-    
-    if (pao2Used && !isNaN(vFio2)) {
-      pfRatio = pao2Used / (vFio2 / 100);
-      oi = (vFio2 * mapVent) / pao2Used; 
-    }
-    
-    if (!isNaN(vSpo2) && vSpo2 > 0 && !isNaN(vFio2)) {
-       osi = (vFio2 * mapVent) / vSpo2;
-    }
-    
-    let peepLow = null;
-    let peepHigh = null;
-    if (!isNaN(vFio2)) {
-      peepLow = getArdsnetPeep(vFio2 / 100, false);
-      peepHigh = getArdsnetPeep(vFio2 / 100, true);
-    }
+    // Resistensi: flow terukur bila diisi; bila tidak → estimasi Ti dari asumsi I:E 1:2.
+    const resistEstimated = !(vFlow > 0);
+    const ti = resistEstimated ? assumedInspTime(vRr) : null;
+    const flowLps = resistEstimated ? vtL / (ti as number) : vFlow / 60;
+    const resist = airwayResistance(vPpeak, vPplat, flowLps);
 
-    let warnings = [];
-    if (dp > 15) warnings.push(`Driving pressure tinggi (${Math.round(dp)} > 15 cmH₂O) — risiko VILI`);
-    if (mp > 17) warnings.push(`Mechanical Power tinggi (${mp.toFixed(1)} > 17 J/min) — risiko VILI`);
-    if (cstat > 0 && cstat < 30) warnings.push(`Compliance sangat rendah (${Math.round(cstat)} < 30 mL/cmH₂O)`);
-    if (resist > 15) warnings.push(`Resistensi airway meningkat (${resist.toFixed(1)} > 15)`);
-    if (vPplat > 30) warnings.push(`Pplat > 30 cmH₂O — bahaya barotrauma`);
-    if (pfRatio && pfRatio < 150) warnings.push(`P/F < 150 — pertimbangkan prone positioning (PROSEVA)`);
-    if (ve > 12) warnings.push(`Minute ventilation tinggi (${ve.toFixed(1)} L/mnt)`);
-    if (ve < 5) warnings.push(`Minute ventilation rendah (${ve.toFixed(1)} L/mnt) — risiko hipoventilasi`);
+    const mpawEstimated = !(vMpaw > 0);
+    const mpaw = mpawEstimated ? meanAirwayPressureEstimate(vPpeak, vPeep) : vMpaw;
 
-    let vtIbw = '';
-    let vtSug = '';
+    // Oksigenasi — TANPA estimasi PaO₂ dari SpO₂ (P/F hanya dari PaO₂ terukur; S/F & OSI dari SpO₂).
+    const f = vFio2 >= 21 && vFio2 <= 100 ? vFio2 / 100 : null;
+    const pf = f !== null && vPao2 > 0 ? vPao2 / f : null;
+    const ox = ardsOxygenation({
+      pf, spo2: vSpo2 > 0 ? vSpo2 : null, fio2: f, support: 'invasif', peep: vPeep, hfnoFlow: null, fio2Estimated: false,
+    });
+    const oi = f !== null && vPao2 > 0 ? (vFio2 * mpaw) / vPao2 : null;
+    const osi = f !== null && vSpo2 > 0 && vSpo2 <= SF_MAX_SPO2 ? (vFio2 * mpaw) / vSpo2 : null;
+
+    const warnings: string[] = [];
+    if (fio2 && f === null) warnings.push('FiO₂ harus 21–100%.');
+    if (dp > 15) warnings.push(`Driving pressure ${Math.round(dp)} cmH₂O (>15) — berhubungan dengan mortalitas lebih tinggi pada ARDS (Amato 2015).`);
+    if (mp > MP_RISK_THRESHOLD) warnings.push(`Mechanical power ${mp.toFixed(1)} J/menit (>17) — risiko kematian meningkat konsisten di atas 17 J/menit (Serpa Neto 2018).`);
+    if (cstat !== null && cstat < 30) warnings.push(`Compliance statis rendah (${Math.round(cstat)} mL/cmH₂O).`);
+    if (resist !== null && resist > 15) warnings.push(`Resistensi jalan napas ${resist.toFixed(1)} cmH₂O/L/detik${resistEstimated ? ' (estimasi)' : ''} — cek sekret, bronkospasme, tekukan ETT.`);
+    if (vPplat > 30) warnings.push('Pplat >30 cmH₂O — melebihi batas ventilasi protektif.');
+    if (pf !== null && pf < 150 && f !== null && f >= 0.6 && vPeep >= 5) warnings.push(`P/F ${Math.round(pf)} (<150) dengan FiO₂ ≥0,6 & PEEP ≥5 — kriteria PROSEVA: pertimbangkan prone >12 jam/hari (rekomendasi kuat untuk ARDS berat, ATS/ESICM/SCCM 2017).`);
+    if (dp <= 0) warnings.push('Pplat ≤ PEEP — periksa ulang angka (ΔP harus positif).');
+
+    const target = vtTarget(kondisi);
+    let vtIbw: number | null = null;
     if (vIbw > 0) {
-      const vkg = vVt / vIbw;
-      vtIbw = vkg.toFixed(1);
-      if (kondisi === 'ards') {
-         vtSug = `Target 4-6 mL/kg IBW: ${(4*vIbw).toFixed(0)} - ${(6*vIbw).toFixed(0)} mL`;
-         if (vkg > 6) warnings.push(`VT > 6 mL/kg IBW pada ARDS`);
-      } else if (kondisi === 'copd') {
-         vtSug = `Target 7-8 mL/kg IBW: ${(7*vIbw).toFixed(0)} - ${(8*vIbw).toFixed(0)} mL`;
-      } else {
-         vtSug = `Target 6-8 mL/kg IBW: ${(6*vIbw).toFixed(0)} - ${(8*vIbw).toFixed(0)} mL`;
-      }
+      vtIbw = vVt / vIbw;
+      if (vtIbw > target.max) warnings.push(`VT ${vtIbw.toFixed(1)} mL/kg PBW melebihi target ${target.min}–${target.max}.`);
     }
 
     setRes({
-      dp, cstat, mp, resist, ve, vtIbw, vtSug,
-      pao2Used, isEstimated, pfRatio, oi, osi,
-      peepLow, peepHigh, mapVent,
-      warnings,
-      vVt, vRr, vPplat, vPeep, vPpeak, vFio2, vtL, vIbw,
+      dp, cstat, mp, resist, resistEstimated, ti, mpaw, mpawEstimated, ve, vtL,
+      pf, sf: ox.sf, sfValid: ox.sfValid, oi, osi, berlin: ox.berlin, global: ox.global,
+      peepLow: f !== null ? ardsnetLowPeep(f) : null, peepHigh: f !== null ? alveoliHighPeep(f) : null,
+      vtIbw, target, vIbw, warnings,
+      vVt, vRr, vPplat, vPeep, vPpeak, f, flowLpm: vFlow > 0 ? vFlow : null,
     });
   };
 
+  const inputCls = 'w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
+  const row = (label: React.ReactNode, value: string, set: (v: string) => void, placeholder = '', tone = '') => (
+    <div className={`flex items-center justify-between px-4 py-3 gap-4 ${tone}`}>
+      <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{label}</span>
+      <div className="flex-1 flex items-center justify-end gap-2">
+        <input type="number" className={inputCls} value={value} placeholder={placeholder} onChange={e => { set(e.target.value); setRes(null); }} />
+      </div>
+    </div>
+  );
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
-      
-      {/* Active Patient Widget & Sync Banner */}
+
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
@@ -186,20 +163,22 @@ export default function KalkulatorVentilatorAdv() {
         <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           Parameter Ventilator Lanjutan
         </h2>
-         
+
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex justify-between px-4 py-3 items-center gap-4">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi</span>
-            <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e=>setKondisi(e.target.value)}>
-              <option value="normal">Normal / Post-op</option>
+            <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e => { setKondisi(e.target.value as VentCondition); setRes(null); }}>
+              <option value="normal">Tanpa ARDS / Post-op</option>
               <option value="ards">ARDS</option>
               <option value="copd">PPOK</option>
+              <option value="asma">Asma berat</option>
+              <option value="neuro">Neuromuskular</option>
             </select>
           </div>
           <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">IBW (kg)</span>
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PBW / IBW (kg)</span>
             <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ibw} onChange={e=>setIbw(e.target.value)} />
+              <input type="number" className={inputCls} value={ibw} onChange={e => { setIbw(e.target.value); setRes(null); }} />
               {patientPbw && ibw !== patientPbw && (
                 <button type="button" onClick={() => setIbw(patientPbw)} className="shrink-0 text-[11px] font-semibold text-[var(--accent)] hover:underline whitespace-nowrap">
                   PBW pasien {patientPbw}
@@ -207,54 +186,16 @@ export default function KalkulatorVentilatorAdv() {
               )}
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">FiO₂ (%)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={fio2} onChange={e=>setFio2(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Tidal Vol. (mL)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={vt} onChange={e=>setVt(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Resp Rate (/m)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={rr} onChange={e=>setRr(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4 bg-red-50/50 dark:bg-red-900/10">
-            <span className="text-[13px] font-semibold text-red-700 dark:text-red-400 flex-shrink-0">Ppeak</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-red-50 dark:bg-red-900/20 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-red-700 dark:text-red-400 placeholder:text-red-300 focus:ring-2 focus:ring-red-500/50 text-[14px] transition-all" value={ppeak} onChange={e=>setPpeak(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4 bg-red-50/50 dark:bg-red-900/10">
-            <span className="text-[13px] font-semibold text-red-700 dark:text-red-400 flex-shrink-0">Pplat</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-red-50 dark:bg-red-900/20 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-red-700 dark:text-red-400 placeholder:text-red-300 focus:ring-2 focus:ring-red-500/50 text-[14px] transition-all" value={pplat} onChange={e=>setPplat(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4 bg-blue-50/50 dark:bg-blue-900/10">
-            <span className="text-[13px] font-semibold text-blue-700 dark:text-blue-400 flex-shrink-0">PEEP</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-blue-50 dark:bg-blue-900/20 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-blue-700 dark:text-blue-400 placeholder:text-blue-300 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={peep} onChange={e=>setPeep(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4 bg-teal-50/50 dark:bg-teal-900/10">
-            <span className="text-[13px] font-semibold text-teal-700 dark:text-teal-400 flex-shrink-0">SpO₂ (%)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-teal-50 dark:bg-teal-900/20 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-teal-700 dark:text-teal-400 placeholder:text-teal-300 focus:ring-2 focus:ring-teal-500/50 text-[14px] transition-all" placeholder="opsional" value={spo2} onChange={e=>setSpo2(e.target.value)} />
-            </div>
-          </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4 bg-teal-50/50 dark:bg-teal-900/10">
-            <span className="text-[13px] font-semibold text-teal-700 dark:text-teal-400 flex-shrink-0">PaO₂ (mmHg)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-               <input type="number" className="w-full bg-teal-50 dark:bg-teal-900/20 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-teal-700 dark:text-teal-400 placeholder:text-teal-300 focus:ring-2 focus:ring-teal-500/50 text-[14px] transition-all" placeholder="opsional" value={pao2} onChange={e=>setPao2(e.target.value)} />
-            </div>
-          </div>
+          {row('FiO₂ (%)', fio2, setFio2)}
+          {row('Tidal Vol. (mL)', vt, setVt)}
+          {row('Resp Rate (/mnt)', rr, setRr)}
+          {row('Ppeak', ppeak, setPpeak, '', 'bg-red-50/50 dark:bg-red-900/10')}
+          {row('Pplat', pplat, setPplat, '', 'bg-red-50/50 dark:bg-red-900/10')}
+          {row('PEEP', peep, setPeep, '', 'bg-blue-50/50 dark:bg-blue-900/10')}
+          {row(<>Flow inspirasi <span className="font-normal text-slate-500">(L/mnt, opsional)</span></>, flow, setFlow, 'dari layar')}
+          {row(<>mPaw <span className="font-normal text-slate-500">(opsional)</span></>, mpawIn, setMpawIn, 'dari layar')}
+          {row('SpO₂ (%)', spo2, setSpo2, 'opsional', 'bg-teal-50/50 dark:bg-teal-900/10')}
+          {row('PaO₂ (mmHg)', pao2, setPao2, 'opsional', 'bg-teal-50/50 dark:bg-teal-900/10')}
         </div>
       </div>
 
@@ -267,21 +208,21 @@ export default function KalkulatorVentilatorAdv() {
       {res && (
         <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
-            
+
             <div className="grid grid-cols-2 p-4 gap-4 bg-slate-50 dark:bg-[#1C1C1E]">
               <div className={`p-3 rounded-xl border ${res.dp > 15 ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700'}`}>
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Driving Pressure</div>
                 <div className={`text-2xl font-black ${res.dp > 15 ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-200'}`}>
                   {Math.round(res.dp)} <span className="text-[12px] font-semibold opacity-70">cmH₂O</span>
                 </div>
-                <div className="text-[10px] font-medium opacity-60 mt-0.5">Target &le; 15</div>
+                <div className="text-[10px] font-medium opacity-60 mt-0.5">Target ≤15</div>
               </div>
-              <div className={`p-3 rounded-xl border ${res.mp > 17 ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' : 'bg-white dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700'}`}>
+              <div className={`p-3 rounded-xl border ${res.mp > MP_RISK_THRESHOLD ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' : 'bg-white dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700'}`}>
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Mech. Power</div>
-                <div className={`text-2xl font-black ${res.mp > 17 ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-slate-200'}`}>
-                  {res.mp.toFixed(1)} <span className="text-[12px] font-semibold opacity-70">J/min</span>
+                <div className={`text-2xl font-black ${res.mp > MP_RISK_THRESHOLD ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-slate-200'}`}>
+                  {res.mp.toFixed(1)} <span className="text-[12px] font-semibold opacity-70">J/mnt</span>
                 </div>
-                <div className="text-[10px] font-medium opacity-60 mt-0.5">Target &lt; 17</div>
+                <div className="text-[10px] font-medium opacity-60 mt-0.5">Risiko ↑ bila &gt;17</div>
               </div>
             </div>
 
@@ -289,75 +230,79 @@ export default function KalkulatorVentilatorAdv() {
               <div className="text-center">
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">C-Stat</div>
                 <div className="text-[16px] font-bold text-slate-800 dark:text-slate-200">
-                  {Math.round(res.cstat)} <span className="text-[12px] font-normal text-slate-500">mL/cmH₂O</span>
+                  {res.cstat !== null ? Math.round(res.cstat) : '—'} <span className="text-[12px] font-normal text-slate-500">mL/cmH₂O</span>
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Resistensi</div>
+                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Resistensi{res.resistEstimated ? ' (estimasi)' : ''}</div>
                 <div className="text-[16px] font-bold text-slate-800 dark:text-slate-200">
-                  {res.resist.toFixed(1)} <span className="text-[12px] font-normal text-slate-500">cmH₂O/L/s</span>
+                  {res.resist !== null ? res.resist.toFixed(1) : '—'} <span className="text-[12px] font-normal text-slate-500">cmH₂O/L/dtk</span>
                 </div>
               </div>
-              
-              {res.pfRatio && (
-                <div className="text-center col-span-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">P/F Ratio & Berlin ARDS</div>
-                  <div className={`text-[18px] font-bold ${res.pfRatio < 300 ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-200'}`}>
-                    {Math.round(res.pfRatio)}
-                  </div>
-                  <div className="text-[12px] text-slate-500 mt-1">
-                    {res.isEstimated && <i>(Estimasi dari SpO₂) </i>}
-                    {res.pfRatio >= 300 ? 'Tidak memenuhi kriteria ARDS' : res.pfRatio >= 200 ? 'ARDS Ringan (200-300)' : res.pfRatio >= 100 ? 'ARDS Sedang (100-200)' : 'ARDS Berat (<100)'}
-                  </div>
-                </div>
-              )}
-              
-              {res.oi !== null && (
-                <div className="text-center col-span-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">OI (Oxygenation Index)</div>
-                  <div className="text-[15px] font-semibold text-slate-800 dark:text-slate-200">
-                    {res.oi.toFixed(1)}
-                  </div>
-                </div>
-              )}
-
-              <div className="text-center col-span-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="text-center">
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Min. Ventilation</div>
                 <div className="text-[15px] font-semibold text-slate-800 dark:text-slate-200">
-                  {res.ve.toFixed(1)} <span className="text-[12px] font-normal text-slate-500">L/min</span>
+                  {res.ve.toFixed(1)} <span className="text-[12px] font-normal text-slate-500">L/mnt</span>
                 </div>
               </div>
-              
-              {res.vtIbw && (
+              <div className="text-center">
+                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">mPaw{res.mpawEstimated ? ' (estimasi)' : ''}</div>
+                <div className="text-[15px] font-semibold text-slate-800 dark:text-slate-200">
+                  {res.mpaw.toFixed(1)} <span className="text-[12px] font-normal text-slate-500">cmH₂O</span>
+                </div>
+              </div>
+              {res.vtIbw !== null && (
                 <div className="text-center col-span-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">VT per IBW</div>
-                  <div className="text-[15px] font-semibold text-blue-600 dark:text-blue-400">
-                    {res.vtIbw} mL/kg
+                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">VT per PBW</div>
+                  <div className={`text-[15px] font-semibold ${res.vtIbw > res.target.max ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                    {res.vtIbw.toFixed(1)} mL/kg
                   </div>
-                  <div className="text-[11px] text-slate-500 mt-1">{res.vtSug}</div>
+                  <div className="text-[11px] text-slate-500 mt-1">
+                    Target {res.target.min}–{res.target.max} mL/kg = {Math.round(res.target.min * res.vIbw)}–{Math.round(res.target.max * res.vIbw)} mL
+                    {res.target.start !== null && ` · mulai ${res.target.start} mL/kg = ${Math.round(res.target.start * res.vIbw)} mL`}
+                  </div>
                 </div>
               )}
             </div>
 
-            {res.peepLow !== null && (
-              <div className="p-4 bg-sky-50 dark:bg-sky-900/10 border-t border-sky-100 dark:border-sky-900/30">
+            {(res.pf !== null || res.sf !== null) && (
+              <div className="p-4 space-y-2">
+                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Oksigenasi</div>
+                <div className="grid grid-cols-2 gap-3 text-center">
+                  <div>
+                    <div className="text-[11px] text-slate-500">P/F (PaO₂ terukur)</div>
+                    <div className="text-[18px] font-bold text-slate-800 dark:text-slate-200">{res.pf !== null ? Math.round(res.pf) : '—'}</div>
+                    {res.oi !== null && <div className="text-[11px] text-slate-500">OI {res.oi.toFixed(1)}</div>}
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-slate-500">S/F</div>
+                    <div className="text-[18px] font-bold text-slate-800 dark:text-slate-200">{res.sf !== null ? Math.round(res.sf) : '—'}</div>
+                    <div className="text-[11px] text-slate-500">{res.sf !== null && !res.sfValid ? `tidak valid (SpO₂ >${SF_MAX_SPO2}%)` : res.osi !== null ? `OSI ${res.osi.toFixed(1)}` : ''}</div>
+                  </div>
+                </div>
+                <p className="text-[12px] text-slate-700 dark:text-slate-300">{res.berlin}</p>
+                <p className="text-[12px] text-slate-700 dark:text-slate-300">{res.global}</p>
+                <p className="text-[11px] text-slate-500">{ARDS_OTHER_CRITERIA} PaO₂ tidak lagi diestimasi dari SpO₂ — tanpa AGD gunakan S/F (definisi Global 2023).</p>
+              </div>
+            )}
+
+            {(res.peepLow !== null || res.peepHigh !== null) && (
+              <div className="p-4 bg-sky-50 dark:bg-sky-900/10">
                 <div className="font-bold flex items-center gap-1.5 mb-3 text-[13px] text-sky-700 dark:text-sky-400">
-                  <Settings className="w-4 h-4"/> ARDSNet PEEP-FiO₂ Ladder 
+                  <Settings className="w-4 h-4" /> Tabel PEEP/FiO₂ untuk FiO₂ {fio2}%
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-center">
-                   <div className="bg-white/60 dark:bg-black/20 p-2 rounded-xl border border-sky-200/50 dark:border-sky-800/50">
-                      <div className="text-[10px] text-sky-600/80 dark:text-sky-400/80 font-bold uppercase tracking-wide">Lower PEEP</div>
-                      <div className="text-lg font-black text-sky-700 dark:text-sky-300">{res.peepLow} <span className="text-[10px] font-normal">cmH₂O</span></div>
-                      <div className="text-[9px] text-sky-600/60 mt-0.5">ARDS Ringan/Sedang</div>
-                   </div>
-                   <div className="bg-white/60 dark:bg-black/20 p-2 rounded-xl border border-sky-200/50 dark:border-sky-800/50">
-                      <div className="text-[10px] text-sky-600/80 dark:text-sky-400/80 font-bold uppercase tracking-wide">Higher PEEP</div>
-                      <div className="text-lg font-black text-sky-700 dark:text-sky-300">{res.peepHigh} <span className="text-[10px] font-normal">cmH₂O</span></div>
-                      <div className="text-[9px] text-sky-600/60 mt-0.5">ARDS Berat / Recruitment</div>
-                   </div>
+                  <div className="bg-white/60 dark:bg-black/20 p-2 rounded-xl border border-sky-200/50 dark:border-sky-800/50">
+                    <div className="text-[10px] text-sky-700 dark:text-sky-400 font-bold uppercase tracking-wide">PEEP rendah (ARDSNet)</div>
+                    <div className="text-lg font-black text-sky-700 dark:text-sky-300">{res.peepLow ?? '—'} <span className="text-[10px] font-normal">cmH₂O</span></div>
+                  </div>
+                  <div className="bg-white/60 dark:bg-black/20 p-2 rounded-xl border border-sky-200/50 dark:border-sky-800/50">
+                    <div className="text-[10px] text-sky-700 dark:text-sky-400 font-bold uppercase tracking-wide">PEEP tinggi (ALVEOLI)</div>
+                    <div className="text-lg font-black text-sky-700 dark:text-sky-300">{res.peepHigh ?? '—'} <span className="text-[10px] font-normal">cmH₂O</span></div>
+                  </div>
                 </div>
-                <div className="text-[10px] text-sky-600/70 dark:text-sky-400/70 mt-3 text-center">
-                   FiO₂ Saat Ini: {fio2}% | MAP: {res.mapVent.toFixed(1)} cmH₂O
+                <div className="text-[11px] text-sky-700/80 dark:text-sky-400/80 mt-3 leading-relaxed">
+                  ALVEOLI: luaran PEEP tinggi vs rendah setara (VT 6 mL/kg, Pplat ≤30). ATS/ESICM/SCCM 2017: PEEP lebih tinggi disarankan (kondisional) pada ARDS sedang–berat. Tabel PEEP tinggi ALVEOLI berasal dari protokol (sumber sekunder); setelah 171 pasien kombinasi PEEP &lt;12 dihapus.
                 </div>
               </div>
             )}
@@ -369,61 +314,68 @@ export default function KalkulatorVentilatorAdv() {
                   {
                     label: 'Langkah 1 — Driving Pressure (ΔP):',
                     formula: `ΔP = Pplat − PEEP = ${res.vPplat} − ${res.vPeep} = ${Math.round(res.dp)} cmH₂O`,
-                    note: 'Target ≤15 cmH₂O — prediktor mortalitas ARDS terkuat (Amato 2015).',
+                    note: 'ΔP berhubungan kuat dengan mortalitas ARDS (Amato 2015); target praktis ≤15.',
                   },
                   {
                     label: 'Langkah 2 — Compliance statis:',
-                    formula: `Cstat = VT ÷ ΔP = ${res.vVt} ÷ ${Math.round(res.dp)} = ${Math.round(res.cstat)} mL/cmH₂O`,
+                    formula: res.cstat !== null ? `Cstat = VT ÷ ΔP = ${res.vVt} ÷ ${Math.round(res.dp)} = ${Math.round(res.cstat)} mL/cmH₂O` : 'ΔP ≤0 — tidak dapat dihitung',
                   },
                   {
-                    label: 'Langkah 3 — Resistensi jalan napas:',
-                    formula: `Raw = (Ppeak − Pplat) ÷ flow = (${res.vPpeak} − ${res.vPplat}) ÷ flow inspirasi = ${res.resist.toFixed(1)} cmH₂O/L/s`,
+                    label: `Langkah 3 — Resistensi jalan napas${res.resistEstimated ? ' (estimasi)' : ''}:`,
+                    formula: res.resistEstimated
+                      ? `Ti asumsi (I:E 1:2) = 60 ÷ (${res.vRr} × 3) = ${(res.ti as number).toFixed(2)} dtk → flow ≈ ${res.vtL.toFixed(2)} ÷ ${(res.ti as number).toFixed(2)} = ${(res.vtL / (res.ti as number)).toFixed(2)} L/dtk\nRaw = (${res.vPpeak} − ${res.vPplat}) ÷ ${(res.vtL / (res.ti as number)).toFixed(2)} = ${res.resist?.toFixed(1)} cmH₂O/L/dtk`
+                      : `Raw = (Ppeak − Pplat) ÷ flow = (${res.vPpeak} − ${res.vPplat}) ÷ (${res.flowLpm} ÷ 60) = ${res.resist?.toFixed(1)} cmH₂O/L/dtk`,
+                    note: res.resistEstimated
+                      ? 'Estimasi mengasumsikan I:E 1:2 tanpa jeda inspirasi & aliran konstan — isi flow dari layar ventilator agar akurat.'
+                      : 'Valid untuk mode volume-control dengan aliran konstan (square wave).',
                   },
                   {
                     label: 'Langkah 4 — Minute ventilation:',
-                    formula: `VE = VT(L) × RR = ${res.vtL.toFixed(2)} × ${res.vRr} = ${res.ve.toFixed(1)} L/min`,
+                    formula: `VE = VT(L) × RR = ${res.vtL.toFixed(2)} × ${res.vRr} = ${res.ve.toFixed(1)} L/mnt`,
                   },
                   {
-                    label: 'Langkah 5 — Mechanical Power:',
-                    formula: `MP = 0.098 × RR × VT(L) × (Ppeak − ΔP/2)\n= 0.098 × ${res.vRr} × ${res.vtL.toFixed(2)} × (${res.vPpeak} − ${Math.round(res.dp)}/2) = ${res.mp.toFixed(1)} J/min`,
-                    note: 'MP >17 J/min terkait VILI (Gattinoni 2016).',
+                    label: 'Langkah 5 — Mechanical Power (rumus sederhana Gattinoni):',
+                    formula: `MP = 0,098 × RR × VT(L) × (Ppeak − ΔP/2)\n= 0,098 × ${res.vRr} × ${res.vtL.toFixed(2)} × (${res.vPpeak} − ${Math.round(res.dp)}/2) = ${res.mp.toFixed(1)} J/mnt`,
+                    note: 'Rumus Gattinoni 2016 (volume-control). Ambang >17 J/menit dari Serpa Neto 2018.',
                   },
-                  ...(res.vtIbw ? [{
-                    label: 'Langkah 6 — Tidal volume per IBW:',
-                    formula: `VT/IBW = ${res.vVt} ÷ ${res.vIbw} = ${res.vtIbw} mL/kg\n${res.vtSug}`,
-                    note: 'ARDS: 4-6 mL/kg IBW (ARMA/ARDSNet); normal 6-8; PPOK 7-8.',
-                  }] : []),
-                  ...(res.pfRatio ? [{
-                    label: `Langkah ${res.vtIbw ? 7 : 6} — Rasio P/F (oksigenasi):`,
-                    formula: `P/F = PaO₂ ÷ FiO₂ = ${res.pao2Used}${res.isEstimated ? ' (estimasi dari SpO₂)' : ''} ÷ ${(res.vFio2 / 100).toFixed(2)} = ${Math.round(res.pfRatio)}`,
-                    note: res.isEstimated ? 'PaO₂ diestimasi dari SpO₂ — kurang akurat, konfirmasi dengan AGD.' : undefined,
+                  {
+                    label: `Langkah 6 — mPaw${res.mpawEstimated ? ' (estimasi)' : ''}:`,
+                    formula: res.mpawEstimated
+                      ? `mPaw ≈ PEEP + (Ppeak − PEEP) × 1/3 = ${res.vPeep} + (${res.vPpeak} − ${res.vPeep}) ÷ 3 = ${res.mpaw.toFixed(1)} cmH₂O`
+                      : `mPaw dari layar ventilator = ${res.mpaw.toFixed(1)} cmH₂O`,
+                    note: res.mpawEstimated ? 'Asumsi I:E 1:2 & gelombang tekanan persegi — cenderung lebih tinggi dari nilai sebenarnya pada volume-control. Isi mPaw dari layar bila ada.' : undefined,
+                  },
+                  ...(res.vtIbw !== null ? [{
+                    label: 'Langkah 7 — Tidal volume per PBW:',
+                    formula: `VT/PBW = ${res.vVt} ÷ ${res.vIbw} = ${res.vtIbw.toFixed(1)} mL/kg`,
+                    note: res.target.note,
                   }] : []),
                 ]}
-                footer="Angka mekanik paru memandu setting protektif — selalu korelasikan dengan klinis, AGD, dan sinkroni pasien-ventilator."
+                footer="Angka mekanik paru memandu setting protektif — korelasikan dengan klinis, AGD, dan sinkroni pasien-ventilator."
               />
             </div>
 
-            {res.warnings && res.warnings.length > 0 && (
+            {res.warnings.length > 0 && (
               <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border-t border-slate-100 dark:border-slate-800">
                 <div className="font-bold flex items-center gap-1.5 mb-2 text-[13px] text-amber-700 dark:text-amber-500">
-                  <AlertTriangle className="w-4 h-4"/> Peringatan Terdeteksi
+                  <AlertTriangle className="w-4 h-4" /> Peringatan Terdeteksi
                 </div>
                 <ul className="list-disc pl-5 space-y-1.5">
-                  {res.warnings.map((w: string, i: number) => (
+                  {res.warnings.map((w, i) => (
                     <li key={i} className="text-[12px] text-amber-700/80 dark:text-amber-400/80 leading-snug">{w}</li>
                   ))}
                 </ul>
               </div>
             )}
-            
+
             <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-               <SaveToHistoryButton 
-                 module="ventilator_adv" 
-                 label={`Ventilator Adv — DP: ${Math.round(res.dp)} cmH₂O`}
-                 inputs={{ kondisi, ibw, vt, rr, fio2, ppeak, pplat, peep, spo2, pao2 }}
-                 summary={`Driving Pressure: ${Math.round(res.dp)} cmH₂O, Mech. Power: ${res.mp.toFixed(1)} J/min${res.pfRatio ? `, P/F: ${Math.round(res.pfRatio)}` : ''}`}
-                 className="w-full"
-               />
+              <SaveToHistoryButton
+                module="ventilator_adv"
+                label={`Ventilator Adv — DP: ${Math.round(res.dp)} cmH₂O`}
+                inputs={{ kondisi, ibw, vt, rr, fio2, ppeak, pplat, peep, flow, mpaw: mpawIn, spo2, pao2 }}
+                summary={`ΔP ${Math.round(res.dp)} cmH₂O · MP ${res.mp.toFixed(1)} J/mnt${res.pf !== null ? ` · P/F ${Math.round(res.pf)}` : ''}${res.sf !== null ? ` · S/F ${Math.round(res.sf)}` : ''}`}
+                className="w-full"
+              />
             </div>
           </div>
         </div>
@@ -431,13 +383,14 @@ export default function KalkulatorVentilatorAdv() {
 
       <Accordion title="📖 Teori & Referensi: Mekanik Paru Lanjutan">
         <ul className="pl-4 space-y-2 mb-4 list-disc text-slate-600 dark:text-slate-400 text-[13px] leading-relaxed">
-          <li><strong className="text-slate-800 dark:text-slate-200">Compliance Statis (Cstat):</strong> Elastisitas paru dan dinding dada. Cstat = Vol Tidal / (Pplat - PEEP). Normal &gt; 60 mL/cmH2O. Pada ARDS, paru menjadi "kaku" sehingga compliance menurun signifikan (&lt; 40 mL/cmH2O). Penurunan Cstat meningkatkan driving pressure.</li>
-          <li><strong className="text-slate-800 dark:text-slate-200">Mechanical Power (MP):</strong> Ukuran total energi mekanik yang dihantarkan ke paru oleh ventilator setiap menit (diukur dalam Joule/menit). Meliputi volume, tekanan, dan laju pernapasan (RR). MP &gt; 17 J/min dikaitkan erat dengan Ventilator-Induced Lung Injury (VILI).</li>
-          <li><strong className="text-slate-800 dark:text-slate-200">Resistensi Jalan Napas (Raw):</strong> Hambatan struktural pada bronkus/ETT (tube). Raw = (Ppeak - Pplat) / Flow (diubah ke L/s). Normal &lt; 10 cmH2O/L/s (dengan ETT).</li>
-          <li><strong className="text-slate-800 dark:text-slate-200">Oxygenation Index (OI):</strong> Mengukur keparahan gagal napas dengan mempertimbangkan tekanan jalan napas. OI = (FiO2 × MAP) / PaO2.</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Ventilasi protektif:</strong> ARDS — VT 4–8 mL/kg PBW dan Pplat &lt;30 cmH₂O (rekomendasi kuat, ATS/ESICM/SCCM 2017); prone &gt;12 jam/hari pada ARDS berat (kuat); PEEP lebih tinggi & manuver rekrutmen hanya kondisional. Tanpa ARDS, VT rendah menurunkan cedera paru (RR 0,33) dan mortalitas (RR 0,64) (Serpa Neto 2012).</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Driving pressure:</strong> ΔP = Pplat − PEEP; berhubungan paling kuat dengan kesintasan ARDS (Amato 2015).</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Mechanical power:</strong> energi per menit yang dihantarkan ventilator; rumus sederhana volume-control MP = 0,098 × RR × VT × (Ppeak − ΔP/2) (Gattinoni 2016). Risiko kematian meningkat konsisten pada MP &gt;17 J/menit (Serpa Neto 2018).</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Resistensi & mPaw:</strong> Raw = (Ppeak − Pplat) ÷ flow, valid pada aliran konstan. Tanpa flow & mPaw dari layar ventilator, aplikasi memakai asumsi I:E 1:2 (estimasi).</li>
+          <li><strong className="text-slate-800 dark:text-slate-200">Oksigenasi:</strong> P/F hanya dari PaO₂ terukur; tanpa AGD gunakan S/F (≤315 bila SpO₂ ≤97%, definisi Global 2023) dan OSI = FiO₂ × mPaw ÷ SpO₂. OI = FiO₂ × mPaw ÷ PaO₂ (tidak ada ambang dewasa baku).</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 Gattinoni L et al. (2016) Mechanical power. Intensive Care Med; Amato MBP et al. (2015) Driving pressure and survival in ARDS. NEJM; ARDSNet Guidelines.
+        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[12px] text-slate-700 dark:text-slate-300 italic leading-relaxed">
+          📚 Fan E et al. ATS/ESICM/SCCM ARDS guideline. AJRCCM 2017;195:1253–63 · Amato MBP et al. NEJM 2015;372:747–55 · Gattinoni L et al. Intensive Care Med 2016;42:1567–75 · Serpa Neto A et al. Intensive Care Med 2018;44:1914–22 · Serpa Neto A et al. JAMA 2012;308:1651–9 · ARDS Network. NEJM 2000;342:1301–8 · Brower RG et al. (ALVEOLI). NEJM 2004;351:327–36 · Guérin C et al. (PROSEVA). NEJM 2013;368:2159–68 · Matthay MA et al. Global definition of ARDS. AJRCCM 2024;209:37–47.
         </div>
       </Accordion>
     </div>

@@ -133,28 +133,12 @@ export default function KalkulatorPF() {
     };
   };
 
-  const spo2ToPao2 = (s: number) => {
-    const table = [
-      { s: 88, p: 55 }, { s: 90, p: 60 }, { s: 92, p: 70 }, { s: 94, p: 79 },
-      { s: 96, p: 93 }, { s: 98, p: 113 }, { s: 100, p: 145 }
-    ];
-    if (s <= 88) return 55;
-    if (s >= 100) return 145;
-    for (let i = 0; i < table.length - 1; i++) {
-      if (s >= table[i].s && s <= table[i + 1].s) {
-        const frac = (s - table[i].s) / (table[i + 1].s - table[i].s);
-        return table[i].p + frac * (table[i + 1].p - table[i].p);
-      }
-    }
-    return 29;
-  };
-
+  // PaO₂ TIDAK diestimasi dari SpO₂ (tabel lama memberi PaO₂ lebih tinggi dari kurva disosiasi
+  // standar → P/F terlalu tinggi). Tanpa PaO₂: pakai S/F (definisi Global 2023) & OSI.
   const calculate = () => {
     const directPao2 = parseFloat(pao2);
     const spo2Val = parseFloat(spo2);
-    const estimatedPao2 = !directPao2 && spo2Val ? spo2ToPao2(spo2Val) : null;
-    const o2 = directPao2 || estimatedPao2;
-    const isPao2Estimated = !directPao2 && !!estimatedPao2;
+    const o2 = directPao2 > 0 ? directPao2 : null;
     const f = getFio2Value();
     const m = parseFloat(map);
     const s = parseFloat(spo2);
@@ -162,7 +146,7 @@ export default function KalkulatorPF() {
     const p = parseFloat(peep);
     const pCO2 = parseFloat(paco2);
 
-    if (!o2 || !f || isNaN(f)) {
+    if ((!o2 && !(spo2Val > 0)) || !f || isNaN(f)) {
       setResult(null);
       return;
     }
@@ -173,17 +157,17 @@ export default function KalkulatorPF() {
     }
     setFio2Error('');
 
-    const pf = o2 / f;
-    const lbl = pfLabel(pf);
-    const pfClass = lbl.text;
-    const pfColor = TONE_TEXT[lbl.tone];
+    const pf = o2 !== null ? o2 / f : null;
+    const lbl = pf !== null ? pfLabel(pf) : null;
+    const pfClass = lbl ? lbl.text : 'P/F tidak dihitung — PaO₂ (AGD) tidak diisi';
+    const pfColor = lbl ? TONE_TEXT[lbl.tone] : 'text-slate-500';
     const peepVal = parseFloat(peep);
     const meetsBeepCriteria = !isNaN(peepVal) && peepVal >= 5;
     const effSupport: RespSupport = fio2Mode === 'lowflow' ? 'udara' : support;
     const fio2Estimated = fio2Mode === 'lowflow' && !device.startsWith('venturi');
     const hfFlow = parseFloat(hfnoFlow);
     const ox = ardsOxygenation({
-      pf: isPao2Estimated ? null : pf, spo2: isNaN(s) ? null : s, fio2: f, support: effSupport,
+      pf, spo2: isNaN(s) ? null : s, fio2: f, support: effSupport,
       peep: isNaN(peepVal) ? null : peepVal, hfnoFlow: isNaN(hfFlow) ? null : hfFlow, fio2Estimated,
     });
 
@@ -213,7 +197,7 @@ export default function KalkulatorPF() {
     let failType: { t: string; d: string[]; c: string } | null = null;
     if (pCO2) {
       const phVal = parseFloat(ph);
-      const pao2ForRf = isPao2Estimated ? null : o2;
+      const pao2ForRf = o2;
       if (!isNaN(phVal)) {
         const rf = classifyRespFailure({ ph: phVal, pco2: pCO2, hco3: hco3FromHH(phVal, pCO2), pao2: pao2ForRf, fio2: f, fio2Estimated });
         failType = { t: rf.title, d: [...rf.details], c: TONE_TEXT[rf.tone] };
@@ -223,11 +207,11 @@ export default function KalkulatorPF() {
         const rf = classifyRespFailure({ ph: NaN, pco2: pCO2, hco3: NaN, pao2: pao2ForRf, fio2: f, fio2Estimated });
         failType = { t: rf.title, d: [...rf.details], c: TONE_TEXT[rf.tone] };
       }
-      if (isPao2Estimated) failType.d.push('PaO₂ diestimasi dari SpO₂ — tipe 1 tidak dinilai dari estimasi; konfirmasi dengan AGD.');
+      if (o2 === null) failType.d.push('PaO₂ tidak diisi — tipe 1 (hipoksemia) tidak dinilai; konfirmasi dengan AGD.');
       if (!isNaN(phVal) && !isNaN(pCO2)) failType.d.push(`HCO₃⁻ dihitung dari pH & PaCO₂ (Henderson–Hasselbalch) = ${hco3FromHH(phVal, pCO2).toFixed(1)} mmol/L untuk membedakan akut/kronik.`);
     }
 
-    setResult({ pf: pf.toFixed(1), pfClass, pfColor, o2, isPao2Estimated, meetsBeepCriteria, f, oiRes, dpRes, osiRes, failType,
+    setResult({ pf: pf !== null ? pf.toFixed(1) : null, pfClass, pfColor, o2, meetsBeepCriteria, f, oiRes, dpRes, osiRes, failType,
       berlin: ox.berlin, global: ox.global, meetsOxygenation: ox.meetsOxygenation, sf: ox.sf, sfValid: ox.sfValid, supportLabel: SUPPORT_LABEL[effSupport] });
   };
 
@@ -430,11 +414,15 @@ export default function KalkulatorPF() {
       {result && (
         <div className="mt-4 space-y-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
-            <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.pfColor}`}>P/F Ratio — Klasifikasi Oksigenasi</div>
-            <div className="text-2xl font-black text-slate-900 dark:text-white mb-1">{result.pf} mmHg — {result.pfClass}</div>
-            <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">
-              PaO₂ {result.o2.toFixed(1)}{result.isPao2Estimated && <span className="text-[11px] text-amber-500 ml-1">(estimasi dari SpO₂)</span>} ÷ FiO₂ {result.f.toFixed(2)}
-            </div>
+            <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.pfColor}`}>{result.pf !== null ? 'P/F Ratio — Klasifikasi Oksigenasi' : 'Tanpa AGD — Klasifikasi dengan S/F'}</div>
+            {result.pf !== null ? (
+              <>
+                <div className="text-2xl font-black text-slate-900 dark:text-white mb-1">{result.pf} mmHg — {result.pfClass}</div>
+                <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">PaO₂ {result.o2.toFixed(1)} ÷ FiO₂ {result.f.toFixed(2)}</div>
+              </>
+            ) : (
+              <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">{result.pfClass}. PaO₂ tidak diestimasi dari SpO₂ — gunakan S/F di bawah (definisi Global 2023).</div>
+            )}
             {result.sf !== null && (
               <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">S/F = {result.sf.toFixed(0)}{!result.sfValid && <span className="text-[11px] text-amber-500 ml-1">(tidak dipakai — SpO₂ &gt;97%)</span>}</div>
             )}
@@ -494,9 +482,13 @@ export default function KalkulatorPF() {
               tone="blue"
               steps={[
                 {
-                  label: 'Langkah 1 — Rasio P/F:',
-                  formula: `P/F = PaO₂ ÷ FiO₂ = ${result.o2.toFixed(1)}${result.isPao2Estimated ? ' (estimasi dari SpO₂)' : ''} ÷ ${result.f.toFixed(2)} = ${result.pf}`,
-                  note: `${result.pfClass}. Ambang ARDS: ≤300 ringan · ≤200 sedang · ≤100 berat.`,
+                  label: result.pf !== null ? 'Langkah 1 — Rasio P/F:' : 'Langkah 1 — Rasio S/F (tanpa AGD):',
+                  formula: result.pf !== null
+                    ? `P/F = PaO₂ ÷ FiO₂ = ${result.o2.toFixed(1)} ÷ ${result.f.toFixed(2)} = ${result.pf}`
+                    : `S/F = SpO₂ ÷ FiO₂ = ${spo2} ÷ ${result.f.toFixed(2)} = ${result.sf !== null ? result.sf.toFixed(0) : '—'}`,
+                  note: result.pf !== null
+                    ? `${result.pfClass}. Ambang ARDS: ≤300 ringan · ≤200 sedang · ≤100 berat.`
+                    : 'S/F valid bila SpO₂ ≤97%. Global 2023 (terintubasi): ≤315 ringan · ≤235 sedang · ≤148 berat.',
                 },
                 {
                   label: 'Langkah 2 — Klasifikasi oksigenasi ARDS:',
@@ -521,9 +513,9 @@ export default function KalkulatorPF() {
           <div className="mt-4">
             <SaveToHistoryButton
               module="pf_ratio"
-              label={`P/F Ratio: ${result.pf} (${result.pfClass})`}
+              label={result.pf !== null ? `P/F Ratio: ${result.pf} (${result.pfClass})` : `S/F: ${result.sf !== null ? result.sf.toFixed(0) : '—'} (tanpa AGD)`}
               inputs={{ pao2, fio2Mode, fio2, device, flow, map, spo2Source, spo2, pplat, peep, paco2, ph, support, hfnoFlow }}
-              summary={`P/F: ${result.pf} (${result.pfClass}) · PaO₂: ${result.o2.toFixed(1)} · FiO₂: ${result.f.toFixed(2)}${result.dpRes ? ` · DP: ${result.dpRes.val}` : ''}`}
+              summary={`${result.pf !== null ? `P/F: ${result.pf} (${result.pfClass}) · PaO₂: ${result.o2.toFixed(1)}` : `S/F: ${result.sf !== null ? result.sf.toFixed(0) : '—'} (tanpa AGD)`} · FiO₂: ${result.f.toFixed(2)}${result.dpRes ? ` · DP: ${result.dpRes.val}` : ''}`}
               className="w-full bg-blue-600 hover:bg-blue-700"
             />
           </div>
