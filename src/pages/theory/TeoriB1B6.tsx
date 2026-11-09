@@ -1,4 +1,5 @@
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function TeoriB1B6() {
   return (
@@ -35,10 +36,10 @@ export default function TeoriB1B6() {
                 <tr className="bg-muted text-muted-foreground border-b border-border"><th className="p-2">Kondisi</th><th className="p-2">Target SpO₂</th><th className="p-2">Catatan</th></tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border text-foreground"><td className="p-2">Umum / pasca-resusitasi</td><td className="p-2 font-bold text-primary">94–98%</td><td className="p-2 text-muted-foreground">Hindari hiperoksia</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2">Pasien kritis umum</td><td className="p-2 font-bold text-primary">92–96%</td><td className="p-2 text-muted-foreground">Hindari hiperoksia — batas atas ±96% (BMJ Rapid Recommendation 2018) [6]</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2">ARDS sedang–berat</td><td className="p-2 font-bold text-amber-600 dark:text-amber-400">88–95%</td><td className="p-2 text-muted-foreground">Toleransi hipoksemia permisif</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2">PPOK / hiperkania kronik</td><td className="p-2 font-bold text-amber-600 dark:text-amber-400">88–92%</td><td className="p-2 text-muted-foreground">Hindari supresi drive napas</td></tr>
-                <tr className="text-foreground"><td className="p-2">Stroke / post-cardiac arrest</td><td className="p-2 font-bold text-primary">94–98%</td><td className="p-2 text-muted-foreground">Hiperoksia berbahaya untuk otak</td></tr>
+                <tr className="text-foreground"><td className="p-2">Pasca henti jantung (ROSC)</td><td className="p-2 font-bold text-primary">94–98%</td><td className="p-2 text-muted-foreground">Hindari hipoksemia & hiperoksia (ERC/ESICM 2021) [7]</td></tr>
               </tbody>
             </table>
           </div>
@@ -46,11 +47,11 @@ export default function TeoriB1B6() {
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Parameter Ventilator Lung-Protective</h3>
           <ul className="list-disc pl-5 mb-2 space-y-1 text-muted-foreground text-[12px]">
             <li><strong className="text-foreground">Tidal Volume:</strong> 6 mL/kgBB IBW (Batas aman: 4–8 mL/kgBB IBW)</li>
-            <li><strong className="text-foreground">Plateau Pressure:</strong> ≤28 cmH₂O (<strong className="text-destructive">Mutlak ≤30 cmH₂O</strong>)</li>
+            <li><strong className="text-foreground">Plateau Pressure:</strong> <strong className="text-destructive">&lt;30 cmH₂O</strong> (ATS/ESICM/SCCM 2017)</li>
             <li><strong className="text-foreground">Driving Pressure:</strong> ≤15 cmH₂O (ideal) [3, 4]</li>
           </ul>
           <p className="mt-2 text-[11px] italic text-muted-foreground">
-            📚 Matthay MA et al. (ARDS 2023) AJRCCM 2023;209:37 · 
+            📚 Matthay MA et al. (Global ARDS) AJRCCM 2024;209:37 · Siemieniuk RAC et al. BMJ 2018;363:k4169 ·
             Evans L et al. (SSC 2021) ICM 2021;47:1181
           </p>
         </Accordion>
@@ -61,16 +62,16 @@ export default function TeoriB1B6() {
               <h3 className="font-bold text-[13px] text-destructive uppercase tracking-wider mb-2 border-b border-border pb-1">Parameter Hemodinamik</h3>
               <ul className="list-disc pl-5 m-0 space-y-1 text-muted-foreground text-[12px]">
                 <li><strong className="text-foreground">HR</strong> — normal 60–100 bpm; takikardia = kompensasi?</li>
-                <li><strong className="text-foreground">MAP</strong> — target ≥65 mmHg (sepsis) / ≥80 (TBI)</li>
+                <li><strong className="text-foreground">MAP</strong> — target awal ≥65 mmHg (sepsis); cedera otak traumatik: cegah hipotensi (SBP ≥100–110 sesuai usia) dan jaga CPP 60–70 (BTF 2016)</li>
                 <li><strong className="text-foreground">JVP</strong> — tinggi = gagal jantung kanan / tamponade</li>
-                <li><strong className="text-foreground">CRT</strong> — &gt;2 detik = hipoperfusi perifer</li>
+                <li><strong className="text-foreground">CRT</strong> — &gt;3 detik = hipoperfusi perifer (ANDROMEDA-SHOCK menargetkan normalisasi ≤3 detik)</li>
               </ul>
             </div>
             <div>
               <h3 className="font-bold text-[13px] text-destructive uppercase tracking-wider mb-2 border-b border-border pb-1">Biomarker Sirkulasi</h3>
               <ul className="list-disc pl-5 m-0 space-y-1 text-muted-foreground text-[12px]">
-                <li><strong className="text-foreground">Laktat</strong> — target &lt;2 mmol/L; clearance ≥10%/2 jam</li>
-                <li><strong className="text-foreground">ScvO₂</strong> — &lt;70% = inadequate DO₂ atau ↑ VO₂</li>
+                <li><strong className="text-foreground">Laktat</strong> — &gt;2 mmol/L abnormal; ukur ulang 2–4 jam untuk menilai penurunan</li>
+                <li><strong className="text-foreground">ScvO₂</strong> — &lt;70% menandakan DO₂ tidak cukup atau VO₂ ↑ (bukan target resusitasi rutin — ProCESS/ARISE/ProMISe)</li>
                 <li><strong className="text-foreground">Troponin</strong> — elevasi = myocardial injury</li>
                 <li><strong className="text-foreground">BNP/NT-proBNP</strong> — penanda volume overload</li>
               </ul>
@@ -96,7 +97,7 @@ export default function TeoriB1B6() {
             <div>
               <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Sedasi & Nyeri</h3>
               <ul className="list-disc pl-5 m-0 space-y-1 text-muted-foreground text-[12px]">
-                <li><strong className="text-foreground">Target RASS:</strong> -1 s/d 0 (Sedasi ringan / Alert & Calm)</li>
+                <li><strong className="text-foreground">Target RASS:</strong> sedasi ringan −2 s/d +1 (sering 0 s/d −1), kecuali ada indikasi sedasi dalam</li>
                 <li><strong className="text-foreground">Penilaian Nyeri:</strong> CPOT (untuk terintubasi) atau NRS</li>
                 <li><strong className="text-foreground">Delirium:</strong> CAM-ICU (untuk terintubasi) atau ICDSC</li>
               </ul>
@@ -114,7 +115,7 @@ export default function TeoriB1B6() {
           <ul className="list-disc pl-5 mb-3 space-y-1 text-muted-foreground text-[12px]">
             <li><strong className="text-foreground">Target UO:</strong> ≥0.5 mL/kgBB/jam. Oliguria bila &lt;0.5 x 6 jam.</li>
             <li><strong className="text-foreground">Target Balans:</strong> Resusitasi awal → positif (wajar). Optimasi → netral. De-eskalasi (&gt;24j) → <strong className="text-primary">negatif</strong> (kurangi edema, ↑ keberhasilan weaning).</li>
-            <li><strong className="text-foreground">Indikasi RRT:</strong> Overload refrakter, asidosis berat (pH&lt;7.1), K⁺ &gt;6.5 mEq/L ekg changes, uremia simtomatik.</li>
+            <li><strong className="text-foreground">Indikasi RRT mendesak (AEIOU, refrakter terapi medis):</strong> asidosis berat (contoh ambang lazim pH &lt;7,1), hiperkalemia (contoh K⁺ &gt;6,5 mEq/L) atau perubahan EKG, intoksikasi yang dapat didialisis, overload/edema paru refrakter diuretik, komplikasi uremik — sama dengan Kalkulator Indikasi HD.</li>
           </ul>
         </Accordion>
 
@@ -122,23 +123,25 @@ export default function TeoriB1B6() {
            <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Pemeriksaan & Target Nutrisi</h3>
            <ul className="list-disc pl-5 mb-3 space-y-1 text-muted-foreground text-[12px]">
             <li><strong className="text-foreground">Pemeriksaan:</strong> I-A-P-P (Inspeksi, Auskultasi, Perkusi, Palpasi). Bising usus normal 5-34x/mnt.</li>
-            <li><strong className="text-foreground">Target Nutrisi:</strong> Kalori 25-30 kkal/kg/hari (hindari overfeed fase awal). Protein 1.2-2.0 g/kg/hari.</li>
+            <li><strong className="text-foreground">Target Nutrisi:</strong> energi ESPEN 20–25 kkal/kg/hari (fase akut awal ≤70%) · ASPEN 12–25 kkal/kg/hari; protein ESPEN 1,3 · ASPEN 1,2–2,0 g/kg/hari — hitung di Kalkulator Nutrisi.</li>
             <li><strong className="text-foreground">Early Enteral:</strong> Mulai 24-48 jam. HOB 30-45°. Stop/tahan bila GRV &gt;500 mL/6j atau muntah berlebih.</li>
           </ul>
           <p className="mt-2 text-[11px] italic text-muted-foreground">
             📚 Singer P et al. (ESPEN 2023) Clin Nutr 2023;42:1671 · 
-            Taylor BE et al. (SCCM/ASPEN 2022) JPEN 2022;46:12
+            Compher C et al. (ASPEN 2022) JPEN 2022;46:12
           </p>
         </Accordion>
 
         <Accordion title="🦴 B6 — Bone (Integumen & Ekstremitas)">
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Integumen & Mobilisasi Dini</h3>
           <ul className="list-disc pl-5 mb-3 space-y-1 text-muted-foreground text-[12px]">
-            <li><strong className="text-foreground">ICU-Acquired Weakness:</strong> Insidensi 25-50% (ICU &gt;7 hari). Nilai dengan skala MRC. Lakukan early mobility.</li>
+            <li><strong className="text-foreground">ICU-Acquired Weakness:</strong> ±25% pada pasien ventilasi ≥7 hari (De Jonghe 2002). Nilai dengan skor MRC (jumlah &lt;48/60 = ICUAW). Lakukan mobilisasi sesuai kriteria keamanan [8].</li>
             <li><strong className="text-foreground">Pressure Injury:</strong> Cek rutinitas setiap shift. Lakukan reposisi/miring-miring setiap 2 jam.</li>
             <li><strong className="text-foreground">Mottling / Perfusi:</strong> Mottling score (0-5 dari lutut ke umbilikus) sangat prediktif untuk mortalitas resusitasi syok [5].</li>
           </ul>
         </Accordion>
+
+        <AbbrLegend terms={['RR', 'SpO2', 'WOB', 'ARDS', 'PPOK', 'ROSC', 'IBW', 'MAP', 'SBP', 'CPP', 'BTF', 'HR', 'JVP', 'CRT', 'ScvO2', 'DO2', 'VO2', 'BNP', 'GCS', 'RASS', 'CPOT', 'NRS', 'CAM-ICU', 'ICDSC', 'UO', 'RRT', 'AEIOU', 'EKG', 'HOB', 'GRV', 'ICUAW', 'MRC', 'ESPEN', 'ASPEN', 'SSC', 'ERC', 'ESICM', 'K+']} />
 
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
@@ -150,7 +153,9 @@ export default function TeoriB1B6() {
             <li>ARDS Definition Task Force. Acute respiratory distress syndrome: the Berlin Definition. <em>JAMA</em>. 2012.</li>
             <li>Amato MB, et al. Driving pressure and survival in the acute respiratory distress syndrome. <em>N Engl J Med</em>. 2015.</li>
             <li>Ait-Oufella H, et al. Mottling score predicts survival in septic shock. <em>Intensive Care Med</em>. 2011.</li>
-            <li>Vincent JL. Textbook of Critical Care. 8th ed. <em>Elsevier</em> 2023.</li>
+            <li>Siemieniuk RAC, et al. Oxygen therapy for acutely ill medical patients: a clinical practice guideline. <em>BMJ</em>. 2018;363:k4169.</li>
+            <li>Nolan JP, et al. ERC and ESICM guidelines 2021: post-resuscitation care. <em>Intensive Care Med</em>. 2021;47:369.</li>
+            <li>De Jonghe B, et al. Paresis acquired in the intensive care unit: a prospective multicenter study. <em>JAMA</em>. 2002;288:2859.</li>
             <li>Evans L et al. SSC 2021. <em>Intensive Care Med</em>. 2021;47:1181.</li>
             <li>Singer P et al. ESPEN 2023. <em>Clin Nutr</em>. 2023;42:1671.</li>
           </ul>

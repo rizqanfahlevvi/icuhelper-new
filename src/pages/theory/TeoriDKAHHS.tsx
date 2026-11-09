@@ -1,4 +1,5 @@
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function TeoriDKAHHS() {
   return (
@@ -35,16 +36,16 @@ export default function TeoriDKAHHS() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Glukosa plasma</td><td className="p-2">≥200 mg/dL*</td><td className="p-2">≥600 mg/dL</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Glukosa plasma</td><td className="p-2">≥200 mg/dL <strong>atau</strong> riwayat diabetes*</td><td className="p-2">≥600 mg/dL</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Ketonemia (BHB)</td><td className="p-2 font-bold text-destructive">≥3.0 mmol/L <span className="font-normal text-muted-foreground">(atau keton urin ≥2+)</span></td><td className="p-2">&lt;3.0 mmol/L <span className="text-muted-foreground">(minimal)</span></td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">pH arteri/vena</td><td className="p-2">&lt;7.3</td><td className="p-2">&gt;7.3</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Bikarbonat (HCO₃⁻)</td><td className="p-2">&lt;18 mmol/L</td><td className="p-2">&gt;18 mmol/L</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Osmolalitas efektif</td><td className="p-2">Bervariasi</td><td className="p-2 font-bold text-amber-600 dark:text-amber-400">&gt;300 mOsm/kg</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">pH arteri/vena</td><td className="p-2">&lt;7,3 <span className="text-muted-foreground">(atau HCO₃⁻ &lt;18)</span></td><td className="p-2">≥7,3</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Bikarbonat (HCO₃⁻)</td><td className="p-2">&lt;18 mmol/L</td><td className="p-2">≥15 mmol/L</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Osmolalitas efektif</td><td className="p-2">Bervariasi</td><td className="p-2 font-bold text-amber-600 dark:text-amber-400">&gt;300 mOsm/kg <span className="font-normal text-muted-foreground">(efektif = 2×Na + glukosa/18; atau total &gt;320)</span></td></tr>
                 <tr className="text-foreground"><td className="p-2 font-bold">Status mental</td><td className="p-2">Bervariasi (sering sadar)</td><td className="p-2">Sering ↓ (stupor/koma bila osm &gt;320)</td></tr>
               </tbody>
             </table>
           </div>
-          <p className="text-[12px] text-muted-foreground mb-4">*<strong>Perubahan kunci konsensus 2024:</strong> ambang glukosa DKA diturunkan ke <strong>≥200 mg/dL</strong>, ambang HCO₃⁻ dinaikkan ke <strong>&lt;18</strong>, dan <strong>BHB ≥3.0 mmol/L</strong> menjadi standar [1].</p>
+          <p className="text-[12px] text-muted-foreground mb-4">*<strong>Perubahan kunci konsensus 2024:</strong> kriteria glukosa DKA menjadi <strong>≥200 mg/dL ATAU riwayat diabetes</strong> (mencakup KAD euglikemik, mis. pada pengguna SGLT2i); <strong>BHB ≥3,0 mmol/L</strong> menjadi kriteria keton utama; anion gap bukan lagi kriteria diagnostik lini pertama (berguna bila keton tak dapat diperiksa) [1].</p>
         </Accordion>
 
         <Accordion title="📖 Prinsip Tatalaksana — Cairan · Kalium · Insulin">
@@ -70,19 +71,20 @@ export default function TeoriDKAHHS() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold text-destructive">&lt;3.3</td><td className="p-2"><span className="px-2 py-0.5 bg-destructive/20 text-destructive rounded font-bold text-[10px] mr-2">TUNDA INSULIN</span> Beri K⁺ 10–20 mmol/jam sampai ≥3.3, lalu mulai insulin</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">3.3–5.0 (5.2)</td><td className="p-2">Tambahkan K⁺ <strong>10–20 mmol per liter</strong> cairan infus; target K⁺ 4–5</td></tr>
-                <tr className="text-foreground"><td className="p-2 font-bold">&gt;5.0 (5.2)</td><td className="p-2">Jangan beri K⁺ dulu; cek ulang tiap 2 jam</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold text-destructive">&lt;3,5</td><td className="p-2"><span className="px-2 py-0.5 bg-destructive/20 text-destructive rounded font-bold text-[10px] mr-2">TUNDA INSULIN</span> Beri K⁺ IV (mulai ±10 mmol/jam) sampai &gt;3,5, lalu mulai insulin (ADA/EASD 2024)</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">3,5–5,0</td><td className="p-2">Mulai insulin; tambahkan K⁺ ke cairan infus untuk target K⁺ 4–5 (contoh dosis: 20–30 mmol per liter — ADA 2009; 40 mmol/L bila K⁺ 3,5–5,5 — JBDS)</td></tr>
+                <tr className="text-foreground"><td className="p-2 font-bold">&gt;5,0</td><td className="p-2">Jangan beri K⁺ dulu; mulai suplementasi setelah K⁺ turun &lt;5,0</td></tr>
               </tbody>
             </table>
           </div>
+          <p className="text-[12px] text-muted-foreground mb-4">Pantau K⁺ saat awal, 2 jam setelah insulin dimulai, lalu tiap 4 jam sampai KAD teratasi (ADA/EASD 2024) [1].</p>
 
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">3. Insulin</h3>
           <ul className="list-disc pl-5 mb-4 space-y-1 text-muted-foreground text-[12px]">
-            <li><strong className="text-foreground">DKA:</strong> insulin regular IV <strong>fixed-rate 0.1 unit/kg/jam</strong>. Mulai setelah rehidrasi awal berjalan dan K⁺ &gt;3.3.</li>
-            <li><strong className="text-foreground">HHS:</strong> mulai insulin <strong>lebih lambat (0.05 unit/kg/jam)</strong> dan <em>hanya setelah</em> rehidrasi berjalan baik.</li>
-            <li><strong className="text-foreground">Target penurunan glukosa:</strong> 50–75 mg/dL/jam.</li>
-            <li><strong className="text-foreground">Tambahkan Dekstrosa (D5/D10):</strong> Saat glukosa turun &lt;200 mg/dL (DKA) / &lt;250 (HHS). <strong className="text-destructive">Insulin HARUS DITERUSKAN</strong> sampai ketoasidosis teratasi.</li>
+            <li><strong className="text-foreground">DKA berat / kritis:</strong> insulin regular IV <strong>fixed-rate 0,1 unit/kg/jam</strong> (atau protokol laju variabel), dimulai setelah cairan berjalan dan K⁺ ≥3,5. KAD ringan–sedang tanpa komplikasi: insulin analog kerja cepat SC dapat dipakai (konsensus 2024).</li>
+            <li><strong className="text-foreground">HHS:</strong> insulin <strong>lebih rendah (0,05 unit/kg/jam)</strong> dan setelah rehidrasi berjalan baik.</li>
+            <li><strong className="text-foreground">Laju penurunan glukosa:</strong> pada HHS jangan &gt;90–120 mg/dL/jam (cegah edema serebral); pada KAD titrasi agar glukosa ±200 mg/dL sampai ketoasidosis teratasi.</li>
+            <li><strong className="text-foreground">Tambahkan Dekstrosa (D5/D10):</strong> saat glukosa turun &lt;250 mg/dL (KAD maupun HHS). <strong className="text-destructive">Insulin HARUS DITERUSKAN</strong> sampai ketoasidosis teratasi.</li>
           </ul>
         </Accordion>
 
@@ -96,9 +98,9 @@ export default function TeoriDKAHHS() {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Penanda utama</td><td className="p-2"><strong>BHB &lt;0.6 mmol/L</strong><br/><span className="text-muted-foreground">(atau anion gap normal ≤12)</span></td><td className="p-2">Osmolalitas efektif normal &amp; kesadaran pulih</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">pH / HCO₃⁻</td><td className="p-2">pH &gt;7.3 dan/atau HCO₃⁻ ≥15</td><td className="p-2 text-muted-foreground">—</td></tr>
-                <tr className="text-foreground"><td className="p-2 font-bold">Glukosa</td><td className="p-2 text-muted-foreground">Umumnya &lt;200 mg/dL</td><td className="p-2 text-muted-foreground">&lt;250–300 mg/dL</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">Penanda utama</td><td className="p-2"><strong>BHB &lt;0,6 mmol/L</strong><br/><span className="text-muted-foreground">(bila BHB tak tersedia: anion gap normal)</span></td><td className="p-2">Osmolalitas (terukur/terhitung) <strong>&lt;300 mOsm/kg</strong> &amp; kognitif membaik</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold">pH / HCO₃⁻</td><td className="p-2">pH vena ≥7,3 <strong>atau</strong> HCO₃⁻ ≥18 mmol/L</td><td className="p-2 text-muted-foreground">—</td></tr>
+                <tr className="text-foreground"><td className="p-2 font-bold">Lainnya</td><td className="p-2 text-muted-foreground">Glukosa bukan kriteria resolusi KAD</td><td className="p-2">Glukosa &lt;250 mg/dL &amp; urin &gt;0,5 mL/kg/jam</td></tr>
               </tbody>
             </table>
           </div>
@@ -113,24 +115,27 @@ export default function TeoriDKAHHS() {
           <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-foreground text-[12px] mb-4">
             <p className="text-muted-foreground">Hiperglikemia adalah hal yang <strong>SANGAT UMUM di ICU</strong> (40-80% pasien) meskipun tanpa riwayat diabetes. Disebabkan oleh hormon stres yang tinggi (sitokin, kortisol) dan resistensi insulin akut.</p>
           </div>
-          <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Target Glukosa ICU (Konsensus 2024-2025)</h3>
+          <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Target Glukosa ICU (ADA Standards of Care 2024)</h3>
           <ul className="list-disc pl-5 mb-4 space-y-1 text-muted-foreground text-[12px]">
             <li><strong className="text-foreground">Target Utama: 140–180 mg/dL</strong> (8.0–10.0 mmol/L) untuk mayoritas pasien ICU.</li>
-            <li><strong className="text-destructive">Hindari Target Ketat (&lt;110 mg/dL):</strong> Meningkatkan insiden hipoglikemia berat yang berbahaya (NICE-SUGAR trial) [4].</li>
+            <li><strong className="text-destructive">Hindari Target Ketat (&lt;110 mg/dL):</strong> Pada NICE-SUGAR, target 81–108 mg/dL meningkatkan mortalitas 90 hari (27,5% vs 24,9%) dan hipoglikemia berat [4].</li>
             <li><strong className="text-foreground">Kapan mulai insulin IV?</strong> Apabila glukosa persisten &gt;180 mg/dL pada dua kali pemeriksaan [5].</li>
           </ul>
         </Accordion>
+
+        <AbbrLegend terms={['DKA', 'KAD', 'HHS', 'ADA', 'EASD', 'JBDS', 'BHB', 'HCO3', 'SGLT2i', 'HF', 'CKD', 'D5', 'D10', 'IV', 'SC', 'ICU', 'K+']} />
 
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
             📚 Referensi Utama
           </h3>
           <ul className="list-decimal pl-5 space-y-2 text-muted-foreground text-[12px]">
-            <li>Umpierrez GE, et al. Hyperglycemic Crises in Adults With Diabetes (ADA/EASD Consensus). <em>Diabetes Care</em>. 2024.</li>
-            <li>Katz MA. Hyperglycemia-induced hyponatremia--calculation of expected serum sodium depression. <em>N Engl J Med</em>. 1973.</li>
-            <li>Fayfman M, et al. Management of Hyperglycemic Crises: Diabetic Ketoacidosis and Hyperosmolar Hyperglycemic State. <em>Med Clin North Am</em>. 2017.</li>
-            <li>Finfer S, et al. (NICE-SUGAR Study Investigators). Intensive versus conventional glucose control in critically ill patients. <em>N Engl J Med</em>. 2009.</li>
-            <li>Korytkowski M, et al. American Diabetes Association Clinical Practice Recommendations: Inpatient Care. <em>Diabetes Care</em>. 2024.</li>
+            <li>Umpierrez GE, et al. Hyperglycemic Crises in Adults With Diabetes: A Consensus Report (ADA/EASD/JBDS/AACE/DTS). <em>Diabetes Care</em>. 2024;47:1257.</li>
+            <li>Katz MA. Hyperglycemia-induced hyponatremia--calculation of expected serum sodium depression. <em>N Engl J Med</em>. 1973;289:843.</li>
+            <li>Fayfman M, et al. Management of Hyperglycemic Crises: Diabetic Ketoacidosis and Hyperosmolar Hyperglycemic State. <em>Med Clin North Am</em>. 2017;101:587.</li>
+            <li>Finfer S, et al. (NICE-SUGAR Study Investigators). Intensive versus conventional glucose control in critically ill patients. <em>N Engl J Med</em>. 2009;360:1283.</li>
+            <li>American Diabetes Association Professional Practice Committee. 16. Diabetes Care in the Hospital: Standards of Care in Diabetes—2024. <em>Diabetes Care</em>. 2024;47(Suppl 1):S295.</li>
+            <li>Kitabchi AE, et al. Hyperglycemic crises in adult patients with diabetes (ADA consensus 2009). <em>Diabetes Care</em>. 2009;32:1335.</li>
           </ul>
         </div>
       </div>

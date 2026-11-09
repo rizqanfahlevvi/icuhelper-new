@@ -1,6 +1,7 @@
 import { FileText, ArrowLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function TeoriPADIS() {
   return (
@@ -13,12 +14,12 @@ export default function TeoriPADIS() {
         </div>
         
         <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-4">
-          Guideline PADIS (2018)
+          Guideline PADIS (2018 + Focused Update 2025)
         </h1>
 
         <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg text-foreground mb-6 text-[13px]">
           <p className="text-muted-foreground">
-            <strong className="text-primary font-bold text-[14px]">Panduan PADIS</strong> <i>(Pain, Agitation/Sedation, Delirium, Immobility, and Sleep Disruption)</i> yang dikeluarkan oleh SCCM pada tahun 2018 merupakan standar perawatan terkini bagi pasien dewasa di ICU. Prinsip utamanya adalah menilai dan mengobati nyeri terlebih dahulu sebelum memberikan sedasi <i>(Analgesia-first sedation)</i>.
+            <strong className="text-primary font-bold text-[14px]">Panduan PADIS</strong> <i>(Pain, Agitation/Sedation, Delirium, Immobility, and Sleep Disruption)</i> yang dikeluarkan oleh SCCM pada tahun 2018 — diperbarui secara terfokus pada 2025 (menambah topik ansietas) — merupakan acuan perawatan pasien dewasa di ICU. Prinsip utamanya adalah menilai dan mengobati nyeri terlebih dahulu sebelum memberikan sedasi <i>(Analgesia-first sedation)</i>.
           </p>
         </div>
 
@@ -38,10 +39,10 @@ export default function TeoriPADIS() {
         <Accordion title="2️⃣ Agitasi & Sedasi (Agitation/Sedation)">
           <p className="text-[12px] text-muted-foreground mb-3">Tujuan sedasi modern adalah mencapai level sedasi ringan (pasien tenang namun mudah dibangunkan) kecuali ada indikasi khusus (seperti status epileptikus atau TIK tinggi).</p>
           <ul className="list-disc pl-5 space-y-3 text-[13px] text-muted-foreground">
-            <li><strong className="text-foreground">Asesmen:</strong> Gunakan RASS <i>(Richmond Agitation-Sedation Scale)</i> atau SAS <i>(Sedation-Agitation Scale)</i>. Target RASS umumnya <strong className="text-primary">0 hingga -2</strong>.</li>
+            <li><strong className="text-foreground">Asesmen:</strong> Gunakan RASS <i>(Richmond Agitation-Sedation Scale)</i> atau SAS <i>(Sedation-Agitation Scale)</i>. Sedasi ringan = <strong className="text-foreground">RASS −2 s/d +1</strong> (sering ditargetkan 0 s/d −1), sama dengan skor RASS di menu Skoring.</li>
             <li><strong className="text-foreground">Tatalaksana:</strong>
               <ul className="list-disc pl-5 mt-2 space-y-1 bg-muted/30 p-3 rounded-lg border border-border">
-                <li>Disarankan menggunakan sedatif <strong className="text-foreground">non-benzodiazepin</strong> (Propofol atau Dexmedetomidine) dibandingkan Benzodiazepin (Midazolam) untuk mengurangi risiko delirium dan durasi ventilasi mekanik.</li>
+                <li>PADIS 2018: sedatif <strong className="text-foreground">non-benzodiazepin</strong> (propofol atau deksmedetomidin) disarankan dibanding benzodiazepin (midazolam). <strong className="text-foreground">PADIS 2025:</strong> deksmedetomidin disarankan dibanding propofol pada pasien dengan ventilasi mekanik (rekomendasi kondisional) [4].</li>
                 <li>Lakukan <strong className="text-foreground">Daily Sedation Interruption (DSI)</strong> / Spontaneous Awakening Trial (SAT) untuk membangunkan pasien setiap hari dan menilai kebutuhan sedasi.</li>
               </ul>
             </li>
@@ -58,7 +59,7 @@ export default function TeoriPADIS() {
             <li><strong className="text-foreground">Pencegahan & Tatalaksana (Non-farmakologi adalah kunci):</strong>
               <ul className="list-disc pl-5 mt-2 space-y-1 bg-muted/30 p-3 rounded-lg border border-border">
                 <li><strong className="text-foreground">Non-farmakologi:</strong> Promosikan siklus tidur-bangun, mobilisasi dini, penggunaan kacamata/alat bantu dengar pasien, dan kurangi suara bising/cahaya saat malam.</li>
-                <li><strong className="text-foreground">Farmakologi:</strong> Saat ini <strong className="text-destructive font-bold">TIDAK ADA</strong> obat profilaksis yang direkomendasikan rutin. Haloperidol atau antipsikotik atipikal hanya digunakan jangka pendek untuk delirium hiperaktif yang membahayakan pasien/staf.</li>
+                <li><strong className="text-foreground">Farmakologi:</strong> <strong className="text-destructive font-bold">TIDAK ADA</strong> obat profilaksis delirium yang dianjurkan rutin (haloperidol, antipsikotik atipikal, statin, deksmedetomidin). Antipsikotik tidak dipakai rutin untuk terapi delirium — boleh jangka pendek bila distres berat/membahayakan; PADIS 2025 tidak dapat membuat rekomendasi tentang antipsikotik untuk delirium. Deksmedetomidin disarankan bila agitasi pada delirium menghambat weaning/ekstubasi (PADIS 2018) [1, 4].</li>
               </ul>
             </li>
           </ul>
@@ -68,7 +69,7 @@ export default function TeoriPADIS() {
           <p className="text-[12px] text-muted-foreground mb-3">Tirah baring lama memicu <i>ICU-acquired weakness</i> (ICUAW).</p>
           <ul className="list-disc pl-5 space-y-3 text-[13px] text-muted-foreground">
             <li><strong className="text-foreground">Tatalaksana:</strong> Lakukan mobilisasi / fisioterapi sedini mungkin sesuai toleransi pasien (mulai dari ROM pasif di tempat tidur, duduk di tepi tempat tidur, hingga berjalan).</li>
-            <li>Program mobilisasi dini terbukti memperpendek durasi delirium dan hari rawat ICU.</li>
+            <li>Schweickert 2009: fisioterapi & terapi okupasi dini memperpendek durasi delirium dan menambah kemandirian fungsional saat pulang. PADIS 2025 menyarankan mobilisasi/rehabilitasi yang ditingkatkan dibanding biasa (kondisional) — namun uji TEAM 2022 (mobilisasi aktif dini intensif) tidak menambah hari hidup di luar RS dan efek samping lebih banyak; sesuaikan intensitas dengan kondisi pasien [3, 4, 5].</li>
           </ul>
         </Accordion>
 
@@ -76,9 +77,11 @@ export default function TeoriPADIS() {
           <p className="text-[12px] text-muted-foreground mb-3">Kualitas tidur yang buruk di ICU memperburuk delirium dan penyembuhan.</p>
           <ul className="list-disc pl-5 space-y-3 text-[13px] text-muted-foreground">
             <li><strong className="text-foreground">Protokol Tidur:</strong> Optimalkan lingkungan (matikan lampu, kurangi suara monitor) dan satukan intervensi keperawatan malam hari.</li>
-            <li><strong className="text-foreground">Farmakologi:</strong> Propofol tidak menghasilkan "tidur" fisiologis sejati (REM sleep). Hindari penggunaan sedatif hanya untuk membuat pasien tidur.</li>
+            <li><strong className="text-foreground">Farmakologi:</strong> propofol tidak menghasilkan tidur fisiologis — jangan dipakai hanya untuk memperbaiki tidur (PADIS 2018). <strong className="text-foreground">PADIS 2025: melatonin disarankan</strong> (rekomendasi kondisional) [1, 4].</li>
           </ul>
         </Accordion>
+
+        <AbbrLegend terms={['PADIS', 'SCCM', 'ICU', 'NRS', 'BPS', 'CPOT', 'IV', 'TIK', 'RASS', 'SAS', 'DSI', 'SAT', 'CAM-ICU', 'ICDSC', 'ICUAW', 'ROM', 'REM']} />
 
         <div className="mt-6 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
@@ -88,6 +91,8 @@ export default function TeoriPADIS() {
             <li>Devlin, J. W., Skrobik, Y., Gélinas, C., et al. (2018). Clinical Practice Guidelines for the Prevention and Management of Pain, Agitation/Sedation, Delirium, Immobility, and Sleep Disruption in Adult Patients in the ICU. <i>Critical Care Medicine</i>, 46(9), e825-e873.</li>
             <li>Girard, T. D., Kress, J. P., Fuchs, B. D., et al. (2008). Efficacy and safety of a paired sedation and ventilator weaning protocol for mechanically ventilated patients in intensive care (Awakening and Breathing Controlled trial). <i>The Lancet</i>, 371(9607), 126-134.</li>
             <li>Schweickert, W. D., Pohlman, M. C., Pohlman, A. S., et al. (2009). Early physical and occupational therapy in mechanically ventilated, critically ill patients: a randomised controlled trial. <i>The Lancet</i>, 373(9678), 1874-1882.</li>
+            <li>Lewis, K., et al. (2025). A focused update to the clinical practice guidelines for the prevention and management of pain, anxiety, agitation/sedation, delirium, immobility, and sleep disruption in adult patients in the ICU. <i>Critical Care Medicine</i>, 53, e711.</li>
+            <li>TEAM Study Investigators. (2022). Early active mobilization during mechanical ventilation in the ICU. <i>New England Journal of Medicine</i>, 387(19), 1747-1758.</li>
           </ol>
         </div>
       </div>

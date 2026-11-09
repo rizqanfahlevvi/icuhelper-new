@@ -2,6 +2,7 @@ import React from 'react';
 import { Activity, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function TeoriCardiacRhythm() {
   return (
@@ -84,7 +85,7 @@ export default function TeoriCardiacRhythm() {
                 </svg>
               </div>
               <ul className="text-sm text-slate-700 dark:text-slate-300 space-y-1 list-disc pl-4">
-                <li><strong>Rate/Irama:</strong> 200–250 bpm, reguler/ireguler, memutar (twisting) di sekitar garis isoelektrik.</li>
+                <li><strong>Rate/Irama:</strong> umumnya 150–250 bpm, <strong>ireguler</strong>, amplitudo QRS memutar (twisting) di sekitar garis isoelektrik.</li>
                 <li><strong>Kompleks QRS:</strong> Lebar, bervariasi ukuran dan amplitudonya (seperti kumparan).</li>
                 <li><strong>Penyebab:</strong> Sering dipicu oleh prolonged QT interval (hipokalemia, hipomagnesemia, obat-obatan).</li>
                 <li><strong>Tindakan:</strong> IV Magnesium Sulfat, defibrilasi jika pulseless.</li>
@@ -182,6 +183,10 @@ export default function TeoriCardiacRhythm() {
           </div>
         </div>
       </Accordion>
+
+      <AbbrLegend terms={['VF', 'VT-aritmia', 'QRS', 'CPR', 'QT', 'IV', 'PEA', 'AF', 'RVR', 'SVT', 'IMA', 'PE']} />
+
+      <p className="mt-2 text-[11px] italic text-muted-foreground">📚 Panchal AR et al. Part 3: Adult Basic and Advanced Life Support — 2020 AHA Guidelines for CPR and ECC. Circulation 2020;142:S366.</p>
     </div>
   );
 }

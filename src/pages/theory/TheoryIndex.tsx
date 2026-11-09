@@ -3,6 +3,7 @@ import { BookOpen, BookText, Star, Moon, FileText } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 const THEORY_PAGES = [
   { path: 'agd', name: 'Interpretasi AGD', desc: 'Analisa gas darah dan asam-basa' },
@@ -91,6 +92,8 @@ export default function TheoryIndex() {
           );
         })}
       </div>
+
+      <AbbrLegend terms={['AGD', 'AKI', 'CRRT', 'EKG', 'KAD', 'HHS', 'PADIS', 'SAT', 'SBT', 'VAP', 'TIK', 'VC', 'PC', 'SIMV', 'PSV']} />
     </div>
   );
 }

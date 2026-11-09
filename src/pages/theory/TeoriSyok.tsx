@@ -1,4 +1,5 @@
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function TeoriSyok() {
   return (
@@ -18,7 +19,7 @@ export default function TeoriSyok() {
                 <li><strong className="text-foreground">CO</strong> = Cardiac Output (L/min)</li>
                 <li><strong className="text-foreground">CaO₂</strong> = Hb × 1.34 × SaO₂ + (0.003 × PaO₂)</li>
                 <li>Normal DO₂: <strong className="text-foreground">950–1150 mL/min</strong></li>
-                <li>Kritis: DO₂ &lt;300 mL/min → anaerobic metabolism</li>
+                <li>Di bawah DO₂ kritis (berbeda antarpasien), VO₂ menjadi bergantung pada pasokan → metabolisme anaerob & laktat meningkat</li>
               </ul>
             </div>
             <div>
@@ -33,7 +34,7 @@ export default function TeoriSyok() {
               </table>
             </div>
           </div>
-          <p className="mt-3 text-[11px] opacity-80 text-teal-700 dark:text-teal-300"><em>Berdasarkan Vincent JL & De Backer D, NEJM 2013 dan ACCCM Hemodynamic Monitoring Consensus 2022 [1, 2].</em></p>
+          <p className="mt-3 text-[11px] opacity-80 text-teal-700 dark:text-teal-300"><em>Berdasarkan Vincent JL & De Backer D, NEJM 2013 dan konsensus ESICM tentang syok sirkulasi & pemantauan hemodinamik (Cecconi 2014) [1, 2].</em></p>
         </div>
 
         </div>
@@ -62,7 +63,7 @@ export default function TeoriSyok() {
                 </tr>
                 <tr className="border-b border-border text-foreground">
                   <td className="p-2 font-bold">Kardiogenik</td>
-                  <td className="p-2 text-muted-foreground">AMI, miokarditis akut, tamponade, aritmia maligna</td>
+                  <td className="p-2 text-muted-foreground">IMA, miokarditis akut, aritmia maligna, kardiomiopati/katup berat</td>
                   <td className="p-2 text-muted-foreground">Kegagalan pompa → CO ↓ → backward failure → edema paru</td>
                   <td className="p-2">Ronki paru, JVP ↑, S3, edema, kulit dingin/lembab</td>
                 </tr>
@@ -86,7 +87,7 @@ export default function TeoriSyok() {
               </thead>
               <tbody>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold text-left">CVP / RAP</td><td className="p-2 text-muted-foreground">↓ atau N</td><td className="p-2 font-bold text-primary">↓↓</td><td className="p-2 font-bold text-destructive">↑↑</td><td className="p-2 font-bold text-destructive">↑↑</td></tr>
-                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold text-left">PAOP / PCWP</td><td className="p-2 text-muted-foreground">↓ atau N</td><td className="p-2 font-bold text-primary">↓↓</td><td className="p-2 font-bold text-destructive">↑↑ (&gt;18)</td><td className="p-2 text-muted-foreground">↓ atau N</td></tr>
+                <tr className="border-b border-border text-foreground"><td className="p-2 font-bold text-left">PAOP / PCWP</td><td className="p-2 text-muted-foreground">↓ atau N</td><td className="p-2 font-bold text-primary">↓↓</td><td className="p-2 font-bold text-destructive">↑↑ (&gt;18)</td><td className="p-2 text-muted-foreground">↓/N (PE) · ↑ (tamponade, ekualisasi tekanan)</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold text-left">CO / CI</td><td className="p-2 font-bold text-destructive">↑↑ (hiperdinamik)</td><td className="p-2 font-bold text-primary">↓↓</td><td className="p-2 font-bold text-primary">↓↓ (&lt;2.2)</td><td className="p-2 font-bold text-primary">↓</td></tr>
                 <tr className="border-b border-border text-foreground"><td className="p-2 font-bold text-left">SVR</td><td className="p-2 font-bold text-primary">↓↓↓</td><td className="p-2 font-bold text-destructive">↑↑</td><td className="p-2 font-bold text-destructive">↑↑</td><td className="p-2 font-bold text-destructive">↑</td></tr>
                 <tr className="text-foreground"><td className="p-2 font-bold text-left">Laktat</td><td className="p-2 font-bold text-destructive">↑↑</td><td className="p-2 font-bold text-destructive">↑↑</td><td className="p-2 font-bold text-destructive">↑↑</td><td className="p-2 font-bold text-destructive">↑</td></tr>
@@ -187,31 +188,31 @@ export default function TeoriSyok() {
 
         <Accordion title="📖 Resusitasi Hemodinamik — Target, Cairan & Vasopressor">
           <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg text-foreground text-[12px] mb-4">
-            <strong className="text-primary text-[14px] block mb-2">🎯 Target Resusitasi Awal (SSC 2024)</strong>
+            <strong className="text-primary text-[14px] block mb-2">🎯 Target Resusitasi Awal (SSC 2021)</strong>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ul className="list-disc pl-5 space-y-1 text-muted-foreground m-0">
-                <li><strong className="text-foreground">MAP ≥65 mmHg</strong> (≥80 pd hipertensi kronik)</li>
-                <li><strong className="text-foreground">Laktat clearing ≥10%/2 jam</strong></li>
-                <li><strong className="text-foreground">Laktat target &lt;2 mmol/L dlm 6 jam</strong></li>
+                <li><strong className="text-foreground">MAP ≥65 mmHg</strong> (individualisasi pada hipertensi kronik — SEPSISPAM)</li>
+                <li><strong className="text-foreground">Laktat menurun</strong> pada pengukuran ulang 2–4 jam bila awal &gt;2 mmol/L</li>
+                <li><strong className="text-foreground">Perfusi perifer membaik</strong> (kulit, mottling)</li>
               </ul>
               <ul className="list-disc pl-5 space-y-1 text-muted-foreground m-0">
                 <li><strong className="text-foreground">Urin output ≥0.5 mL/kg/jam</strong></li>
-                <li><strong className="text-foreground">ScvO₂ ≥70%</strong> (atau SvO₂ ≥65%)</li>
+                <li><strong className="text-foreground">ScvO₂ bukan target rutin</strong> — protokol EGDT (ScvO₂ ≥70%) tidak menurunkan mortalitas pada ProCESS, ARISE, ProMISe [9, 10, 11]</li>
                 <li><strong className="text-foreground">CRT &lt;3 detik</strong></li>
               </ul>
             </div>
           </div>
 
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Fluid Responsiveness (Sebelum Bolus Cairan)</h3>
-          <p className="text-[12px] text-muted-foreground mb-2">Hanya 50% pasien syok yang benar-benar fluid-responsive. Pemberian cairan berlebihan meningkatkan risiko ARDS dan abdominal compartment syndrome.</p>
+          <p className="text-[12px] text-muted-foreground mb-2">Hanya ±50% pasien kritis yang hemodinamiknya tidak stabil benar-benar fluid-responsive (Michard & Teboul 2002). Pemberian cairan berlebihan meningkatkan risiko edema paru/ARDS dan sindrom kompartemen abdomen.</p>
           <ul className="list-disc pl-5 mb-4 space-y-1 text-muted-foreground text-[12px]">
             <li><strong className="text-foreground">Passive Leg Raising (PLR):</strong> Angkat kaki 45° selama 1 menit → ↑ CO ≥10% → fluid responsive.</li>
-            <li><strong className="text-foreground">Pulse Pressure Variation (PPV):</strong> PPV &gt;13% pada pasien VM terkontrol → fluid responsive.</li>
-            <li><strong className="text-foreground">Cairan pilihan:</strong> Normal Saline 0.9% atau Ringer Laktat. Hindari starch (HES) → nefrotoksik.</li>
+            <li><strong className="text-foreground">Pulse Pressure Variation (PPV):</strong> PPV &gt;13% → fluid responsive (Michard 2000) — hanya valid pada ventilasi terkontrol tanpa napas spontan, VT ≥8 mL/kg, irama sinus, dada tertutup.</li>
+            <li><strong className="text-foreground">Cairan pilihan:</strong> kristaloid seimbang (RL/Ringer asetat) disarankan dibanding NaCl 0,9% (SSC 2021). Hindari starch (HES) — meningkatkan kebutuhan RRT (CHEST, NEJM 2012).</li>
           </ul>
           <p className="mt-3 text-[11px] italic text-muted-foreground mb-4">
             📚 Monnet X et al. (PLR meta-analisis) ICM 2016;42:1935 · 
-            Evans L et al. (SSC 2024, guided resuscitation) ICM 2024;50:744
+            Evans L et al. (SSC 2021) ICM 2021;47:1181 · Michard F et al. AJRCCM 2000;162:134 · Myburgh JA et al. (CHEST) NEJM 2012;367:1901
           </p>
 
           <h3 className="font-bold text-[13px] text-primary uppercase tracking-wider mb-2 border-b border-border pb-1">Tabel Vasopressor Utama</h3>
@@ -237,20 +238,25 @@ export default function TeoriSyok() {
           </p>
         </Accordion>
 
+        <AbbrLegend terms={['DO2', 'VO2', 'CO', 'CaO2', 'SaO2', 'PaO2', 'SVR', 'IMA', 'PE', 'JVP', 'RV', 'CVP', 'RAP', 'PAOP', 'PCWP', 'CI', 'SCAI', 'SBP', 'MAP', 'MCS', 'RUSH', 'EF', 'IVC', 'AAA', 'DVT', 'SSC', 'ScvO2', 'SvO2', 'EGDT', 'CRT', 'PLR', 'PPV', 'VT', 'ARDS', 'HES', 'RRT', 'NE', 'ESICM']} />
+
         <div className="mt-4 p-4 border border-border rounded-lg bg-muted/30">
           <h3 className="font-bold text-[14px] text-foreground mb-3 flex items-center gap-2">
             📚 Referensi Utama
           </h3>
           <ul className="list-decimal pl-5 space-y-2 text-muted-foreground text-[12px]">
-            <li>Vincent JL, De Backer D. Circulatory shock. <em>N Engl J Med</em>. 2013.</li>
-            <li>Saugel B, et al. American College of Critical Care Medicine Clinical Practice Parameters for Hemodynamic Support of Adult Patients with Sepsis. <em>Crit Care Med</em>. 2022.</li>
-            <li>Evans L, et al. Surviving sepsis campaign: international guidelines for management of sepsis and septic shock 2021. <em>Intensive Care Med</em>. 2021.</li>
-            <li>Morita H, et al. Anaphylaxis guidelines: 2022 update. <em>Allergol Int</em>. 2022.</li>
-            <li>Overgaard CB, Dzavík V. Inotropes and vasopressors: review of physiology and clinical use in cardiovascular disease. <em>Circulation</em>. 2008.</li>
+            <li>Vincent JL, De Backer D. Circulatory shock. <em>N Engl J Med</em>. 2013;369:1726.</li>
+            <li>Cecconi M, et al. Consensus on circulatory shock and hemodynamic monitoring. Task force of the ESICM. <em>Intensive Care Med</em>. 2014;40:1795.</li>
+            <li>Evans L, et al. Surviving sepsis campaign: international guidelines for management of sepsis and septic shock 2021. <em>Intensive Care Med</em>. 2021;47:1181.</li>
+            <li>Cardona V, et al. World Allergy Organization Anaphylaxis Guidance 2020. <em>World Allergy Organ J</em>. 2020;13:100472.</li>
+            <li>Overgaard CB, Dzavík V. Inotropes and vasopressors: review of physiology and clinical use in cardiovascular disease. <em>Circulation</em>. 2008;118:1047.</li>
             <li>De Backer D et al. Comparison of dopamine and norepinephrine in the treatment of shock. <em>N Engl J Med</em>. 2010;362:779.</li>
-            <li>Evans L et al. Surviving Sepsis Campaign: International Guidelines 2021. <em>Intensive Care Med</em>. 2021;47:1181.</li>
-            <li>Evans L et al. Surviving Sepsis Campaign: 2024 update. <em>Intensive Care Med</em>. 2024;50:744.</li>
+            <li>Monnet X, et al. Passive leg raising for predicting fluid responsiveness: a systematic review and meta-analysis. <em>Intensive Care Med</em>. 2016;42:1935.</li>
             <li>Baran DA et al. SCAI clinical expert consensus statement on the classification of cardiogenic shock. <em>Catheter Cardiovasc Interv</em>. 2019;94:29.</li>
+            <li>ProCESS Investigators. A randomized trial of protocol-based care for early septic shock. <em>N Engl J Med</em>. 2014;370:1683.</li>
+            <li>ARISE Investigators. Goal-directed resuscitation for patients with early septic shock. <em>N Engl J Med</em>. 2014;371:1496.</li>
+            <li>Mouncey PR, et al. Trial of early, goal-directed resuscitation for septic shock (ProMISe). <em>N Engl J Med</em>. 2015;372:1301.</li>
+            <li>Michard F, Teboul JL. Predicting fluid responsiveness in ICU patients: a critical analysis of the evidence. <em>Chest</em>. 2002;121:2000.</li>
           </ul>
         </div>
       </div>
