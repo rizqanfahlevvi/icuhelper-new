@@ -464,7 +464,7 @@ export default function KalkulatorElektro() {
           'BUN', 'eGFR', 'CrCl', 'GDS', 'ISE', 'Osm', 'RR-risiko', 'RS', 'EKG', 'ICU', 'KCl', 'IV', 'SC', 'IMA',
           'CABG', 'D10', 'D40', 'D50', 'SfE', 'NPO', 'CKD', 'VBG', 'AF', 'CVC', 'NICE', 'CG', 'KSR', 'KAD', 'ACEi',
           'ARB', 'MRA', 'ESKD', 'RAAS-i', 'HD', 'ILCOR', 'PTH', 'PPI', 'KDOQI', 'ROMK', 'TURP', 'SSRI', 'HTS', 'UOP',
-          'IWL', 'ATN',
+          'IWL', 'ATN', 'QRS', 'QT',
         ]}
       />
     </div>

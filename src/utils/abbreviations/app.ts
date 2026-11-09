@@ -55,7 +55,6 @@ export const APP_ABBR = {
   NAGMA: { full: 'Normal Anion Gap Metabolic Acidosis', id: 'asidosis metabolik dengan anion gap normal (hiperkloremik)' },
   ISE: { full: 'Ion-Selective Electrode', id: 'elektroda ion-selektif (direct = analyzer gas darah; indirect = lab sentral)' },
   Osm: { full: 'Osmolalitas', id: 'osmolalitas serum/urin (mOsm/kg)' },
-  ADH: { full: 'Antidiuretic Hormone', id: 'hormon antidiuretik (vasopresin)' },
   DI: { full: 'Diabetes Insipidus' },
   DDAVP: { full: '1-Deamino-8-D-Arginine Vasopressin', id: 'desmopresin' },
   HTS: { full: 'Hypertonic Saline', id: 'salin hipertonik (mis. NaCl 3%)' },
@@ -68,7 +67,6 @@ export const APP_ABBR = {
   NPO: { full: 'Nil Per Os', id: 'puasa — tanpa asupan lewat mulut' },
 
   // ── Jantung, obat & metabolik ──────────────────────────────────────────────
-  IMA: { full: 'Infark Miokard Akut' },
   CABG: { full: 'Coronary Artery Bypass Grafting', id: 'bedah pintas arteri koroner' },
   ACEi: { full: 'Angiotensin-Converting Enzyme inhibitor', id: 'penghambat ACE' },
   ARB: { full: 'Angiotensin II Receptor Blocker', id: 'penyekat reseptor angiotensin II' },
@@ -91,10 +89,8 @@ export const APP_ABBR = {
   AMI: { full: 'Acute Myocardial Infarction', id: 'infark miokard akut' },
   HIV: { full: 'Human Immunodeficiency Virus' },
   AIDS: { full: 'Acquired Immunodeficiency Syndrome' },
-  CK: { full: 'Creatine Kinase', id: 'kreatin kinase' },
   HOCM: { full: 'Hypertrophic Obstructive Cardiomyopathy', id: 'kardiomiopati hipertrofik obstruktif' },
   CT: { full: 'Computed Tomography', id: 'CT scan' },
-  USG: { full: 'Ultrasonografi' },
   ILD: { full: 'Interstitial Lung Disease', id: 'penyakit paru interstisial' },
 
   // ── Tanda vital & oksigenasi tambahan ──────────────────────────────────────
@@ -129,7 +125,6 @@ export const APP_ABBR = {
   UCr: { full: 'Urine Creatinine', id: 'kreatinin urin' },
   SUrea: { full: 'Serum Urea', id: 'ureum serum' },
   UUrea: { full: 'Urine Urea', id: 'ureum urin' },
-  AEIOU: { full: 'Acidosis, Electrolytes, Intoxication, Overload, Uremia', id: 'indikasi mendesak terapi pengganti ginjal' },
 
   // ── Transfusi ──────────────────────────────────────────────────────────────
   Hct: { full: 'Hematokrit' },
@@ -159,7 +154,6 @@ export const APP_ABBR = {
   ATLS: { full: 'Advanced Trauma Life Support', id: 'bantuan hidup lanjut trauma' },
   ABLS: { full: 'Advanced Burn Life Support', id: 'bantuan hidup lanjut luka bakar' },
   ABA: { full: 'American Burn Association' },
-  SCAI: { full: 'Society for Cardiovascular Angiography and Interventions' },
   SfE: { full: 'Society for Endocrinology', id: 'perhimpunan endokrinologi Inggris' },
   ILCOR: { full: 'International Liaison Committee on Resuscitation' },
   KDOQI: { full: 'Kidney Disease Outcomes Quality Initiative' },
@@ -172,7 +166,6 @@ export const APP_ABBR = {
   ASM: { full: 'American Society for Microbiology' },
   BTS: { full: 'British Thoracic Society' },
   ICS: { full: 'Intensive Care Society', id: 'perhimpunan perawatan intensif Inggris' },
-  JBDS: { full: 'Joint British Diabetes Societies' },
   AACE: { full: 'American Association of Clinical Endocrinology' },
   DTS: { full: 'Diabetes Technology Society' },
   EASL: { full: 'European Association for the Study of the Liver' },
@@ -218,7 +211,6 @@ export const APP_ABBR = {
   LKURS: { full: 'Laktat, Ketoasidosis, Uremia, Racun, Salisilat', id: 'mnemonik penyebab HAGMA' },
   RTA: { full: 'Renal Tubular Acidosis', id: 'asidosis tubulus ginjal' },
   AKIN: { full: 'Acute Kidney Injury Network', id: 'kriteria/stadium AKI versi AKIN' },
-  VTI: { full: 'Velocity Time Integral', id: 'integral kecepatan-waktu (ekokardiografi, proksi isi sekuncup)' },
   NTG: { full: 'Nitrogliserin' },
   BBP: { full: 'Berat Badan Prediksi', id: 'sama dengan PBW' },
   'NG-nasogastrik': { label: 'NG', full: 'Nasogastrik', id: 'melalui hidung ke lambung' },
@@ -241,13 +233,11 @@ export const APP_ABBR = {
 
   // ── Monitoring ventilator ──────────────────────────────────────────────────
   DOPE: { full: 'Displacement, Obstruction, Pneumothorax, Equipment failure', id: 'mnemonik penyebab desaturasi mendadak pada pasien terintubasi' },
-  HOB: { full: 'Head of Bed (elevation)', id: 'elevasi kepala tempat tidur' },
   CHX: { full: 'Klorheksidin' },
   'P-V': { full: 'Pressure-Volume (loop)', id: 'kurva tekanan-volume ventilator' },
 
   // ── Weaning ────────────────────────────────────────────────────────────────
   PImax: { full: 'Maximal inspiratory pressure', id: 'tekanan inspirasi maksimal (= MIP/NIF)' },
-  BNP: { full: 'B-type Natriuretic Peptide', id: 'penanda gagal jantung' },
   VIDD: { full: 'Ventilator-Induced Diaphragmatic Dysfunction', id: 'disfungsi diafragma akibat ventilator' },
 
   // ── Cairan, nutrisi & hati ─────────────────────────────────────────────────
@@ -255,7 +245,6 @@ export const APP_ABBR = {
   SHR: { full: 'Sindrom Hepatorenal' },
   'HE-ensefalopati': { label: 'HE', full: 'Hepatic Encephalopathy', id: 'ensefalopati hepatik' },
   LVP: { full: 'Large-Volume Paracentesis', id: 'parasentesis volume besar' },
-  GD: { full: 'Gula Darah' },
   'AA-amino': { label: 'AA', full: 'Amino Acid', id: 'asam amino' },
   MCT: { full: 'Medium-Chain Triglycerides', id: 'trigliserida rantai sedang' },
   LCT: { full: 'Long-Chain Triglycerides', id: 'trigliserida rantai panjang' },
@@ -279,7 +268,6 @@ export const APP_ABBR = {
   'PVC-plastik': { label: 'PVC', full: 'Polyvinyl Chloride', id: 'bahan plastik selang infus' },
   'PA-kateter': { label: 'PA', full: 'Pulmonary Artery catheter', id: 'kateter arteri pulmonal' },
   'SA-nodus': { label: 'SA', full: 'Sinoatrial', id: 'nodus sinoatrial' },
-  'RV-ventrikel': { label: 'RV', full: 'Right Ventricle', id: 'ventrikel kanan' },
   TM: { full: 'Trimester' },
   ASI: { full: 'Air Susu Ibu' },
   UGD: { full: 'Unit Gawat Darurat' },
@@ -290,14 +278,11 @@ export const APP_ABBR = {
   pVT: { full: 'Pulseless Ventricular Tachycardia', id: 'takikardia ventrikel tanpa nadi' },
   AV: { full: 'Atrioventrikular', id: 'nodus/blok AV; pada "AV shunt" = arteriovenosa' },
   SR: { full: 'Sinus Rhythm', id: 'irama sinus' },
-  RVR: { full: 'Rapid Ventricular Response', id: 'respons ventrikel cepat' },
   LV: { full: 'Left Ventricle', id: 'ventrikel kiri' },
   LBBB: { full: 'Left Bundle Branch Block', id: 'blok cabang berkas kiri' },
   RBBB: { full: 'Right Bundle Branch Block', id: 'blok cabang berkas kanan' },
-  CI: { full: 'Cardiac Index', id: 'indeks jantung = curah jantung ÷ BSA' },
   PVR: { full: 'Pulmonary Vascular Resistance', id: 'resistensi vaskular paru' },
   LCOS: { full: 'Low Cardiac Output Syndrome', id: 'sindrom curah jantung rendah' },
-  EF: { full: 'Ejection Fraction', id: 'fraksi ejeksi' },
   LVAD: { full: 'Left Ventricular Assist Device', id: 'alat bantu ventrikel kiri' },
   IABP: { full: 'Intra-Aortic Balloon Pump', id: 'pompa balon intra-aorta' },
   STEMI: { full: 'ST-Elevation Myocardial Infarction', id: 'infark miokard dengan elevasi ST' },
@@ -311,7 +296,6 @@ export const APP_ABBR = {
   COMT: { full: 'Catechol-O-Methyltransferase', id: 'enzim pemecah katekolamin' },
   MAOI: { full: 'Monoamine Oxidase Inhibitor', id: 'penghambat MAO' },
   SNP: { full: 'Sodium Nitroprusside', id: 'natrium nitroprusid' },
-  NAC: { full: 'N-Acetylcysteine', id: 'N-asetilsistein' },
   TXA: { full: 'Tranexamic Acid', id: 'asam traneksamat' },
   LOLA: { full: 'L-Ornithine L-Aspartate' },
   SBECD: { full: 'Sulfobutylether-β-cyclodextrin', id: 'zat pembawa voriconazole IV (menumpuk pada gangguan ginjal)' },
@@ -348,7 +332,6 @@ export const APP_ABBR = {
   NDNMB: { full: 'Non-Depolarizing Neuromuscular Blocker', id: 'pelumpuh otot non-depolarisasi' },
   CIS: { full: 'Cisatrakurium' },
   PTX: { full: 'Pneumothorax', id: 'pneumotoraks' },
-  CMRO2: { label: 'CMRO₂', full: 'Cerebral Metabolic Rate of Oxygen', id: 'laju metabolisme oksigen otak' },
   'PK/PD': { full: 'Pharmacokinetics/Pharmacodynamics', id: 'farmakokinetik/farmakodinamik' },
   ACE: { full: 'Angiotensin-Converting Enzyme', id: 'enzim pengubah angiotensin' },
   H2RA: { full: 'Histamine-2 Receptor Antagonist', id: 'antagonis reseptor H2 (mis. ranitidin)' },

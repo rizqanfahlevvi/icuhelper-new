@@ -114,7 +114,7 @@ export default function AbgPage() {
           'Paw', 'ROX', 'RQ', 'PH2O', 'Patm', 'PEEP', 'CPAP', 'EPAP', 'IPAP', 'BiPAP', 'NIV', 'HFNC', 'NRM', 'AHRF', 'ARDS', 'ARDSNet',
           'VD/VT', 'WOB', 'NMB', 'ECMO', 'VV', 'PPOK', 'NMD', 'USG', 'CT', 'MAP', 'RR', 'NE', 'GCS', 'DKA', 'GDS',
           'KCl', 'KRT', 'RRT', 'AKI', 'AKIN', 'RTA', 'eGFR', 'UO', 'EKG', 'COVID-19', 'PRC', 'Hb', 'NNT', 'HF', 'AF',
-          'ACS', 'NTG', 'RV-ventrikel', 'PLR', 'PPV', 'VTI', 'IV', 'NGT', 'NG-nasogastrik', 'CVC', 'BB', 'BBI', 'BBP',
+          'ACS', 'NTG', 'RV', 'PLR', 'PPV', 'VTI', 'IV', 'NGT', 'NG-nasogastrik', 'CVC', 'BB', 'BBI', 'BBP',
           'TB', 'AHA', 'ATS', 'ERS', 'ESICM', 'SSC', 'GOLD', 'ADA', 'EASD', 'JBDS', 'AACE', 'DTS', 'BTS', 'ICS', 'ESC',
         ]}
       />

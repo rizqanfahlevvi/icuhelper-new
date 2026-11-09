@@ -13,8 +13,8 @@ export const DRUG_ABBR: readonly AbbrKey[] = [
   'ICU', 'IGD', 'UGD', 'IBS-bedah', 'RS', 'DPJP', 'IV', 'IM', 'SC', 'SC-sesar', 'PO', 'IO', 'PRN', 'NGT', 'OGT', 'BB', 'WFI',
   'PVC-plastik', 'CVC', 'CVP', 'TDM', 'MIC', 'AUC-farmako', 'COVID-19', 'TM', 'ASI', 'BAB', 'BPJS', 'PK/PD',
   // hemodinamik & jantung
-  'MAP', 'TD', 'SBP', 'BP', 'HR', 'RR', 'CO', 'CI', 'SVR', 'PVR', 'ScvO2', 'SpO2', 'NE', 'EKG', 'QTc', 'TdP', 'AF',
-  'SVT', 'VT-aritmia', 'VF', 'pVT', 'PEA', 'AV', 'SA-nodus', 'SR', 'RVR', 'LBBB', 'RBBB', 'LV', 'RV-ventrikel', 'EF',
+  'MAP', 'TD', 'SBP', 'BP', 'HR', 'RR', 'CO', 'CI', 'SVR', 'PVR', 'ScvO2', 'SpO2', 'NE', 'EKG', 'QRS', 'QT', 'QTc', 'TdP',
+  'AF', 'SVT', 'VT-aritmia', 'VF', 'pVT', 'PEA', 'AV', 'SA-nodus', 'SR', 'RVR', 'LBBB', 'RBBB', 'LV', 'RV', 'EF',
   'LCOS', 'HF', 'CHF', 'NYHA', 'ACS', 'STEMI', 'NSTEMI', 'CABG', 'DAPT', 'ECMO', 'IABP', 'LVAD', 'PA-kateter', 'PE',
   'PTX', 'DVT', 'VTE', 'ACLS',
   // farmakologi
