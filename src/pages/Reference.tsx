@@ -4,6 +4,9 @@ import { Accordion } from '../components/ui/Accordion';
 import { referenceData } from '../data/referenceData';
 import { useFavoritesStore } from '../store/useFavoritesStore';
 import { PageHeader } from '../components/ui/PageHeader';
+import { allAbbreviations } from '../utils/abbreviations';
+
+const GLOSSARY = allAbbreviations();
 
 export default function Reference() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -30,6 +33,12 @@ export default function Reference() {
         items: matchInTitle ? section.items : filteredItems,
       };
     }).filter(section => section.items.length > 0);
+  }, [searchTerm]);
+
+  const glossary = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return GLOSSARY;
+    return GLOSSARY.filter((g) => g.label.toLowerCase().includes(q) || g.meaning.toLowerCase().includes(q));
   }, [searchTerm]);
 
   return (
@@ -61,15 +70,32 @@ export default function Reference() {
           <input
             type="text"
             className="w-full pl-10 pr-4 py-2 bg-muted/50 border border-border rounded-lg text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-            placeholder="Cari panduan, penulis, topik, atau jurnal..."
+            placeholder="Cari panduan, penulis, topik, jurnal, atau singkatan..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
+      {glossary.length > 0 && (
+        <Accordion
+          key={searchTerm.trim() ? 'glosarium-cari' : 'glosarium'}
+          title={`🔤 Glosarium Singkatan (${glossary.length})`}
+          defaultOpen={searchTerm.trim().length > 0 && glossary.length <= 30}
+        >
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-[12px]">
+            {glossary.map((g) => (
+              <div key={g.key} className="contents">
+                <dt className="font-bold text-foreground whitespace-nowrap">{g.label}</dt>
+                <dd className="text-muted-foreground min-w-0 break-words">{g.meaning}</dd>
+              </div>
+            ))}
+          </dl>
+        </Accordion>
+      )}
+
       <div className="space-y-4">
-        {filteredData.length === 0 ? (
+        {filteredData.length === 0 && glossary.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground text-[13px] border border-border/50 rounded-lg bg-muted/20">
             Tidak ada referensi yang cocok dengan pencarian "{searchTerm}"
           </div>

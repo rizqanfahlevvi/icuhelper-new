@@ -22,64 +22,54 @@ export const referenceData: RefSection[] = [
     ],
     "items": [
       {
-        "col1": "Evans L et al. SSC 2024. Intensive Care Med 2024;50:744",
-        "col2": "Sepsis — SSC Update",
-        "col3": "Update SSC 2021: perkenalkan resusitasi berbasis perfusi (CRT vs laktat), de-eskalasi antibiotik dipandu PCT, rekomendasi kuat balanced crystalloid."
-      },
-      {
-        "col1": "ESICM ARDS Guidelines 2023. Intensive Care Med 2023;49:727",
+        "col1": "Grasselli G et al. ESICM ARDS Guidelines. Intensive Care Med 2023;49:727",
         "col2": "ARDS — Guidelines",
-        "col3": "Definisi ARDS baru (Global 2023): HFNC =30 L/mnt + SpO2/FiO2 =315 masuk kriteria. Phenotyping hypoinflammatory vs hyperinflammatory. Driving pressure sebagai target utama."
+        "col3": "Pedoman ESICM: definisi ARDS diperluas (termasuk pasien non-intubasi dengan HFNO); VT rendah 4–8 mL/kg PBW; prone ≥16 jam untuk ARDS sedang–berat; tidak menganjurkan manuver rekrutmen tekanan tinggi berkepanjangan. Fenotipe hipo/hiperinflamasi belum siap untuk keputusan klinis."
       },
       {
-        "col1": "Devlin JW et al. SCCM PADIS 2025. Crit Care Med 2025;53:e711",
+        "col1": "Lewis K et al. SCCM PADIS Focused Update. Crit Care Med 2025;53:e711",
         "col2": "Sedasi ICU — PADIS",
-        "col3": "Update 2025: dexmedetomidine lebih diutamakan dari propofol untuk sedasi ringan. Penguatan ABCDEF bundle. Targeted light sedation (RASS -1 s/d 0) sebagai standar."
+        "col3": "Rekomendasi kondisional: deksmedetomidin dibanding propofol untuk sedasi pasien ventilasi mekanik; mobilisasi/rehabilitasi yang ditingkatkan; melatonin untuk tidur. Tidak ada rekomendasi untuk benzodiazepin pada ansietas maupun antipsikotik untuk delirium."
       },
       {
-        "col1": "Bhatt DL et al. MENDS-2. NEJM 2024;390:307",
-        "col2": "RSI — Induksi",
-        "col3": "RCT 686 pasien ICU: etomidate vs ketamine untuk intubasi emergensi — tidak ada perbedaan mortalitas, ventilator-free days, atau vasopressor. Etomidate aman pada sepsis."
+        "col1": "Prekker ME et al. DEVICE. N Engl J Med 2023;389:418",
+        "col2": "Intubasi — Laringoskopi",
+        "col3": "1.417 pasien kritis: video laringoskop vs laringoskop direk — keberhasilan percobaan pertama 85,1% vs 70,8%; komplikasi berat tidak berbeda bermakna. Mendukung VL sebagai pilihan pertama."
       },
       {
-        "col1": "Brown CA et al. NEJM 2023;389:1943",
-        "col2": "RSI — Teknik",
-        "col3": "First-pass success rate =95% dikaitkan ? mortalitas in-hospital. Video laryngoscopy sebagai first-line standard di setting emergensi."
+        "col1": "Torres A et al. ERS/ESICM/ESCMID/ALAT HAP/VAP Guidelines. Eur Respir J 2017;50:1700582",
+        "col2": "HAP/VAP — Guidelines",
+        "col3": "Panduan Eropa HAP/VAP: antibiotik empiris berdasarkan risiko MDR & ekologi lokal; durasi 7–8 hari untuk sebagian besar pasien tanpa imunodefisiensi berat atau patogen sulit; de-eskalasi berdasarkan kultur."
       },
       {
-        "col1": "Torres A et al. ERS/ESICM HAP/VAP 2022. Eur Respir J 2022;60:2200",
-        "col2": "VAP — Guidelines",
-        "col3": "Update 2022: CPIS bukan alat diagnosis utama VAP. Kultur kuantitatif (BAL =104 CFU/mL). De-eskalasi 48–72 jam berbasis kultur. Durasi terapi 7–8 hari untuk sebagian besar VAP."
-      },
-      {
-        "col1": "Cornely OA et al. ESCMID/ECMM 2023. Clin Microbiol Infect 2023",
+        "col1": "Cornely OA et al. Global Guideline Candidiasis (ECMM/ISHAM/ASM). Lancet Infect Dis 2025;25:e280",
         "col2": "Kandidiasis Invasif",
-        "col3": "Echinocandin (anidulafungin/caspofungin) utama ICU. ß-D-glucan =80 pg/mL sebagai biomarker diagnostik. De-eskalasi ke flukonazol hanya bila pasien stabil + isolat sensitif + klinis membaik."
+        "col3": "Ekinokandin lini pertama kandidemia/kandidiasis invasif pada pasien kritis; β-D-glukan (mis. ≥80 pg/mL pada uji Fungitell) membantu diagnosis; step-down ke flukonazol bila pasien stabil, isolat sensitif, dan klinis membaik."
       },
       {
         "col1": "Gaudry S et al. AKIKI-2. Lancet 2021;397:1293",
         "col2": "RRT — Timing",
-        "col3": "Delayed strategy RRT lebih unggul: mortalitas serupa namun 40% pasien terhindar dari RRT. Bukti kuat menunda RRT jika tidak ada indikasi urgensi absolut."
+        "col3": "AKI stage 3 dengan oliguria >72 jam atau BUN >112 mg/dL: menunda RRT lebih lama lagi (sampai BUN 140 mg/dL atau indikasi mendesak) tidak menambah hari bebas RRT dan berhubungan dengan mortalitas 60 hari lebih tinggi."
       },
       {
         "col1": "STARRT-AKI Investigators. NEJM 2020;383:240",
         "col2": "RRT — Timing",
-        "col3": "3.019 pasien AKI berat: accelerated vs standard RRT — tidak ada perbedaan mortalitas 90-hari. 38,5% kelompok standard tidak butuh RRT sama sekali."
+        "col3": "3.019 pasien AKI berat: accelerated vs standar — mortalitas 90 hari 43,9% vs 43,7%; 38,2% kelompok standar tidak pernah mendapat RRT; ketergantungan RRT hari ke-90 lebih tinggi pada accelerated (10,4% vs 6,0%)."
       },
       {
-        "col1": "Hernández G et al. ANDROMEDA-SHOCK-2. JAMA 2023;329:1224",
+        "col1": "Hernández G et al. ANDROMEDA-SHOCK-2. JAMA 2025;334:1988",
         "col2": "Sepsis — Resusitasi",
-        "col3": "CRT-guided vs laktat-guided resusitasi: mortalitas 28-hari setara. CRT =3 detik sebagai target alternatif valid — berguna di sumber daya terbatas tanpa akses laktat cepat."
+        "col3": "1.467 pasien syok septik dini: resusitasi personal berbasis CRT vs perawatan biasa — unggul pada luaran komposit hierarkis (win ratio 1,16), terutama karena durasi bantuan hidup lebih singkat; mortalitas tidak berbeda bermakna."
       },
       {
-        "col1": "Hjortrup PB et al. CLASSIC. NEJM 2022;386:2459",
+        "col1": "Meyhoff TS et al. CLASSIC. NEJM 2022;386:2459",
         "col2": "Sepsis — Cairan Restriktif",
-        "col3": "Restrictive fluid strategy (stop cairan setelah 1 L post-stabilisasi) vs liberal: mortalitas serupa. Mendukung pendekatan deresusitasi aktif dan target cairan minimal."
+        "col3": "1.554 pasien syok septik: cairan restriktif vs standar setelah resusitasi awal — mortalitas 90 hari 42,3% vs 42,1%; efek samping serius tidak berbeda."
       },
       {
         "col1": "Lamontagne F et al. LOVIT. NEJM 2022;386:2387",
         "col2": "Vitamin C — Sepsis",
-        "col3": "Vitamin C IV dosis tinggi (66,7 mg/kg/6 jam × 96 jam) pada sepsis: tidak ada manfaat mortalitas — bahkan cenderung lebih buruk. Tidak direkomendasikan rutin."
+        "col3": "872 pasien sepsis dengan vasopresor: vitamin C IV 50 mg/kg tiap 6 jam selama 96 jam → kematian atau disfungsi organ persisten hari ke-28 lebih tinggi (44,5% vs 38,5%; RR 1,21). Tidak direkomendasikan."
       },
       {
         "col1": "Fujii T et al. VITAMINS. JAMA 2020;323:423",
@@ -89,27 +79,27 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Singer P et al. ESPEN 2023. Clin Nutr 2023;42:1671",
         "col2": "Nutrisi ICU",
-        "col3": "Update ESPEN 2023: target protein 1,3 g/kgBB/hari fase akut, naik bertahap ke 1,5–2,0 g/kgBB/hari. EN dini dalam 24–48 jam. Hindari overfeeding awal (hypocaloric feeding fase akut)."
+        "col3": "ESPEN 2023: energi hipokalorik (≤70%) pada fase akut awal lalu 80–100% setelah hari ke-3; protein 1,3 g/kg/hari dicapai bertahap; EN dini dalam 24–48 jam; hindari overfeeding."
       },
       {
-        "col1": "Taylor BE et al. ASPEN/SCCM 2022. JPEN 2022;46:12",
+        "col1": "Compher C et al. ASPEN 2022. JPEN 2022;46:12",
         "col2": "Nutrisi ICU",
-        "col3": "ASPEN/SCCM update: EN dalam 24–48 jam, protein 1,2–2,0 g/kgBB/hari, indirect calorimetry gold standard. GRV tidak direkomendasikan sebagai alat monitor EN rutin."
+        "col3": "Energi 12–25 kkal/kg/hari pada 7–10 hari pertama; protein 1,2–2,0 g/kg/hari; EN atau PN sama-sama dapat diterima pada fase awal."
       },
       {
         "col1": "Pun BT et al. ABCDEF Bundle. Crit Care Med 2019;47:3",
         "col2": "ABCDEF Bundle",
-        "col3": "15.226 pasien ICU: adherence ABCDEF bundle lebih tinggi ? ? delirium 28%, ? koma, ? mortalitas 30-hari, ? lama rawat ICU, ? restraint fisik. Setiap elemen berkontribusi independen."
+        "col3": "15.226 pasien ICU: kepatuhan bundle ABCDEF yang lebih tinggi berhubungan dengan mortalitas lebih rendah serta lebih sedikit koma, delirium, restrain fisik, dan readmisi ICU — hubungan dose-response."
       },
       {
         "col1": "Flaatten H et al. Ann Intensive Care 2021;11:22",
         "col2": "Frailty — CFS ICU",
-        "col3": "Validasi CFS di ICU usia lanjut: inter-rater reliability kappa 0,78–0,91. CFS =5 ? ? mortalitas dan ? functional recovery pada 6 bulan, independen dari diagnosis primer."
+        "col3": "1.923 pasang penilai pada pasien ICU usia ≥80 tahun (VIP-2): reliabilitas antar-penilai CFS sangat tinggi (weighted kappa 0,86)."
       },
       {
-        "col1": "GOLD 2024 Guidelines",
+        "col1": "GOLD 2024 Report (goldcopd.org)",
         "col2": "PPOK — Panduan",
-        "col3": "Reklasifikasi PPOK: GOLD A/B/E (menggantikan C/D). Penekanan pada personalisasi terapi. NIV pada eksaserbasi berat pH 7,25–7,35 tetap standar. Permissive hypercapnia pada ventilasi invasif."
+        "col3": "Klasifikasi ABE menggantikan ABCD. NIV untuk eksaserbasi dengan asidosis respiratorik (pH ≤7,35 dan PaCO₂ ≥45 mmHg). Ventilasi invasif: hindari hiperinflasi dinamis, terima hiperkapnia permisif."
       }
     ]
   },
@@ -125,92 +115,92 @@ export const referenceData: RefSection[] = [
       {
         "col1": "ARDSNet. NEJM 2000;342:1301",
         "col2": "VT rendah ARDS",
-        "col3": "VT 6 vs 12 mL/kg IBW ? mortalitas ? dari 39.8% ? 31%. Landasan lung-protective ventilation."
+        "col3": "VT 6 vs 12 mL/kg PBW → mortalitas ↓ dari 39,8% menjadi 31,0%. Landasan ventilasi protektif paru."
       },
       {
         "col1": "Guérin C (PROSEVA). NEJM 2013;368:2159",
         "col2": "Prone position",
-        "col3": "Prone 16 jam/hari pada P/F <150 ? mortalitas ? 32.8% ? 16%. NNT = 6."
+        "col3": "Prone ≥16 jam/hari pada P/F <150 (FiO₂ ≥0,6, PEEP ≥5) → mortalitas 28 hari ↓ dari 32,8% menjadi 16,0%. NNT ≈ 6."
       },
       {
         "col1": "Amato MB. NEJM 2015;372:747",
         "col2": "Driving pressure",
-        "col3": "Driving pressure (Pplat-PEEP) prediktor mortalitas terkuat. ?1 cmH2O DP ? ?4–7% mortalitas."
+        "col3": "Driving pressure (Pplat − PEEP) adalah variabel ventilasi yang paling kuat berhubungan dengan mortalitas; tiap kenaikan 1 SD (±7 cmH₂O) → RR kematian 1,41. Data asosiasi, bukan uji strategi yang dipandu DP."
       },
       {
         "col1": "Berlin Definition. JAMA 2012;307:2526",
         "col2": "Definisi ARDS",
-        "col3": "Klasifikasi mild/moderate/severe berdasar P/F + PEEP =5. Menggantikan AECC 1994."
+        "col3": "Klasifikasi ringan/sedang/berat berdasarkan P/F (>200–≤300 / >100–≤200 / ≤100) dengan PEEP/CPAP ≥5. Menggantikan definisi AECC 1994."
       },
       {
-        "col1": "Writing Group ARDS Task Force. JAMA 2024",
+        "col1": "Matthay MA et al. Global ARDS Definition. Am J Respir Crit Care Med 2024;209:37",
         "col2": "Global ARDS Definisi",
-        "col3": "Revisi 2023: HFNC (SpO2/FiO2 <315, flow =30 L/mnt) dan NIV masuk sebagai kriteria oksigenasi."
+        "col3": "Definisi global ARDS: pasien dengan HFNO ≥30 L/menit (atau NIV/CPAP) dapat didiagnosis; S/F ≤315 (bila SpO₂ ≤97%) dapat menggantikan P/F ≤300; USG paru diterima untuk pencitraan."
       },
       {
         "col1": "Papazian (ACURASYS). NEJM 2010;363:1107",
         "col2": "NMB ARDS",
-        "col3": "Cisatrakurium 48 jam pada P/F <120 ? ? barotrauma & mortalitas. ROSE 2019: tidak konfirmasi pada P/F =120."
+        "col3": "Cisatrakurium 48 jam pada ARDS dini dengan P/F <150 → mortalitas 90 hari (disesuaikan) lebih rendah & barotrauma lebih sedikit. ROSE 2019 (P/F <150): tidak terkonfirmasi dibanding sedasi ringan tanpa NMB."
       },
       {
         "col1": "Frat JP (FLORALI). NEJM 2015;372:2185",
         "col2": "HFNC vs NIV",
-        "col3": "HFNC superior untuk hipoksemia akut (non-PPOK): mortalitas 90-hari 35% vs 53% (NIV)."
+        "col3": "Gagal napas hipoksemik non-hiperkapnik: intubasi hari ke-28 tidak berbeda bermakna (38% vs 47% vs 50%; P=0,18); mortalitas 90 hari lebih rendah dengan HFNC (HR 2,01 O₂ standar vs HFNC; 2,50 NIV vs HFNC)."
       },
       {
         "col1": "Ferreyro BL. JAMA 2020;324:57",
         "col2": "NIV meta-analisis",
-        "col3": "NIV helmet superior vs face mask NIV dan HFNC untuk mortalitas pada hipoksemia akut."
+        "col3": "Meta-analisis jaringan: dibanding O₂ standar, NIV helmet (RR 0,40; kepastian rendah) dan NIV masker (RR 0,83; kepastian sedang) berhubungan dengan mortalitas lebih rendah; HFNC menurunkan risiko intubasi (RR 0,76)."
       },
       {
         "col1": "Roca O. AJRCCM 2019;199:1368",
         "col2": "ROX Index",
-        "col3": "ROX <3.85 pada jam 2 ? risiko intubasi tinggi. Validasi prospektif multisenter."
+        "col3": "ROX ≥4,88 pada jam 2/6/12 → risiko intubasi rendah; <2,85 (jam 2), <3,47 (jam 6), <3,85 (jam 12) → risiko tinggi. Validasi prospektif multisenter."
       },
       {
         "col1": "Talmor D. NEJM 2008;359:2095",
         "col2": "Esophageal PEEP",
-        "col3": "PEEP guided transpulmonary pressure ? perbaikan oksigenasi & compliance vs ARDSNet table."
+        "col3": "PEEP dipandu tekanan esofagus (transpulmoner) → oksigenasi & compliance lebih baik dibanding tabel ARDSNet (EPVent). EPVent-2 (Beitler, JAMA 2019) tidak memperbaiki luaran mortalitas/hari bebas ventilator."
       },
       {
         "col1": "Meade MO (LOV). JAMA 2008;299:637",
         "col2": "High PEEP ARDS",
-        "col3": "High PEEP tidak ? mortalitas signifikan vs ARDSNet, tapi ? refractory hypoxemia."
+        "col3": "PEEP tinggi vs ARDSNet: mortalitas tidak berbeda bermakna, tetapi hipoksemia refrakter & kebutuhan terapi penyelamatan lebih sedikit."
       },
       {
         "col1": "Hernandez G. JAMA 2016;316:1565",
         "col2": "HFNC post-ekstubasi",
-        "col3": "HFNC superior vs O2 konvensional untuk risiko tinggi re-intubasi dalam 72 jam."
+        "col3": "Pasien risiko tinggi gagal ekstubasi: HFNC pasca-ekstubasi tidak inferior dibanding NIV untuk reintubasi (22,8% vs 19,1%); gagal napas pasca-ekstubasi lebih jarang (26,9% vs 39,8%)."
       },
       {
-        "col1": "Lawn ND. Neurology 2001;56:1181",
+        "col1": "Lawn ND et al. Arch Neurol 2001;58:893",
         "col2": "GBS — Rule 20-30-40",
-        "col3": "VC <20 mL/kg, MIP <-30, MEP <40 ? intubasi profilaktik."
+        "col3": "GBS: kapasitas vital <20 mL/kg, MIP lebih lemah dari −30 cmH₂O, atau MEP <40 cmH₂O (aturan 20/30/40) → risiko gagal napas; pertimbangkan intubasi elektif."
       },
       {
         "col1": "Rochwerg B. Eur Respir J 2017;50:1602426",
         "col2": "NIV ERS/ATS",
-        "col3": "NIV direkomendasikan pada PPOK eksaserbasi berat, edema paru kardiogenik, imunokompromis."
+        "col3": "NIV: rekomendasi kuat untuk PPOK eksaserbasi dengan asidosis respiratorik dan edema paru kardiogenik; kondisional untuk pasien imunokompromais dan pasca-operasi."
       },
       {
-        "col1": "GOLD Guidelines 2024",
+        "col1": "GOLD 2024 Report (goldcopd.org)",
         "col2": "PPOK",
-        "col3": "NIV pada PPOK eksaserbasi pH 7.25–7.35. Permissive hypercapnia pada ventilasi invasif."
+        "col3": "NIV pada eksaserbasi dengan asidosis respiratorik (pH ≤7,35, PaCO₂ ≥45 mmHg). Hiperkapnia permisif pada ventilasi invasif."
       },
       {
         "col1": "Girard TD (ABC protocol). Lancet 2008;371:126",
         "col2": "SAT + SBT",
-        "col3": "Paired SAT+SBT ? waktu ventilasi, ICU LOS, dan mortalitas 1 tahun."
+        "col3": "SAT + SBT berpasangan → +3,1 hari bebas ventilator, lama rawat ICU & RS lebih singkat, mortalitas 1 tahun lebih rendah."
       },
       {
         "col1": "Yang KL, Tobin MJ. NEJM 1991;324:1445",
         "col2": "RSBI",
-        "col3": "RSBI <80 ? prediksi weaning sukses. Sensitivity 97%, spesifisitas 64%."
+        "col3": "RSBI ≤105 → prediktor keberhasilan weaning (sensitivitas 97%, spesifisitas 64%) — bukan kriteria tunggal."
       },
       {
-        "col1": "Demoule A. Eur Respir J 2016;47:521",
+        "col1": "Duan J et al. Intensive Care Med 2017;43:192",
         "col2": "HACOR Score",
-        "col3": "HACOR =5 pada jam 1 NIV ? prediksi gagal NIV, AUC 0.88."
+        "col3": "HACOR >5 pada jam ke-1 NIV → prediksi gagal NIV (AUC 0,88; sensitivitas 72,6%, spesifisitas 90,2%)."
       }
     ]
   },
@@ -224,49 +214,34 @@ export const referenceData: RefSection[] = [
     ],
     "items": [
       {
-        "col1": "Walls RM et al. Manual of Emergency Airway Management. 5th ed. 2022",
+        "col1": "Brown CA III, Sakles JC, Mick NW. The Walls Manual of Emergency Airway Management. 6th ed.",
         "col2": "RSI — Algoritma",
         "col3": "Standar referensi 7P RSI. Panduan komprehensif airway emergensi termasuk DSI dan failed airway management."
       },
       {
-        "col1": "Brown CA. NEJM 2023;389:1943",
-        "col2": "RSI — Review",
-        "col3": "Update komprehensif RSI 2023: teknik, pilihan obat, monitoring pasca intubasi."
-      },
-      {
-        "col1": "Sorensen MK. Cochrane Database Syst Rev 2022;5:CD002788",
+        "col1": "Tran DT et al. Cochrane Database Syst Rev 2015;(10):CD002788",
         "col2": "Sux vs Rocuronium RSI",
-        "col3": "Rocuronium 1.2 mg/kg non-inferior to succinylcholine untuk intubating conditions. Kualitas evidence: moderate."
+        "col3": "50 uji (4.151 pasien): suksinilkolin lebih unggul untuk kondisi intubasi 'excellent' (RR 0,86) dan yang dapat diterima (RR 0,97). Dibanding rocuronium 1,2 mg/kg tidak berbeda bermakna, tetapi suksinilkolin lebih pendek kerjanya. Kualitas bukti moderat."
       },
       {
-        "col1": "Tran DT. Can J Anaesth 2015;62:843",
-        "col2": "Rocuronium RSI",
-        "col3": "Meta-analisis: rocuronium 1.2 mg/kg setara suksinilkolin untuk kondisi intubasi optimal."
-      },
-      {
-        "col1": "Perry JJ. Acad Emerg Med 2023;30:441",
-        "col2": "NMB RSI emergensi",
-        "col3": "Rocuronium vs suksinilkolin pada RSI emergensi — tidak ada perbedaan bermakna pada first-pass success rate."
-      },
-      {
-        "col1": "Bhatt DL et al. MENDS-2. NEJM 2024;390:307",
-        "col2": "Etomidate vs Ketamine",
-        "col3": "RCT 686 pasien ICU: etomidate vs ketamine tidak berbeda bermakna dalam ventilator-free days, mortalitas, atau vasopressor. Etomidate aman pada sepsis."
+        "col1": "Guihard B et al. CURASMUR. JAMA 2019;322:2303",
+        "col2": "Rocuronium vs suksinilkolin — RSI pra-RS",
+        "col3": "1.248 pasien RSI pra-RS: rocuronium 1,2 mg/kg gagal membuktikan non-inferioritas vs suksinilkolin 1 mg/kg untuk keberhasilan percobaan pertama (74,6% vs 79,4%)."
       },
       {
         "col1": "Jabre P. Lancet 2009;374:293",
         "col2": "Etomidate — adrenal",
-        "col3": "Etomidate vs ketamine: supresi adrenal nyata namun mortalitas tidak berbeda pada studi pre-hospital."
+        "col3": "KETASED (pra-RS/IGD, 655 pasien): kondisi intubasi setara; insufisiensi adrenal lebih sering dengan etomidat; skor SOFA maksimal dan mortalitas tidak berbeda."
       },
       {
-        "col1": "Zeiler FA. J Neurosurg Anesthesiol 2020;32:12",
+        "col1": "Zeiler FA et al. Neurocrit Care 2014;21:163",
         "col2": "Ketamine & TIK",
-        "col3": "Review sistematis: ketamine tidak meningkatkan TIK pada pasien berventilasi mekanik. Mitos terbantahkan."
+        "col3": "Tinjauan sistematis: ketamin tidak meningkatkan TIK pada pasien cedera otak traumatik yang tersedasi & berventilasi."
       },
       {
-        "col1": "Cohen L. Emerg Med J 2015;32:145",
+        "col1": "Cohen L et al. Ann Emerg Med 2015;65:43",
         "col2": "Ketamine emergensi",
-        "col3": "Ketamine aman dan efektif untuk RSI di setting emergensi, termasuk cedera kepala."
+        "col3": "Tinjauan sistematis: ketamin tidak memperburuk TIK, CPP, maupun luaran neurologis — mendukung keamanannya untuk induksi pada cedera kepala."
       },
       {
         "col1": "Weingart SD. Ann Emerg Med 2015;65:349",
@@ -274,24 +249,24 @@ export const referenceData: RefSection[] = [
         "col3": "Delayed Sequence Intubation: ketamine 1–1.5 mg/kg memungkinkan pre-oksigenasi optimal pada pasien agitasi."
       },
       {
-        "col1": "STRIVE Hi Trial. Anaesthesia 2021;76:460",
+        "col1": "Lee C et al. Anesthesiology 2009;110:1020",
         "col2": "Sugammadex rescue",
-        "col3": "Sugammadex 16 mg/kg membalikkan rocuronium 1.2 mg/kg RSI dalam 3 menit pada skenario CICO."
+        "col3": "Sugammadex 16 mg/kg 3 menit setelah rocuronium 1,2 mg/kg: rasio TOF 0,9 tercapai rata-rata 2,2 menit setelah sugammadex; pemulihan lebih cepat dibanding pemulihan spontan suksinilkolin 1 mg/kg. Reversal tidak menjamin jalan napas aman pada CICO."
       },
       {
-        "col1": "Brueckmann B. Anesthesiology 2015;122:1302",
+        "col1": "Brueckmann B et al. Br J Anaesth 2015;115:743",
         "col2": "Sugammadex",
-        "col3": "Sugammadex vs neostigmin: reversal lebih cepat dan lengkap untuk rocuronium/vecuronium."
+        "col3": "Sugammadex vs neostigmin pada bedah abdomen: blok neuromuskular residual di PACU 0% vs 43,4%; siap keluar kamar operasi lebih cepat (14,7 vs 18,6 menit)."
       },
       {
         "col1": "Devlin JW (PADIS). Crit Care Med 2018;46:e825",
         "col2": "Sedasi ICU",
-        "col3": "PADIS Guidelines: analgesia first, light sedation (RASS -1 to 0), hindari BZD, daily SAT+SBT."
+        "col3": "PADIS 2018: analgesia dulu, sedasi ringan (RASS −2 s/d +1), hindari benzodiazepin, SAT + SBT harian, mobilisasi dini."
       },
       {
-        "col1": "Surviving Sepsis Campaign. Crit Care Med 2021;49:e1063",
+        "col1": "Evans L et al. Surviving Sepsis Campaign 2021. Crit Care Med 2021;49:e1063",
         "col2": "Sepsis",
-        "col3": "Bundle sepsis 1 jam, laktat, antibiotik early, norepinefrin MAP =65 mmHg, vasopressin adjuvan."
+        "col3": "Antibiotik ≤1 jam pada kemungkinan syok septik/sepsis probable (≤3 jam bila sepsis possible), kristaloid seimbang, norepinefrin lini pertama dengan target awal MAP ≥65 mmHg, vasopresin sebagai tambahan."
       }
     ]
   },
@@ -307,12 +282,12 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Inker LA et al. NEJM 2021;385:1737",
         "col2": "CKD-EPI 2021 race-free",
-        "col3": "Formula eGFR baru tanpa variabel ras — lebih adil dan akurasi setara. Direkomendasikan sebagai formula primer global."
+        "col3": "Persamaan eGFR CKD-EPI 2021 tanpa variabel ras; akurasi setara. Direkomendasikan NKF-ASN sebagai persamaan utama."
       },
       {
-        "col1": "KDIGO CKD Guideline 2024. Kidney Int Suppl 2024",
+        "col1": "KDIGO 2024 CKD Guideline. Kidney Int 2024;105(4S):S117",
         "col2": "CKD — Panduan terbaru",
-        "col3": "Konfirmasi CKD-EPI 2021 sebagai formula primer. Staging G1–G5 + albuminuria. Rekomendasi follow-up berbasis eGFR."
+        "col3": "Staging CKD G1–G5 + albuminuria A1–A3; gunakan persamaan eGFR tervalidasi (mis. CKD-EPI 2021), konfirmasi dengan sistatin C bila perlu."
       },
       {
         "col1": "Cockcroft DW & Gault MH. Nephron 1976;16:31",
@@ -327,7 +302,7 @@ export const referenceData: RefSection[] = [
       {
         "col1": "KDIGO AKI Guideline. Kidney Int Suppl 2012;2:1",
         "col2": "AKI — Staging KDIGO",
-        "col3": "Staging AKI berdasarkan SCr (?0.3 mg/dL dalam 48 jam atau ?×1.5 baseline) dan/atau UO (<0.5 mL/kg/jam =6 jam)."
+        "col3": "Staging AKI berdasarkan SCr (↑ ≥0,3 mg/dL dalam 48 jam atau ≥1,5× baseline dalam 7 hari) dan/atau UO (<0,5 mL/kg/jam ≥6 jam)."
       },
       {
         "col1": "Miller TR et al. Ann Intern Med 1978;89:47",
@@ -335,14 +310,14 @@ export const referenceData: RefSection[] = [
         "col3": "FENa <1% = pre-renal; >2% = renal intrinsik. Tidak valid pada pasien diuretik."
       },
       {
-        "col1": "Espinal CH. Am Fam Physician 2000;62:2233",
+        "col1": "Carvounis CP et al. Kidney Int 2002;62:2223",
         "col2": "FEUrea",
-        "col3": "FEUrea <35% = pre-renal — lebih reliabel dari FENa pada pasien diuretik."
+        "col3": "FEUrea ≤35% mendukung azotemia pre-renal — lebih andal daripada FENa pada pasien yang mendapat diuretik."
       },
       {
-        "col1": "Bhagat CI et al. Ann Clin Biochem 2001;38:507",
+        "col1": "Bhagat CI et al. Clin Chem 1984;30:1703",
         "col2": "Osmolalitas serum",
-        "col3": "Formula: 2×Na + Glu/18 + Ureum/6 (mmol/L). Osmol gap >10 ? curiga toksin osmolar."
+        "col3": "Osmolalitas terhitung ≈ 2×Na + glukosa/18 + ureum/6 (glukosa & ureum dalam mg/dL; atau BUN/2,8). Osmolar gap >10 mOsm/kg → curiga toksin osmolar (metanol, etilen glikol)."
       },
       {
         "col1": "Adrogue HJ & Madias NE. NEJM 2000;342:1581",
@@ -355,24 +330,14 @@ export const referenceData: RefSection[] = [
         "col3": "Osmotic demyelination syndrome: risiko nyata bila koreksi >8–10 mEq/L/24 jam. Panduan koreksi aman 3% NaCl."
       },
       {
-        "col1": "Macdonald JE & Struthers AD. Heart 2004;90:1098",
-        "col2": "Hipokalemia",
-        "col3": "Koreksi K: estimasi defisit, rate aman, monitor EKG. Pentingnya koreksi Mg bersamaan."
-      },
-      {
-        "col1": "Kovesdy CP. Kidney Int 2023;103:1024",
-        "col2": "Hiperkalemia",
-        "col3": "Management hiperkalemia: kalsium membran, geser K intrasel (insulin/glukosa, bikarbonat), eliminasi K."
-      },
-      {
         "col1": "Dépret F et al. Ann Intensive Care 2019;9:32",
         "col2": "Hiperkalemia ICU",
-        "col3": "Review manajemen hiperkalemia pada pasien kritis: insulin infus kontinu (0,1–0,2 U/kg/jam + D10 100–200 mL/jam) lebih efektif dari bolus intermiten. Target penurunan K 0,5–1 mEq/L/jam, BSS tiap 1–2 jam."
+        "col3": "Tinjauan hiperkalemia pada pasien akut: tiap terapi punya efek samping — insulin-glukosa (sering disglikemia), β2-agonis (iskemia/aritmia), bikarbonat hipertonik pada pasien asidosis (beban natrium), RRT (efektif tetapi invasif). Sesuaikan terapi dengan kondisi pasien."
       },
       {
-        "col1": "Batterink J et al. Cochrane Database Syst Rev 2015;10:CD010387",
+        "col1": "Batterink J et al. Cochrane Database Syst Rev 2015;(10):CD010344",
         "col2": "Hiperkalemia — Intervensi",
-        "col3": "Systematic review intervensi hiperkalemia: insulin+glukosa paling konsisten menurunkan K (onset 15–30 mnt, durasi 4–6 jam). Salbutamol efek aditif. Resonium efek lambat dan tidak dapat diandalkan untuk emergensi."
+        "col3": "Bukti terbatas; tidak ada studi yang menunjukkan perbaikan luaran klinis. Salbutamol (rute apa pun) dan insulin-dekstrosa IV paling efektif menurunkan K⁺; bikarbonat & aminofilin bukti terbatas; kalsium IV dan resin pengikat K belum diuji dalam RCT."
       },
       {
         "col1": "Payne RB et al. BMJ 1973;4:643",
@@ -385,12 +350,12 @@ export const referenceData: RefSection[] = [
         "col3": "Diagnosis dan manajemen hipokalsemia: Ca glukonat IV untuk gejala akut, Ca oral untuk kronik."
       },
       {
-        "col1": "Glasdam SM et al. AACN Adv Crit Care 2012;23:158",
+        "col1": "Hansen BA, Bruserud Ø. J Intensive Care 2018;6:21",
         "col2": "Hipomagnesemia ICU",
-        "col3": "Prevalensi 60–65% di ICU. Koreksi MgSO4 IV dosis berdasar berat badan dan fungsi ginjal."
+        "col3": "Hipomagnesemia sering pada pasien kritis dan berhubungan dengan luaran buruk; koreksi MgSO₄ IV dengan memperhatikan fungsi ginjal."
       },
       {
-        "col1": "de Baaij JH et al. Physiol Rev 2015;95:791",
+        "col1": "de Baaij JHF et al. Physiol Rev 2015;95:1",
         "col2": "Magnesium fisiologi",
         "col3": "Review komprehensif fisiologi Mg, penyebab defisiensi, koreksi, dan monitoring."
       }
@@ -408,17 +373,17 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Lim WS et al. Thorax 2003;58:377",
         "col2": "CURB-65",
-        "col3": "Skor 5 kriteria untuk stratifikasi CAP. Skor 0–1: rawat jalan; 2: rawat inap; =3: ICU/HDU."
+        "col3": "Skor 5 kriteria untuk stratifikasi CAP. Skor 0–1: rawat jalan; 2: rawat inap; ≥3: berat (pertimbangkan ICU pada skor 4–5)."
       },
       {
         "col1": "Fine MJ et al. NEJM 1997;336:243",
         "col2": "PSI / PORT Score",
-        "col3": "Pneumonia Severity Index — 20 variabel, 5 kelas risiko. Standar emas stratifikasi CAP rawat inap."
+        "col3": "Pneumonia Severity Index — 20 variabel, 5 kelas risiko. Banyak dipakai untuk stratifikasi CAP."
       },
       {
-        "col1": "Mandell LA et al. (IDSA/ATS). Clin Infect Dis 2007;44:S27",
+        "col1": "Metlay JP et al. (ATS/IDSA). Am J Respir Crit Care Med 2019;200:e45",
         "col2": "CAP — Guidelines",
-        "col3": "IDSA/ATS guidelines CAP: indikasi rawat inap, pemilihan antibiotik, durasi terapi."
+        "col3": "Pedoman CAP ATS/IDSA 2019 (menggantikan 2007): CAP berat → β-laktam + makrolida atau β-laktam + fluorokuinolon respirasi; cakupan MRSA/Pseudomonas hanya bila ada faktor risiko."
       },
       {
         "col1": "Kalil AC et al. (IDSA/ATS). Clin Infect Dis 2016;63:e61",
@@ -441,9 +406,9 @@ export const referenceData: RefSection[] = [
         "col3": "Aplikasi klinis A-a gradient: normal vs meningkat, interpretasi per penyebab hipoksemia."
       },
       {
-        "col1": "Gattinoni L. Intensive Care Med 2020;46:2204",
+        "col1": "Gattinoni L et al. Intensive Care Med 2020;46:1099",
         "col2": "COVID-ARDS Phenotype",
-        "col3": "Type L vs Type H: compliance berbeda ? pendekatan ventilasi berbeda pada COVID-ARDS."
+        "col3": "Hipotesis fenotipe COVID-ARDS tipe L vs tipe H (compliance berbeda) → pendekatan ventilasi berbeda. Hipotesis ini belum divalidasi dan diperdebatkan."
       }
     ]
   },
@@ -457,24 +422,24 @@ export const referenceData: RefSection[] = [
     ],
     "items": [
       {
-        "col1": "Berend K et al. NEJM 2014;371:1517",
+        "col1": "Berend K et al. NEJM 2014;371:1434",
         "col2": "Pendekatan Asam-Basa",
         "col3": "Systematic physiological approach to assessment of acid-base disturbances: 5-step approach, kompensasi, dan kelainan campuran."
       },
       {
-        "col1": "Seifter JL. NEJM 2014;371:1434",
+        "col1": "Seifter JL. NEJM 2014;371:1821",
         "col2": "Asam-Basa & Elektrolit",
         "col3": "Integration of acid-base and electrolyte disorders — keterkaitan antara gangguan asam-basa dan kelainan elektrolit, terutama Na dan K."
       },
       {
-        "col1": "Schwartz WB et al. NEJM 1965;272:1388",
+        "col1": "Albert MS, Dell RB, Winters RW. Ann Intern Med 1967;66:312",
         "col2": "Winter's Formula",
-        "col3": "Kompensasi respiratorik pada asidosis metabolik: pCO2 ekspektasi = 1,5 × HCO3? + 8 ± 2. Verifikasi kompensasi adekuat vs campuran."
+        "col3": "Kompensasi respiratorik pada asidosis metabolik: PaCO₂ ekspektasi = 1,5 × HCO₃⁻ + 8 ± 2. Bedakan kompensasi adekuat dari gangguan campuran."
       },
       {
-        "col1": "Rastegar A. JASN 2007;18:102",
+        "col1": "Rastegar A. J Am Soc Nephrol 2007;18:2429",
         "col2": "Delta-Delta Ratio",
-        "col3": "Penggunaan ?AG/?HCO3 untuk diagnosis kelainan asam-basa campuran pada AG tinggi. Ratio 1–2: normal; <1: metabolik alkalosis superimposed; >2: non-AG asidosis."
+        "col3": "ΔAG/ΔHCO₃⁻ untuk mendeteksi gangguan campuran pada asidosis AG tinggi: 1–2 = asidosis AG tinggi murni; <1 = disertai asidosis AG normal (hiperkloremik); >2 = disertai alkalosis metabolik."
       },
       {
         "col1": "Emmett M. CJASN 2020;15:1848",
@@ -482,14 +447,14 @@ export const referenceData: RefSection[] = [
         "col3": "Klasifikasi, pendekatan diagnostik, dan tatalaksana alkalosis metabolik — klorid-responsif vs klorid-resisten."
       },
       {
-        "col1": "Kraut JA & Madias NE. CJASN 2012;7:689",
+        "col1": "Kraut JA & Madias NE. Nat Rev Nephrol 2012;8:589",
         "col2": "NaHCO3 Asidosis",
         "col3": "Evaluasi penggunaan NaHCO3 pada metabolik asidosis. Dosis, indikasi, dan risiko. Kontroversial pada asidosis laktat; evidence lebih baik pada asidosis bukan laktat."
       },
       {
         "col1": "Duhon B et al. Ann Pharmacother 2013;47:970",
         "col2": "NaHCO3 DKA",
-        "col3": "Sodium bikarbonat pada DKA dengan pH < 6,9: pertimbangkan 100 mEq dalam 400 mL air steril + KCl 20 mEq selama 2 jam. Tidak terbukti benefit jika pH = 6,9."
+        "col3": "Kajian retrospektif KAD berat: bikarbonat IV tidak mempercepat perbaikan asidosis. ADA/EASD 2024: pertimbangkan bikarbonat hanya bila pH <7,0."
       },
       {
         "col1": "Narins RG & Emmett M. Medicine 1980;59:161",
@@ -504,17 +469,17 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Roca O et al. AJRCCM 2019;199:1368",
         "col2": "ROX Index",
-        "col3": "SpO2/FiO2/RR sebagai prediktor keberhasilan HFNC. ROX < 3,85 pada jam 2 = risiko intubasi tinggi. Ambang batas: 2,85 (1 jam), 3,47 (2 jam), 3,85 (12 jam)."
+        "col3": "ROX = (SpO₂/FiO₂)/RR sebagai prediktor keberhasilan HFNC. Risiko tinggi gagal bila <2,85 (jam 2), <3,47 (jam 6), <3,85 (jam 12); ≥4,88 = risiko rendah."
       },
       {
-        "col1": "Khemani RG et al. Am J Respir Crit Care Med 2012;185:166",
+        "col1": "Rice TW et al. Chest 2007;132:410",
         "col2": "SpO2/FiO2 vs P/F",
-        "col3": "SpO2/FiO2 sebagai surrogate non-invasif P/F ratio. Korelasi baik pada SpO2 = 97%. SpO2/FiO2 = 235 ˜ P/F = 200 (ARDS moderate)."
+        "col3": "S/F sebagai pengganti P/F non-invasif bila SpO₂ ≤97%: S/F 235 ≈ P/F 200 dan S/F 315 ≈ P/F 300."
       },
       {
-        "col1": "Uchino S et al. Crit Care Med 2004;32:675",
+        "col1": "Jubran A. Crit Care 2015;19:272",
         "col2": "Validasi SaO2 vs SpO2",
-        "col3": "SaO2 dari ABG lebih akurat dari SpO2 pada pasien ICU dengan perfusi perifer buruk, hemoglobin abnormal (CO-Hb, Met-Hb), atau saturasi ekstrem."
+        "col3": "Oksimetri nadi kurang akurat pada perfusi perifer buruk, dishemoglobinemia (CO-Hb, Met-Hb), saturasi rendah, dan kulit berpigmen gelap (Sjoding, NEJM 2020) — konfirmasi dengan SaO₂ dari AGD bila ragu."
       }
     ]
   },
@@ -530,17 +495,17 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Semler MW et al. SMART trial. NEJM 2018;378:829",
         "col2": "Balanced vs NS — ICU",
-        "col3": "14.000+ pasien ICU: balanced crystalloid (RL/Physiolyte) vs NS ? MAKE30 lebih rendah (14,3% vs 15,4%, OR 0,90). Basis utama pemilihan balanced crystalloid di ICU."
+        "col3": "15.802 pasien ICU: kristaloid seimbang vs NaCl 0,9% → MAKE30 lebih rendah (14,3% vs 15,4%; OR 0,90). Dasar utama pemilihan kristaloid seimbang di ICU."
       },
       {
         "col1": "Self WH et al. SALT-ED trial. NEJM 2018;378:819",
         "col2": "Balanced vs NS — IGD",
-        "col3": "Konfirmasi SMART di setting IGD: balanced crystalloid ? MAKE30 lebih rendah. Berlaku untuk pasien non-ICU."
+        "col3": "13.347 pasien IGD non-kritis: hari bebas RS tidak berbeda; MAKE30 lebih rendah dengan kristaloid seimbang (4,7% vs 5,6%)."
       },
       {
         "col1": "Zampieri FG et al. BaSICS trial. JAMA 2021;326:818",
         "col2": "Balanced vs NS — Brazil",
-        "col3": "RCT 11.052 pasien ICU Brazil: Plasmalyte-148 vs NS — tidak ada perbedaan bermakna pada 90-hari mortalitas. Mengkonfirmasi keamanan balanced crystalloid."
+        "col3": "10.520 pasien ICU: larutan seimbang (Plasma-Lyte) vs NaCl 0,9% — mortalitas 90 hari 26,4% vs 27,2% (HR 0,97), tidak berbeda bermakna."
       },
       {
         "col1": "Young P et al. SPLIT trial. JAMA 2015;314:1701",
@@ -555,7 +520,7 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Finfer S et al. SAFE Study. NEJM 2004;350:2247",
         "col2": "Albumin vs NS — Sepsis",
-        "col3": "6997 pasien ICU: albumin 4% vs NS — mortalitas setara. Subgroup sepsis: albumin cenderung lebih baik (OR 0,87). Albumin aman pada sepsis."
+        "col3": "6.997 pasien ICU: albumin 4% vs salin — mortalitas 28 hari setara; subgrup sepsis berat cenderung lebih baik (RR 0,87; tidak bermakna); subgrup cedera otak traumatik mortalitas lebih tinggi dengan albumin."
       },
       {
         "col1": "Caironi P et al. ALBIOS trial. NEJM 2014;370:1412",
@@ -565,12 +530,12 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Evans L et al. SSC Guidelines 2021. Intensive Care Med 2021;47:1181",
         "col2": "Sepsis — Cairan",
-        "col3": "Balanced crystalloid sebagai cairan pilihan. Albumin sebagai adjunct saat butuh volume besar. AGAINST penggunaan HES, starches pada sepsis."
+        "col3": "Kristaloid seimbang sebagai cairan pilihan; albumin sebagai tambahan bila butuh kristaloid dalam jumlah besar; tidak menganjurkan HES/starch pada sepsis."
       },
       {
         "col1": "Perner A et al. 6S trial. NEJM 2012;367:124",
         "col2": "HES vs Ringer Asetat",
-        "col3": "800 pasien sepsis berat: HES 130/0,4 vs Ringer Asetat ? mortalitas 90-hari lebih tinggi pada HES (51% vs 43%). Kasus pembentukan kontraindikasi HES pada sepsis."
+        "col3": "±800 pasien sepsis berat: HES 130/0,42 vs Ringer asetat → mortalitas 90 hari lebih tinggi pada HES (51% vs 43%) dan lebih banyak RRT. Dasar kontraindikasi HES pada sepsis."
       },
       {
         "col1": "Brunkhorst FM et al. VISEP trial. NEJM 2008;358:125",
@@ -585,7 +550,7 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Sort P et al. NEJM 1999;341:403",
         "col2": "Albumin 25% — SBP",
-        "col3": "126 pasien SBP: albumin IV + cefotaxime ? insidens AKI dan kematian lebih rendah vs antibiotik saja. Dosis: 1,5 g/kg hari-1 + 1 g/kg hari-3."
+        "col3": "126 pasien SBP: albumin IV + sefotaksim → gangguan ginjal (10% vs 33%) dan mortalitas RS (10% vs 29%) lebih rendah dibanding antibiotik saja. Dosis: 1,5 g/kg hari ke-1 + 1 g/kg hari ke-3."
       },
       {
         "col1": "EASL CPG: Decompensated Cirrhosis. J Hepatol 2018",
@@ -600,17 +565,17 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Singer P et al. ESPEN guideline. Clin Nutr 2019;38:48",
         "col2": "Nutrisi Parenteral ICU",
-        "col3": "Guideline nutrisi ICU: target protein 1,2–2,0 g/kgBB/hari. EN prioritas; PN dalam 24–48 jam jika EN tidak mungkin pada malnutrisi berat. Hindari overfeeding."
+        "col3": "Protein 1,3 g/kg/hari dicapai bertahap; EN dini prioritas; bila EN kontraindikasi, PN dalam 3–7 hari (lebih dini & bertahap pada malnutrisi berat); hindari overfeeding."
       },
       {
         "col1": "Spasovski G et al. Eur J Endocrinol 2014;170:G1",
         "col2": "Hiponatremia — Guideline",
-        "col3": "Panduan EuroPEM/ERA-EDTA untuk hiponatremia: NaCl 3% pada gejala berat, target ?Na 5 mEq/L jam pertama, batas 10 mEq/L per 24 jam untuk hindari ODS."
+        "col3": "Panduan Eropa (ESE/ESICM/ERBP) hiponatremia: gejala berat → NaCl 3% 150 mL dalam 20 menit (dapat diulang), target ↑Na 5 mmol/L pada jam pertama; batas kenaikan 10 mmol/L dalam 24 jam pertama dan 8 mmol/L tiap 24 jam berikutnya."
       },
       {
         "col1": "Carney N et al. Neurosurgery 2017;80:6",
         "col2": "TBI — Hiperosmolar",
-        "col3": "Guideline TBI edisi 4: terapi hiperosmolar (NaCl 3% atau mannitol), target ICP < 22 mmHg, osmolarity 300–320 mOsm/kg. NaCl 3% bukan inferior terhadap mannitol."
+        "col3": "Pedoman TBI edisi 4 (BTF): terapi bila ICP >22 mmHg; target CPP 60–70 mmHg; SBP ≥100 (usia 50–69) / ≥110 (usia 15–49 atau >70); bukti belum cukup untuk memilih manitol vs salin hipertonik."
       },
       {
         "col1": "NICE CG174. IV Fluids in Adults. 2013 (updated 2023)",
@@ -618,19 +583,19 @@ export const referenceData: RefSection[] = [
         "col3": "Framework 5D (Drug, Dose, Duration, Direction, Details) untuk tatalaksana cairan IV dewasa. Resusitasi vs replacement vs maintenance."
       },
       {
-        "col1": "Jaber S et al. BICAR-ICU trial. Lancet 2018;392:31–40",
+        "col1": "Jaber S et al. BICAR-ICU trial. Lancet 2018;392:31",
         "col2": "NaHCO3 — ICU",
-        "col3": "RCT 389 pasien asidosis metabolik berat (pH =7,20): sodium bikarbonat IV mengurangi kebutuhan RRT dan vasopressor pada AKI berat. Tidak ada manfaat pada pH 7,20–7,25."
+        "col3": "389 pasien asidemia metabolik berat (pH ≤7,20): bikarbonat 4,2% tidak memperbaiki luaran komposit (kematian/gagal organ) secara keseluruhan; pada strata AKI berat (AKIN 2–3) mortalitas 28 hari lebih rendah dan RRT lebih sedikit."
       },
       {
         "col1": "Magpie Trial Collaborative Group. Lancet 2002;359:1877",
         "col2": "MgSO4 — Eklampsia",
-        "col3": "10.141 wanita preeklampsia: MgSO4 vs plasebo ? risiko eklampsia ? 58% (NNT=91), tidak ada perbedaan mortalitas maternal. Standar baku lini pertama profilaksis eklampsia."
+        "col3": "10.141 wanita preeklampsia: MgSO₄ vs plasebo → risiko eklampsia ↓ 58% (NNT ≈ 91), tanpa perbedaan mortalitas maternal. Lini pertama profilaksis eklampsia."
       },
       {
-        "col1": "AHA/ACC. ACLS Guidelines 2020. Circulation 2020;142(16 suppl 2)",
-        "col2": "Cardiac Arrest — Ca²?",
-        "col3": "CaCl2 10% 5–10 mL IV pada cardiac arrest dengan hipokalsemia, hiperkalemia, atau overdosis Ca-channel blocker. Tidak direkomendasikan rutin pada cardiac arrest tanpa indikasi spesifik."
+        "col1": "Panchal AR et al. (AHA 2020). Circulation 2020;142:S366",
+        "col2": "Henti Jantung — Ca²⁺",
+        "col3": "CaCl₂ 10% 5–10 mL IV pada henti jantung dengan hipokalsemia, hiperkalemia, atau overdosis penyekat kanal kalsium. Tidak direkomendasikan rutin pada henti jantung tanpa indikasi spesifik."
       },
       {
         "col1": "Kraft MD et al. Am J Health Syst Pharm 2005;62:1663",
@@ -638,14 +603,14 @@ export const referenceData: RefSection[] = [
         "col3": "Panduan komprehensif koreksi elektrolit pada ICU dewasa: K, Mg, Ca, Na, P. Dosis, kecepatan, monitoring, dan interaksi obat."
       },
       {
-        "col1": "ESPGHAN/ESPEN/ESPR/CSPEN. J Pediatr Gastroenterol Nutr 2018;67(S2):S1",
+        "col1": "ESPGHAN/ESPEN/ESPR/CSPEN Pediatric PN Guidelines. Clin Nutr 2018;37:2306–2423",
         "col2": "Nutrisi Parenteral Pediatrik",
-        "col3": "Guideline lengkap TPN pediatrik: dosis AA neonatus 3,5–4,5 g/kgBB/hari, GIR target 4–8 mg/kgBB/menit, kebutuhan taurin dan sistein pada neonatus, pemilihan formulasi AA pediatrik vs dewasa."
+        "col3": "Pedoman PN pediatrik: asam amino neonatus preterm mulai ≥1,5 g/kg pada hari ke-1 lalu 2,5–3,5 g/kg/hari mulai hari ke-2; laju infus glukosa disesuaikan usia; pemilihan formulasi AA pediatrik."
       },
       {
         "col1": "NICE NG29. IV Fluids in Children and Young People. 2015 (updated 2020)",
         "col2": "IV Fluids — Pediatrik",
-        "col3": "D5 ¼ NS sebagai cairan maintenance standar neonatus dan bayi. Rekomendasi kecepatan koreksi Na, monitoring elektrolit, dan pilihan cairan per usia."
+        "col3": "Maintenance: kristaloid isotonik (Na 131–154 mmol/L) — hindari cairan hipotonik karena risiko hiponatremia; pantau elektrolit & glukosa."
       }
     ]
   },
@@ -660,28 +625,28 @@ export const referenceData: RefSection[] = [
     "items": [
       {
         "col1": "Ventilator & Mekanik Paru",
-        "col2": "Tobin MJ (2013); Chatburn RL (2014); Hess DR (2011); Esteban A (2013); Gattinoni L (2016)",
-        "col3": "Principles and practice of mechanical ventilation. Mechanical power & driving pressure ARDS. Panduan Penggunaan Ventilator PERDATIN."
+        "col2": "Tobin MJ (2013); Chatburn RL (Respir Care 2014); Esteban A (AJRCCM 2008); Gattinoni L (ICM 2016)",
+        "col3": "Prinsip ventilasi mekanik, taksonomi mode, mechanical power & driving pressure."
       },
       {
         "col1": "Nutrisi ICU",
-        "col2": "Singer P (ESPEN 2023); McClave SA (ASPEN 2016); Friedli N (2018); NICE-SUGAR",
-        "col3": "Practical guidelines clinical nutrition in ICU, refeeding syndrome algorithm, glycemic control."
+        "col2": "Singer P (ESPEN 2023); Compher C (ASPEN 2022); McClave SA (ASPEN/SCCM 2016); da Silva JSV (ASPEN refeeding 2020); NICE-SUGAR",
+        "col3": "Target energi & protein, refeeding syndrome, kontrol glukosa."
       },
       {
         "col1": "Analisis Gas Darah (AGD)",
-        "col2": "Kaufman DA (ATS 2020); Larkin BG (2015); Seifter JL (NEJM 2014); Kraut JA",
-        "col3": "Interpretation of ABGs, integration of acid-base and electrolyte disorders, anion gap."
+        "col2": "Kaufman DA (ATS); Kraut JA & Madias NE (CJASN 2007); Seifter JL (NEJM 2014); Berend K (NEJM 2014)",
+        "col3": "Interpretasi AGD, integrasi gangguan asam-basa & elektrolit, anion gap."
       },
       {
         "col1": "Cedera Otak (TIK)",
-        "col2": "Stevens RD (2018); Mokri B (2001); Carney N (TBI Guidelines 2017); Hutchinson PJ (RESCUEicp)",
-        "col3": "Management of elevated ICP, Monro-Kellie hypothesis, decompressive craniectomy, PERDOSSI."
+        "col2": "Carney N (BTF 2017); Hawryluk GWJ (SIBICC 2019); Hutchinson PJ (RESCUEicp 2016); Cooper DJ (DECRA 2011); Mokri B (2001)",
+        "col3": "Manajemen TIK bertingkat, doktrin Monro-Kellie, kraniektomi dekompresi."
       },
       {
         "col1": "PADIS & Mobilisasi",
-        "col2": "Devlin JW (PADIS 2018); Girard TD (ABC trial 2008); Schweickert WD (2009)",
-        "col3": "Clinical Practice Guidelines for Pain, Agitation, Delirium, Immobility, and Sleep. Paired SAT-SBT."
+        "col2": "Devlin JW (PADIS 2018); Lewis K (PADIS 2025); Girard TD (ABC 2008); Schweickert WD (2009); TEAM (2022)",
+        "col3": "Nyeri, sedasi, delirium, imobilitas & tidur; SAT-SBT berpasangan; mobilisasi dini."
       },
       {
         "col1": "Insulin & Diabetes",
@@ -690,13 +655,13 @@ export const referenceData: RefSection[] = [
       },
       {
         "col1": "Manajemen Airway",
-        "col2": "Brown CA (Walls Manual 2023); Zhong M (2024); Araújo (2024)",
-        "col3": "Emergency airway management, prophylactic vasopressors pre-intubation, video laryngoscopy."
+        "col2": "Brown CA (Walls Manual 6th ed); Prekker ME (DEVICE 2023); Gibbs KW (PREOXI 2024); Russell DW (PREPARE II 2022); DAS 2025",
+        "col3": "Manajemen jalan napas emergensi, video laringoskop, preoksigenasi NIV, cairan pra-intubasi, algoritma intubasi sulit."
       },
       {
         "col1": "Elektrolit Lanjutan",
-        "col2": "Palmer BF (NEJM 2020); UKKA Guideline (2023); Bilezikian JP (NEJM 2022); Weisberg LS (2008)",
-        "col3": "Management of severe hyperkalemia, hypocalcemia, magnesium physiology."
+        "col2": "Weisberg LS (CCM 2008); Batterink J (Cochrane 2015); Cooper MS & Gittoes NJ (BMJ 2008); de Baaij JHF (Physiol Rev 2015)",
+        "col3": "Hiperkalemia berat, hipokalsemia, fisiologi magnesium."
       },
       {
         "col1": "Pulmonologi Klinis",
@@ -725,24 +690,24 @@ export const referenceData: RefSection[] = [
         "col3": "RCT 921 pasien perdarahan GI atas akut: threshold Hb 7 g/dL (restriktif) vs 9 g/dL — mortalitas 45-hari lebih rendah pada restriktif (5% vs 9%, p=0,02). Transfusi masif pada GI bleeding meningkatkan tekanan portal."
       },
       {
-        "col1": "Carson JL et al. AABB Guideline. Ann Intern Med 2016;165:519",
+        "col1": "Carson JL et al. AABB International Guidelines. JAMA 2023;330:1892",
         "col2": "Panduan Transfusi AABB",
-        "col3": "Panduan klinis AABB: Hb ≤7 g/dL pada pasien stabil (≤8 pada kardiologi/post-op). Tidak ada manfaat terbukti pada Hb >8 g/dL untuk sebagian besar pasien ICU. Basis praktik transfusi evidence-based."
+        "col3": "Ambang Hb 7 g/dL untuk pasien rawat inap yang stabil termasuk ICU; 7,5 g/dL untuk bedah jantung; 8 g/dL untuk bedah ortopedi atau penyakit kardiovaskular yang sudah ada."
       },
       {
-        "col1": "Rossaint R et al. ESAIC/ESICM. Eur J Anaesthesiol 2023;40:343",
+        "col1": "Rossaint R et al. European Trauma Bleeding Guideline (6th ed). Crit Care 2023;27:80",
         "col2": "Perdarahan Masif — MTP",
-        "col3": "Panduan Eropa tatalaksana perdarahan masif terbaru: rasio FFP:PRC 1:1–1:2, fibrinogen ≥1,5 g/L, TXA dalam 3 jam, suplementasi Ca²⁺ selama transfusi masif (target iCa ≥1,1 mmol/L). Standar terkini Massive Transfusion Protocol."
+        "col3": "Perdarahan masif pada trauma: FFP:PRC minimal 1:2 atau konsentrat fibrinogen; fibrinogen bila <1,5 g/L; asam traneksamat dalam 3 jam; pantau dan pertahankan kalsium terionisasi dalam rentang normal."
       },
       {
-        "col1": "Inaba K et al. J Trauma Acute Care Surg 2013;75:416",
+        "col1": "Giancarelli A et al. J Surg Res 2016;202:182",
         "col2": "Toksisitas Sitrat & Ca",
-        "col3": "Sitrat dalam produk darah mengikat Ca²⁺ ionisasi → hipokalsemia, disfungsi miokard, koagulopati. Ca-Glukonat IV 1 g per 4 unit PRC atau FFP; CaCl₂ tersedia 3× lebih banyak Ca elemental. iCa target ≥1,1 mmol/L."
+        "col3": "Hipokalsemia sering pada transfusi masif (sitrat mengikat Ca²⁺) dan berhubungan dengan mortalitas lebih tinggi — pantau iCa dan ganti kalsium. CaCl₂ 10% mengandung ±3× kalsium elemental dibanding Ca-glukonat 10%."
       },
       {
         "col1": "Spahn DR et al. (ESMR). Crit Care 2019;23:98",
         "col2": "Trauma Perdarahan",
-        "col3": "Panduan Eropa manajemen perdarahan masif pada trauma: goal-directed hemostatic resuscitation, viscoelastic testing (TEG/ROTEM), fibrinogen sebagai target pertama, permissive hypotension pre-operatif (MAP 50 mmHg)."
+        "col3": "Panduan Eropa perdarahan masif pada trauma: resusitasi hemostatik terarah, uji viskoelastik (TEG/ROTEM), suplementasi fibrinogen, hipotensi permisif (SBP 80–90 mmHg) sampai perdarahan terkontrol bila tanpa cedera otak."
       },
       {
         "col1": "Sihler KC & Napolitano LM. Chest 2010;137:209",
@@ -752,7 +717,7 @@ export const referenceData: RefSection[] = [
       {
         "col1": "Holcomb JB et al. PROPPR Trial. JAMA 2015;313:471",
         "col2": "Rasio FFP:PRC MTP",
-        "col3": "RCT 680 pasien trauma masif: rasio 1:1:1 (FFP:Plt:PRC) vs 1:1:2 — hemostasis lebih tinggi (86% vs 78%, p=0,006) dan mortalitas 24 jam lebih rendah. Mendukung rasio 1:1:1 pada MTP."
+        "col3": "680 pasien trauma masif: rasio 1:1:1 vs 1:1:2 — mortalitas 24 jam dan 30 hari tidak berbeda bermakna; hemostasis lebih sering tercapai (86% vs 78%) dan kematian akibat perdarahan dalam 24 jam lebih sedikit."
       }
     ]
   },
@@ -766,44 +731,24 @@ export const referenceData: RefSection[] = [
     ],
     "items": [
       {
-        "col1": "Panduan Ventilasi Mekanik ICU",
-        "col2": "PERDICI",
-        "col3": "Panduan nasional VT, mode, target ABG, weaning untuk ICU Indonesia"
+        "col1": "Kemenkes RI. KMK No. HK.01.07/MENKES/1541/2022 — PNPK Tata Laksana Anestesiologi dan Terapi Intensif",
+        "col2": "Kementerian Kesehatan RI",
+        "col3": "Pedoman nasional tata laksana anestesiologi & terapi intensif (menggantikan PNPK 2015)."
       },
       {
-        "col1": "PPK Gagal Napas Akut",
-        "col2": "PAPDI — Div. Pulmonologi",
-        "col3": "Pathway intubasi, NIV indikasi, monitoring, antibiotic bundle pneumonia"
+        "col1": "Kemenkes RI. KMK No. HK.01.07/MENKES/342/2017 — PNPK Tata Laksana Sepsis",
+        "col2": "Kementerian Kesehatan RI",
+        "col3": "Pedoman nasional sepsis dewasa; berbasis SSC 2012 — sebagian rekomendasi sudah diperbarui SSC 2021."
       },
       {
-        "col1": "Konsensus ARDS Indonesia",
-        "col2": "PERDICI / PAPDI 2020",
-        "col3": "Adaptasi ARDSNet untuk konteks RS Indonesia; resource allocation ICU"
+        "col1": "Kemenkes RI. KMK No. 1778/MENKES/SK/XII/2010 — Pedoman Penyelenggaraan Pelayanan ICU di Rumah Sakit",
+        "col2": "Kementerian Kesehatan RI",
+        "col3": "Standar penyelenggaraan, ketenagaan, dan klasifikasi pelayanan ICU di RS Indonesia."
       },
       {
-        "col1": "Panduan VAP",
-        "col2": "PERDICI 2021",
-        "col3": "VAP bundle lokal: oral care CHX, HOB 30°, cuff pressure, SBT harian"
-      },
-      {
-        "col1": "PPK Sepsis & Syok Septik",
-        "col2": "PAPDI / PERDICI 2022",
-        "col3": "Adaptasi SSC 2021 untuk Indonesia; ketersediaan antibiotik lokal, monitoring laktat"
-      },
-      {
-        "col1": "Panduan Sedasi & Analgesia ICU",
-        "col2": "PERDICI / Farmasi Klinik Indonesia",
-        "col3": "Protokol propofol, midazolam, dexmedetomidine; monitoring RASS di RS Indonesia"
-      },
-      {
-        "col1": "Panduan Intubasi Emergensi",
-        "col2": "PERDICI / IDSAI 2022",
-        "col3": "Protokol RSI lokal, pilihan NMB, airway difficult algorithm sesuai ketersediaan obat Indonesia"
-      },
-      {
-        "col1": "Panduan Tatalaksana AKI",
-        "col2": "PB PERNEFRI 2023",
-        "col3": "Staging AKI KDIGO adaptasi lokal, indikasi dialisis, monitoring fungsi ginjal ICU"
+        "col1": "Kemenkes RI. Permenkes No. 519/MENKES/PER/III/2011 — Pedoman Penyelenggaraan Pelayanan Anestesiologi dan Terapi Intensif di RS",
+        "col2": "Kementerian Kesehatan RI",
+        "col3": "Regulasi penyelenggaraan pelayanan anestesiologi dan terapi intensif di rumah sakit."
       }
     ]
   },
@@ -818,47 +763,47 @@ export const referenceData: RefSection[] = [
     "items": [
       {
         "col1": "Fentanyl, Morfin, Alfentanil",
-        "col2": "Lexicomp Drug Reference 2024 · PERDICI Panduan Sedoanalgesia 2021 · BNF 2024",
+        "col2": "Lexicomp Drug Reference 2024 · BNF 2024",
         "col3": ""
       },
       {
         "col1": "Remifentanil",
-        "col2": "Mingo OH. Anaesthesia 2004 · Ultiva SmPC · BNF 2024",
+        "col2": "Ultiva SmPC · BNF 2024",
         "col3": ""
       },
       {
         "col1": "Propofol",
-        "col2": "BNF 2024 · Diprivan SmPC · SCCM PADIS 2018 · Reves JG. Anesthesiology 2005",
+        "col2": "BNF 2024 · Diprivan SmPC · SCCM PADIS 2018",
         "col3": ""
       },
       {
         "col1": "Ketamine",
-        "col2": "Cohen L. Emerg Med J 2015 · Lexicomp 2024 · Miller RD. Miller's Anesthesia 9th ed. 2020",
+        "col2": "Cohen L. Ann Emerg Med 2015 · Lexicomp 2024 · Miller RD. Miller's Anesthesia 9th ed. 2020",
         "col3": ""
       },
       {
         "col1": "Etomidate",
-        "col2": "MENDS-2. NEJM 2024;390:307 · Jabre P. Lancet 2009 · Lexicomp 2024",
+        "col2": "Jabre P. Lancet 2009 (KETASED) · Lexicomp 2024",
         "col3": ""
       },
       {
         "col1": "Midazolam (induksi & ICU)",
-        "col2": "Reves JG. Anesthesiology 2005 · PADIS 2018 · BNF 2024",
+        "col2": "Reves JG. Anesthesiology 1985 · PADIS 2018 · BNF 2024",
         "col3": ""
       },
       {
         "col1": "Dexmedetomidine",
-        "col2": "Precedex SmPC · Riker RR. JAMA 2009 (MENDS) · PADIS 2018",
+        "col2": "Precedex SmPC · Riker RR. JAMA 2009 (SEDCOM) · Pandharipande PP. JAMA 2007 (MENDS) · PADIS 2018/2025",
         "col3": ""
       },
       {
         "col1": "Suksinilkolin",
-        "col2": "Sorensen MK. Cochrane 2022 · Walls RM. Manual of Emergency Airway Mgmt 2022",
+        "col2": "Tran DT. Cochrane 2015 · Walls Manual of Emergency Airway Management 6th ed.",
         "col3": ""
       },
       {
         "col1": "Rocuronium",
-        "col2": "Sorensen MK. Cochrane 2022 · Tran DT. Can J Anaesth 2015 · STRIVE Hi. Anaesthesia 2021",
+        "col2": "Tran DT. Cochrane 2015 · Guihard B. JAMA 2019 (CURASMUR) · Lexicomp 2024",
         "col3": ""
       },
       {
@@ -868,17 +813,17 @@ export const referenceData: RefSection[] = [
       },
       {
         "col1": "Sugammadex",
-        "col2": "Brueckmann B. Anesthesiology 2015 · STRIVE Hi. Anaesthesia 2021 · Bridion SmPC",
+        "col2": "Brueckmann B. Br J Anaesth 2015 · Lee C. Anesthesiology 2009 · Bridion SmPC",
         "col3": ""
       },
       {
         "col1": "Lidokain (airway)",
-        "col2": "Habre W. Eur J Anaesthesiol 2004 · Walls RM. Manual of Emergency Airway Mgmt 2022",
+        "col2": "Walls Manual of Emergency Airway Management 6th ed. · Lexicomp 2024",
         "col3": ""
       },
       {
         "col1": "Norepinefrin, Dopamin, Dobutamin",
-        "col2": "De Backer D. NEJM 2010 · Annane D. JAMA 2007 · SSC 2021",
+        "col2": "De Backer D. NEJM 2010 · Annane D. Lancet 2007 (CATS) · SSC 2021",
         "col3": ""
       },
       {
@@ -888,7 +833,7 @@ export const referenceData: RefSection[] = [
       },
       {
         "col1": "Koreksi Na, K, Ca, Mg",
-        "col2": "Adrogue HJ. NEJM 2000 · Sterns RH. NEJM 2015 · Macdonald JE. Heart 2004 · de Baaij JH. Physiol Rev 2015 · Cooper MS. BMJ 2008",
+        "col2": "Adrogue HJ. NEJM 2000 · Sterns RH. NEJM 2015 · de Baaij JHF. Physiol Rev 2015 · Cooper MS. BMJ 2008 · Kraft MD. Am J Health Syst Pharm 2005",
         "col3": ""
       },
       {
@@ -898,22 +843,22 @@ export const referenceData: RefSection[] = [
       },
       {
         "col1": "KCl 7,46% — Koreksi Hipokalemia",
-        "col2": "Kraft MD. Am J Health Syst Pharm 2005 · UpToDate: Hypokalemia Treatment 2023 · Macdonald JE. Heart 2004",
+        "col2": "Kraft MD. Am J Health Syst Pharm 2005 · UpToDate: Hypokalemia Treatment 2023",
         "col3": ""
       },
       {
         "col1": "NaHCO3 8,4% — Koreksi Asidosis",
-        "col2": "Jaber S. BICAR-ICU. Lancet 2018 · Kraut JA. CJASN 2012 · UpToDate: Bicarbonate Therapy 2023",
+        "col2": "Jaber S. BICAR-ICU. Lancet 2018 · Kraut JA. Nat Rev Nephrol 2012 · UpToDate: Bicarbonate Therapy 2023",
         "col3": ""
       },
       {
         "col1": "Ca-Glukonas 10% / CaCl2 10%",
-        "col2": "AHA ACLS 2020 · Cooper MS. BMJ 2008 · Kovesdy CP. Kidney Int 2023 · Rossaint R. Eur J Anaesthesiol 2023 · Inaba K. J Trauma Acute Care Surg 2013 · UpToDate: Hypocalcemia 2023",
+        "col2": "AHA ACLS 2020 · Cooper MS. BMJ 2008 · Rossaint R. Crit Care 2023 · Giancarelli A. J Surg Res 2016 · UpToDate: Hypocalcemia 2023",
         "col3": ""
       },
       {
         "col1": "Insulin Regular (hiperkalemia)",
-        "col2": "Dépret F. Ann Intensive Care 2019 · Batterink J. Cochrane 2015 · Kovesdy CP. Kidney Int 2023 · UpToDate: Treatment of Hyperkalemia 2023",
+        "col2": "Dépret F. Ann Intensive Care 2019 · Batterink J. Cochrane 2015 · UpToDate: Treatment of Hyperkalemia 2023",
         "col3": ""
       },
       {
