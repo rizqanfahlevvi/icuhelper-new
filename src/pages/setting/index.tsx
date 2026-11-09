@@ -305,7 +305,7 @@ export default function SettingIndex() {
       <AbbrLegend
         terms={[
           'ABG', 'ARDS', 'ARDSNet', 'VT', 'IBW', 'HFNC', 'ROX', 'SpO2', 'FiO2', 'RR', 'NIV', 'BiPAP', 'IPAP', 'EPAP',
-          'CPAP', 'PPOK', 'GI', 'WOB', 'BTS', 'ICS', 'PEEP', 'Pplat', 'P/F', 'VC', 'VC-vital', 'VC-AC', 'PC-AC', 'I:E',
+          'CPAP', 'PPOK', 'GI', 'WOB', 'BTS', 'ICS', 'PEEP', 'Pplat', 'P/F', 'VC', 'VC-kapasitas', 'VC-AC', 'PC-AC', 'I:E',
           'IV', 'GCS', 'PaCO2', 'MIP', 'MEP', 'NIF',
         ]}
       />

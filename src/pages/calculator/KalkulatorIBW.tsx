@@ -515,7 +515,7 @@ export default function KalkulatorIBW() {
         terms={[
           'IBW', 'BBI', 'TB', 'BB', 'BW', 'AdjBW', 'ABW', 'ABW-aktual', 'BMI', 'IMT', 'BSA', 'LBW', 'LPT', 'EBV',
           'REE', 'MABL', 'Hb', 'PRC', 'VT', 'PBW', 'MV', 'RR', 'PEEP', 'FiO2', 'Pplat', 'ARDS', 'ARDSNet', 'PPOK',
-          'VC-AC', 'PC-AC', 'PC', 'SIMV', 'PSV', 'VC-vital', 'ASPEN', 'ESPEN', 'ATS', 'ESICM', 'SCCM', 'ICU', 'LMWH',
+          'VC-AC', 'PC-AC', 'PC', 'SIMV', 'PSV', 'VC-kapasitas', 'ASPEN', 'ESPEN', 'ATS', 'ESICM', 'SCCM', 'ICU', 'LMWH',
           'APTT', 'Vd', 'FRC', 'TLC', 'VILI',
         ]}
       />

@@ -30,7 +30,7 @@ export const DRUG_ABBR: readonly AbbrKey[] = [
   'HE-ensefalopati', 'GI', 'UGIB', 'GERD', 'GRV', 'TPN', 'DKA', 'HHS', 'GDS', 'GD', 'BG', 'GCU', 'TG', 'TFT', 'TSH',
   // paru & infeksi
   'ARDS', 'PPOK', 'PF-peakflow', 'CAP', 'HAP', 'VAP', 'ISK', 'MRSA', 'MRSE', 'MSSA', 'ESBL', 'MDR', 'PBP', 'PCT', 'CBC',
-  'WBC', 'CMV', 'HSV',
+  'WBC', 'CMV-virus', 'HSV',
   // obstetri & neonatus
   'HPP', 'IUGR', 'NAS',
   // organisasi & panduan

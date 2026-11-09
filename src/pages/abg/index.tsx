@@ -109,9 +109,9 @@ export default function AbgPage() {
       <AbgTheory />
       <AbbrLegend
         terms={[
-          'ABG', 'AGD', 'VBG', 'PaCO2', 'PaO2', 'PAO2-alveolar', 'PCO2', 'PO2', 'PvCO2', 'PvO2', 'HCO3', 'BE', 'AG',
+          'ABG', 'AGD', 'VBG', 'PaCO2', 'PaO2', 'PAO2', 'PCO2', 'PO2', 'PvCO2', 'PvO2', 'HCO3', 'BE', 'AG',
           'HAGMA', 'NAGMA', 'LKURS', 'SID', 'UAG', 'OG-osmolar', 'FiO2', 'SpO2', 'SaO2', 'P/F', 'S/F', 'A-a', 'OI',
-          'Paw', 'ROX', 'RQ', 'PEEP', 'CPAP', 'EPAP', 'IPAP', 'BiPAP', 'NIV', 'HFNC', 'NRM', 'AHRF', 'ARDS', 'ARDSNet',
+          'Paw', 'ROX', 'RQ', 'PH2O', 'Patm', 'PEEP', 'CPAP', 'EPAP', 'IPAP', 'BiPAP', 'NIV', 'HFNC', 'NRM', 'AHRF', 'ARDS', 'ARDSNet',
           'VD/VT', 'WOB', 'NMB', 'ECMO', 'VV', 'PPOK', 'NMD', 'USG', 'CT', 'MAP', 'RR', 'NE', 'GCS', 'DKA', 'GDS',
           'KCl', 'KRT', 'RRT', 'AKI', 'AKIN', 'RTA', 'eGFR', 'UO', 'EKG', 'COVID-19', 'PRC', 'Hb', 'NNT', 'HF', 'AF',
           'ACS', 'NTG', 'RV-ventrikel', 'PLR', 'PPV', 'VTI', 'IV', 'NGT', 'NG-nasogastrik', 'CVC', 'BB', 'BBI', 'BBP',

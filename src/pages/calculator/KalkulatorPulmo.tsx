@@ -1019,7 +1019,7 @@ export default function KalkulatorPulmo() {
       </Accordion>
       <AbbrLegend
         terms={[
-          'CURB-65', 'PSI', 'PORT', 'SMART-COP', 'IRVS', 'CAP', 'ATS', 'IDSA', 'A-a', 'PAO2-alveolar', 'PaO2', 'PaCO2',
+          'CURB-65', 'PSI', 'PORT', 'SMART-COP', 'IRVS', 'CAP', 'ATS', 'IDSA', 'A-a', 'PAO2', 'PaO2', 'PaCO2',
           'FiO2', 'SpO2', 'P/F', 'Patm', 'JK', 'RR', 'TDS', 'TDD-diastolik', 'SBP', 'BP', 'HR', 'GDS', 'Ht', 'BUN',
           'CHF', 'CXR', 'WBC', 'ICU', 'IGD', 'CPAP', 'ILD', 'V/Q',
         ]}

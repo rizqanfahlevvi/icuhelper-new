@@ -366,7 +366,7 @@ export default function WeaningIndex() {
       <AbbrLegend
         terms={[
           'RSBI', 'SBT', 'RR', 'VT', 'PBW', 'TB', 'BB', 'MV', 'MIP', 'NIF', 'MEP', 'PImax', 'PEEP', 'PS', 'RASS',
-          'NMB', 'GBS', 'VC-vital', 'ATS', 'ACCP', 'SpO2', 'FiO2', 'HR', 'ETT', 'PPOK', 'NIV', 'HFNC', 'ICU', 'IV',
+          'NMB', 'GBS', 'VC-kapasitas', 'ATS', 'ACCP', 'SpO2', 'FiO2', 'HR', 'ETT', 'PPOK', 'NIV', 'HFNC', 'ICU', 'IV',
           'BNP', 'VIDD', 'CAM-ICU',
         ]}
       />
