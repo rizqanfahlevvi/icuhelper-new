@@ -471,19 +471,19 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">Ureum (mg/dL)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMgdl} onChange={e => handleUreumChange(e.target.value, 'mgdl')} />
+              <DecimalInput aria-label="Ureum (mg/dL)" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={ureumMgdl} onChange={e => handleUreumChange(e.target.value, 'mgdl')} />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">Ureum (mmol/L)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMmol} onChange={e => handleUreumChange(e.target.value, 'mmol')} />
+              <DecimalInput aria-label="Ureum (mmol/L)" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={ureumMmol} onChange={e => handleUreumChange(e.target.value, 'mmol')} />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">BUN (mg/dL)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={bunMgdl} onChange={e => handleUreumChange(e.target.value, 'bun')} />
+              <DecimalInput aria-label="BUN (mg/dL)" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={bunMgdl} onChange={e => handleUreumChange(e.target.value, 'bun')} />
             </div>
           </div>
         </div>
@@ -498,7 +498,7 @@ export default function KalkulatorPulmo() {
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32 truncate">C — Confusion</span>
-            <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis" value={curbC} onChange={e => setCurbC(e.target.value)}>
+            <select aria-label="C — Confusion" className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis min-h-[44px]" value={curbC} onChange={e => setCurbC(e.target.value)}>
               <option value="0">Tidak (0)</option>
               <option value="1">Ya (1)</option>
             </select>
@@ -506,32 +506,32 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">U — Ureum (&gt;42)</span>
             <div className="flex-1 flex items-center justify-end gap-2 opacity-60">
-              <DecimalInput disabled className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={ureumMgdl} placeholder="Dari konversi" />
+              <DecimalInput aria-label="U — Ureum (>42)" disabled className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={ureumMgdl} placeholder="Dari konversi" />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">R — Resp. Rate</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbRr} onChange={e => setCurbRr(e.target.value)} />
+              <DecimalInput aria-label="R — Resp. Rate" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={curbRr} onChange={e => setCurbRr(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">/mnt</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">B — Sistolik</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbSbp} onChange={e => setCurbSbp(e.target.value)} />
+              <DecimalInput aria-label="B — Sistolik" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={curbSbp} onChange={e => setCurbSbp(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">B — Diastolik</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbDbp} onChange={e => setCurbDbp(e.target.value)} />
+              <DecimalInput aria-label="B — Diastolik" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={curbDbp} onChange={e => setCurbDbp(e.target.value)} />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">65 — Usia</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={curbAge} onChange={e => setCurbAge(e.target.value)} />
+              <DecimalInput aria-label="65 — Usia" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={curbAge} onChange={e => setCurbAge(e.target.value)} />
             </div>
           </div>
         </div>
@@ -582,8 +582,8 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Jenis Kelamin</span>
              <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
-                <button className={`px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'm' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('m')}>Laki-laki</button>
-                <button className={`px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'f' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('f')}>Perempuan</button>
+                <button className={`min-h-[44px] px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'm' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('m')}>Laki-laki</button>
+                <button className={`min-h-[44px] px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'f' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('f')}>Perempuan</button>
              </div>
           </div>
           <div className="px-4 py-2 text-[11px] text-slate-500 bg-slate-100/50 dark:bg-slate-800/50 italic text-right">
@@ -591,11 +591,11 @@ export default function KalkulatorPulmo() {
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Usia (Tahun)</span>
-             <DecimalInput id="psi-age" aria-label="Usia (tahun)" inputMode="decimal" className={`w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]${psi.isMissing('psi-age') ? MISSING_RING : ''}`} value={psiAge} onChange={e => setPsiAge(e.target.value)} />
+             <DecimalInput id="psi-age" aria-label="Usia (tahun)" inputMode="decimal" className={`min-h-[44px] w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]${psi.isMissing('psi-age') ? MISSING_RING : ''}`} value={psiAge} onChange={e => setPsiAge(e.target.value)} />
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Nursing home resident</span>
-             <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiNursing ? '1' : '0'} onChange={e => setPsiNursing(e.target.value === '1')}>
+             <select aria-label="Nursing home resident" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiNursing ? '1' : '0'} onChange={e => setPsiNursing(e.target.value === '1')}>
                 <option value="0">Tidak</option><option value="1">Ya</option>
              </select>
           </div>
@@ -605,23 +605,23 @@ export default function KalkulatorPulmo() {
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Neoplastic disease <span className="text-slate-400 text-[11px] ml-1">+30</span></span>
-            <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiNeoplastic ? '1' : '0'} onChange={e => setPsiNeoplastic(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+            <select aria-label="Neoplastic disease +30" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiNeoplastic ? '1' : '0'} onChange={e => setPsiNeoplastic(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Liver disease <span className="text-slate-400 text-[11px] ml-1">+20</span></span>
-            <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiLiver ? '1' : '0'} onChange={e => setPsiLiver(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+            <select aria-label="Liver disease +20" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiLiver ? '1' : '0'} onChange={e => setPsiLiver(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">CHF <span className="text-slate-400 text-[11px] ml-1">+10</span></span>
-            <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiChf ? '1' : '0'} onChange={e => setPsiChf(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+            <select aria-label="CHF +10" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiChf ? '1' : '0'} onChange={e => setPsiChf(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Cerebrovascular disease <span className="text-slate-400 text-[11px] ml-1">+10</span></span>
-            <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiCva ? '1' : '0'} onChange={e => setPsiCva(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+            <select aria-label="Cerebrovascular disease +10" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiCva ? '1' : '0'} onChange={e => setPsiCva(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Renal disease <span className="text-slate-400 text-[11px] ml-1">+10</span></span>
-            <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiRenal ? '1' : '0'} onChange={e => setPsiRenal(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+            <select aria-label="Renal disease +10" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiRenal ? '1' : '0'} onChange={e => setPsiRenal(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
         </div>
 
@@ -629,33 +629,33 @@ export default function KalkulatorPulmo() {
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Altered mental status <span className="text-slate-400 text-[11px] ml-1">+20</span></span>
-            <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiAms ? '1' : '0'} onChange={e => setPsiAms(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+            <select aria-label="Altered mental status +20" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiAms ? '1' : '0'} onChange={e => setPsiAms(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Resp. Rate (/mnt)</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiRr} onChange={e => setPsiRr(e.target.value)} />
+              <DecimalInput aria-label="Resp. Rate (/mnt)" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiRr} onChange={e => setPsiRr(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiRr)>=30 ? 'text-red-500' : 'text-slate-400'}`}>≥30: +20</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">TD Sistolik (mmHg)</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiSbp} onChange={e => setPsiSbp(e.target.value)} />
+              <DecimalInput aria-label="TD Sistolik (mmHg)" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiSbp} onChange={e => setPsiSbp(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiSbp)<90 ? 'text-red-500' : 'text-slate-400'}`}>&lt;90: +20</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Suhu (°C)</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiTemp} onChange={e => setPsiTemp(e.target.value)} />
+              <DecimalInput aria-label="Suhu (°C)" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiTemp} onChange={e => setPsiTemp(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${(parseFloat(psiTemp)<35 || parseFloat(psiTemp)>=40) ? 'text-red-500' : 'text-slate-400'}`}>&lt;35 atau ≥40: +15</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Heart Rate (/mnt)</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiHr} onChange={e => setPsiHr(e.target.value)} />
+              <DecimalInput aria-label="Heart Rate (/mnt)" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiHr} onChange={e => setPsiHr(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiHr)>=125 ? 'text-red-500' : 'text-slate-400'}`}>≥125: +10</div>
           </div>
@@ -666,14 +666,14 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">pH Arteri</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiPh} onChange={e => setPsiPh(e.target.value)} />
+              <DecimalInput aria-label="pH Arteri" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiPh} onChange={e => setPsiPh(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiPh)<7.35 ? 'text-red-500' : 'text-slate-400'}`}>&lt;7.35: +30</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">BUN (mg/dL)</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiBun} onChange={e => setPsiBun(e.target.value)} />
+              <DecimalInput aria-label="BUN (mg/dL)" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiBun} onChange={e => setPsiBun(e.target.value)} />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-[10px] text-slate-400 italic">BUN = Ureum × 0.47</span>
@@ -683,21 +683,21 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Na Serum (mEq/L)</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiNa} onChange={e => setPsiNa(e.target.value)} />
+              <DecimalInput aria-label="Na Serum (mEq/L)" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiNa} onChange={e => setPsiNa(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiNa)<130 ? 'text-red-500' : 'text-slate-400'}`}>&lt;130: +20</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Glukosa (mg/dL)</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiGlucose} onChange={e => setPsiGlucose(e.target.value)} />
+              <DecimalInput aria-label="Glukosa (mg/dL)" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiGlucose} onChange={e => setPsiGlucose(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiGlucose)>=250 ? 'text-red-500' : 'text-slate-400'}`}>≥250: +10</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Hematokrit (%)</span>
-              <DecimalInput className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiHct} onChange={e => setPsiHct(e.target.value)} />
+              <DecimalInput aria-label="Hematokrit (%)" className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiHct} onChange={e => setPsiHct(e.target.value)} />
             </div>
             <div className={`text-[10px] font-bold text-right ${parseFloat(psiHct)<30 ? 'text-red-500' : 'text-slate-400'}`}>&lt;30%: +10</div>
           </div>
@@ -705,15 +705,15 @@ export default function KalkulatorPulmo() {
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">PaO₂ (mmHg) / SpO₂ (%)</span>
               <div className="flex gap-2">
-                <DecimalInput className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="PaO2" value={psiPao2} onChange={e => setPsiPao2(e.target.value)} />
-                <DecimalInput className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="SpO2" value={psiSpo2} onChange={e => setPsiSpo2(e.target.value)} />
+                <DecimalInput aria-label="PaO₂ (mmHg)" className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" placeholder="PaO2" value={psiPao2} onChange={e => setPsiPao2(e.target.value)} />
+                <DecimalInput aria-label="SpO₂ (%)" className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" placeholder="SpO2" value={psiSpo2} onChange={e => setPsiSpo2(e.target.value)} />
               </div>
             </div>
             <div className={`text-[10px] font-bold text-right ${((!isNaN(parseFloat(psiPao2)) && parseFloat(psiPao2)<60) || (!isNaN(parseFloat(psiSpo2)) && parseFloat(psiSpo2)<90)) ? 'text-red-500' : 'text-slate-400'}`}>PaO₂ &lt;60 atau SpO₂ &lt;90: +10</div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Efusi Pleura (CXR) <span className="text-slate-400 text-[11px] ml-1">+10</span></span>
-            <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={psiEffusion ? '1' : '0'} onChange={e => setPsiEffusion(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+            <select aria-label="Efusi Pleura (CXR) +10" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiEffusion ? '1' : '0'} onChange={e => setPsiEffusion(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
           </div>
         </div>
         {psi.armed && psiError && <p className="px-4 text-sm text-destructive mt-2 text-center">{psiError}</p>}
@@ -773,51 +773,51 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">S: Systolic BP &lt; 90 mmHg <span className="text-slate-400 text-[11px] ml-1">+2</span></span>
-                <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scSbp ? '1' : '0'} onChange={e => setScSbp(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+                <select aria-label="S: Systolic BP < 90 mmHg +2" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={scSbp ? '1' : '0'} onChange={e => setScSbp(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
              </div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">M: Multilobar infiltrates <span className="text-slate-400 text-[11px] ml-1">+1</span></span>
-                <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scMulti ? '1' : '0'} onChange={e => setScMulti(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+                <select aria-label="M: Multilobar infiltrates +1" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={scMulti ? '1' : '0'} onChange={e => setScMulti(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
              </div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">A: Albumin &lt; 3.5 g/dL <span className="text-slate-400 text-[11px] ml-1">+1</span></span>
-                <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scAlbumin ? '1' : '0'} onChange={e => setScAlbumin(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+                <select aria-label="A: Albumin < 3.5 g/dL +1" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={scAlbumin ? '1' : '0'} onChange={e => setScAlbumin(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
              </div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">R: Resp rate (usia adjust) <span className="text-slate-400 text-[11px] ml-1">+1</span></span>
-                <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scRr ? '1' : '0'} onChange={e => setScRr(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+                <select aria-label="R: Resp rate (usia adjust) +1" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={scRr ? '1' : '0'} onChange={e => setScRr(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
              </div>
              <div className="text-[11px] text-slate-500 text-right italic">&le;50 thn: &ge;25. &gt;50 thn: &ge;30</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">T: Tachycardia &ge; 125 bpm <span className="text-slate-400 text-[11px] ml-1">+1</span></span>
-                <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scTachy ? '1' : '0'} onChange={e => setScTachy(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+                <select aria-label="T: Tachycardia ≥ 125 bpm +1" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={scTachy ? '1' : '0'} onChange={e => setScTachy(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
              </div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">C: Confusion <span className="text-slate-400 text-[11px] ml-1">+1</span></span>
-                <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scConfusion ? '1' : '0'} onChange={e => setScConfusion(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+                <select aria-label="C: Confusion +1" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={scConfusion ? '1' : '0'} onChange={e => setScConfusion(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
              </div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">O: Oksigen rendah (usia adj) <span className="text-slate-400 text-[11px] ml-1">+2</span></span>
-                <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scO2 ? '1' : '0'} onChange={e => setScO2(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+                <select aria-label="O: Oksigen rendah (usia adj) +2" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={scO2 ? '1' : '0'} onChange={e => setScO2(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
              </div>
              <div className="text-[11px] text-slate-500 text-right italic">&le;50 thn: PaO₂ &lt;70, SpO₂ &le;93%, P/F &lt;333<br/>&gt;50 thn: PaO₂ &lt;60, SpO₂ &le;90%, P/F &lt;250</div>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">P: pH &lt; 7.35 <span className="text-slate-400 text-[11px] ml-1">+2</span></span>
-                <select className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scPh ? '1' : '0'} onChange={e => setScPh(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
+                <select aria-label="P: pH < 7.35 +2" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={scPh ? '1' : '0'} onChange={e => setScPh(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
              </div>
           </div>
         </div>
@@ -857,13 +857,13 @@ export default function KalkulatorPulmo() {
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 font-bold text-[12px] uppercase">Kriteria Mayor</div>
           <div className="flex flex-col px-4 py-3 gap-2">
-            <label className="flex items-start gap-3">
+            <label className="flex items-start gap-3 min-h-[44px]">
               <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsInvasive} onChange={e => setAtsInvasive(e.target.checked)}/>
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Ventilasi mekanik invasif</span>
             </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-            <label className="flex items-start gap-3">
+            <label className="flex items-start gap-3 min-h-[44px]">
               <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsShock} onChange={e => setAtsShock(e.target.checked)}/>
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Syok septik butuh vasopresor</span>
             </label>
@@ -871,55 +871,55 @@ export default function KalkulatorPulmo() {
 
           <div className="p-3 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 font-bold text-[12px] uppercase mt-2">Kriteria Minor</div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsRr} onChange={e => setAtsRr(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Resp. Rate &ge; 30/mnt</span>
              </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsPf} onChange={e => setAtsPf(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Rasio PaO₂/FiO₂ &le; 250</span>
              </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsMulti} onChange={e => setAtsMulti(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Infiltrat multilobar</span>
              </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsConfusion} onChange={e => setAtsConfusion(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Confusion / disorientasi</span>
              </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsUremia} onChange={e => setAtsUremia(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Uremia (BUN &ge; 20 mg/dL)</span>
              </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsLeuko} onChange={e => setAtsLeuko(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Leukopenia (WBC &lt; 4000)</span>
              </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsThrombo} onChange={e => setAtsThrombo(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Trombositopenia (&lt; 100,000)</span>
              </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsHypoT} onChange={e => setAtsHypoT(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Hipotermia (Suhu &lt; 36°C)</span>
              </label>
           </div>
           <div className="flex flex-col px-4 py-3 gap-2">
-             <label className="flex items-start gap-3">
+             <label className="flex items-start gap-3 min-h-[44px]">
                <input type="checkbox" className="mt-1 form-checkbox h-4 w-4 text-blue-600 border-slate-300 rounded" checked={atsHypoBP} onChange={e => setAtsHypoBP(e.target.checked)}/>
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Hipotensi (butuh resusitasi cairan agresif)</span>
              </label>
@@ -959,10 +959,10 @@ export default function KalkulatorPulmo() {
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">FiO₂ {getFio2Hint()}</span>
               <div className="flex-1 min-w-[8rem] flex flex-col items-end gap-1">
                 <div className="flex items-center gap-1 bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg self-end mb-1">
-                  <button className={`px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'decimal' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('decimal')}>Desimal</button>
-                  <button className={`px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'percent' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('percent')}>Persen</button>
+                  <button className={`min-h-[44px] px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'decimal' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('decimal')}>Desimal</button>
+                  <button className={`min-h-[44px] px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'percent' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('percent')}>Persen</button>
                 </div>
-                <DecimalInput id="aa-fio2" aria-label="FiO₂" inputMode="decimal" step={aaFio2Mode === 'decimal' ? '0.01' : '1'} className={`${aa.isMissing('aa-fio2') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-32 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold transition-all text-[14px] ${aaFio2Error ? 'text-red-500 focus:ring-red-500/50' : 'text-slate-900 dark:text-white focus:ring-blue-500/50'}`} value={aaFio2Raw} onChange={e=>{setAaFio2Raw(e.target.value); setAaFio2Error('');}} placeholder={aaFio2Mode==='percent'?'21':'0.21'}/>
+                <DecimalInput id="aa-fio2" aria-label="FiO₂" inputMode="decimal" step={aaFio2Mode === 'decimal' ? '0.01' : '1'} className={`min-h-[44px] ${aa.isMissing('aa-fio2') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-32 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold transition-all text-[14px] ${aaFio2Error ? 'text-red-500 focus:ring-red-500/50' : 'text-slate-900 dark:text-white focus:ring-blue-500/50'}`} value={aaFio2Raw} onChange={e=>{setAaFio2Raw(e.target.value); setAaFio2Error('');}} placeholder={aaFio2Mode==='percent'?'21':'0.21'}/>
               </div>
             </div>
             {aaFio2Error && <div className="text-[10px] font-bold text-red-500 text-right">{aaFio2Error}</div>}
@@ -971,25 +971,25 @@ export default function KalkulatorPulmo() {
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaCO₂ (mmHg)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-paco2') ? MISSING_RING : ''}`} value={aaPaco2} onChange={e=>setAaPaco2(e.target.value)} id="aa-paco2" aria-label="PaCO₂ (mmHg)" inputMode="decimal"/>
+              <DecimalInput className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-paco2') ? MISSING_RING : ''}`} value={aaPaco2} onChange={e=>setAaPaco2(e.target.value)} id="aa-paco2" aria-label="PaCO₂ (mmHg)" inputMode="decimal"/>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaO₂ (mmHg)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-pao2') ? MISSING_RING : ''}`} value={aaPao2} onChange={e=>setAaPao2(e.target.value)} id="aa-pao2" aria-label="PaO₂ (mmHg)" inputMode="decimal"/>
+              <DecimalInput className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${aa.isMissing('aa-pao2') ? MISSING_RING : ''}`} value={aaPao2} onChange={e=>setAaPao2(e.target.value)} id="aa-pao2" aria-label="PaO₂ (mmHg)" inputMode="decimal"/>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Usia (Tahun)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaAge} onChange={e=>setAaAge(e.target.value)}/>
+              <DecimalInput aria-label="Usia (Tahun)" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={aaAge} onChange={e=>setAaAge(e.target.value)}/>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">P. atm (mmHg)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={aaPatm} onChange={e=>setAaPatm(e.target.value)} placeholder="760"/>
+              <DecimalInput aria-label="P. atm (mmHg)" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={aaPatm} onChange={e=>setAaPatm(e.target.value)} placeholder="760"/>
             </div>
           </div>
         </div>

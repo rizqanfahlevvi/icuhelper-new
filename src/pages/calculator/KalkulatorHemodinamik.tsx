@@ -318,7 +318,7 @@ export default function KalkulatorHemodinamik() {
               value={bw}
               onChange={(e) => setBw(e.target.value)}
               placeholder="70"
-              className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+              className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]"
             />
             <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
           </div>
@@ -372,7 +372,7 @@ export default function KalkulatorHemodinamik() {
                 <button
                   key={drug.id}
                   onClick={() => addDrug(drug)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#2C2C2E]/50 hover:bg-slate-100 dark:hover:bg-[#2C2C2E] text-[13px] font-semibold text-slate-700 dark:text-slate-300 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#2C2C2E]/50 hover:bg-slate-100 dark:hover:bg-[#2C2C2E] text-[13px] font-semibold text-slate-700 dark:text-slate-300 transition-colors min-h-[44px]"
                 >
                   <Plus className="w-3.5 h-3.5 text-slate-400" />
                   {drug.nameId}
@@ -412,7 +412,7 @@ export default function KalkulatorHemodinamik() {
                   </div>
                   <button
                     onClick={() => removeDrug(ad.id)}
-                    className="p-1.5 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors shrink-0"
+                    className="p-1.5 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors shrink-0 min-h-[44px]"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -423,7 +423,7 @@ export default function KalkulatorHemodinamik() {
                   <div className="flex items-center justify-between mb-1.5 gap-2">
                     <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400 shrink-0">Dosis</span>
                     <div className="flex items-center gap-1.5">
-                      <DecimalInput
+                      <DecimalInput aria-label="Dosis"
                         min={drug.doseMin}
                         max={drug.doseMax}
                         step={drug.doseStep}
@@ -438,13 +438,14 @@ export default function KalkulatorHemodinamik() {
                           const clamped = isNaN(raw) ? drug.doseMin : Math.min(drug.doseMax, Math.max(drug.doseMin, raw));
                           updateDose(ad.id, clamped);
                         }}
-                        className="w-20 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1 text-right font-mono font-bold text-slate-900 dark:text-white text-[14px] focus:ring-2 focus:ring-blue-500/50"
+                        className="w-20 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1 text-right font-mono font-bold text-slate-900 dark:text-white text-[14px] focus:ring-2 focus:ring-blue-500/50 min-h-[44px]"
                       />
                       <span className="text-[11px] font-sans font-medium text-slate-500">{drug.unit}</span>
                     </div>
                   </div>
                   <input
                     type="range"
+                    aria-label={`Dosis ${drug.nameId} (${drug.unit})`}
                     min={drug.doseMin}
                     max={drug.doseMax}
                     step={drug.doseStep}
@@ -509,7 +510,7 @@ export default function KalkulatorHemodinamik() {
               <span className="text-[12px] font-bold uppercase tracking-wider">Skor NEE (Norepinephrine Equivalent)</span>
               <button
                 onClick={() => setShowNeeInfo((v) => !v)}
-                className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 min-h-[44px]"
                 title="Apa itu NEE?"
               >
                 <Info className="w-3.5 h-3.5" />
@@ -518,13 +519,13 @@ export default function KalkulatorHemodinamik() {
             <div className="flex bg-white/60 dark:bg-black/20 p-0.5 rounded-lg text-[11px] font-bold">
               <button
                 onClick={() => setNeeFormula('goradia')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${neeFormula === 'goradia' ? 'bg-white dark:bg-[#1C1C1E] shadow-sm' : ''}`}
+                className={`min-h-[44px] px-2.5 py-1 rounded-md transition-colors ${neeFormula === 'goradia' ? 'bg-white dark:bg-[#1C1C1E] shadow-sm' : ''}`}
               >
                 Goradia 2021
               </button>
               <button
                 onClick={() => setNeeFormula('kotani')}
-                className={`px-2.5 py-1 rounded-md transition-colors ${neeFormula === 'kotani' ? 'bg-white dark:bg-[#1C1C1E] shadow-sm' : ''}`}
+                className={`min-h-[44px] px-2.5 py-1 rounded-md transition-colors ${neeFormula === 'kotani' ? 'bg-white dark:bg-[#1C1C1E] shadow-sm' : ''}`}
               >
                 Kotani 2023
               </button>

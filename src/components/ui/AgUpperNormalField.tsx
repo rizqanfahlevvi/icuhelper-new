@@ -32,7 +32,7 @@ export function AgUpperNormalField() {
             <button
               type="button"
               onClick={() => onChange(String(AG_UPPER_NORMAL_DEFAULT))}
-              className="text-[11px] font-bold text-primary px-2 py-1 rounded-md bg-primary/10"
+              className="text-[11px] font-bold text-primary px-2 py-1 rounded-md bg-primary/10 min-h-[44px]"
             >
               Reset {AG_UPPER_NORMAL_DEFAULT}
             </button>
@@ -43,7 +43,7 @@ export function AgUpperNormalField() {
             value={draft}
             onChange={e => onChange(e.target.value)}
             onBlur={() => setDraft(String(value))}
-            className="w-20 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[13px]"
+            className="w-20 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[13px] min-h-[44px]"
           />
           <span className="text-[11px] font-semibold text-slate-500">mEq/L</span>
         </div>
