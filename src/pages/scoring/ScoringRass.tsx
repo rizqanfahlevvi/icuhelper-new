@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { Activity } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 const RASS_LEVELS = [
   { val: 4, label: '+4 Combative — Agresif', desc: 'Agresif/kekerasan, bahaya langsung terhadap staf. Dapat mencabut infus, ETT.', a: '⚠️ DARURAT: Amankan pasien & jalur IV/ETT segera! Analgesik IV bolus → sedatif titrasi. Evaluasi penyebab: nyeri, hipoksia, retensi urin, delirium hiperaktif.', c: 'text-red-500', bg: 'bg-red-500/10 border-red-500/20' },
@@ -97,6 +98,12 @@ export default function ScoringRass() {
           📚 Sessler CN et al. Am J Respir Crit Care Med 2002;166:1338 (RASS validasi) · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Lewis K et al. (PADIS 2025 focused update) Crit Care Med 2025;53:e711 · Vincent JL et al. (eCASH concept) ICM 2016;42:962
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'RASS', 'ICU', 'ETT', 'IV', 'CPOT', 'NRS', 'PADIS', 'eCASH', 'NGT', 'SAT', 'SBT', 'CAM-ICU', 'UTA', 'HICP',
+          'NMB', 'BIS', 'EEG',
+        ]}
+      />
     </div>
   );
 }

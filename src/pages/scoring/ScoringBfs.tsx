@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { Activity } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 const CFS_LEVELS = [
   { val: 1, label: '1 - Sangat Bugar (Very Fit)', desc: 'Energik, aktif, motivasi tinggi, berolahraga rutin. Kondisi paling prima untuk usianya.', c: 'text-green-500', bg: 'bg-green-500/10 border-green-500/20', interp: 'Tidak Frail', detail: 'Risiko rendah, toleransi intervensi ICU baik. Tidak ada pembatasan berbasis frailty.' },
@@ -98,6 +99,7 @@ export default function ScoringBfs() {
           📚 Rockwood K et al. (CFS original) CMAJ 2005;173:489 · Rockwood K, Theou O (CFS versi 2.0) Can Geriatr J 2020;23:210 · Muscedere J et al. (frailty & luaran ICU, meta-analisis) Intensive Care Med 2017;43:1105 · Bagshaw SM et al. (frailty pada pasien kritis) CMAJ 2014;186:E95
         </div>
       </Accordion>
+      <AbbrLegend terms={['BFS', 'CFS', 'ICU', 'ADL', 'IADL', 'RR-risiko']} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { Brain } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function ScoringCamicu() {
   const [rassOk, setRassOk] = useState<boolean | null>(null);
@@ -135,6 +136,7 @@ export default function ScoringCamicu() {
           📚 Ely EW et al. (CAM-ICU) JAMA 2001;286:2703 · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Lewis K et al. (PADIS 2025 focused update) Crit Care Med 2025;53:e711 · Hughes CG et al. (MENDS2) N Engl J Med 2021;384:1424 · Peterson JF et al. (subtipe delirium) J Am Geriatr Soc 2006;54:479
         </div>
       </Accordion>
+      <AbbrLegend terms={['CAM-ICU', 'ICU', 'RASS', 'UTA', 'DSM', 'PADIS', 'SpO2', 'AGD']} />
     </div>
   );
 }

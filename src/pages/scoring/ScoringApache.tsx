@@ -6,6 +6,7 @@ import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { fio2ToPercentString, fio2FromStoreString } from '../../utils/abg';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function ScoringApache() {
   const [age, setAge] = useState('');
@@ -310,6 +311,12 @@ export default function ScoringApache() {
           📚 Knaus WA et al. (APACHE-II original) Crit Care Med 1985;13:818 · Zimmerman JE et al. (APACHE-IV validasi) Crit Care Med 2006;34:1297 · Raith EP et al. (SOFA lebih baik dari APACHE-II era Sepsis-3) JAMA 2017;317:290
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'APACHE', 'APS', 'ICU', 'NYHA', 'PPOK', 'MAP', 'HR', 'RR', 'GCS', 'FiO2', 'PaO2', 'PaCO2', 'AGD', 'A-a',
+          'Cr', 'Ht', 'WBC', 'RS', 'SOFA', 'SIRS', 'qSOFA',
+        ]}
+      />
     </div>
   );
 }

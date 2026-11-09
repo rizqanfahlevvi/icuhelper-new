@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { Activity, ShieldAlert } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function ScoringCandida() {
   const [tpn, setTpn] = useState(false);
@@ -101,6 +102,7 @@ export default function ScoringCandida() {
           📚 León C et al. (Candida Score original) Crit Care Med 2006;34:730 · León C et al. (validasi prospektif) Crit Care Med 2009;37:1624 · Pappas PG et al. (IDSA 2016) Clin Infect Dis 2016;62:e1 · Cornely OA et al. (ECMM/ISHAM/ASM global guideline) Lancet Infect Dis 2025;25:e280
         </div>
       </Accordion>
+      <AbbrLegend terms={['ICU', 'TPN', 'NPT', 'SOFA', 'IDSA', 'NPV', 'DPJP', 'ECMM', 'ISHAM', 'ASM']} />
     </div>
   );
 }

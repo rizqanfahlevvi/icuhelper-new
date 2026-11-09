@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { Activity as ActivityIcon } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function ScoringWells() {
   const [signsOfDvt, setSignsOfDvt] = useState(false);
@@ -130,6 +131,7 @@ export default function ScoringWells() {
           📚 Wells PS et al. (skor Wells PE) Thromb Haemost 2000;83:416 · van Belle A et al. (Christopher Study, Wells 2 tingkat) JAMA 2006;295:172 · Righini M et al. (ADJUST-PE) JAMA 2014;311:1117 · Kline JA et al. (PERC) J Thromb Haemost 2004;2:1247
         </div>
       </Accordion>
+      <AbbrLegend terms={['PE', 'DVT', 'CTPA', 'FEU', 'PERC', 'IGD', 'ICU']} />
     </div>
   );
 }

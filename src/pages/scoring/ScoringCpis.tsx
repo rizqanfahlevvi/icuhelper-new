@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { Wind } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 export default function ScoringCpis() {
   const [f1, setF1] = useState<number | null>(null);
@@ -131,6 +132,7 @@ export default function ScoringCpis() {
           📚 Pugin J et al. (CPIS original) Am Rev Respir Dis 1991;143:1121 · Singh N et al. (modified CPIS + de-eskalasi) Am J Respir Crit Care Med 2000;162:505 · Kalil AC et al. (IDSA/ATS HAP/VAP 2016) Clin Infect Dis 2016;63:e61 · Torres A et al. (ERS/ESICM/ESCMID/ALAT HAP/VAP 2017) Eur Respir J 2017;50:1700582
         </div>
       </Accordion>
+      <AbbrLegend terms={['CPIS', 'VAP', 'HAP', 'PaO2', 'FiO2', 'ARDS', 'ATS', 'IDSA', 'ERS', 'ESICM', 'ESCMID', 'ALAT']} />
     </div>
   );
 }

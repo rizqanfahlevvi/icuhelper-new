@@ -11,6 +11,7 @@ import {
   normalizeFio2, ferreiraMortality, ferreiraTier, FERREIRA_INITIAL_SOFA, SF_SPO2_RELIABLE_MAX, SF_THRESHOLDS,
   type SofaRiskTier,
 } from '../../utils/sofa';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 interface OrganScore {
   organ: string;
@@ -943,6 +944,12 @@ export default function ScoringSofa() {
           </div>
         </div>
       </Accordion>
+      <AbbrLegend
+        terms={[
+          'SOFA', 'qSOFA', 'SIRS', 'SSC', 'ICU', 'AGD', 'PaO2', 'FiO2', 'P/F', 'S/F', 'SpO2', 'NIV', 'PLT', 'MAP',
+          'NE', 'EPI', 'DA', 'DOB', 'SSP', 'GCS', 'Cr', 'UO', 'RR',
+        ]}
+      />
     </div>
   );
 }

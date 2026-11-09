@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { FileText, ClipboardList, Activity, Star, BarChart } from 'lucide-react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AbbrLegend } from '../../components/ui/AbbrLegend';
 
 const SCORING_TOOLS = [
   { path: 'apache', name: 'APACHE-II', desc: 'Acute Physiology and Chronic Health Evaluation II' },
@@ -67,6 +68,7 @@ export default function ScoringIndex() {
           );
         })}
       </div>
+      <AbbrLegend terms={['APACHE', 'BFS', 'CFS', 'CAM-ICU', 'ICU', 'CPIS', 'RASS', 'SOFA', 'PE', 'DVT']} />
     </div>
   );
 }
