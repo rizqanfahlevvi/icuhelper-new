@@ -23,7 +23,7 @@ export function SaveToHistoryButton({ module, label, inputs, summary, className 
   return (
     <button
       onClick={handleSave}
-      className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+      className={`min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
         saved
           ? 'bg-emerald-500 text-white'
           : 'bg-white dark:bg-[#1C1C1E] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-[#2C2C2E]'

@@ -62,7 +62,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
         </div>
         <Link
           to="/patients"
-          className="shrink-0 min-h-[40px] flex items-center gap-1 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[12px] font-bold"
+          className="shrink-0 min-h-[44px] flex items-center gap-1 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[12px] font-bold"
         >
           Pilih Pasien <ChevronRight className="w-3.5 h-3.5" />
         </Link>
@@ -88,7 +88,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
           type="button"
           onClick={() => setOpen(o => !o)}
           aria-expanded={open}
-          className="min-w-0 flex-1 flex items-center gap-2.5 text-left min-h-[40px]"
+          className="min-w-0 flex-1 flex items-center gap-2.5 text-left min-h-[44px]"
         >
           <UserCheck className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
           <span className="min-w-0 flex-1">
@@ -104,7 +104,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
         </button>
         <Link
           to="/patients"
-          className="shrink-0 min-h-[40px] flex items-center px-3 rounded-lg border border-emerald-500/30 bg-[var(--bg-elevated)] text-[12px] font-bold text-emerald-700 dark:text-emerald-300"
+          className="shrink-0 min-h-[44px] flex items-center px-3 rounded-lg border border-emerald-500/30 bg-[var(--bg-elevated)] text-[12px] font-bold text-emerald-700 dark:text-emerald-300"
         >
           Ganti
         </Link>
@@ -125,7 +125,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
             type="button"
             onClick={handleReload}
             title="Isi ulang isian dari data pasien"
-            className="shrink-0 min-h-[32px] flex items-center gap-1 px-2 rounded-md font-bold text-[var(--accent)] hover:bg-[var(--accent-tint)]"
+            className="shrink-0 min-h-[44px] -my-2 flex items-center gap-1 px-2 rounded-md font-bold text-[var(--accent)] hover:bg-[var(--accent-tint)]"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${reloaded ? 'animate-spin' : ''}`} />
             {reloaded ? 'Dimuat' : 'Muat ulang'}
@@ -145,7 +145,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
           <div className="flex flex-wrap gap-2 pt-1">
             <Link
               to="/patients"
-              className="min-h-[40px] flex items-center gap-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+              className="min-h-[44px] flex items-center gap-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
             >
               <UserPlus className="w-3.5 h-3.5" /> Lengkapi Data Pasien
             </Link>
@@ -153,7 +153,7 @@ export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBrief
               <button
                 type="button"
                 onClick={handleClosePatient}
-                className="min-h-[40px] flex items-center gap-1.5 px-3 rounded-lg border border-[var(--sys-red)]/30 text-[var(--sys-red)] font-bold"
+                className="min-h-[44px] flex items-center gap-1.5 px-3 rounded-lg border border-[var(--sys-red)]/30 text-[var(--sys-red)] font-bold"
               >
                 <X className="w-3.5 h-3.5" /> Tutup pasien
               </button>

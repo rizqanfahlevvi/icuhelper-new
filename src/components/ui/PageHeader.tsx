@@ -42,7 +42,7 @@ export function PageHeader({ badgeIcon: Icon, badgeText, title, description, rig
                 type="button"
                 onClick={() => setShowDesc(s => !s)}
                 aria-expanded={showDesc}
-                className="min-h-[36px] flex items-center gap-1 px-2 rounded-lg text-[12px] font-semibold text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)]"
+                className="min-h-[44px] flex items-center gap-1 px-2 rounded-lg text-[12px] font-semibold text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)]"
               >
                 <Info className="w-3.5 h-3.5" /> Tentang
               </button>

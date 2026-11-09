@@ -149,7 +149,7 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
                 type="button"
                 onClick={() => setExpanded((e) => !e)}
                 aria-expanded={expanded}
-                className="mt-0.5 flex items-center gap-1 text-xs text-amber-700/90 dark:text-amber-400/90 text-left max-w-full cursor-pointer"
+                className="min-h-[44px] -my-2.5 flex items-center gap-1 text-xs text-amber-700/90 dark:text-amber-400/90 text-left max-w-full cursor-pointer"
               >
                 <span className="truncate">
                   {ownerChanged && hasActivePatient ? 'Perbarui ' : 'Isi '}
@@ -187,13 +187,13 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
           <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-center">
             <button
               onClick={handleApplyAll}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-amber-600 text-white rounded-xl shadow-sm hover:bg-amber-500 transition-all cursor-pointer active:scale-95"
+              className="min-h-[44px] flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-amber-600 text-white rounded-xl shadow-sm hover:bg-amber-500 transition-all cursor-pointer active:scale-95"
             >
               <Check className="w-3.5 h-3.5" /> {hasActivePatient ? 'Gunakan Data Pasien' : 'Gunakan Data Sesi'}
             </button>
             <button
               onClick={() => setDismissedFor(ownerId)}
-              className="p-1.5 rounded-lg border border-amber-500/20 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 transition-colors cursor-pointer"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center p-1.5 rounded-lg border border-amber-500/20 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 transition-colors cursor-pointer"
               title="Abaikan"
               aria-label="Abaikan"
             >
