@@ -11,6 +11,9 @@ import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { basalBolusPlan, glucoseGramsEstimate, type InsulinCondition, type MealStatus } from '../../utils/insulin';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+import { toneFromColorClass } from '../../utils/barTone';
 
 export default function KalkulatorInsulin() {
   const patient = usePatientStore();
@@ -145,6 +148,55 @@ export default function KalkulatorInsulin() {
 
   const hipoRes = mode === 'hipo' ? calcHipo() : null;
 
+  // Hitung sekali per mode → hasil tampil & selalu mengikuti input (dihitung tiap render).
+  const calc = useCalcTrigger({
+    compute: () => {},
+    deps: [],
+    required: mode === 'hipo'
+      ? [
+          { id: 'ins-hipo-gds', label: 'GDS', filled: parseFloat(hipoGds) > 0 },
+          { id: 'ins-hipo-bb', label: 'Berat badan', filled: parseFloat(hipoBb) > 0 },
+        ]
+      : [
+          ...(mode === 'bbc' ? [{ id: 'ins-bb', label: 'Berat badan', filled: parseFloat(bb) > 0 }] : []),
+          { id: 'ins-gds', label: 'GDS', filled: parseFloat(gds) > 0 },
+        ],
+  });
+  const resetCalc = calc.reset;
+  useEffect(() => { resetCalc(); }, [mode, resetCalc]);
+
+  // Ringkasan bilah — angka & satuan persis seperti rincian (unit; per hari vs per makan).
+  let barSummary: string | null = null;
+  let barCaption: string | undefined;
+  let barTone: CalcTone = 'neutral';
+  let barTarget: string | undefined;
+  if (mode === 'bbc' && bbcRes) {
+    barTarget = 'ins-hasil-bbc';
+    if (bbcRes.error) {
+      barSummary = bbcRes.iv ? 'Perlu insulin IV' : 'HIPOGLIKEMIA — STOP insulin';
+      barTone = bbcRes.iv ? 'warn' : 'bad';
+      barCaption = 'Ketuk untuk rincian';
+    } else {
+      barSummary = `Diberikan sekarang: ${bbcRes.totalNow} unit`;
+      barTone = 'info';
+      barCaption = `TDD ${bbcRes.tdd} u · basal ${bbcRes.basal} u 1×/hari · bolus ${bbcRes.mealCount > 0 ? `${bbcRes.bolusPerMeal} u/makan (${bbcRes.mealCount}×)` : '— (puasa)'}`;
+    }
+  } else if (mode === 'ss' && parseFloat(gds) > 0) {
+    const g = parseInt(gds || '0');
+    barTarget = 'ins-hasil-ss';
+    barSummary = `Sliding scale: ${ssLabel(g)}`;
+    barTone = g < 70 ? 'bad' : g <= 200 ? 'good' : 'info';
+    barCaption = g < 70 ? 'Stop insulin — tatalaksana hipoglikemia' : 'Rapid acting insulin SC · sesuai tabel';
+  } else if (mode === 'hipo' && hipoRes) {
+    barTarget = 'ins-hasil-hipo';
+    barSummary = hipoRes.lvlLbl;
+    barTone = toneFromColorClass(hipoRes.lvlCls);
+    barCaption = route === 'iv'
+      ? `Glukosa ${hipoRes.glucG.toFixed(1)} g · D40% ${hipoRes.d40Bolus} IV bolus pelan`
+      : route === 'oral' ? 'Rule of 15 — 15 g karbohidrat, cek GDS 15 menit'
+      : 'Glucagon IM/SC — dosis lihat rincian';
+  }
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
@@ -169,14 +221,14 @@ export default function KalkulatorInsulin() {
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={bb} onChange={e=>setBb(e.target.value)} />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-bb')} value={bb} onChange={e=>setBb(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-6 text-left">kg</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={gds} onChange={e=>setGds(e.target.value)} />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-gds')} value={gds} onChange={e=>setGds(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
@@ -219,9 +271,9 @@ export default function KalkulatorInsulin() {
                 )}
              </div>
 
-             {mode === 'bbc' && bbcRes && !bbcRes.error && <InputWarning message={weightPlausibilityWarning(parseFloat(bb))} />}
-             {mode === 'bbc' && bbcRes && (
-               <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+             {mode === 'bbc' && calc.armed && bbcRes && !bbcRes.error && <InputWarning message={weightPlausibilityWarning(parseFloat(bb))} />}
+             {mode === 'bbc' && calc.armed && bbcRes && (
+               <div id="ins-hasil-bbc" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
                  {bbcRes.error ? (
                    bbcRes.iv ? (
                      <div className="bg-amber-50 dark:bg-amber-900/10 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/30 p-4 rounded-xl font-semibold flex gap-3 text-[14px] shadow-sm">
@@ -331,7 +383,7 @@ export default function KalkulatorInsulin() {
              )}
 
              {mode === 'ss' && ssArr && ssArr.length > 0 && (
-               <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+               <div id="ins-hasil-ss" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
                  <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
                    <div className="p-3 bg-slate-50 dark:bg-[#2C2C2E] border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-[12px]">
                      <span className="font-bold text-slate-500 uppercase">Rentang GDS</span>
@@ -372,14 +424,14 @@ export default function KalkulatorInsulin() {
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={hipoGds} onChange={e=>setHipoGds(e.target.value)} placeholder="mis: 45" />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-gds')} value={hipoGds} onChange={e=>setHipoGds(e.target.value)} placeholder="mis: 45" />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={hipoBb} onChange={e=>setHipoBb(e.target.value)} />
+                     <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-bb')} value={hipoBb} onChange={e=>setHipoBb(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-6 text-left">kg</span>
                    </div>
                 </div>
@@ -409,9 +461,9 @@ export default function KalkulatorInsulin() {
              </div>
              
              <div className="mt-4">
-               {hipoRes && <InputWarning message={weightPlausibilityWarning(parseFloat(hipoBb))} />}
-               {hipoRes ? (
-                 <div className="animate-in fade-in slide-in-from-bottom-3 duration-300 space-y-4">
+               {calc.armed && hipoRes && <InputWarning message={weightPlausibilityWarning(parseFloat(hipoBb))} />}
+               {calc.armed && hipoRes ? (
+                 <div id="ins-hasil-hipo" className="scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300 space-y-4">
                    <div className={`px-5 py-3 border rounded-xl text-center text-sm font-bold shadow-sm ${hipoRes.lvlCls}`}>{hipoRes.lvlLbl}</div>
                    
                    <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
@@ -517,6 +569,16 @@ export default function KalkulatorInsulin() {
         </div>
       </Accordion>
 
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label={mode === 'bbc' ? 'Hitung Basal-Bolus' : mode === 'ss' ? 'Hitung Sliding Scale' : 'Hitung Koreksi Hipoglikemia'}
+        summary={barSummary}
+        summaryTone={barTone}
+        caption={barCaption}
+        missing={calc.missing}
+        resultTargetId={barTarget}
+      />
       <AbbrLegend
         terms={[
           'GDS', 'TDD', 'BBC', 'SS', 'CF', 'NPO', 'BB', 'IV', 'SC', 'IM', 'NGT', 'ICU', 'GFR', 'HD', 'ADA', 'PERKENI',
