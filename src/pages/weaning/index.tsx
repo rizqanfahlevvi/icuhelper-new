@@ -7,6 +7,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { calcIbw } from '../../utils/anthropometry';
+import { rsbi as calcRsbi, interpretRsbi, RSBI_THRESHOLD } from '../../utils/ventilation';
 
 export default function WeaningIndex() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
@@ -45,12 +46,11 @@ export default function WeaningIndex() {
     if (!rrNum || !vtNum) return;
 
     const vtL = vtNum / 1000;
-    const rsbi = rrNum / vtL;
-    
-    let rsbiColor = 'text-green-500';
-    let rsbiInterp = 'Baik — Pertimbangkan Ekstubasi';
-    if (rsbi > 105) { rsbiColor = 'text-red-500'; rsbiInterp = 'Risiko Gagal Weaning Tinggi'; }
-    else if (rsbi > 80) { rsbiColor = 'text-amber-500'; rsbiInterp = 'Borderline'; }
+    // Yang & Tobin 1991: ambang tunggal 105 (zona "80–105 borderline" dulu tidak bersumber).
+    const rsbi = calcRsbi(rrNum, vtNum) as number;
+    const ri = interpretRsbi(rsbi);
+    const rsbiColor = ri.ok ? 'text-green-500' : 'text-red-500';
+    const rsbiInterp = ri.text;
 
     let mipRes = null;
     if (mip) {
@@ -59,7 +59,8 @@ export default function WeaningIndex() {
       mipRes = {
         value: m,
         color: absM >= 30 ? 'text-green-500' : absM >= 20 ? 'text-amber-500' : 'text-red-500',
-        text: absM >= 30 ? 'Adekuat (≥-30): kekuatan otot napas baik' : absM >= 20 ? 'Borderline (-20 s/d -30): evaluasi faktor lain' : 'Lemah (<-20): risiko gagal ekstubasi — tunda'
+        text: (absM >= 30 ? 'Lebih negatif dari −30' : absM >= 20 ? 'Antara −20 dan −30' : 'Kurang negatif dari −20 (lemah)') +
+          ' — kriteria tradisional; sensitif tetapi tidak spesifik (Yang & Tobin: sensitivitas 1,00, spesifisitas 0,11)',
       };
     }
 
@@ -68,8 +69,8 @@ export default function WeaningIndex() {
       const m = parseFloat(mep);
       mepRes = {
         value: m,
-        color: m >= 60 ? 'text-green-500' : m >= 40 ? 'text-amber-500' : 'text-red-500',
-        text: m >= 60 ? 'Normal (≥60): batuk efektif' : m >= 40 ? 'Borderline (40–60): monitor batuk' : 'Lemah (<40): risiko aspirasi, batuk tidak efektif'
+        color: m >= 40 ? 'text-green-500' : 'text-red-500',
+        text: m >= 40 ? '≥40: tidak di bawah ambang risiko' : '<40: lemah — pada GBS berhubungan dengan progresi ke gagal napas (Lawn 2001); nilai kemampuan batuk & sekret',
       };
     }
 
@@ -120,7 +121,7 @@ export default function WeaningIndex() {
           Kalkulator RSBI & Readiness to Wean
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
-          <strong>RSBI (Rapid Shallow Breathing Index)</strong> = RR spontan / VT (L). Diukur saat SBT minimal (PEEP 5, PS ≤5 cmH₂O atau T-piece, selama 1–3 menit spontan breathing).
+          <strong>RSBI (Rapid Shallow Breathing Index)</strong> = RR spontan / VT (L). Studi asli (Yang & Tobin 1991) mengukur pada menit pertama napas spontan tanpa bantuan; ambang {RSBI_THRESHOLD}.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -199,7 +200,7 @@ export default function WeaningIndex() {
                     {result.mvNum.toFixed(1)} <span className="text-[10px] font-normal">L/mnt</span>
                   </div>
                   <div className="text-[10px] text-muted-foreground">
-                    {result.mvNum > 10 ? '⚠ Tinggi' : result.mvNum < 5 ? '⚠ Rendah' : 'Normal'}
+                    {result.mvNum > 10 ? '⚠ >10 L/mnt (kriteria tradisional)' : result.mvNum < 5 ? '⚠ Rendah' : '≤10 L/mnt'}
                   </div>
                 </div>
               )}
@@ -220,7 +221,7 @@ export default function WeaningIndex() {
             {((parseInt(peep) || 0) > 5 || parseInt(ps) > 8) && (
                <div className="mt-4 bg-amber-500/10 border-l-2 border-amber-500 p-3 rounded text-sm text-amber-700 dark:text-amber-300 dark:text-amber-500 flex gap-2">
                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                 <div><strong className="block">⚠ Support Tidak Minimal</strong>RSBI valid hanya pada support minimal (PEEP ≤5, PS ≤5–8 cmH₂O). Nilai PEEP/PS saat ini terlalu tinggi.</div>
+                 <div><strong className="block">⚠ Support Tidak Minimal</strong>Yang & Tobin mengukur RSBI saat napas spontan tanpa bantuan (T-piece, menit pertama). PEEP/PS menurunkan nilai RSBI sehingga bisa tampak lebih baik dari sebenarnya.</div>
                </div>
             )}
           </div>
@@ -249,12 +250,12 @@ export default function WeaningIndex() {
           <div className="bg-card border border-border rounded-xl p-4">
              <h3 className="font-bold text-sm mb-3">Kriteria Kekuatan & Jalan Napas</h3>
              <ul className="space-y-2 text-sm">
-                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> RSBI &lt;80 breaths/mnt/L</li>
-                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> VT spontan ≥5 mL/kg IBW</li>
-                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> MIP/NIF ≤ -25 cmH₂O (idealnya ≤ -30)</li>
-                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> MEP ≥40 cmH₂O (GBS/MG: ≥60)</li>
+                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> RSBI ≤105 breaths/mnt/L (Yang & Tobin; bukan kriteria tunggal)</li>
+                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> VT spontan ≥5 mL/kg PBW (kriteria tradisional)</li>
+                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> MIP/NIF lebih negatif dari −20 s/d −30 cmH₂O (kriteria tradisional, spesifisitas rendah)</li>
+                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> MEP ≥40 cmH₂O (di bawahnya: batuk lemah; ambang risiko GBS — Lawn 2001)</li>
                 <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> Batuk efektif (sekret dapat dikeluarkan)</li>
-                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> Cuff leak test positif (tidak ada laryngeal edema)</li>
+                <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> Risiko tinggi stridor pasca-ekstubasi: cuff leak test — ada kebocoran (ATS/ACCP 2017)</li>
                 <li className="flex gap-2 items-start"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"/> CAM-ICU negatif (tidak delirium aktif)</li>
              </ul>
           </div>
@@ -272,15 +273,16 @@ export default function WeaningIndex() {
            <div className="bg-card border border-border rounded-xl p-4 flex flex-col h-full">
              <div className="bg-purple-500/10 text-purple-600 font-bold px-2 py-1 rounded text-xs w-fit mb-3">LANGKAH 1</div>
              <h3 className="font-bold text-md mb-2">SBT (Spontaneous Breathing Trial)</h3>
-             <p className="text-sm text-muted-foreground mb-2"><strong>Metode:</strong> T-piece atau PSV 5–8 cmH₂O + PEEP 5. Durasi: 30–120 menit.</p>
+             <p className="text-sm text-muted-foreground mb-2"><strong>Metode:</strong> SBT awal dengan pressure support 5–8 cmH₂O (saran ATS/ACCP 2017) atau T-piece; SBT awal 30 menit (Boles 2007).</p>
+             <p className="text-sm text-muted-foreground mb-2"><strong>Bukti:</strong> PS 8 cmH₂O 30 menit vs T-piece 2 jam → ekstubasi sukses 82,3% vs 74,0% (Subirà 2019).</p>
              <p className="text-sm text-muted-foreground mb-2"><strong>Target Sukses:</strong> SpO₂ ≥90%, RR &lt;35/mnt, HR ±20% baseline, tanpa distress napas.</p>
-             <p className="text-sm text-muted-foreground mt-auto pt-4 italic font-mono text-[10px]">📚 Ely EW. NEJM 1996</p>
+             <p className="text-sm text-muted-foreground mt-auto pt-4 italic font-mono text-[10px]">📚 Boles JM. Eur Respir J 2007 · Ouellette DR. Chest 2017 · Subirà C. JAMA 2019 · Ely EW. NEJM 1996</p>
            </div>
            {/* Ekstubasi */}
            <div className="bg-card border border-border rounded-xl p-4 flex flex-col h-full">
              <div className="bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-2 py-1 rounded text-xs w-fit mb-3">LANGKAH 2</div>
              <h3 className="font-bold text-md mb-2">Prosedur Ekstubasi</h3>
-             <p className="text-sm text-muted-foreground mb-2"><strong>Premedikasi:</strong> Suction ETT/subglotis. Jika risiko laryngeal edema, beri Dexamethasone 5 mg IV.</p>
+             <p className="text-sm text-muted-foreground mb-2"><strong>Persiapan:</strong> Suction ETT/subglotis. Pasien risiko tinggi stridor: cuff leak test; bila gagal tetapi siap ekstubasi → steroid sistemik ≥4 jam sebelum ekstubasi (ATS/ACCP 2017). Regimen terbukti: metilprednisolon 20 mg IV 12 jam sebelum lalu tiap 4 jam hingga ekstubasi — edema laring 3% vs 22% (François 2007).</p>
              <p className="text-sm text-muted-foreground mb-2"><strong>Eksekusi:</strong> Head-up 45°. Deflasi cuff total, tarik saat akhir inspirasi.</p>
              <p className="text-sm text-muted-foreground mt-auto pt-4 italic font-mono text-[10px]">Siapkan rencana A & B jalan napas.</p>
            </div>
@@ -288,9 +290,9 @@ export default function WeaningIndex() {
            <div className="bg-card border border-border rounded-xl p-4 flex flex-col h-full">
              <div className="bg-emerald-500/10 text-emerald-600 font-bold px-2 py-1 rounded text-xs w-fit mb-3">LANGKAH 3</div>
              <h3 className="font-bold text-md mb-2">Post-Ekstubasi</h3>
-             <p className="text-sm text-muted-foreground mb-2"><strong>Profilaksis:</strong> Pasien risiko tinggi (obesitas, PPOK, hypercapnia), gunakan HFNC atau NIV paska ekstubasi segera.</p>
-             <p className="text-sm text-muted-foreground mb-2 text-red-500"><strong>Gagal:</strong> Distress napas berat menetap = segera reintubasi.</p>
-             <p className="text-sm text-muted-foreground mt-auto pt-4 italic font-mono text-[10px]">📚 Hernandez G. JAMA 2016 (HFNC)</p>
+             <p className="text-sm text-muted-foreground mb-2"><strong>Profilaksis:</strong> Pasien risiko tinggi (mis. hiperkapnia, PPOK, obesitas) yang diventilasi &gt;24 jam: NIV preventif segera setelah ekstubasi (rekomendasi KUAT ATS/ACCP 2017); HFNC sebagai alternatif (Hernández 2016).</p>
+             <p className="text-sm text-muted-foreground mb-2 text-red-500"><strong>Gagal napas pasca-ekstubasi:</strong> JANGAN memakai NIV untuk mengobati gagal napas yang sudah terjadi — reintubasi tidak berkurang (48% vs 48%), mortalitas ICU 25% vs 14%, reintubasi tertunda 12 vs 2,5 jam (Esteban 2004). Distress berat → segera reintubasi.</p>
+             <p className="text-sm text-muted-foreground mt-auto pt-4 italic font-mono text-[10px]">📚 Ouellette DR. Chest 2017 · Hernández G. JAMA 2016 · Esteban A. NEJM 2004</p>
            </div>
          </div>
       </section>
@@ -313,19 +315,14 @@ export default function WeaningIndex() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   <tr>
-                    <td className="p-3">&lt;80 bpm/L</td>
-                    <td className="p-3"><span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 rounded text-xs font-bold">Baik</span></td>
-                    <td className="p-3">Pertimbangkan ekstubasi jika kriteria lain terpenuhi</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3">80–105 bpm/L</td>
-                    <td className="p-3"><span className="px-2 py-1 bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 rounded text-xs font-bold">Borderline</span></td>
-                    <td className="p-3">SBT lebih panjang; evaluasi faktor penghambat</td>
+                    <td className="p-3">≤105 bpm/L</td>
+                    <td className="p-3"><span className="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 rounded text-xs font-bold">Prediktor sukses</span></td>
+                    <td className="p-3">Lanjutkan SBT bila kriteria kesiapan lain terpenuhi (sensitivitas 0,97; spesifisitas 0,64)</td>
                   </tr>
                   <tr>
                     <td className="p-3">&gt;105 bpm/L</td>
-                    <td className="p-3"><span className="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 rounded text-xs font-bold">Buruk</span></td>
-                    <td className="p-3">Weaning kemungkinan gagal; optimalkan kondisi</td>
+                    <td className="p-3"><span className="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400 rounded text-xs font-bold">Prediktor gagal</span></td>
+                    <td className="p-3">Cari & atasi penyebab (beban napas, kardiak, neuromuskular, metabolik) sebelum SBT ulang</td>
                   </tr>
                 </tbody>
               </table>
@@ -339,10 +336,19 @@ export default function WeaningIndex() {
               <li>MIP ≤ −30 cmH₂O: Kekuatan otot napas adekuat untuk ekstubasi</li>
               <li>MIP −20 s/d −30 cmH₂O: Borderline — evaluasi faktor lain</li>
               <li>MIP &gt; −20 cmH₂O (mis. -10): Lemah → risiko gagal ekstubasi tinggi</li>
-              <li><strong>Pada GBS/MG:</strong> Target MIP ≤ −30 (rule of 20-30-40)</li>
+              <li><strong>Rule of 20-30-40 (GBS, Lawn 2001):</strong> VC &lt;20 mL/kg, MIP lebih lemah dari −30, MEP &lt;40 cmH₂O → risiko progresi ke gagal napas/perlu intubasi. Ini prediktor intubasi, BUKAN target weaning.</li>
+              <li>Yang & Tobin 1991: PImax sangat sensitif (1,00) tetapi spesifisitasnya rendah (0,11) sebagai prediktor weaning.</li>
             </ul>
           </div>
 
+          <div>
+            <h3 className="text-lg font-bold mb-3 text-primary">Klasifikasi Weaning (Boles 2007)</h3>
+            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+              <li><strong className="text-foreground">Sederhana:</strong> berhasil ekstubasi pada SBT pertama.</li>
+              <li><strong className="text-foreground">Sulit:</strong> gagal SBT awal dan butuh hingga 3 SBT atau hingga 7 hari sejak SBT pertama.</li>
+              <li><strong className="text-foreground">Lama (prolonged):</strong> gagal ≥3 SBT atau butuh &gt;7 hari sejak SBT pertama.</li>
+            </ul>
+          </div>
           <div>
             <h3 className="text-lg font-bold mb-3 text-primary">Faktor Penghambat Weaning</h3>
             <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
