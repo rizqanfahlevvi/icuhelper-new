@@ -228,7 +228,7 @@ export default function ScoringApache() {
             </div>
          </div>
 
-         {calc.armed && (
+         {calc.armed && calc.missing.length === 0 && (
          <div id="apache-hasil" className="scroll-mt-4 mt-8 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm relative overflow-hidden">
             <div className="flex flex-col md:flex-row gap-6 justify-between items-center px-2">
               <div className="text-center md:text-left">
@@ -328,7 +328,7 @@ export default function ScoringApache() {
         armed={calc.armed}
         onCalculate={calc.trigger}
         label="Hitung APACHE II"
-        summary={`APACHE II ${result.total} · mortalitas RS ${result.mort}`}
+        summary={calc.missing.length === 0 ? `APACHE II ${result.total} · mortalitas RS ${result.mort}` : null}
         summaryTone={toneFromColorClass(totalColor)}
         caption={`${result.filled}/12 parameter fisiologis${result.complete ? '' : ' — skor minimal'} · non-operatif (Knaus 1985)`}
         missing={calc.missing}
