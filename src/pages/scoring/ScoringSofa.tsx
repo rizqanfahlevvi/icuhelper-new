@@ -416,13 +416,13 @@ export default function ScoringSofa() {
                   <div className="flex bg-slate-200 dark:bg-slate-700 p-1 rounded-lg">
                     <button
                       onClick={() => setFio2Mode('persen')}
-                      className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${fio2Mode === 'persen' ? 'bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}`}
+                      className={`min-h-[44px] px-3 py-1 text-xs font-medium rounded-md transition-colors ${fio2Mode === 'persen' ? 'bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}`}
                     >
                       Persen (%)
                     </button>
                     <button
                       onClick={() => setFio2Mode('desimal')}
-                      className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${fio2Mode === 'desimal' ? 'bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}`}
+                      className={`min-h-[44px] px-3 py-1 text-xs font-medium rounded-md transition-colors ${fio2Mode === 'desimal' ? 'bg-white dark:bg-slate-900 shadow-sm text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400'}`}
                     >
                       Desimal
                     </button>
@@ -434,8 +434,8 @@ export default function ScoringSofa() {
                     <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
                       FiO₂ {fio2Mode === 'persen' ? '(21–100)' : '(0.21–1.0)'}
                     </label>
-                    <DecimalInput
-                      className={inputClass}
+                    <DecimalInput aria-label="FiO₂"
+                      className={`${inputClass} min-h-[44px]`}
                       value={fio2Mode === 'persen' ? fio2Persen : fio2Desimal}
                       onChange={(e) => fio2Mode === 'persen' ? setFio2Persen(e.target.value) : setFio2Desimal(e.target.value)}
                       placeholder={fio2Mode === 'persen' ? '21' : '0.21'}
@@ -446,7 +446,8 @@ export default function ScoringSofa() {
                       {useSpO2 ? 'SpO₂ (%)' : 'PaO₂ (mmHg)'}
                     </label>
                     <DecimalInput
-                      className={inputClass}
+                      aria-label={useSpO2 ? 'SpO₂ (%)' : 'PaO₂ (mmHg)'}
+                      className={`${inputClass} min-h-[44px]`}
                       value={useSpO2 ? spo2 : pao2}
                       onChange={(e) => useSpO2 ? setSpo2(e.target.value) : setPao2(e.target.value)}
                       placeholder={useSpO2 ? '95' : '80'}
@@ -474,7 +475,7 @@ export default function ScoringSofa() {
 
                 <div>
                   <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Dukungan napas (ventilasi invasif / NIV)</label>
-                  <select className={selectClass} value={ventMekanik} onChange={(e) => setVentMekanik(e.target.value as any)}>
+                  <select aria-label="Dukungan napas (ventilasi invasif / NIV)" className={`${selectClass} min-h-[44px]`} value={ventMekanik} onChange={(e) => setVentMekanik(e.target.value as any)}>
                     <option value="">-- Pilih --</option>
                     <option value="ya">Ya</option>
                     <option value="tidak">Tidak</option>
@@ -500,8 +501,8 @@ export default function ScoringSofa() {
               />
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Trombosit (×10³/μL)</label>
-                <DecimalInput
-                  className={inputClass}
+                <DecimalInput aria-label="Trombosit (×10³/μL)"
+                  className={`${inputClass} min-h-[44px]`}
                   value={trombosit}
                   onChange={(e) => setTrombosit(e.target.value)}
                   placeholder="Contoh: 150"
@@ -526,8 +527,8 @@ export default function ScoringSofa() {
               />
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Bilirubin total (mg/dL)</label>
-                <DecimalInput
-                  className={inputClass}
+                <DecimalInput aria-label="Bilirubin total (mg/dL)"
+                  className={`${inputClass} min-h-[44px]`}
                   value={bilirubin}
                   onChange={(e) => setBilirubin(e.target.value)}
                   placeholder="Contoh: 1.1"
@@ -557,7 +558,7 @@ export default function ScoringSofa() {
               />
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">MAP atau Dosis Vasopressor</label>
-                <select className={selectClass} value={cvVal} onChange={(e) => setCvVal(e.target.value)}>
+                <select aria-label="MAP atau Dosis Vasopressor" className={`${selectClass} min-h-[44px]`} value={cvVal} onChange={(e) => setCvVal(e.target.value)}>
                   <option value="">-- Pilih (Opsional) --</option>
                   <option value="0">MAP ≥ 70 mmHg (Tanpa vasopressor)</option>
                   <option value="1">MAP &lt; 70 mmHg (Tanpa vasopressor)</option>
@@ -586,8 +587,8 @@ export default function ScoringSofa() {
               />
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">GCS (3–15)</label>
-                <DecimalInput
-                  className={inputClass}
+                <DecimalInput aria-label="GCS (3–15)"
+                  className={`${inputClass} min-h-[44px]`}
                   value={gcs}
                   onChange={(e) => setGcs(e.target.value)}
                   placeholder="Contoh: 15"
@@ -615,8 +616,8 @@ export default function ScoringSofa() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Kreatinin (mg/dL)</label>
-                  <DecimalInput
-                    className={inputClass}
+                  <DecimalInput aria-label="Kreatinin (mg/dL)"
+                    className={`${inputClass} min-h-[44px]`}
                     value={kreatinin}
                     onChange={(e) => setKreatinin(e.target.value)}
                     placeholder="1.0"
@@ -624,8 +625,8 @@ export default function ScoringSofa() {
                 </div>
                 <div>
                   <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Urine (mL/24j)</label>
-                  <DecimalInput
-                    className={inputClass}
+                  <DecimalInput aria-label="Urine (mL/24j)"
+                    className={`${inputClass} min-h-[44px]`}
                     value={urineOutput}
                     onChange={(e) => setUrineOutput(e.target.value)}
                     placeholder="Contoh: 1200"
@@ -639,8 +640,8 @@ export default function ScoringSofa() {
               <h3 className="font-semibold text-slate-900 dark:text-slate-100">Δ SOFA (Sepsis-3)</h3>
               <div>
                 <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">SOFA Baseline (sebelum sakit ini)</label>
-                <DecimalInput
-                  className={inputClass}
+                <DecimalInput aria-label="SOFA Baseline (sebelum sakit ini)"
+                  className={`${inputClass} min-h-[44px]`}
                   value={sofaBaseline}
                   onChange={(e) => setSofaBaseline(e.target.value)}
                   placeholder="Isi 0 jika tidak diketahui/tidak ada disfungsi organ kronis"

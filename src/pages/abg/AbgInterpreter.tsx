@@ -68,13 +68,13 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Jenis Sampel</span>
               <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
                 <button
-                  className={`px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType !== 'vena' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
+                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType !== 'vena' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
                   onClick={() => updateInput('sampleType', 'arteri')}
                 >
                   🩸 Arteri (ABG)
                 </button>
                 <button
-                  className={`px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType === 'vena' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
+                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType === 'vena' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
                   onClick={() => updateInput('sampleType', 'vena')}
                 >
                   💧 Vena (VBG)
@@ -94,7 +94,7 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
                 id="abg-ph" aria-label="pH" step="0.01" inputMode="decimal"
                 value={inputs.ph} 
                 onChange={e => updateInput('ph', e.target.value)}
-                className={`w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-ph') ? MISSING_RING : ''}`} 
+                className={`min-h-[44px] w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-ph') ? MISSING_RING : ''}`} 
                 placeholder="7.35–7.45" 
               />
             </div>
@@ -107,12 +107,12 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
                 id="abg-pco2" aria-label={inputs.sampleType === 'vena' ? 'PvCO₂' : 'PaCO₂'} inputMode="decimal"
                 value={inputs.pco2} 
                 onChange={e => updateInput('pco2', e.target.value)}
-                className={`w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-pco2') ? MISSING_RING : ''}`} 
+                className={`min-h-[44px] w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-pco2') ? MISSING_RING : ''}`} 
                 placeholder="35–45" 
               />
               <button 
                 onClick={togglePressureUnit}
-                className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0"
+                className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0 min-h-[44px]"
               >
                 {inputs.paco2Unit}
               </button>
@@ -126,7 +126,7 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
                 id="abg-hco3" aria-label="HCO₃⁻" step="0.1" inputMode="decimal"
                 value={inputs.hco3} 
                 onChange={e => updateInput('hco3', e.target.value)}
-                className={`w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-hco3') ? MISSING_RING : ''}`} 
+                className={`min-h-[44px] w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('abg-hco3') ? MISSING_RING : ''}`} 
                 placeholder="22–26" 
               />
               <span className="text-[11px] font-semibold text-slate-500 w-8 text-left">mmol</span>
@@ -136,15 +136,15 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
           <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">{inputs.sampleType === 'vena' ? 'PvO₂ (diabaikan)' : 'PaO₂'}</span>
             <div className="flex-1 flex items-center justify-end gap-2">
-              <DecimalInput step="1" 
+              <DecimalInput step="1" aria-label={inputs.sampleType === 'vena' ? 'PvO₂' : 'PaO₂'}
                 value={inputs.po2} 
                 onChange={e => updateInput('po2', e.target.value)}
-                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" 
                 placeholder="80–100" 
               />
               <button
                 onClick={togglePressureUnit}
-                className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0"
+                className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0 min-h-[44px]"
                 title="Satuan gas (berlaku untuk PaCO₂ & PaO₂)"
               >
                 {inputs.paco2Unit}
@@ -155,10 +155,10 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
           <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BE</span>
             <div className="flex-1 flex items-center justify-end gap-2">
-              <DecimalInput step="0.1" 
+              <DecimalInput step="0.1" aria-label="Base excess (BE)"
                 value={inputs.be} 
                 onChange={e => updateInput('be', e.target.value)}
-                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" 
                 placeholder="-2 s/d +2" 
               />
               <span className="text-[11px] font-semibold text-slate-500 w-8 text-left">mEq</span>
@@ -180,10 +180,10 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Saturasi O₂</span>
               <div className="flex-1 flex items-center justify-end gap-2">
-                <DecimalInput step="1" 
+                <DecimalInput step="1" aria-label="Saturasi O₂ (%)"
                   value={inputs.spo2} 
                   onChange={e => updateInput('spo2', e.target.value)}
-                  className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                  className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" 
                   placeholder="95-100" 
                 />
                 <span className="text-[11px] font-semibold text-slate-500 w-4 text-left">%</span>
@@ -191,13 +191,13 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
             </div>
             <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
               <button 
-                className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'abg' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
+                className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'abg' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
                 onClick={() => updateInput('spo2Source', 'abg')}
               >
                 🔬 SaO₂ (ABG)
               </button>
               <button 
-                className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'pulse' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
+                className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'pulse' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
                 onClick={() => updateInput('spo2Source', 'pulse')}
               >
                 💡 Pulse Ox
@@ -210,13 +210,13 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">FiO₂</span>
               <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
                 <button 
-                  className={`px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'direct' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
+                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'direct' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
                   onClick={() => updateInput('fio2Mode', 'direct')}
                 >
                   🔢 Direct
                 </button>
                 <button 
-                  className={`px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'lowflow' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
+                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'lowflow' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
                   onClick={() => updateInput('fio2Mode', 'lowflow')}
                 >
                   💨 Low-Flow
@@ -227,19 +227,19 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
             {inputs.fio2Mode === 'direct' ? (
               <div className="flex items-center justify-end gap-2 mt-2">
                 <span className="text-[11px] text-slate-500">fraksi, atau persen 21–100</span>
-                <DecimalInput step="0.01" 
+                <DecimalInput step="0.01" aria-label="FiO₂ (fraksi atau persen)"
                   value={inputs.fio2Direct} 
                   onChange={e => updateInput('fio2Direct', e.target.value)}
-                  className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+                  className="w-28 flex-shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" 
                   placeholder="0.21–1.0" 
                 />
               </div>
             ) : (
               <div className="flex gap-2 mt-2">
-                <select 
+                <select aria-label="Alat O₂ low-flow"
                   value={inputs.fio2Device} 
                   onChange={e => updateInput('fio2Device', e.target.value)}
-                  className="flex-1 min-w-0 px-3 py-2 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg text-sm font-bold text-slate-900 dark:text-white outline-none"
+                  className="flex-1 min-w-0 px-3 py-2 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg text-sm font-bold text-slate-900 dark:text-white outline-none min-h-[44px]"
                 >
                   <option value="nasal">Nasal Cannula</option>
                   <option value="simple">Simple Mask</option>
@@ -247,10 +247,10 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
                   <option value="venturi24">Venturi 24%</option>
                 </select>
                 <div className="flex items-center gap-1 w-24">
-                  <DecimalInput 
+                  <DecimalInput aria-label="Aliran O₂ (L/menit)"
                     value={inputs.fio2Flow} 
                     onChange={e => updateInput('fio2Flow', e.target.value)} 
-                    className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white text-[14px]" 
+                    className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 outline-none text-right font-bold text-slate-900 dark:text-white text-[14px] min-h-[44px]" 
                     placeholder="Flow" 
                   />
                   <span className="text-[11px] font-semibold text-slate-500">L/m</span>
@@ -262,11 +262,11 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Dukungan Napas</span>
-              <select
+              <select aria-label="Dukungan napas"
                 value={effectiveSupport}
                 disabled={inputs.fio2Mode === 'lowflow'}
                 onChange={e => updateInput('support', e.target.value)}
-                className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all w-full max-w-[220px] appearance-none disabled:opacity-60"
+                className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all w-full max-w-[220px] appearance-none disabled:opacity-60 min-h-[44px]"
               >
                 {(Object.keys(SUPPORT_LABEL) as RespSupport[]).map(k => <option key={k} value={k}>{SUPPORT_LABEL[k]}</option>)}
               </select>
@@ -277,9 +277,9 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
             {effectiveSupport === 'hfno' && (
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">Flow</span>
-                <DecimalInput value={inputs.hfnoFlow} onChange={e => updateInput('hfnoFlow', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="L/m" />
+                <DecimalInput aria-label="Aliran HFNC (L/menit)" value={inputs.hfnoFlow} onChange={e => updateInput('hfnoFlow', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" placeholder="L/m" />
                 <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">Jam ke-</span>
-                <select value={inputs.roxHour} onChange={e => updateInput('roxHour', e.target.value)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white text-[13px]">
+                <select aria-label="Jam ke- HFNC (ROX)" value={inputs.roxHour} onChange={e => updateInput('roxHour', e.target.value)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white text-[13px] min-h-[44px]">
                   <option value="">—</option>
                   <option value="2">2</option>
                   <option value="6">6</option>
@@ -290,9 +290,9 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
             {(effectiveSupport === 'niv' || effectiveSupport === 'invasif') && (
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400">PEEP/EPAP</span>
-                <DecimalInput value={inputs.peep} onChange={e => updateInput('peep', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="cmH₂O" />
+                <DecimalInput aria-label="PEEP/EPAP (cmH₂O)" value={inputs.peep} onChange={e => updateInput('peep', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" placeholder="cmH₂O" />
                 <span className="text-[12px] font-semibold text-slate-600 dark:text-slate-400" title="Mean airway pressure dari ventilator — bukan MAP arteri">Paw</span>
-                <DecimalInput value={inputs.mapV} onChange={e => updateInput('mapV', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px]" placeholder="cmH₂O" />
+                <DecimalInput aria-label="Paw — tekanan jalan napas rerata (cmH₂O)" value={inputs.mapV} onChange={e => updateInput('mapV', e.target.value)} className="w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" placeholder="cmH₂O" />
               </div>
             )}
             {(effectiveSupport === 'niv' || effectiveSupport === 'invasif') && (
@@ -302,10 +302,10 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
 
           <div className={ROW}>
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Kondisi Utama</span>
-            <select 
+            <select aria-label="Kondisi utama"
               value={inputs.kondisi} 
               onChange={e => updateInput('kondisi', e.target.value)}
-              className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all w-full max-w-[200px] appearance-none"
+              className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all w-full max-w-[200px] appearance-none min-h-[44px]"
             >
               <option value="umum">Umum / ICU</option>
               <option value="ards">ARDS</option>
@@ -320,12 +320,12 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
           <div className="flex flex-col px-4 py-3 gap-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 block">Param Lainnya</span>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-               <DecimalInput placeholder="Na⁺" value={inputs.na} onChange={e=>updateInput('na',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <DecimalInput placeholder="Cl⁻" value={inputs.cl} onChange={e=>updateInput('cl',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <DecimalInput placeholder="Alb" value={inputs.alb} onChange={e=>updateInput('alb',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <DecimalInput placeholder="Lakt" value={inputs.laktat} onChange={e=>updateInput('laktat',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <DecimalInput placeholder="RR" value={inputs.rr} onChange={e=>updateInput('rr',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
-               <DecimalInput placeholder="Usia (th)" value={inputs.age} onChange={e=>updateInput('age',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all"/>
+               <DecimalInput aria-label="Na⁺ (mEq/L)" placeholder="Na⁺" value={inputs.na} onChange={e=>updateInput('na',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all min-h-[44px]"/>
+               <DecimalInput aria-label="Cl⁻ (mEq/L)" placeholder="Cl⁻" value={inputs.cl} onChange={e=>updateInput('cl',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all min-h-[44px]"/>
+               <DecimalInput aria-label="Albumin (g/dL)" placeholder="Alb" value={inputs.alb} onChange={e=>updateInput('alb',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all min-h-[44px]"/>
+               <DecimalInput aria-label="Laktat (mmol/L)" placeholder="Lakt" value={inputs.laktat} onChange={e=>updateInput('laktat',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all min-h-[44px]"/>
+               <DecimalInput aria-label="Laju napas (x/menit)" placeholder="RR" value={inputs.rr} onChange={e=>updateInput('rr',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all min-h-[44px]"/>
+               <DecimalInput aria-label="Usia (tahun)" placeholder="Usia (th)" value={inputs.age} onChange={e=>updateInput('age',e.target.value)} className="w-full min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-center font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all min-h-[44px]"/>
             </div>
             <div className="pt-2 mt-1 border-t border-slate-200 dark:border-slate-700">
               <AgUpperNormalField />

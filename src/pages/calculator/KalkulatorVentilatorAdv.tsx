@@ -180,7 +180,7 @@ export default function KalkulatorVentilatorAdv() {
     <div className={`${ROW} ${tone}`}>
       <label htmlFor={id} className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{label}</label>
       <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-        <DecimalInput id={id} inputMode="decimal" className={inputCls + (calc.isMissing(id) ? MISSING_RING : '')} value={value} placeholder={placeholder} onChange={e => set(e.target.value)} />
+        <DecimalInput id={id} inputMode="decimal" className={`${inputCls + (calc.isMissing(id) ? MISSING_RING : '')} min-h-[44px]`} value={value} placeholder={placeholder} onChange={e => set(e.target.value)} />
       </div>
     </div>
   );
@@ -199,7 +199,7 @@ export default function KalkulatorVentilatorAdv() {
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className={ROW}>
             <label htmlFor="va-kondisi" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi</label>
-            <select id="va-kondisi" className="flex-1 min-w-[10rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e => setKondisi(e.target.value as VentCondition)}>
+            <select id="va-kondisi" className="flex-1 min-w-[10rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={kondisi} onChange={e => setKondisi(e.target.value as VentCondition)}>
               <option value="normal">Tanpa ARDS / Post-op</option>
               <option value="ards">ARDS</option>
               <option value="copd">PPOK</option>
@@ -210,9 +210,9 @@ export default function KalkulatorVentilatorAdv() {
           <div className={ROW}>
             <label htmlFor="va-ibw" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">PBW / IBW (kg)</label>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput id="va-ibw" inputMode="decimal" className={inputCls} value={ibw} onChange={e => setIbw(e.target.value)} />
+              <DecimalInput id="va-ibw" inputMode="decimal" className={`${inputCls} min-h-[44px]`} value={ibw} onChange={e => setIbw(e.target.value)} />
               {patientPbw && ibw !== patientPbw && (
-                <button type="button" onClick={() => setIbw(patientPbw)} className="shrink-0 text-[11px] font-semibold text-[var(--accent)] hover:underline whitespace-nowrap">
+                <button type="button" onClick={() => setIbw(patientPbw)} className="shrink-0 text-[11px] font-semibold text-[var(--accent)] hover:underline whitespace-nowrap min-h-[44px]">
                   PBW pasien {patientPbw}
                 </button>
               )}

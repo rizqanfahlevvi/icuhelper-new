@@ -41,7 +41,7 @@ export function KaliumInputs({ s, k }: { s: KaliumState; k: string }) {
         <TargetField label="Target K" sub="ketik atau pilih rujukan" value={s.target} onChange={s.setTarget} unit="mEq/L" step="0.1" options={K_TARGETS} />
         <TargetField label="Rumatan K" sub="kebutuhan harian" value={s.maint} onChange={s.setMaint} unit="mEq/kg" step="0.1" options={K_MAINT_OPTIONS} />
         <FieldRow label="Akses IV">
-          <select className={selectCls} value={s.access} onChange={e => s.setAccess(e.target.value as 'perifer' | 'sentral')}>
+          <select aria-label="Akses IV" className={`${selectCls} min-h-[44px]`} value={s.access} onChange={e => s.setAccess(e.target.value as 'perifer' | 'sentral')}>
             <option value="perifer">Vena perifer</option>
             <option value="sentral">Vena sentral (CVC)</option>
           </select>

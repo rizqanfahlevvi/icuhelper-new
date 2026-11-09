@@ -50,7 +50,7 @@ export default function ScoringBfs() {
                  onClick={() => setScoreObj(item)}
                  role="radio"
                  aria-checked={scoreObj?.val === item.val}
-                 className={`w-full text-left p-2.5 border rounded-xl transition-all ${
+                 className={`min-h-[44px] w-full text-left p-2.5 border rounded-xl transition-all ${
                    scoreObj?.val === item.val
                      ? `bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm ring-1 ring-blue-500`
                      : 'bg-slate-50 dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'

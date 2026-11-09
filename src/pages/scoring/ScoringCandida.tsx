@@ -45,7 +45,7 @@ export default function ScoringCandida() {
          </div>
 
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label className={`flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${tpn ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
+            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${tpn ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
               <input type="checkbox" checked={tpn} onChange={e => setTpn(e.target.checked)} className="mt-1 w-5 h-5 accent-primary" />
               <div className="flex-1">
                 <div className="font-bold text-sm">Total Parenteral Nutrition (TPN/NPT)</div>
@@ -54,7 +54,7 @@ export default function ScoringCandida() {
               <div className="font-bold text-lg text-primary">+1</div>
             </label>
 
-            <label className={`flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${surg ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
+            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${surg ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
               <input type="checkbox" checked={surg} onChange={e => setSurg(e.target.checked)} className="mt-1 w-5 h-5 accent-primary" />
               <div className="flex-1">
                 <div className="font-bold text-sm">Operasi Mayor Saat Masuk ICU</div>
@@ -63,7 +63,7 @@ export default function ScoringCandida() {
               <div className="font-bold text-lg text-primary">+1</div>
             </label>
 
-            <label className={`flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${multi ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
+            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${multi ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
               <input type="checkbox" checked={multi} onChange={e => setMulti(e.target.checked)} className="mt-1 w-5 h-5 accent-primary" />
               <div className="flex-1">
                 <div className="font-bold text-sm">Kolonisasi Candida Multifokal</div>
@@ -72,7 +72,7 @@ export default function ScoringCandida() {
               <div className="font-bold text-lg text-primary">+1</div>
             </label>
 
-            <label className={`flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${sepsis ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
+            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${sepsis ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
               <input type="checkbox" checked={sepsis} onChange={e => setSepsis(e.target.checked)} className="mt-1 w-5 h-5 accent-primary" />
               <div className="flex-1">
                 <div className="font-bold text-sm">Sepsis Berat / Septic Shock</div>

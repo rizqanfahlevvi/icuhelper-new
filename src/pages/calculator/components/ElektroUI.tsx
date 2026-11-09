@@ -1,4 +1,4 @@
-import React, { type Dispatch, type SetStateAction } from 'react';
+import React, { createContext, useContext, useId, type Dispatch, type SetStateAction } from 'react';
 import { DecimalInput } from '../../../components/ui/DecimalInput';
 
 type StrSetter = Dispatch<SetStateAction<string>>;
@@ -9,22 +9,28 @@ type StrSetter = Dispatch<SetStateAction<string>>;
 export const inputCls = 'w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
 export const selectCls = 'flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-w-[9rem] max-w-full';
 
+/** id elemen label baris terdekat — dipakai NumField sebagai aria-labelledby (label terprogram). */
+const FieldLabelCtx = createContext<string | undefined>(undefined);
+
 export function FieldRow({ label, sub, children }: { label: React.ReactNode; sub?: React.ReactNode; children: React.ReactNode }) {
+  const id = useId();
   return (
     <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-      <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">
+      <span id={id} className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">
         {label}
         {sub && <span className="block font-normal text-slate-500 dark:text-slate-400 text-[11px]">{sub}</span>}
       </span>
-      {children}
+      <FieldLabelCtx.Provider value={id}>{children}</FieldLabelCtx.Provider>
     </div>
   );
 }
 
-export function NumField({ value, onChange, placeholder, unit, step = 'any' }: { value: string; onChange: StrSetter; placeholder?: string; unit?: string; step?: string }) {
+export function NumField({ value, onChange, placeholder, unit, step = 'any', ariaLabel }: { value: string; onChange: StrSetter; placeholder?: string; unit?: string; step?: string; ariaLabel?: string }) {
+  const labelId = useContext(FieldLabelCtx);
   return (
     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-      <DecimalInput inputMode="decimal" step={step} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={inputCls} />
+      <DecimalInput inputMode="decimal" step={step} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className={`${inputCls} min-h-[44px]`}
+        aria-label={ariaLabel} aria-labelledby={ariaLabel ? undefined : labelId} />
       {unit !== undefined && <span className="text-xs font-semibold text-slate-500 w-12 text-left">{unit}</span>}
     </div>
   );
@@ -37,19 +43,20 @@ export function TargetField({ label, sub, value, onChange, unit, step, options }
   label: React.ReactNode; sub?: React.ReactNode; value: string; onChange: StrSetter; unit: string; step?: string; options: ChipOption[];
 }) {
   const active = options.find(o => o.value === value);
+  const id = useId();
   return (
     <div className="px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">
+        <span id={id} className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">
           {label}
           {sub && <span className="block font-normal text-slate-500 dark:text-slate-400 text-[11px]">{sub}</span>}
         </span>
-        <NumField value={value} onChange={onChange} unit={unit} step={step} />
+        <FieldLabelCtx.Provider value={id}><NumField value={value} onChange={onChange} unit={unit} step={step} /></FieldLabelCtx.Provider>
       </div>
       <div className="flex flex-wrap gap-1.5 mt-2">
         {options.map(o => (
           <button key={o.value + o.label} type="button" onClick={() => onChange(o.value)}
-            className={`text-[11px] px-2 py-1 rounded-lg border transition-colors ${value === o.value ? 'bg-blue-500/15 border-blue-500/40 text-blue-700 dark:text-blue-300 font-semibold' : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>
+            className={`min-h-[44px] text-[11px] px-2 py-1 rounded-lg border transition-colors ${value === o.value ? 'bg-blue-500/15 border-blue-500/40 text-blue-700 dark:text-blue-300 font-semibold' : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>
             {o.value} · {o.label}
           </button>
         ))}
@@ -75,7 +82,7 @@ export function ToggleList({ title, hint, items, selected, onToggle, tone = 'sla
       <div className="flex flex-wrap gap-1.5">
         {items.map(s => (
           <button key={s} type="button" onClick={() => onToggle(s)}
-            className={`text-[12px] px-2.5 py-1.5 rounded-lg border transition-colors ${selected.has(s) ? on : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>
+            className={`min-h-[44px] text-[12px] px-2.5 py-1.5 rounded-lg border transition-colors ${selected.has(s) ? on : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>
             {s}
           </button>
         ))}

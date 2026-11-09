@@ -239,10 +239,10 @@ export default function KalkulatorElektro() {
       <UnifiedSyncBanner fields={syncFields} />
       
       <div className="flex bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4">
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'na' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('na'); setShown(false)}}>Natrium</button>
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'k' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('k'); setShown(false)}}>Kalium</button>
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'ca' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('ca'); setShown(false)}}>Kalsium</button>
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'mg' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('mg'); setShown(false)}}>Magnesium</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'na' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('na'); setShown(false)}}>Natrium</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'k' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('k'); setShown(false)}}>Kalium</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'ca' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('ca'); setShown(false)}}>Kalsium</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'mg' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('mg'); setShown(false)}}>Magnesium</button>
       </div>
 
       <div className="flex flex-col gap-0">
@@ -254,7 +254,7 @@ export default function KalkulatorElektro() {
             <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
                <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                 <DecimalInput id="el-bw" aria-label="Berat badan (kg)" inputMode="decimal" value={bw} onChange={e=>setBw(e.target.value)} placeholder="70" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-bw') ? ' ring-2 ring-[var(--sys-red)]' : ''}`}
+                 <DecimalInput id="el-bw" aria-label="Berat badan (kg)" inputMode="decimal" value={bw} onChange={e=>setBw(e.target.value)} placeholder="70" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-bw') ? ' ring-2 ring-[var(--sys-red)]' : ''}`}
                  />
                  <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
                </div>
@@ -265,13 +265,13 @@ export default function KalkulatorElektro() {
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Serum</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput id="el-na" aria-label="Na serum (mEq/L)" inputMode="decimal" value={na} onChange={e=>setNa(e.target.value)} placeholder="135" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-na') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
+                     <DecimalInput id="el-na" aria-label="Na serum (mEq/L)" inputMode="decimal" value={na} onChange={e=>setNa(e.target.value)} placeholder="135" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-na') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mEq/L</span>
                    </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Jenis Kelamin</span>
-                   <select className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={sex} onChange={e=>setSex(e.target.value)}>
+                   <select aria-label="Jenis Kelamin" className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={sex} onChange={e=>setSex(e.target.value)}>
                      <option value="m">Laki-laki</option>
                      <option value="f">Perempuan</option>
                    </select>
@@ -279,21 +279,21 @@ export default function KalkulatorElektro() {
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Usia</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput value={age} onChange={e=>setAge(e.target.value)} placeholder="untuk faktor TBW" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                     <DecimalInput aria-label="Usia" value={age} onChange={e=>setAge(e.target.value)} placeholder="untuk faktor TBW" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">tahun</span>
                    </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Glukosa GDS</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput value={glu} onChange={e=>setGlu(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                     <DecimalInput aria-label="Glukosa GDS" value={glu} onChange={e=>setGlu(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
                 <FieldRow label={ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} sub="untuk osmolalitas terhitung">
                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                    <DecimalInput value={ureum} onChange={e=>setUreum(e.target.value)} placeholder="Opsional" className={inputCls} />
-                    <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
+                    <DecimalInput aria-label={ureaUnit === 'ureum' ? 'Ureum (mg/dL)' : 'BUN (mg/dL)'} value={ureum} onChange={e=>setUreum(e.target.value)} placeholder="Opsional" className={`${inputCls} min-h-[44px]`} />
+                    <select aria-label="Satuan ureum/BUN" value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer min-h-[44px]">
                       <option value="ureum">Ureum</option>
                       <option value="bun">BUN</option>
                     </select>
@@ -311,7 +311,7 @@ export default function KalkulatorElektro() {
                 )}
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Onset</span>
-                   <select className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={onset} onChange={e=>{ setOnset(e.target.value); setHyperDrop(e.target.value === 'akut' ? '24' : '10'); }}>
+                   <select aria-label="Onset" className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={onset} onChange={e=>{ setOnset(e.target.value); setHyperDrop(e.target.value === 'akut' ? '24' : '10'); }}>
                      <option value="kronik">Kronik / Tidak tahu</option>
                      <option value="akut">Akut (&lt;48 jam)</option>
                    </select>
@@ -320,7 +320,7 @@ export default function KalkulatorElektro() {
                   <>
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Cairan koreksi</span>
-                   <select className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={naFluid} onChange={e=>setNaFluid(e.target.value)}>
+                   <select aria-label="Cairan koreksi" className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={naFluid} onChange={e=>setNaFluid(e.target.value)}>
                      {NA_FLUIDS.map(f => <option key={f.id} value={f.id}>{f.label} ({f.na} mEq/L)</option>)}
                    </select>
                 </div>
@@ -338,7 +338,7 @@ export default function KalkulatorElektro() {
                       <div className="text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1.5">🔴 Berat</div>
                       <div className="flex flex-wrap gap-1.5">
                         {SEVERE_SX.map(s => (
-                          <button key={s} type="button" onClick={()=>toggleSymptom(s)} className={`text-[12px] px-2.5 py-1.5 rounded-lg border transition-colors ${symptoms.has(s) ? 'bg-red-500/15 border-red-500/40 text-red-700 dark:text-red-300 font-semibold' : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>{s}</button>
+                          <button key={s} type="button" onClick={()=>toggleSymptom(s)} className={`min-h-[44px] text-[12px] px-2.5 py-1.5 rounded-lg border transition-colors ${symptoms.has(s) ? 'bg-red-500/15 border-red-500/40 text-red-700 dark:text-red-300 font-semibold' : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>{s}</button>
                         ))}
                       </div>
                     </div>
@@ -346,7 +346,7 @@ export default function KalkulatorElektro() {
                       <div className="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1.5">🟠 Sedang</div>
                       <div className="flex flex-wrap gap-1.5">
                         {MODERATE_SX.map(s => (
-                          <button key={s} type="button" onClick={()=>toggleSymptom(s)} className={`text-[12px] px-2.5 py-1.5 rounded-lg border transition-colors ${symptoms.has(s) ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300 font-semibold' : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>{s}</button>
+                          <button key={s} type="button" onClick={()=>toggleSymptom(s)} className={`min-h-[44px] text-[12px] px-2.5 py-1.5 rounded-lg border transition-colors ${symptoms.has(s) ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300 font-semibold' : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>{s}</button>
                         ))}
                       </div>
                     </div>
@@ -365,20 +365,20 @@ export default function KalkulatorElektro() {
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">K Serum</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput id="el-k" aria-label="K serum (mEq/L)" inputMode="decimal" step="0.1" value={k} onChange={e=>setK(e.target.value)} placeholder="3.5" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-k') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
+                     <DecimalInput id="el-k" aria-label="K serum (mEq/L)" inputMode="decimal" step="0.1" value={k} onChange={e=>setK(e.target.value)} placeholder="3.5" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-k') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mEq/L</span>
                    </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">pH Arteri</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput step="0.01" value={ph} onChange={e=>setPh(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                     <DecimalInput aria-label="pH Arteri" step="0.01" value={ph} onChange={e=>setPh(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" />
                    </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">GDS Pre-Koreksi</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput step="1" value={gdsK} onChange={e=>setGdsK(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                     <DecimalInput aria-label="GDS Pre-Koreksi" step="1" value={gdsK} onChange={e=>setGdsK(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
@@ -391,21 +391,21 @@ export default function KalkulatorElektro() {
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Ca Total</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput id="el-ca" aria-label="Ca total (mg/dL)" inputMode="decimal" step="0.1" value={ca} onChange={e=>setCa(e.target.value)} placeholder="8.5" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-ca') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
+                     <DecimalInput id="el-ca" aria-label="Ca total (mg/dL)" inputMode="decimal" step="0.1" value={ca} onChange={e=>setCa(e.target.value)} placeholder="8.5" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-ca') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Albumin</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput step="0.1" value={alb} onChange={e=>setAlb(e.target.value)} placeholder="4.0" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                     <DecimalInput aria-label="Albumin" step="0.1" value={alb} onChange={e=>setAlb(e.target.value)} placeholder="4.0" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">g/dL</span>
                    </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">pH Arteri</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput step="0.01" value={caPh} onChange={e=>setCaPh(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                     <DecimalInput aria-label="pH Arteri" step="0.01" value={caPh} onChange={e=>setCaPh(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" />
                    </div>
                 </div>
                 <KalsiumInputs s={caState} ca={ca} alb={alb} />
@@ -417,14 +417,14 @@ export default function KalkulatorElektro() {
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Mg Serum</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput id="el-mg" aria-label="Mg serum (mg/dL)" inputMode="decimal" step="0.1" value={mg} onChange={e=>setMg(e.target.value)} placeholder="1.7" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-mg') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
+                     <DecimalInput id="el-mg" aria-label="Mg serum (mg/dL)" inputMode="decimal" step="0.1" value={mg} onChange={e=>setMg(e.target.value)} placeholder="1.7" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-mg') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">eGFR / CrCl</span>
                    <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                     <DecimalInput step="1" value={egfr} onChange={e=>setEgfr(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                     <DecimalInput aria-label="eGFR / CrCl" step="1" value={egfr} onChange={e=>setEgfr(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mL/min</span>
                    </div>
                 </div>

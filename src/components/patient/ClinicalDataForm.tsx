@@ -71,7 +71,7 @@ export function ClinicalDataForm() {
           placeholder="Contoh: Syok sepsis ec pneumonia, ARDS sedang…"
           value={data.diagnosis || ''}
           onChange={(e) => setField('diagnosis', e.target.value)}
-          className="w-full px-4 py-2 bg-background border border-[var(--separator)] rounded-xl text-sm font-semibold text-[var(--label-primary)] focus:border-teal-500 outline-hidden"
+          className="w-full px-4 py-2 bg-background border border-[var(--separator)] rounded-xl text-sm font-semibold text-[var(--label-primary)] focus:border-teal-500 outline-hidden min-h-[44px]"
         />
       </div>
 
@@ -88,7 +88,7 @@ export function ClinicalDataForm() {
               role="tab"
               aria-selected={active}
               onClick={() => setTab(g.id)}
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer ${
+              className={`min-h-[44px] flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer ${
                 active
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-black shadow-xs'
                   : 'bg-muted hover:bg-muted/70 text-muted-foreground'
@@ -133,7 +133,7 @@ export function ClinicalDataForm() {
                   value={value}
                   onChange={(e) => handleChange(key, e.target.value)}
                   placeholder={meta.example ? `Contoh: ${meta.example}` : ''}
-                  className="w-full pl-4 pr-16 py-2 bg-background border border-[var(--separator)] rounded-xl text-sm font-semibold text-[var(--label-primary)] focus:border-teal-500 outline-hidden"
+                  className="w-full pl-4 pr-16 py-2 bg-background border border-[var(--separator)] rounded-xl text-sm font-semibold text-[var(--label-primary)] focus:border-teal-500 outline-hidden min-h-[44px]"
                 />
                 {meta.unit && (
                   <span className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-[11px] text-muted-foreground font-semibold">
