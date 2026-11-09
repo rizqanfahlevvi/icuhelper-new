@@ -48,7 +48,7 @@ export default function KalkulatorPF() {
     if (clinicalStore.data.peep) setPeep(clinicalStore.data.peep);
     if (clinicalStore.data.pco2) setPaco2(clinicalStore.data.pco2);
     if (clinicalStore.data.ph) setPh(clinicalStore.data.ph);
-    if (clinicalStore.data.map) setMap(clinicalStore.data.map);
+    if (clinicalStore.data.mpaw) setMap(clinicalStore.data.mpaw);
     if (clinicalStore.data.fio2) {
       setFio2DirectMode('percent');
       setFio2(clinicalStore.data.fio2);
@@ -70,7 +70,7 @@ export default function KalkulatorPF() {
     { key: 'peep', label: 'PEEP', value: peep, setter: setPeep, unit: 'cmH₂O' },
     { key: 'pco2', label: 'PaCO₂', value: paco2, setter: setPaco2, unit: 'mmHg' },
     { key: 'ph', label: 'pH', value: ph, setter: setPh, unit: '' },
-    { key: 'map', label: 'MAP', value: map, setter: setMap, unit: 'mmHg' },
+    { key: 'mpaw', label: 'mPaw', value: map, setter: setMap, unit: 'cmH₂O' },
   ], [pao2, fio2, fio2Mode, spo2, spo2Source, peep, paco2, ph, map]);
 
   const handleAutofill = (data: any) => {

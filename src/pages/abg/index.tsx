@@ -70,7 +70,7 @@ export default function AbgPage() {
       { key: 'laktat', label: 'Laktat', value: abgInputs.laktat, setter: set('laktat'), unit: 'mmol/L' },
       // SpO₂ hanya dari pulse oximetry (SaO₂ AGD tidak ditulis ke kunci SpO₂).
       { key: 'spo2', label: 'SpO₂', value: abgInputs.spo2Source === 'pulse' ? abgInputs.spo2 : '', setter: (v: string) => setAbgInputs(prev => ({ ...prev, spo2: v, spo2Source: 'pulse' })), unit: '%' },
-      { key: 'map', label: 'MAP', value: abgInputs.mapV, setter: set('mapV'), unit: 'mmHg' },
+      { key: 'mpaw', label: 'mPaw', value: abgInputs.mapV, setter: set('mapV'), unit: 'cmH₂O' },
       { key: 'rr', label: 'RR', value: abgInputs.rr, setter: set('rr'), unit: 'x/menit' },
       { key: 'peep', label: 'PEEP', value: abgInputs.peep, setter: set('peep'), unit: 'cmH₂O' },
       { key: 'age', label: 'Usia', value: abgInputs.age, setter: set('age'), unit: 'tahun' },

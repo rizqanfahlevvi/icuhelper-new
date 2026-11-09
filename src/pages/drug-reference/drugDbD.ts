@@ -554,7 +554,7 @@ export const ICU_DRUGS: DrugDatabase = {
     icu_primary: ["Hiponatremia simtomatik berat (Na <120 mEq/L dengan gejala neurologis)", "Hipertensi intrakranial (ICP >20 cmH₂O) — alternatif atau adjun mannitol"],
     icu_secondary: ["Hiponatremia akut (<48 jam) — koreksi lebih agresif aman", "Edema serebral post-stroke, TBI, post-reseksi massa"],
     local_guideline: "Panduan TBI Indonesia: NaCl 3% atau mannitol 20% untuk ICP. PERDICI: Koreksi hiponatremia tidak melebihi 10–12 mEq/L per 24 jam.",
-    intl_guideline: "Spasiani 2022, ESICM: NaCl 3% untuk ICP. EAO/ESE 2014: Hiponatremia simtomatik berat → NaCl 3% 150 mL bolus 20 menit, ulangi bila perlu."
+    intl_guideline: "Spasiani 2022, ESICM: NaCl 3% untuk ICP. ESE/ESICM/ERBP 2014 (Spasovski): Hiponatremia simtomatik berat → NaCl 3% 150 mL bolus 20 menit, ulangi bila perlu."
   },
   contraindications: ["Hipernatremia (Na >145 mEq/L)", "Edema paru berat (kelebihan cairan)", "Gagal jantung dekompensasi berat (relatif)"],
   precautions: ["Koreksi Na tidak boleh >10–12 mEq/L per 24 jam — ODS", "Pada hiponatremia kronik (>48 jam): lebih lambat, maksimal 8–10 mEq/24 jam", "Monitor Na setiap 2–4 jam selama koreksi"],

@@ -71,7 +71,7 @@ export default function SettingIndex() {
               <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-200 dark:border-blue-500/20">
                 <div className="text-xs font-bold text-blue-700 dark:text-blue-400 mb-1 flex items-center gap-1.5"><Activity className="w-3 h-3"/> <span>Evaluasi <Abbr k="ROX" /> Index</span></div>
                 <div className="text-[var(--label-secondary)]">(SpO₂ / FiO₂) / RR</div>
-                <div className="text-xs mt-1 text-[var(--label-primary)]">Diukur jam ke-2, 6, 12. Jika <strong>&lt; 3.85</strong> indikasi intubasi tinggi.</div>
+                <div className="text-xs mt-1 text-[var(--label-primary)]">Diukur jam ke-2, 6, 12. Risiko tinggi gagal HFNC bila <strong>&lt;2,85 (jam 2), &lt;3,47 (jam 6), &lt;3,85 (jam 12)</strong>; ≥4,88 = risiko rendah (Roca 2019).</div>
               </div>
             </div>
             <p className="text-[10px] text-amber-600 dark:text-amber-400 font-mono font-bold pt-2 border-t border-slate-200 dark:border-slate-700/50">📚 Roca O. Am J Respir Crit Care Med 2019 (ROX Index)</p>
@@ -178,7 +178,7 @@ export default function SettingIndex() {
             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <div>
               <div className="font-bold text-sm text-amber-800 dark:text-amber-400 mb-1">ARDS Severe — Prone Position</div>
-              <div className="text-xs text-[var(--label-secondary)] leading-relaxed">Indikasi P/F &lt;150 dengan FiO₂ ≥0.6 selama &gt;12 jam. Lakukan praning 16 jam/hari (Pedomann PROSEVA).</div>
+              <div className="text-xs text-[var(--label-secondary)] leading-relaxed">Indikasi: P/F &lt;150 dengan FiO₂ ≥0,6 dan PEEP ≥5 setelah stabilisasi 12–24 jam. Prone ≥16 jam/hari (PROSEVA).</div>
             </div>
           </div>
         </Card>

@@ -347,7 +347,7 @@ export default function KalkulatorRenal() {
     if (!isNaN(ureaS) && ureaS > 0 && !isNaN(ureaU) && ureaU > 0) {
       feurea = (ureaU * crS) / (ureaS * crU) * 100;
       if (feurea < 35) { 
-        fui = 'Pre-renal KO (Valid meskipun sedang mendapat terapi diuretik)'; 
+        fui = 'Pre-renal (tetap valid meskipun sedang mendapat terapi diuretik)'; 
         fuc = 'var(--sys-green)'; 
         fucls = 'bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300'; 
       } else if (feurea < 50) { 

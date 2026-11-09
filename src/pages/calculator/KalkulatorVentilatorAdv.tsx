@@ -53,6 +53,7 @@ export default function KalkulatorVentilatorAdv() {
     if (clinicalStore.data.fio2) setFio2(clinicalStore.data.fio2);
     if (clinicalStore.data.spo2) setSpo2(clinicalStore.data.spo2);
     if (clinicalStore.data.pao2) setPao2(clinicalStore.data.pao2);
+    if (clinicalStore.data.mpaw) setMpawIn(clinicalStore.data.mpaw);
   }, []);
 
   const syncFields = useMemo<SyncField[]>(() => [
@@ -61,7 +62,8 @@ export default function KalkulatorVentilatorAdv() {
     { key: 'fio2', label: 'FiO₂', value: fio2, setter: setFio2, unit: '%' },
     { key: 'spo2', label: 'SpO₂', value: spo2, setter: setSpo2, unit: '%' },
     { key: 'pao2', label: 'PaO₂', value: pao2, setter: setPao2, unit: 'mmHg' },
-  ], [rr, peep, fio2, spo2, pao2]);
+    { key: 'mpaw', label: 'mPaw', value: mpawIn, setter: setMpawIn, unit: 'cmH₂O' },
+  ], [rr, peep, fio2, spo2, pao2, mpawIn]);
 
   // PBW (Devine) dari TB & JK pasien aktif — ditawarkan, tidak diisi diam-diam.
   const patientPbw = useMemo(() => {
@@ -76,6 +78,7 @@ export default function KalkulatorVentilatorAdv() {
     if (clinicalStore.data.fio2) setFio2(clinicalStore.data.fio2);
     if (clinicalStore.data.spo2) setSpo2(clinicalStore.data.spo2);
     if (clinicalStore.data.pao2) setPao2(clinicalStore.data.pao2);
+    if (clinicalStore.data.mpaw) setMpawIn(clinicalStore.data.mpaw);
     setRes(null);
   };
 

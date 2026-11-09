@@ -473,7 +473,7 @@ export default function KalkulatorIBW() {
                       formula: `BMI = BB ÷ (TB/100)² = ${results.aBW} ÷ (${height}/100)² = ${results.extraParams.bmi} (${results.extraParams.bmiLabel})`,
                     },
                     {
-                      label: 'Langkah 4 — BSA (DuBois) & LBW:',
+                      label: 'Langkah 4 — BSA (Mosteller) & LBW:',
                       formula: `BSA = √(TB × BB / 3600) = ${results.extraParams.bsa} m²\nLBW (Lean Body Weight) = ${results.extraParams.lbw} kg`,
                     },
                     ...(results.adjBW ? [{
@@ -508,7 +508,7 @@ export default function KalkulatorIBW() {
           <li><strong className="text-foreground">Adjusted BW (ABW):</strong> Untuk pasien obesitas ekstrem: ABW = IBW + 0.4 × (Actual BW − IBW). Digunakan untuk dosis obat tertentu, bukan untuk VT ventilator.</li>
         </ul>
         <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
-          📚 ardsnet2000, devine1974, singer2023
+          📚 ARDSNet. NEJM 2000;342:1301 · Devine BJ. Drug Intell Clin Pharm 1974;8:650 · Singer P et al. (ESPEN) Clin Nutr 2023;42:1671
         </div>
       </Accordion>
       <AbbrLegend

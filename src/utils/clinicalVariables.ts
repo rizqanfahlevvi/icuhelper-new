@@ -33,6 +33,7 @@ export interface ClinicalData {
   // AGD arteri & respirasi
   fio2?: string;            // % (21–100) — modul berbasis fraksi WAJIB konversi (utils/abg: fio2ToPercentString / fio2FromStoreString)
   peep?: string;            // cmH₂O
+  mpaw?: string;            // cmH₂O — mean airway pressure dari ventilator (BUKAN MAP arteri)
   ph?: string;              // pH arteri
   pco2?: string;            // PaCO₂ mmHg
   pao2?: string;            // PaO₂ mmHg
@@ -124,6 +125,7 @@ export const CLINICAL_VARIABLES: Record<ClinicalKey, ClinicalVariableMeta> = {
 
   fio2: { label: 'FiO₂', short: 'FiO₂', unit: '%', group: 'respirasi', example: '21', hint: 'Dalam persen (21–100), bukan fraksi.' },
   peep: { label: 'PEEP / EPAP', short: 'PEEP', unit: 'cmH₂O', group: 'respirasi', example: '5' },
+  mpaw: { label: 'Mean Airway Pressure (mPaw)', short: 'mPaw', unit: 'cmH₂O', group: 'respirasi', example: '14', hint: 'Dari layar ventilator — bukan MAP arteri (mmHg).' },
   ph: { label: 'pH Arteri', short: 'pH', unit: '', group: 'respirasi', example: '7.40', hint: 'Sampel arteri (AGD). Jangan isi dengan pH vena.' },
   pco2: { label: 'PaCO₂', short: 'PaCO₂', unit: 'mmHg', group: 'respirasi', example: '40' },
   pao2: { label: 'PaO₂', short: 'PaO₂', unit: 'mmHg', group: 'respirasi', example: '90' },

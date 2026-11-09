@@ -19,7 +19,7 @@ export function Abbr({ k, children }: { k: AbbrKey; children?: ReactNode }) {
       >
         {children ?? abbrLabel(k)}
       </button>
-      {open && <span className="font-normal text-muted-foreground"> ({meaning})</span>}
+      {open && <span className="font-normal normal-case tracking-normal text-muted-foreground"> ({meaning})</span>}
     </abbr>
   );
 }
