@@ -593,7 +593,7 @@ export default function MainLayout() {
                   aria-label="Kembali"
                 >
                   <ChevronLeft size={24} className="stroke-[2.5]" />
-                  <span className="hidden min-[360px]:inline">Kembali</span>
+                  {fontScale <= 1.1 && <span className="hidden min-[360px]:inline">Kembali</span>}
                 </button>
               )}
               <h1 className="font-semibold text-[16px] tracking-tight text-[var(--label-primary)] truncate min-w-0">
