@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { Activity } from 'lucide-react';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
 import { UnifiedSyncBanner, type SyncField } from '../../../components/UnifiedSyncBanner';
 import { stageAki, type AkiResult } from '../../../utils/aki';
+import { CalcActionBar } from '../../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../../hooks/useCalcTrigger';
+import { akiSummary } from '../../../utils/cairanObatSummary';
 
 const STAGE_STYLE: Record<number, { desc: string; color: string }> = {
   0: { desc: 'Tidak memenuhi kriteria AKI', color: 'text-emerald-600 dark:text-emerald-400' },
@@ -28,6 +30,8 @@ export function RenalAkiStaging() {
   ], [baselineScr, currentScr, weight]);
 
   const calculate = () => {
+    // Belum ada isian sama sekali → tidak ada hasil (bilah menampilkan "Lengkapi").
+    if (![baselineScr, currentScr, urineOutput].some(v => v.trim() !== '') && !rrt) { setRes(null); return; }
     const num = (v: string) => (v.trim() === '' ? undefined : parseFloat(v));
     const r = stageAki({
       baselineScr: num(baselineScr), currentScr: num(currentScr), rrt,
@@ -39,62 +43,70 @@ export function RenalAkiStaging() {
     setRes({ ...r, ...style });
   };
 
+  // Data parsial tetap dievaluasi (stageAki memberi catatan apa yang kurang); wajib minimal satu isian.
+  const has = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v));
+  const anyInput = has(baselineScr) || has(currentScr) || has(urineOutput) || rrt;
+  const tr = useCalcTrigger({
+    compute: calculate,
+    deps: [baselineScr, currentScr, urineOutput, urineDuration, weight, rrt],
+    required: [{ id: 'aki-scr-cur', label: 'SCr atau urine output', filled: anyInput }],
+  });
+  const ring = (id: string) => (tr.isMissing(id) ? ' ring-2 ring-[var(--sys-red)]' : '');
+  const bar = res ? akiSummary(res.stage, res.desc) : null;
+
   return (
     <div className="flex flex-col gap-4 animate-in fade-in duration-300">
       <UnifiedSyncBanner fields={syncFields} />
       <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <div className="p-3 text-[12px] font-bold text-slate-500 uppercase tracking-wide">Kriteria Serum Kreatinin</div>
-        <div className="flex items-center justify-between px-4 py-3 gap-4">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">SCr Baseline</span>
-          <div className="flex-1 flex items-center justify-end gap-2">
-            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={baselineScr} onChange={e=>setBaselineScr(e.target.value)} placeholder="nilai stabil sebelum sakit" />
+        <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Baseline</span>
+          <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+            <input id="aki-scr-base" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-base')}`} value={baselineScr} onChange={e=>setBaselineScr(e.target.value)} placeholder="nilai stabil sebelum sakit" />
             <span className="text-xs text-slate-500 w-10">mg/dL</span>
           </div>
         </div>
-        <div className="flex items-center justify-between px-4 py-3 gap-4">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">SCr Saat Ini</span>
-          <div className="flex-1 flex items-center justify-end gap-2">
-            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={currentScr} onChange={e=>setCurrentScr(e.target.value)} placeholder="terbaru" />
+        <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Saat Ini</span>
+          <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+            <input id="aki-scr-cur" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('aki-scr-cur')}`} value={currentScr} onChange={e=>setCurrentScr(e.target.value)} placeholder="terbaru" />
             <span className="text-xs text-slate-500 w-10">mg/dL</span>
           </div>
         </div>
         <label className="flex items-center gap-3 px-4 py-3 cursor-pointer">
           <input type="checkbox" checked={rrt} onChange={e => setRrt(e.target.checked)} className="w-4 h-4 accent-blue-600" />
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Sudah dimulai terapi pengganti ginjal (RRT) → stage 3</span>
+          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Sudah dimulai terapi pengganti ginjal (RRT) → stage 3</span>
         </label>
       </div>
 
       <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <div className="p-3 text-[12px] font-bold text-slate-500 uppercase tracking-wide">Kriteria Urine Output (UO)</div>
-        <div className="flex items-center justify-between px-4 py-3 gap-4">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Berat Badan</span>
-          <div className="flex-1 flex items-center justify-end gap-2">
-            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={weight} onChange={e=>setWeight(e.target.value)} placeholder="kg" />
+        <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+          <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+            <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={weight} onChange={e=>setWeight(e.target.value)} placeholder="kg" />
             <span className="text-xs text-slate-500 w-10">kg</span>
           </div>
         </div>
-        <div className="flex items-center justify-between px-4 py-3 gap-4">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Total UO</span>
-          <div className="flex-1 flex items-center justify-end gap-2">
-            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineOutput} onChange={e=>setUrineOutput(e.target.value)} placeholder="mL" />
+        <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Total UO</span>
+          <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+            <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineOutput} onChange={e=>setUrineOutput(e.target.value)} placeholder="mL" />
             <span className="text-xs text-slate-500 w-10">mL</span>
           </div>
         </div>
-        <div className="flex items-center justify-between px-4 py-3 gap-4">
-          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Durasi Evaluasi</span>
-          <div className="flex-1 flex items-center justify-end gap-2">
-            <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineDuration} onChange={e=>setUrineDuration(e.target.value)} placeholder="jam" />
+        <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+          <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Durasi Evaluasi</span>
+          <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+            <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={urineDuration} onChange={e=>setUrineDuration(e.target.value)} placeholder="jam" />
             <span className="text-xs text-slate-500 w-10">jam</span>
           </div>
         </div>
       </div>
 
-      <button onClick={calculate} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-sm transition-all text-sm flex items-center justify-center gap-2">
-        <Activity className="w-4 h-4"/> Evaluasi Staging AKI
-      </button>
 
       {res && (
-        <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center mt-2">
+        <div id="aki-hasil" className="scroll-mt-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center mt-2">
           <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2">Klasifikasi KDIGO 2012</div>
           <div className={`text-2xl font-black ${res.color}`}>{res.desc}</div>
           {res.reasons.length > 0 && (
@@ -118,6 +130,16 @@ export function RenalAkiStaging() {
           </div>
         </div>
       )}
+      <CalcActionBar
+        armed={tr.armed}
+        onCalculate={tr.trigger}
+        label="Evaluasi Staging AKI"
+        summary={bar?.text ?? null}
+        summaryTone={bar?.tone ?? 'neutral'}
+        caption={bar?.caption}
+        missing={tr.missing}
+        resultTargetId="aki-hasil"
+      />
     </div>
   );
 }

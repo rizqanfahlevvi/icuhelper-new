@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CalcActionBar } from '../../../components/ui/CalcActionBar';
 import { ShieldAlert, Info } from 'lucide-react';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
 
@@ -114,6 +115,14 @@ export function RenalHdIndikasi() {
           Belum ada indikasi mendesak (AEIOU) maupun kriteria AKIKI yang dipilih.
         </div>
       )}
+
+      {/* Daftar centang → bilah selalu live (tanpa tombol Hitung). Label sama dengan kotak hasil di atas. */}
+      <CalcActionBar
+        mode="live"
+        summary={isIndicated ? `INDIKASI RRT MENDESAK · ${activeCount} kriteria AEIOU` : akiki2 ? 'Pertimbangkan memulai RRT (kriteria AKIKI)' : 'Belum ada indikasi mendesak'}
+        summaryTone={isIndicated ? 'bad' : akiki2 ? 'warn' : 'neutral'}
+        caption={isIndicated ? 'Pertimbangkan konsul Nefrologi segera' : 'Centang kriteria yang terpenuhi'}
+      />
 
       <div className="text-[11px] text-slate-500 dark:text-slate-400 italic leading-relaxed">
         📚 KDIGO AKI Guideline 2012 · Gaudry S et al. (AKIKI) N Engl J Med 2016;375:122 · STARRT-AKI Investigators. N Engl J Med 2020;383:240 · Gaudry S et al. (AKIKI 2) Lancet 2021;397:1293. Alat bantu edukasi — keputusan RRT tetap bersama DPJP/nefrologi.

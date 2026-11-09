@@ -12,6 +12,10 @@ import { useHistoryStore } from '../../store/useHistoryStore';
 import { infusionRateMlH, isFlatUnit, doseRangeStatus, propofolAbovePrisThreshold, type InfusionUnit } from '../../utils/infusion';
 import { InputWarning } from '../../components/ui/InputWarning';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
+
+const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
 
 const PUMP_CATEGORIES = {
   sedasi:      [['fentanyl','Fentanyl'],['morphin','Morfin'],['midazolam','Midazolam'],['propofol','Propofol 1%'],['dexmed','Dexmedetomidine'],['thiopental','Thiopental (Tiopol)']],
@@ -68,7 +72,6 @@ export default function KalkulatorPump() {
 
   const handleAutofill = (data: { weightKg: string }) => {
     if (data.weightKg) setBb(data.weightKg);
-    setResult(null);
   };
 
 
@@ -76,22 +79,22 @@ export default function KalkulatorPump() {
     const c = e.target.value;
     setCat(c);
     setDrug(PUMP_CATEGORIES[c as keyof typeof PUMP_CATEGORIES][0][0]);
-    setResult(null);
   };
 
   const calculate = () => {
     const b = parseFloat(bb);
     const d = parseFloat(dose);
     const v = parseFloat(vol);
-    if (!b || !d || !v) return;
+    // Input belum lengkap → kosongkan hasil (tidak boleh ada hasil basi setelah input berubah).
+    if (!b || !d || !v) { setResult(null); return; }
 
     const info = PUMP_INFO[drug];
-    if (!info) return;
+    if (!info) { setResult(null); return; }
 
     const unit = info.unit;
     const conc = info.conc;
     const rateMlH = infusionRateMlH(unit, d, b, conc);
-    if (!Number.isFinite(rateMlH)) return;
+    if (!Number.isFinite(rateMlH)) { setResult(null); return; }
 
     const duration = (v / rateMlH).toFixed(1);
     const isFlatDose = isFlatUnit(unit);
@@ -109,6 +112,17 @@ export default function KalkulatorPump() {
 
   const info = PUMP_INFO[drug];
 
+  // Hitung sekali → setelah itu hasil ikut berubah otomatis saat input berubah.
+  const calc = useCalcTrigger({
+    compute: calculate,
+    deps: [bb, drug, dose, vol],
+    required: [
+      { id: 'pump-bb', label: 'Berat badan', filled: parseFloat(bb) > 0 },
+      { id: 'pump-dose', label: 'Dosis', filled: parseFloat(dose) > 0 },
+    ],
+  });
+  const drugName = PUMP_CATEGORIES[cat].find(p => p[0] === drug)?.[1] ?? drug;
+
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       
@@ -122,17 +136,17 @@ export default function KalkulatorPump() {
         </h2>
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={bb} onChange={e=>setBb(e.target.value)} placeholder="70" />
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+              <input id="pump-bb" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('pump-bb') ? MISSING_RING : ''}`} value={bb} onChange={e=>setBb(e.target.value)} placeholder="70" />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
             </div>
           </div>
 
-          <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left max-w-[120px]">Kategori</span>
-            <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis" value={cat} onChange={handleCatChange}>
+          <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Kategori</span>
+            <select className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis" value={cat} onChange={handleCatChange}>
               <option value="sedasi">💊 Sedasi / Analgetik</option>
               <option value="vasopressor">🫀 Vasopressor / Inotropik</option>
               <option value="antiaritmia">⚡ Antiaritmia</option>
@@ -141,26 +155,26 @@ export default function KalkulatorPump() {
             </select>
           </div>
 
-          <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left max-w-[60px]">Obat</span>
-            <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis" value={drug} onChange={e=>{setDrug(e.target.value); setResult(null);}}>
+          <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Obat</span>
+            <select className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis" value={drug} onChange={e=>setDrug(e.target.value)}>
               {PUMP_CATEGORIES[cat].map(pair => (
                 <option key={pair[0]} value={pair[0]}>{pair[1]}</option>
               ))}
             </select>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate w-24">Dosis</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" step="0.01" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={dose} onChange={e=>setDose(e.target.value)} />
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Dosis</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+              <input id="pump-dose" type="number" inputMode="decimal" step="0.01" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('pump-dose') ? MISSING_RING : ''}`} value={dose} onChange={e=>setDose(e.target.value)} />
               <span className="text-[11px] font-semibold text-slate-500 w-20 text-left line-clamp-1">{info?.unit}</span>
             </div>
           </div>
 
-          <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left max-w-[120px]">Spuit / Pelarut</span>
-            <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={vol} onChange={e=>setVol(e.target.value)}>
+          <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem] text-left">Spuit / Pelarut</span>
+            <select className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={vol} onChange={e=>setVol(e.target.value)}>
               <option value="50">50 mL</option>
               <option value="25">25 mL</option>
               <option value="10">10 mL</option>
@@ -177,9 +191,6 @@ export default function KalkulatorPump() {
             <div className="inline-block px-2 py-1 bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded text-[11px] font-mono text-slate-700 dark:text-slate-300">{info.unit}</div>
           </div>
         )}
-        <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-          Hitung Laju (mL/jam)
-        </button>
       </div>
 
       {result && weightPlausibilityWarning(result.b) && (
@@ -194,7 +205,7 @@ export default function KalkulatorPump() {
       )}
 
       {result && (
-        <div className="mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div id="pump-hasil" className="mt-4 scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <div className="p-5 text-center bg-blue-50 dark:bg-blue-900/10">
               <div className="text-[12px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">Rate Laju Syringe Pump</div>
@@ -286,6 +297,16 @@ export default function KalkulatorPump() {
         </div>
       </Accordion>
       <AbbrLegend terms={['BB', 'PRIS', 'CK', 'EKG', 'MAP', 'HR', 'DPJP', 'UO', 'NE', 'SSC', 'SCCM', 'AF', 'HOCM']} />
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung Laju (mL/jam)"
+        summary={result ? `${drugName}: ${result.rate} mL/jam` : null}
+        summaryTone={result && result.warnings?.length > 0 ? 'warn' : 'info'}
+        caption={result ? `Dosis ${result.d} ${result.unit} · spuit ${result.v} mL habis ±${result.duration} jam${result.warnings?.length > 0 ? ' · ⚠ cek peringatan' : ''}` : undefined}
+        missing={calc.missing}
+        resultTargetId="pump-hasil"
+      />
     </div>
   );
 }
