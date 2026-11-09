@@ -121,10 +121,14 @@ export default function KalkulatorIBW() {
         ree = sex === 'm' 
           ? 88.4 + 13.4 * aBW + 4.8 * h - 5.68 * ageNum 
           : 447.6 + 9.25 * aBW + 3.1 * h - 4.33 * ageNum;
-        calMin = Math.round(25 * aBW);
-        calMax = Math.round(30 * aBW);
-        protMin = (1.2 * aBW).toFixed(0);
-        protMax = (2.0 * aBW).toFixed(0);
+        // ASPEN 2022: 12–25 kkal/kg & protein 1,2–2,0 g/kg BB aktual — hanya untuk IMT <30.
+        // Obes: target berbasis BBI/ABW → lihat Kalkulator Nutrisi (dulu 25–30 × BB aktual).
+        if (bmiValue! < 30) {
+          calMin = Math.round(12 * aBW);
+          calMax = Math.round(25 * aBW);
+          protMin = (1.2 * aBW).toFixed(0);
+          protMax = (2.0 * aBW).toFixed(0);
+        }
       }
 
       let mabl = null, mablKolf = null, mablWarn = null;
@@ -388,19 +392,19 @@ export default function KalkulatorIBW() {
                 {results.extraParams.ree !== null && (
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                     <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
-                      <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">REE (Harris-Benedict)</div>
+                      <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">REE (Harris-Benedict revisi)</div>
                       <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.ree}</div>
                       <div className="text-[11px] text-slate-500 mt-1">kcal/hari (istirahat)</div>
                     </div>
                     <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                       <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Target Kalori ICU</div>
-                      <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.calMin}-{results.extraParams.calMax}</div>
-                      <div className="text-[11px] text-slate-500 mt-1">kcal/hari (25-30 kcal/kg)</div>
+                      <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.calMin !== null ? `${results.extraParams.calMin}-${results.extraParams.calMax}` : '—'}</div>
+                      <div className="text-[11px] text-slate-500 mt-1">{results.extraParams.calMin !== null ? 'kkal/hari (ASPEN 2022: 12–25 kkal/kg)' : 'Obes: gunakan Kalkulator Nutrisi (BBI/ABW)'}</div>
                     </div>
                     <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                       <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Target Protein ICU</div>
-                      <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.protMin}-{results.extraParams.protMax}</div>
-                      <div className="text-[11px] text-slate-500 mt-1">g/hari (1.2-2.0 g/kg)</div>
+                      <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.protMin !== null ? `${results.extraParams.protMin}-${results.extraParams.protMax}` : '—'}</div>
+                      <div className="text-[11px] text-slate-500 mt-1">{results.extraParams.protMin !== null ? 'g/hari (ASPEN 1,2–2,0 g/kg; ESPEN 1,3)' : 'Obes: gunakan Kalkulator Nutrisi'}</div>
                     </div>
                   </div>
                 )}

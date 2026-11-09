@@ -10,7 +10,7 @@ export function calcBmi(weightKg: number, heightCm: number): number {
   return weightKg / (hM * hM);
 }
 
-/** Du Bois BSA (m²) */
+/** BSA Mosteller (m²) = √(TB × BB / 3600) */
 export function calcBsa(weightKg: number, heightCm: number): number {
   return Math.sqrt((heightCm * weightKg) / 3600);
 }
