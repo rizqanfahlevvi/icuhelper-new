@@ -251,7 +251,7 @@ export default function KalkulatorInsulin() {
                     </div>
                     <div className="flex justify-between px-4 py-3 items-center gap-4">
                       <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Status Makan</span>
-                      <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={makan} onChange={e=>setMakan(e.target.value)}>
+                      <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={makan} onChange={e=>setMakan(e.target.value)}>
                         <option value="makan">Makan normal (3×)</option>
                         <option value="sebagian">Makan sebagian (1-2×)</option>
                         <option value="puasa">Puasa / NPO</option>
@@ -259,7 +259,7 @@ export default function KalkulatorInsulin() {
                     </div>
                     <div className="flex justify-between px-4 py-3 items-center gap-4">
                       <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi Khusus</span>
-                      <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e=>setKondisi(e.target.value)}>
+                      <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e=>setKondisi(e.target.value)}>
                         <option value="normal">Tidak ada</option>
                         <option value="steroid">Terapi steroid</option>
                         <option value="ginjal">Kreatinin ≥2,0 / GFR &lt;30 / HD</option>
@@ -444,7 +444,7 @@ export default function KalkulatorInsulin() {
                 </div>
                 <div className="flex justify-between px-4 py-3 items-center gap-4">
                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kesadaran</span>
-                  <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kesadaran} onChange={e=>setKesadaran(e.target.value)}>
+                  <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kesadaran} onChange={e=>setKesadaran(e.target.value)}>
                     <option value="sadar">Sadar penuh</option>
                     <option value="mengantuk">Mengantuk / konfusi</option>
                     <option value="tidak-sadar">Tidak sadar / NPO</option>
@@ -452,7 +452,7 @@ export default function KalkulatorInsulin() {
                 </div>
                 <div className="flex justify-between px-4 py-3 items-center gap-4">
                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Route Medis</span>
-                  <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={route} onChange={e=>setRoute(e.target.value)}>
+                  <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={route} onChange={e=>setRoute(e.target.value)}>
                     <option value="iv">Ada akses IV</option>
                     <option value="oral">Bisa oral / NGT</option>
                     <option value="im">Injeksi IM / SC</option>

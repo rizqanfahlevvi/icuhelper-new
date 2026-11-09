@@ -115,7 +115,7 @@ export default function KalkulatorNutrisi() {
   };
 
   const inputCls = 'w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
-  const selectCls = 'flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
+  const selectCls = 'flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
   const reset = () => setRes(null);
 
   const espenE = res ? res.r.energy.find((e) => e.guideline === 'ESPEN')! : null;
@@ -188,16 +188,16 @@ export default function KalkulatorNutrisi() {
             Contoh kriteria risiko refeeding: IMT &lt;16, BB turun &gt;15% dalam 3–6 bulan, K/PO₄/Mg rendah sebelum pemberian makan, atau kombinasi faktor seperti asupan minimal &gt;5 hari + riwayat alkohol/obat (insulin, kemoterapi, antasida, diuretik). NRS-2002 adalah skrining malnutrisi, bukan alat penilai risiko refeeding.
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BB Aktual</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input id="nut-bb" type="number" inputMode="decimal" aria-invalid={calc.isMissing('nut-bb')} className={`${inputCls} aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]`} value={bb} onChange={e => { setBb(e.target.value); reset(); }} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kg</span>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Tinggi Badan</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className={inputCls} value={tb} onChange={e => { setTb(e.target.value); reset(); }} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">cm</span>
             </div>
@@ -210,9 +210,9 @@ export default function KalkulatorNutrisi() {
               <option value="f">Perempuan</option>
             </select>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BBI manual <span className="font-normal text-slate-500">(opsional)</span></span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className={inputCls} value={ibwIn} onChange={e => { setIbwIn(e.target.value); reset(); }} placeholder="Devine" />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kg</span>
             </div>
@@ -229,18 +229,18 @@ export default function KalkulatorNutrisi() {
                   <option value="2.0">2,0 kkal/mL</option>
                 </select>
               </div>
-              <div className="flex items-center justify-between px-4 py-3 gap-4">
+              <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Protein formula <span className="font-normal text-slate-500">(opsional)</span></span>
-                <div className="flex-1 flex items-center justify-end gap-2">
+                <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
                   <input type="number" className={inputCls} value={proteinGL} onChange={e => { setProteinGL(e.target.value); reset(); }} placeholder="label produk" />
                   <span className="text-xs font-semibold text-slate-500 w-8 text-left">g/L</span>
                 </div>
               </div>
             </>
           )}
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Kalori non-nutrisi <span className="font-normal text-slate-500">(opsional)</span></span>
-            <div className="flex-1 flex items-center justify-end gap-2">
+            <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <input type="number" className={inputCls} value={nonNutr} onChange={e => { setNonNutr(e.target.value); reset(); }} placeholder="0" />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kkal</span>
             </div>

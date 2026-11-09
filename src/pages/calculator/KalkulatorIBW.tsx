@@ -184,7 +184,7 @@ export default function KalkulatorIBW() {
          <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex justify-between px-4 py-3 items-center gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32">Jenis Kelamin</span>
-              <select id="ibw-sex" className={`flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('ibw-sex') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} value={sex} onChange={e=>setSex(e.target.value as 'm'|'f'|'')}>
+              <select id="ibw-sex" className={`flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('ibw-sex') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} value={sex} onChange={e=>setSex(e.target.value as 'm'|'f'|'')}>
                 <option value="">— Pilih —</option>
                 <option value="m">Laki-laki</option>
                 <option value="f">Perempuan</option>
@@ -225,7 +225,7 @@ export default function KalkulatorIBW() {
 
             <div className="flex justify-between px-4 py-3 items-center gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32">Kondisi Klinis</span>
-              <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={condition} onChange={e=>setCondition(e.target.value)}>
+              <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={condition} onChange={e=>setCondition(e.target.value)}>
                 <option value="normal">Umum / Post-op</option>
                 <option value="ards">ARDS</option>
                 <option value="copd">PPOK</option>
