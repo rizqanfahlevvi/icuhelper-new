@@ -1,7 +1,37 @@
 import { describe, it, expect } from 'vitest';
 import {
   transfusiSummary, basalSummary, totalCairanSummary, kumulatifSummary, overloadSummary, balance24Summary,
+  gfrSummary, fenaSummary, akiSummary, osmolSummary,
 } from '../utils/cairanObatSummary';
+
+describe('ringkasan bilah — renal', () => {
+  it('eGFR dewasa: satuan sama dengan rincian, nada per kategori G', () => {
+    // CKD-EPI 2021, L 58 th, SCr 1,9 → 40,4 (G3b)
+    const r = gfrSummary({ isPediatric: false, ckdEpi: '40.4', cgRecommended: '40.4', stage: 'G3b', stageDesc: 'Penurunan LFG Sedang-Berat' });
+    expect(r.text).toBe('eGFR 40.4 mL/min/1.73m²');
+    expect(r.tone).toBe('warn');
+    expect(gfrSummary({ isPediatric: false, ckdEpi: '95', cgRecommended: '100', stage: 'G1' }).tone).toBe('good');
+    expect(gfrSummary({ isPediatric: false, ckdEpi: '10', cgRecommended: '9', stage: 'G5' }).tone).toBe('bad');
+  });
+  it('Schwartz anak', () => {
+    expect(gfrSummary({ isPediatric: true, schwartz: '21.7', stage: 'G4', stageDesc: 'x' }).text).toBe('GFR Schwartz 21.7 mL/min/1.73m²');
+  });
+  it('FENa: (UNa × SCr)/(SNa × UCr) = (10 × 1,9)/(138 × 100) = 0,14% → pre-renal', () => {
+    expect(fenaSummary('0.14', null)).toMatchObject({ text: 'FENa 0.14%', caption: 'Pre-renal (< 1%)', tone: 'good' });
+    expect(fenaSummary('1.5', null).tone).toBe('warn');
+    expect(fenaSummary('3.2', '55.00').caption).toBe('FENa: Renal Intrinsik (> 2%) · FEUrea: Renal Intrinsik (> 50%)');
+  });
+  it('AKI: tahap null = data belum cukup', () => {
+    expect(akiSummary(null, 'Belum dapat dinilai').caption).toBe('Data belum cukup — lihat catatan di rincian');
+    expect(akiSummary(2, 'AKI Stage 2').tone).toBe('bad');
+    expect(akiSummary(0, 'Tidak memenuhi kriteria AKI').tone).toBe('good');
+  });
+  it('osmolalitas: gap >10 → nada bahaya; rasio BUN:Cr berlabel sama dengan rincian', () => {
+    expect(osmolSummary(null, null, null)).toBeNull();
+    expect(osmolSummary(290.1, 15, null)).toMatchObject({ text: 'Osm hitung 290.1 mOsm/kg · gap 15.0', tone: 'bad' });
+    expect(osmolSummary(null, null, 25).caption).toBe('Pre-Renal (Dehidrasi, Hipoperfusi)');
+  });
+});
 
 describe('ringkasan bilah — transfusi', () => {
   it('PRC: kolf + volume + ΔHb', () => {

@@ -1,4 +1,7 @@
 import React, { useMemo, useState } from 'react';
+import { CalcActionBar } from '../../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../../hooks/useCalcTrigger';
+import { osmolSummary } from '../../../utils/cairanObatSummary';
 import { SaveToHistoryButton } from '../../../components/ui/SaveToHistoryButton';
 import { serumOsmolality, ureumToBun, type UreaUnit } from '../../../utils/sodium';
 import { UnifiedSyncBanner, type SyncField } from '../../../components/UnifiedSyncBanner';
@@ -64,8 +67,23 @@ export function RenalOsmolBun() {
     return vBun / vScr;
   };
 
-  const osmRes = calculateOsmol();
-  const ratioRes = calculateRatio();
+  // Hitung sekali → hasil tampil & ikut berubah otomatis (dulu tampil langsung tanpa tombol).
+  const osmReady = !!parseFloat(sna) && !!parseFloat(glucose) && !!parseFloat(bun);
+  const ratioReady = !!parseFloat(bunRatio) && !!parseFloat(scrRatio);
+  const anyReady = osmReady || ratioReady;
+  const tr = useCalcTrigger({
+    compute: () => {},
+    deps: [],
+    required: [
+      { id: 'osm-na', label: 'Na', filled: anyReady || !!parseFloat(sna) },
+      { id: 'osm-urea', label: ureaUnit === 'ureum' ? 'Ureum' : 'BUN', filled: anyReady || !!parseFloat(bun) },
+      { id: 'osm-glu', label: 'Glukosa', filled: anyReady || !!parseFloat(glucose) },
+    ],
+  });
+  const osmRes = tr.armed ? calculateOsmol() : null;
+  const ratioRes = tr.armed ? calculateRatio() : null;
+  const bar = osmolSummary(osmRes ? osmRes.calcOsm : null, osmRes ? osmRes.gap : null, ratioRes);
+  const ring = (id: string) => (tr.isMissing(id) ? ' ring-2 ring-[var(--sys-red)]' : '');
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in duration-300">
@@ -76,38 +94,38 @@ export function RenalOsmolBun() {
           Osmolalitas & Osmolar Gap
         </h3>
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Sodium (Na)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={sna} onChange={e=>setSna(e.target.value)} placeholder="140" />
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Sodium (Na)</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+              <input id="osm-na" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-na')}`} value={sna} onChange={e=>setSna(e.target.value)} placeholder="140" />
               <span className="text-xs text-slate-500 w-12">mEq/L</span>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+              <input id="osm-urea" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-urea')}`} value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
               <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Glukosa</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={glucose} onChange={e=>setGlucose(e.target.value)} placeholder="100" />
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Glukosa</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+              <input id="osm-glu" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-glu')}`} value={glucose} onChange={e=>setGlucose(e.target.value)} placeholder="100" />
               <span className="text-xs text-slate-500 w-12">mg/dL</span>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4 bg-blue-50/50 dark:bg-blue-900/10">
-            <span className="text-[13px] font-semibold text-blue-700 dark:text-blue-400">Osm Terukur (Opsi)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-blue-50 dark:bg-blue-900/20 border-none rounded-lg px-3 py-2 text-right font-bold text-blue-700 focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={measuredOsm} onChange={e=>setMeasuredOsm(e.target.value)} placeholder="Lab" />
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 bg-blue-50/50 dark:bg-blue-900/10">
+            <span className="text-[13px] font-semibold text-blue-700 dark:text-blue-400 flex-1 min-w-[7rem]">Osm Terukur (Opsi)</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+              <input type="number" inputMode="decimal" className="w-full bg-blue-50 dark:bg-blue-900/20 border-none rounded-lg px-3 py-2 text-right font-bold text-blue-700 focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={measuredOsm} onChange={e=>setMeasuredOsm(e.target.value)} placeholder="Lab" />
               <span className="text-xs text-blue-500/70 w-12">mOsm</span>
             </div>
           </div>
         </div>
 
         {osmRes && (
-          <div className="mt-3 grid grid-cols-2 gap-3">
+          <div id="osm-hasil" className="scroll-mt-4 mt-3 grid grid-cols-2 gap-3">
             <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-center">
               <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Osmolalitas Kalkulasi</div>
               <div className="text-2xl font-black text-slate-800 dark:text-slate-200">{osmRes.calcOsm.toFixed(1)}</div>
@@ -135,24 +153,24 @@ export function RenalOsmolBun() {
         </h3>
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-3">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+              <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
               <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Kreatinin</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scrRatio} onChange={e=>setScrRatio(e.target.value)} placeholder="1.0" />
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin</span>
+            <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+              <input type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={scrRatio} onChange={e=>setScrRatio(e.target.value)} placeholder="1.0" />
               <span className="text-xs text-slate-500 w-12">mg/dL</span>
             </div>
           </div>
         </div>
 
         {ratioRes && (
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center">
+          <div id="osm-rasio" className="scroll-mt-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center">
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Rasio BUN:Cr</div>
             {ureaUnit === 'ureum' && <div className="text-[10px] text-slate-400 mb-1">BUN = ureum ÷ 2.14 = {(ureumToBun(parseFloat(bunRatio))).toFixed(1)} mg/dL</div>}
             <div className={`text-3xl font-black ${ratioRes > 20 ? 'text-orange-500' : ratioRes >= 10 ? 'text-blue-500' : 'text-emerald-500'}`}>
@@ -165,6 +183,16 @@ export function RenalOsmolBun() {
         )}
       </div>
 
+      <CalcActionBar
+        armed={tr.armed}
+        onCalculate={tr.trigger}
+        label="Hitung Osmolalitas & Rasio"
+        summary={bar?.text ?? null}
+        summaryTone={bar?.tone ?? 'neutral'}
+        caption={bar?.caption}
+        missing={tr.missing}
+        resultTargetId={osmRes ? 'osm-hasil' : 'osm-rasio'}
+      />
     </div>
   );
 }

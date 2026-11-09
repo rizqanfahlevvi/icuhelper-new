@@ -66,3 +66,58 @@ export function balance24Summary(balanceMl: number, totalIn: number, totalOut: n
   const tone: CalcTone = balanceMl > 2000 ? 'bad' : balanceMl > 1000 ? 'warn' : balanceMl >= -500 ? 'good' : balanceMl >= -1500 ? 'info' : 'bad';
   return { text: `Balance 24 jam ${fmtSigned(balanceMl)} mL`, caption: `${label} · masuk ${fmtInt(totalIn)} / keluar ${fmtInt(totalOut)} mL`, tone };
 }
+
+// ── Renal ────────────────────────────────────────────────────────────────────
+export interface GfrSummaryInput {
+  isPediatric: boolean; schwartz?: string; ckdEpi?: string; cgRecommended?: string; stage?: string; stageDesc?: string;
+}
+
+/** Nada mengikuti kategori G KDIGO yang sudah ditetapkan halaman (G1–G2 / G3a–G3b / G4–G5). */
+export function gfrSummary(r: GfrSummaryInput): BarSummary {
+  const st = r.stage ?? '';
+  const tone: CalcTone = st === 'G1' || st === 'G2' ? 'good' : st.startsWith('G3') ? 'warn' : st ? 'bad' : 'neutral';
+  if (r.isPediatric) {
+    return { text: `GFR Schwartz ${r.schwartz} mL/min/1.73m²`, caption: `${st} · ${r.stageDesc ?? ''}`, tone };
+  }
+  return { text: `eGFR ${r.ckdEpi} mL/min/1.73m²`, caption: `${st} ${r.stageDesc ?? ''} · CrCl (C-G) ${r.cgRecommended} mL/min`, tone };
+}
+
+/** Label & pita yang sama dengan rincian halaman: FENa <1 / 1–2 / >2 %; FEUrea <35 / 35–50 / >50 %. */
+export function fenaSummary(fena: string, feurea: string | null): BarSummary {
+  const f = parseFloat(fena);
+  const fLabel = f < 1 ? 'Pre-renal (< 1%)' : f < 2 ? 'Inkonklusif (1–2%)' : 'Renal Intrinsik (> 2%)';
+  const tone: CalcTone = f < 1 ? 'good' : f < 2 ? 'warn' : 'bad';
+  if (feurea !== null) {
+    const u = parseFloat(feurea);
+    const uLabel = u < 35 ? 'Pre-renal (< 35%)' : u < 50 ? 'Inkonklusif' : 'Renal Intrinsik (> 50%)';
+    return { text: `FENa ${fena}% · FEUrea ${feurea}%`, caption: `FENa: ${fLabel} · FEUrea: ${uLabel}`, tone };
+  }
+  return { text: `FENa ${fena}%`, caption: fLabel, tone };
+}
+
+// ── AKI / Osmol / Indikasi HD ────────────────────────────────────────────────
+/** stage null = belum dapat dinilai; nada mengikuti warna tahap di halaman. */
+export function akiSummary(stage: number | null, desc: string): BarSummary {
+  const tone: CalcTone = stage === null ? 'neutral' : stage === 0 ? 'good' : stage === 1 ? 'warn' : 'bad';
+  return { text: desc, caption: stage === null ? 'Data belum cukup — lihat catatan di rincian' : 'Klasifikasi KDIGO 2012', tone };
+}
+
+/** Osmolalitas hitung (+ gap bila Osm terukur diisi) dan/atau rasio BUN:Cr — ambang sama dengan rincian (gap >10; rasio >20 / 10–20 / <10). */
+export function osmolSummary(calcOsm: number | null, gap: number | null, ratio: number | null): BarSummary | null {
+  const parts: string[] = [];
+  const caps: string[] = [];
+  let tone: CalcTone = 'info';
+  if (calcOsm !== null) {
+    parts.push(`Osm hitung ${calcOsm.toFixed(1)} mOsm/kg`);
+    if (gap !== null) {
+      parts.push(`gap ${gap.toFixed(1)}`);
+      if (gap > 10) { tone = 'bad'; caps.push('Gap > 10 = curiga intoksikasi alkohol/toksin'); }
+    }
+  }
+  if (ratio !== null) {
+    parts.push(`BUN:Cr ${ratio.toFixed(1)}`);
+    caps.push(ratio > 20 ? 'Pre-Renal (Dehidrasi, Hipoperfusi)' : ratio >= 10 ? 'Normal / Post-Renal (Inkonklusif)' : 'Renal Intrinsik (ATN)');
+  }
+  if (!parts.length) return null;
+  return { text: parts.join(' · '), caption: caps.join(' · ') || 'Normal: 275 - 295', tone };
+}
