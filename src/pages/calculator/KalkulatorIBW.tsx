@@ -9,12 +9,14 @@ import { UnifiedSyncBanner } from '../../components/UnifiedSyncBanner';
 import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import { patientGenderToClinical } from '../../utils/patientContext';
+import { vtTarget } from '../../utils/ventilation';
 
 export default function KalkulatorIBW() {
   const patient = usePatientStore();
   const clinicalStore = useClinicalStore();
 
-  const [sex, setSex] = useState<'m' | 'f'>('m');
+  // Kosong sampai diisi — BBI laki-laki & perempuan berbeda 4,5 kg (tidak diasumsikan laki-laki).
+  const [sex, setSex] = useState<'m' | 'f' | ''>('');
   const [height, setHeight] = useState<string>('');
   const [actualBW, setActualBW] = useState<string>('');
   const [age, setAge] = useState<string>('');
@@ -73,21 +75,19 @@ export default function KalkulatorIBW() {
       setCalcError('Masukkan tinggi badan');
       return;
     }
+    if (sex === '') {
+      setCalcError('Pilih jenis kelamin — BBI (Devine) laki-laki & perempuan berbeda 4,5 kg.');
+      return;
+    }
 
     const ibwR = calcIbw(h, sex === 'f');
 
-    let vtLow, vtHigh, vtNote;
-    if (condition === 'ards') {
-      vtLow = 4; vtHigh = 6; vtNote = 'Lung-protective ARDS — ARDSNet Protocol';
-    } else if (condition === 'copd') {
-      vtLow = 6; vtHigh = 8; vtNote = 'PPOK — permissive hypercapnia; ekspirasi panjang';
-    } else if (condition === 'asthma') {
-      vtLow = 6; vtHigh = 8; vtNote = 'Asma — controlled hypoventilation; Pplat <30';
-    } else if (condition === 'neuro') {
-      vtLow = 10; vtHigh = 12; vtNote = 'NMD — paru normal, butuh VT lebih besar';
-    } else {
-      vtLow = 6; vtHigh = 8; vtNote = 'Ventilasi standar';
-    }
+    // Target VT dari utils/ventilation: ARDS 4–8 (mulai 6; ATS/ESICM/SCCM 2017), lainnya 6–8
+    // (Serpa Neto 2012). Dulu: ARDS 4–6 dan neuromuskular 10–12 mL/kg (tidak lagi dianjurkan).
+    const tgt = vtTarget(condition === 'asthma' ? 'asma' : (condition as 'normal' | 'ards' | 'copd' | 'neuro'));
+    const vtLow = tgt.min;
+    const vtHigh = tgt.max;
+    const vtNote = tgt.note;
 
     const vtLowML = (vtLow * ibwR).toFixed(0);
     const vtHighML = (vtHigh * ibwR).toFixed(0);
@@ -169,7 +169,8 @@ export default function KalkulatorIBW() {
          <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex justify-between px-4 py-3 items-center gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32">Jenis Kelamin</span>
-              <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={sex} onChange={e=>setSex(e.target.value as 'm'|'f')}>
+              <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={sex} onChange={e=>setSex(e.target.value as 'm'|'f'|'')}>
+                <option value="">— Pilih —</option>
                 <option value="m">Laki-laki</option>
                 <option value="f">Perempuan</option>
               </select>
@@ -291,7 +292,7 @@ export default function KalkulatorIBW() {
                         <tr><td className="px-4 py-2.5 font-medium">Mode</td><td className="px-4 py-2.5">VC-AC</td><td className="px-4 py-2.5 text-slate-500">Kontrol VT ketat</td></tr>
                         <tr><td className="px-4 py-2.5 font-medium">VT</td><td className="px-4 py-2.5 font-mono">{results.vtLowML}–{results.vtHighML} mL</td><td className="px-4 py-2.5 text-slate-500">{results.vtLow}–{results.vtHigh} mL/kg IBW</td></tr>
                         <tr><td className="px-4 py-2.5 font-medium">RR</td><td className="px-4 py-2.5 font-mono">16–22 bpm</td><td className="px-4 py-2.5 text-slate-500">Sesuai kebutuhan; naikkan jika pH drop</td></tr>
-                        <tr><td className="px-4 py-2.5 font-medium">PEEP</td><td className="px-4 py-2.5 font-mono">8–13 cmH₂O</td><td className="px-4 py-2.5 text-slate-500">Titrasi FiO₂/PEEP table ARDSNet</td></tr>
+                        <tr><td className="px-4 py-2.5 font-medium">PEEP</td><td className="px-4 py-2.5 font-mono">Sesuai FiO₂</td><td className="px-4 py-2.5 text-slate-500">Tabel PEEP/FiO₂ ARDSNet (lihat Ventilator Lanjutan)</td></tr>
                         <tr><td className="px-4 py-2.5 font-medium">Pplat target</td><td className="px-4 py-2.5 font-mono">&lt;30 cmH₂O</td><td className="px-4 py-2.5 text-slate-500">Lakukan inspiratory hold 0.5 det</td></tr>
                         <tr><td className="px-4 py-2.5 font-medium">Driving pressure</td><td className="px-4 py-2.5 font-mono">≤15 cmH₂O</td><td className="px-4 py-2.5 text-slate-500">Pplat − PEEP; target ≤13 ideal</td></tr>
                       </>
