@@ -34,8 +34,9 @@ export function PageHeader({ badgeIcon: Icon, badgeText, title, description, rig
           {rightContent && <div className="flex-shrink-0">{rightContent}</div>}
         </div>
         <div className="md:hidden">
-          <div className="flex items-center justify-between gap-2">
-            <h1 className="text-[17px] font-bold tracking-tight text-foreground truncate">{title}</h1>
+          <div className="flex items-center justify-end gap-2">
+            {/* Judul sudah tampil di header shell (ponsel) — h1 tetap ada untuk pembaca layar. */}
+            <h1 className="sr-only">{title}</h1>
             <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"

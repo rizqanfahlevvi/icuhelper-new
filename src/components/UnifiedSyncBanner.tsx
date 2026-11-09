@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Check, X, CloudCheck, AlertTriangle } from 'lucide-react';
+import { Sparkles, Check, X, CloudCheck, AlertTriangle, ChevronDown } from 'lucide-react';
 import { useClinicalStore, type ClinicalData, type ClinicalKey } from '../store/useClinicalStore';
 import { usePatientStore } from '../store/usePatientStore';
 import { formatDataAge, formatDataTimestamp } from '../utils/patientContext';
@@ -52,6 +52,7 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
   const activePatientId = usePatientStore((s) => s.activePatientId);
 
   const [dismissedFor, setDismissedFor] = useState<string | null | undefined>(undefined);
+  const [expanded, setExpanded] = useState(false);
   const ownerAtMountRef = useRef<string | null>(ownerId);
   const prevLocalRef = useRef<Record<string, string>>({});
 
@@ -130,7 +131,7 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className="w-full overflow-hidden"
       >
-        <div className="bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm relative">
+        <div className="bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 shadow-sm relative">
           <div className="flex items-start gap-2.5 min-w-0">
             <div className="flex-shrink-0 p-1.5 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400">
               {ownerChanged && hasActivePatient ? <AlertTriangle className="w-4 h-4" /> : <Sparkles className="w-4 h-4 animate-pulse" />}
@@ -143,12 +144,24 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
                     : `Data ${name} tersedia`
                   : 'Data sesi tersimpan'}
               </div>
-              <div className="text-xs text-amber-700/80 dark:text-amber-400/85 mt-0.5 flex flex-wrap gap-x-2 gap-y-1 items-center">
-                <span>
-                  {ownerChanged && hasActivePatient
-                    ? 'Nilai di kalkulator ini masih dari data sebelumnya. Perbarui dengan:'
-                    : 'Isi kalkulator ini dengan:'}
+              {/* Ringkas: satu baris nama variabel; rincian nilai + umur data dibuka bila perlu. */}
+              <button
+                type="button"
+                onClick={() => setExpanded((e) => !e)}
+                aria-expanded={expanded}
+                className="mt-0.5 flex items-center gap-1 text-xs text-amber-700/90 dark:text-amber-400/90 text-left max-w-full cursor-pointer"
+              >
+                <span className="truncate">
+                  {ownerChanged && hasActivePatient ? 'Perbarui ' : 'Isi '}
+                  {syncableFields.length} nilai: {syncableFields.map((f) => f.label).join(', ')}
                 </span>
+                <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+              </button>
+              {expanded && (
+              <div className="text-xs text-amber-700/80 dark:text-amber-400/85 mt-1.5 flex flex-wrap gap-x-2 gap-y-1 items-center">
+                {ownerChanged && hasActivePatient && (
+                  <span>Nilai di kalkulator ini masih dari data sebelumnya.</span>
+                )}
                 {syncableFields.map((field) => {
                   const globalVal = storeData[field.key] || '';
                   const displayVal = field.formatDisplay
@@ -167,6 +180,7 @@ export function UnifiedSyncBanner({ fields }: UnifiedSyncBannerProps) {
                   );
                 })}
               </div>
+              )}
             </div>
           </div>
 
