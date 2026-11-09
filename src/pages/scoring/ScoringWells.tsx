@@ -85,31 +85,31 @@ export default function ScoringWells() {
          </div>
 
          <div className="space-y-3">
-           <button onClick={() => setSignsOfDvt(!signsOfDvt)} className={getBtnClass(signsOfDvt)}>
+           <button onClick={() => setSignsOfDvt(!signsOfDvt)} className={`${getBtnClass(signsOfDvt)} min-h-[44px]`}>
              <span>Clinical signs and symptoms of DVT</span>
              <span className="shrink-0 text-xs px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded">+3.0</span>
            </button>
-           <button onClick={() => setAltDiagnosis(!altDiagnosis)} className={getBtnClass(altDiagnosis)}>
+           <button onClick={() => setAltDiagnosis(!altDiagnosis)} className={`${getBtnClass(altDiagnosis)} min-h-[44px]`}>
              <span>PE is #1 diagnosis OR equally likely</span>
              <span className="shrink-0 text-xs px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded">+3.0</span>
            </button>
-           <button onClick={() => setHeartRate(!heartRate)} className={getBtnClass(heartRate)}>
+           <button onClick={() => setHeartRate(!heartRate)} className={`${getBtnClass(heartRate)} min-h-[44px]`}>
              <span>Heart rate &gt; 100 beats/min</span>
              <span className="shrink-0 text-xs px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded">+1.5</span>
            </button>
-           <button onClick={() => setImmobilization(!immobilization)} className={getBtnClass(immobilization)}>
+           <button onClick={() => setImmobilization(!immobilization)} className={`${getBtnClass(immobilization)} min-h-[44px]`}>
              <span>Immobilization at least 3 days OR surgery in previous 4 weeks</span>
              <span className="shrink-0 text-xs px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded">+1.5</span>
            </button>
-           <button onClick={() => setPrevDvtPe(!prevDvtPe)} className={getBtnClass(prevDvtPe)}>
+           <button onClick={() => setPrevDvtPe(!prevDvtPe)} className={`${getBtnClass(prevDvtPe)} min-h-[44px]`}>
              <span>Previous, objectively diagnosed PE or DVT</span>
              <span className="shrink-0 text-xs px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded">+1.5</span>
            </button>
-           <button onClick={() => setHemoptysis(!hemoptysis)} className={getBtnClass(hemoptysis)}>
+           <button onClick={() => setHemoptysis(!hemoptysis)} className={`${getBtnClass(hemoptysis)} min-h-[44px]`}>
              <span>Hemoptysis</span>
              <span className="shrink-0 text-xs px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded">+1.0</span>
            </button>
-           <button onClick={() => setMalignancy(!malignancy)} className={getBtnClass(malignancy)}>
+           <button onClick={() => setMalignancy(!malignancy)} className={`${getBtnClass(malignancy)} min-h-[44px]`}>
              <span>Malignancy with treatment within 6 months or palliative</span>
              <span className="shrink-0 text-xs px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded">+1.0</span>
            </button>

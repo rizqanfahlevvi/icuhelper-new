@@ -61,8 +61,8 @@ export default function ScoringCamicu() {
              <div className="font-bold text-sm mb-1 text-indigo-500 dark:text-indigo-400">Prasyarat: Cek RASS Terlebih Dahulu</div>
              <div className="text-xs text-muted-foreground mb-3">Berapa nilai RASS saat ini? Jika RASS -4 atau -5, pasien tidak bisa dinilai (UTA). Ulangi saat sedasi dikurangi.</div>
              <div className="flex gap-3">
-               <button onClick={() => setRassOk(true)} className={getBtnClass(true, rassOk)}>RASS -3 s/d +4 (Lanjut)</button>
-               <button onClick={() => setRassOk(false)} className={getBtnClass(false, rassOk)}>RASS -4 atau -5 (UTA)</button>
+               <button onClick={() => setRassOk(true)} className={`${getBtnClass(true, rassOk)} min-h-[44px]`}>RASS -3 s/d +4 (Lanjut)</button>
+               <button onClick={() => setRassOk(false)} className={`${getBtnClass(false, rassOk)} min-h-[44px]`}>RASS -4 atau -5 (UTA)</button>
              </div>
            </div>
 
@@ -72,8 +72,8 @@ export default function ScoringCamicu() {
                  <div className="font-bold text-sm mb-1">Fitur 1: Onset Akut / Fluktuatif</div>
                  <div className="text-xs text-muted-foreground mb-3">Apakah terdapat perubahan akut status mental / RASS dari baseline pasien ATAU berfluktuasi dalam 24 jam terakhir?</div>
                  <div className="flex gap-3">
-                   <button onClick={() => setF1(true)} className={getBtnClass(true, f1)}>Ya (Positif)</button>
-                   <button onClick={() => setF1(false)} className={getBtnClass(false, f1)}>Tidak (Negatif)</button>
+                   <button onClick={() => setF1(true)} className={`${getBtnClass(true, f1)} min-h-[44px]`}>Ya (Positif)</button>
+                   <button onClick={() => setF1(false)} className={`${getBtnClass(false, f1)} min-h-[44px]`}>Tidak (Negatif)</button>
                  </div>
                </div>
 
@@ -82,8 +82,8 @@ export default function ScoringCamicu() {
                    <div className="font-bold text-sm mb-1">Fitur 2: Gangguan Perhatian (Inattention)</div>
                    <div className="text-xs text-muted-foreground mb-3">Gunakan tes konsentrasi (Uji huruf SAVEAHAART atau gambar). Apakah ada &gt; 2 kesalahan?</div>
                    <div className="flex gap-3">
-                     <button onClick={() => setF2(true)} className={getBtnClass(true, f2)}>Ya (&gt; 2 Kesalahan)</button>
-                     <button onClick={() => setF2(false)} className={getBtnClass(false, f2)}>Tidak (0-2 Kesalahan)</button>
+                     <button onClick={() => setF2(true)} className={`${getBtnClass(true, f2)} min-h-[44px]`}>Ya (&gt; 2 Kesalahan)</button>
+                     <button onClick={() => setF2(false)} className={`${getBtnClass(false, f2)} min-h-[44px]`}>Tidak (0-2 Kesalahan)</button>
                    </div>
                  </div>
                )}
@@ -93,8 +93,8 @@ export default function ScoringCamicu() {
                    <div className="font-bold text-sm mb-1">Fitur 3: Perubahan Tingkat Kesadaran (Altered Level)</div>
                    <div className="text-xs text-muted-foreground mb-3">Apakah skor RASS pasien SESUATU SELAIN nol (0)? (+4 s/d +1, atau -1 s/d -3)</div>
                    <div className="flex gap-3">
-                     <button onClick={() => setF3(true)} className={getBtnClass(true, f3)}>Ya (Positif)</button>
-                     <button onClick={() => setF3(false)} className={getBtnClass(false, f3)}>Tidak (RASS = 0)</button>
+                     <button onClick={() => setF3(true)} className={`${getBtnClass(true, f3)} min-h-[44px]`}>Ya (Positif)</button>
+                     <button onClick={() => setF3(false)} className={`${getBtnClass(false, f3)} min-h-[44px]`}>Tidak (RASS = 0)</button>
                    </div>
                  </div>
                )}
@@ -104,8 +104,8 @@ export default function ScoringCamicu() {
                    <div className="font-bold text-sm mb-1">Fitur 4: Pemikiran Tidak Terorganisir (Disorganized)</div>
                    <div className="text-xs text-muted-foreground mb-3">Evaluasi dengan 4 pertanyaan iya/tidak (cth: "apakah batu mengapung?"), dan mengacungkan jari/perintah spesifik. Apakah kombinasi error &gt; 1?</div>
                    <div className="flex gap-3">
-                     <button onClick={() => setF4(true)} className={getBtnClass(true, f4)}>Ya (&gt; 1 Kesalahan)</button>
-                     <button onClick={() => setF4(false)} className={getBtnClass(false, f4)}>Tidak (0-1 Kesalahan)</button>
+                     <button onClick={() => setF4(true)} className={`${getBtnClass(true, f4)} min-h-[44px]`}>Ya (&gt; 1 Kesalahan)</button>
+                     <button onClick={() => setF4(false)} className={`${getBtnClass(false, f4)} min-h-[44px]`}>Tidak (0-1 Kesalahan)</button>
                    </div>
                  </div>
                )}

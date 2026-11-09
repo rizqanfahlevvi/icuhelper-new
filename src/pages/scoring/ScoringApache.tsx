@@ -118,11 +118,11 @@ export default function ScoringApache() {
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Usia (tahun)</label>
-                  <DecimalInput id="apache-age" inputMode="numeric" value={age} onChange={e => setAge(e.target.value)} className={`${calc.isMissing('apache-age') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all`} placeholder="Cth: 65" />
+                  <DecimalInput aria-label="Usia (tahun)" id="apache-age" inputMode="numeric" value={age} onChange={e => setAge(e.target.value)} className={`min-h-[44px] ${calc.isMissing('apache-age') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all`} placeholder="Cth: 65" />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">Tipe masuk ICU</label>
-                  <select value={chronicType} onChange={e => setChronicType(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all">
+                  <select aria-label="Tipe masuk ICU" value={chronicType} onChange={e => setChronicType(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]">
                     <option value="nonop">Non-operatif / Medis</option>
                     <option value="emergency">Post-op Emergency</option>
                     <option value="elective">Post-op Elektif</option>
@@ -131,7 +131,7 @@ export default function ScoringApache() {
                 <div>
                   <label className="text-sm font-medium mb-1 block">Komorbiditas Berat (Chronic Health)</label>
                   <div className="text-[11px] text-muted-foreground mb-2">Sirosis hati, NYHA IV, PPOK berat, dialisis kronik, imunosupresi, dll.</div>
-                  <select value={hasChronic} onChange={e => setHasChronic(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all">
+                  <select aria-label="Komorbiditas berat (chronic health)" value={hasChronic} onChange={e => setHasChronic(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]">
                     <option value="no">Tidak ada</option>
                     <option value="yes">Ada</option>
                   </select>
@@ -145,23 +145,23 @@ export default function ScoringApache() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-1 block">Suhu Rektal (°C)</label>
-                    <DecimalInput value={temp} onChange={e => setTemp(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="Suhu Rektal (°C)" value={temp} onChange={e => setTemp(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">MAP (mmHg)</label>
-                    <DecimalInput value={map} onChange={e => setMap(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="MAP (mmHg)" value={map} onChange={e => setMap(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Nadi (bpm)</label>
-                    <DecimalInput value={hr} onChange={e => setHr(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="Nadi (bpm)" value={hr} onChange={e => setHr(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">RR (/mnt)</label>
-                    <DecimalInput value={rr} onChange={e => setRr(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="RR (/mnt)" value={rr} onChange={e => setRr(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div className="col-span-2">
                     <label className="text-sm font-medium mb-1 block">GCS Total (3-15)</label>
-                    <DecimalInput value={gcs} onChange={e => setGcs(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="GCS Total (3-15)" value={gcs} onChange={e => setGcs(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                 </div>
               </div>
@@ -175,19 +175,19 @@ export default function ScoringApache() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="col-span-2">
                     <label className="text-sm font-medium mb-1 block">FiO₂</label>
-                    <DecimalInput step="0.01" value={fio2} onChange={e => setFio2(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="0.21 - 1.0 (Opsional)" />
+                    <DecimalInput aria-label="FiO₂" step="0.01" value={fio2} onChange={e => setFio2(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="0.21 - 1.0 (Opsional)" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">PaO₂ (mmHg)</label>
-                    <DecimalInput value={pao2} onChange={e => setPao2(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="PaO₂ (mmHg)" value={pao2} onChange={e => setPao2(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">PaCO₂ (mmHg)</label>
-                    <DecimalInput value={paco2} onChange={e => setPaco2(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Bila FiO2 ≥ 0.5" />
+                    <DecimalInput aria-label="PaCO₂ (mmHg)" value={paco2} onChange={e => setPaco2(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Bila FiO2 ≥ 0.5" />
                   </div>
                   <div className="col-span-2">
                      <label className="text-sm font-medium mb-1 block">pH Arteri</label>
-                     <DecimalInput step="0.01" value={ph} onChange={e => setPh(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                     <DecimalInput aria-label="pH Arteri" step="0.01" value={ph} onChange={e => setPh(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                 </div>
               </div>
@@ -199,30 +199,30 @@ export default function ScoringApache() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-1 block">Natrium (mEq/L)</label>
-                    <DecimalInput value={na} onChange={e => setNa(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="Natrium (mEq/L)" value={na} onChange={e => setNa(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Kalium (mEq/L)</label>
-                    <DecimalInput step="0.1" value={k} onChange={e => setK(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="Kalium (mEq/L)" step="0.1" value={k} onChange={e => setK(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Kreatinin (mg/dL)</label>
-                    <DecimalInput step="0.1" value={cr} onChange={e => setCr(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="Kreatinin (mg/dL)" step="0.1" value={cr} onChange={e => setCr(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Gagal Ginjal Akut?</label>
-                    <select value={aki} onChange={e => setAki(e.target.value)} className="w-full p-2 border rounded-lg bg-background text-sm">
+                    <select aria-label="Gagal Ginjal Akut?" value={aki} onChange={e => setAki(e.target.value)} className="w-full p-2 border rounded-lg bg-background text-sm min-h-[44px]">
                       <option value="no">Tidak / Stabil</option>
                       <option value="yes">Ya (Skor Cr x2)</option>
                     </select>
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Hematokrit (%)</label>
-                    <DecimalInput step="0.1" value={hct} onChange={e => setHct(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="Hematokrit (%)" step="0.1" value={hct} onChange={e => setHct(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1 block">Leukosit (×10³/mm³)</label>
-                    <DecimalInput step="0.1" value={wbc} onChange={e => setWbc(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all" placeholder="Opsional" />
+                    <DecimalInput aria-label="Leukosit (×10³/mm³)" step="0.1" value={wbc} onChange={e => setWbc(e.target.value)} className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[14px] transition-all min-h-[44px]" placeholder="Opsional" />
                   </div>
                 </div>
               </div>

@@ -55,53 +55,53 @@ export default function ScoringCpis() {
            <div className="space-y-2">
              <div className="font-bold text-sm">Suhu (°C)</div>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-               <button onClick={() => setF1(0)} className={btnClass(0, f1)}>36.5 - 38.4 (0)</button>
-               <button onClick={() => setF1(1)} className={btnClass(1, f1)}>38.5 - 38.9 (1)</button>
-               <button onClick={() => setF1(2)} className={btnClass(2, f1)}>≥ 39.0 atau ≤ 36.0 (2)</button>
+               <button onClick={() => setF1(0)} className={`${btnClass(0, f1)} min-h-[44px]`}>36.5 - 38.4 (0)</button>
+               <button onClick={() => setF1(1)} className={`${btnClass(1, f1)} min-h-[44px]`}>38.5 - 38.9 (1)</button>
+               <button onClick={() => setF1(2)} className={`${btnClass(2, f1)} min-h-[44px]`}>≥ 39.0 atau ≤ 36.0 (2)</button>
              </div>
            </div>
 
            <div className="space-y-2">
              <div className="font-bold text-sm">Leukosit Darah (per mm³)</div>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-               <button onClick={() => setF2(0)} className={btnClass(0, f2)}>4,000 - 11,000 (0)</button>
-               <button onClick={() => setF2(1)} className={btnClass(1, f2)}>&lt;4,000 atau &gt;11,000 (1)</button>
-               <button onClick={() => setF2(2)} className={btnClass(2, f2)}>&lt;4k/&gt;11k + band form &ge;50% (2)</button>
+               <button onClick={() => setF2(0)} className={`${btnClass(0, f2)} min-h-[44px]`}>4,000 - 11,000 (0)</button>
+               <button onClick={() => setF2(1)} className={`${btnClass(1, f2)} min-h-[44px]`}>&lt;4,000 atau &gt;11,000 (1)</button>
+               <button onClick={() => setF2(2)} className={`${btnClass(2, f2)} min-h-[44px]`}>&lt;4k/&gt;11k + band form &ge;50% (2)</button>
              </div>
            </div>
 
            <div className="space-y-2">
              <div className="font-bold text-sm">Sekresi Trakea / Sputum</div>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-               <button onClick={() => setF3(0)} className={btnClass(0, f3)}>Jarang / Tidak ada (0)</button>
-               <button onClick={() => setF3(1)} className={btnClass(1, f3)}>Banyak (abundant), non purulen (1)</button>
-               <button onClick={() => setF3(2)} className={btnClass(2, f3)}>Banyak (abundant), purulen (2)</button>
+               <button onClick={() => setF3(0)} className={`${btnClass(0, f3)} min-h-[44px]`}>Jarang / Tidak ada (0)</button>
+               <button onClick={() => setF3(1)} className={`${btnClass(1, f3)} min-h-[44px]`}>Banyak (abundant), non purulen (1)</button>
+               <button onClick={() => setF3(2)} className={`${btnClass(2, f3)} min-h-[44px]`}>Banyak (abundant), purulen (2)</button>
              </div>
            </div>
 
            <div className="space-y-2">
              <div className="font-bold text-sm">Oksigenasi (PaO₂/FiO₂ mmHg)</div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-               <button onClick={() => setF4(0)} className={btnClass(0, f4)}>&gt; 240 atau ada ARDS (0)</button>
-               <button onClick={() => setF4(2)} className={btnClass(2, f4)}>&le; 240 tanpa ARDS (2)</button>
+               <button onClick={() => setF4(0)} className={`${btnClass(0, f4)} min-h-[44px]`}>&gt; 240 atau ada ARDS (0)</button>
+               <button onClick={() => setF4(2)} className={`${btnClass(2, f4)} min-h-[44px]`}>&le; 240 tanpa ARDS (2)</button>
              </div>
            </div>
 
            <div className="space-y-2">
              <div className="font-bold text-sm">Radiografi Paru (Chest X-Ray)</div>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-               <button onClick={() => setF5(0)} className={btnClass(0, f5)}>Infiltrat tidak ada (0)</button>
-               <button onClick={() => setF5(1)} className={btnClass(1, f5)}>Infiltrat difus/patchy (1)</button>
-               <button onClick={() => setF5(2)} className={btnClass(2, f5)}>Infiltrat terlokalisasi/segmental (2)</button>
+               <button onClick={() => setF5(0)} className={`${btnClass(0, f5)} min-h-[44px]`}>Infiltrat tidak ada (0)</button>
+               <button onClick={() => setF5(1)} className={`${btnClass(1, f5)} min-h-[44px]`}>Infiltrat difus/patchy (1)</button>
+               <button onClick={() => setF5(2)} className={`${btnClass(2, f5)} min-h-[44px]`}>Infiltrat terlokalisasi/segmental (2)</button>
              </div>
            </div>
 
            <div className="space-y-2">
              <div className="font-bold text-sm">Kultur Trakeal / Sputum</div>
              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-               <button onClick={() => setF6(0)} className={btnClass(0, f6)}>Belum ada hasil / tidak ada patogen (0)</button>
-               <button onClick={() => setF6(1)} className={btnClass(1, f6)}>Kuman patogen ditemukan (1)</button>
-               <button onClick={() => setF6(2)} className={btnClass(2, f6)}>Kuman + Pewarnaan Gram sesuai (2)</button>
+               <button onClick={() => setF6(0)} className={`${btnClass(0, f6)} min-h-[44px]`}>Belum ada hasil / tidak ada patogen (0)</button>
+               <button onClick={() => setF6(1)} className={`${btnClass(1, f6)} min-h-[44px]`}>Kuman patogen ditemukan (1)</button>
+               <button onClick={() => setF6(2)} className={`${btnClass(2, f6)} min-h-[44px]`}>Kuman + Pewarnaan Gram sesuai (2)</button>
              </div>
            </div>
          </div>
