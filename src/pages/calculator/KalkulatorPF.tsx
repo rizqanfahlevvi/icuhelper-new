@@ -1,26 +1,32 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Activity, Wind, Info, ChevronDown } from 'lucide-react';
 import { Accordion } from '../../components/ui/Accordion';
 import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
 import { CalcSteps } from '../../components/ui/CalcSteps';
 import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard';
 import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
-import { usePatientStore } from '../../store/usePatientStore';
 import { useClinicalStore } from '../../store/useClinicalStore';
 import {
   RespSupport, SUPPORT_LABEL, ARDS_OTHER_CRITERIA, pfLabel, ardsOxygenation, classifyRespFailure,
 } from '../../utils/oxygenation';
 import { hco3FromHH, fio2ToPercentString, Tone } from '../../utils/abg';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 
 // Disamakan dengan modul ABG (utils/oxygenation.ts): klasifikasi Berlin 2012 + Global 2023,
 // gagal napas tipe 1/2 (StatPearls; tipe 2 = PaCO₂ >45 DENGAN pH <7,35), OI tanpa ambang dewasa.
 const TONE_TEXT: Record<Tone, string> = {
   red: 'text-red-500', amber: 'text-amber-500', emerald: 'text-green-500', slate: 'text-slate-500',
 };
+const TONE_BAR: Record<Tone, CalcTone> = { red: 'bad', amber: 'warn', emerald: 'good', slate: 'neutral' };
+
+// Baris label-kiri / input-kanan yang membungkus saat sempit (font besar / layar 360 px) — tidak overflow.
+const ROW = 'flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2';
+const ROW_LABEL = 'text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]';
+const ROW_FIELD = 'flex-1 min-w-[9rem] flex items-center justify-end gap-2';
+const MISSING_RING = ' ring-2 ring-[var(--sys-red)]';
 
 export default function KalkulatorPF() {
-  const patient = usePatientStore();
   const clinicalStore = useClinicalStore();
 
   const [pao2, setPao2] = useState('');
@@ -84,7 +90,6 @@ export default function KalkulatorPF() {
       setFio2(clinicalStore.data.fio2);
       setFio2Mode('direct');
     }
-    setResult(null);
   };
 
 
@@ -212,9 +217,26 @@ export default function KalkulatorPF() {
       if (!isNaN(phVal) && !isNaN(pCO2)) failType.d.push(`HCO₃⁻ dihitung dari pH & PaCO₂ (Henderson–Hasselbalch) = ${hco3FromHH(phVal, pCO2).toFixed(1)} mmol/L untuk membedakan akut/kronik.`);
     }
 
-    setResult({ pf: pf !== null ? pf.toFixed(1) : null, pfClass, pfColor, o2, meetsBeepCriteria, f, oiRes, dpRes, osiRes, failType,
+    setResult({ pf: pf !== null ? pf.toFixed(1) : null, pfClass, pfColor, pfTone: lbl ? lbl.tone : 'slate', o2, meetsBeepCriteria, f, oiRes, dpRes, osiRes, failType,
       berlin: ox.berlin, global: ox.global, meetsOxygenation: ox.meetsOxygenation, sf: ox.sf, sfValid: ox.sfValid, supportLabel: SUPPORT_LABEL[effSupport] });
   };
+
+  // Hitung sekali → setelah itu hasil ikut berubah otomatis (tidak ada hasil basi).
+  const calc = useCalcTrigger({
+    compute: () => calculate(),
+    deps: [pao2, fio2, fio2Mode, fio2DirectMode, device, flow, map, spo2Source, spo2, pplat, peep, support, hfnoFlow, ph, paco2],
+    required: [
+      { id: 'pf-pao2', label: 'PaO₂ atau SpO₂', filled: parseFloat(pao2) > 0 || parseFloat(spo2) > 0 },
+      { id: 'pf-fio2', label: 'FiO₂', filled: fio2Mode === 'lowflow' || fio2.trim() !== '' },
+    ],
+  });
+
+  const barSummary = result
+    ? (result.pf !== null ? `P/F ${Number(result.pf).toFixed(0)} mmHg` : `S/F ${result.sf !== null ? result.sf.toFixed(0) : '—'} · tanpa AGD`)
+    : null;
+  const barCaption = result
+    ? (result.pf !== null ? result.pfClass : (result.meetsOxygenation ? 'Memenuhi kriteria hipoksemia ARDS (S/F)' : 'Di atas ambang hipoksemia ARDS'))
+    : undefined;
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden">
@@ -229,10 +251,10 @@ export default function KalkulatorPF() {
         </h2>
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaO₂ ABG</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="80" value={pao2} onChange={e => setPao2(e.target.value)} />
+          <div className={ROW}>
+            <label htmlFor="pf-pao2" className={ROW_LABEL}>PaO₂ ABG</label>
+            <div className={ROW_FIELD}>
+              <input id="pf-pao2" type="number" inputMode="decimal" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('pf-pao2') ? MISSING_RING : ''}`} placeholder="80" value={pao2} onChange={e => setPao2(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mmHg</span>
             </div>
           </div>
@@ -273,12 +295,15 @@ export default function KalkulatorPF() {
 
                 {/* Input */}
                 <input
+                  id="pf-fio2"
+                  aria-label="FiO₂"
                   type="number"
+                  inputMode="decimal"
                   step={fio2DirectMode === 'decimal' ? '0.01' : '1'}
                   min={fio2DirectMode === 'decimal' ? '0.21' : '21'}
                   max={fio2DirectMode === 'decimal' ? '1.0' : '100'}
                   placeholder={fio2DirectMode === 'decimal' ? '0.21 – 1.0' : '21 – 100'}
-                  className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+                  className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('pf-fio2') ? MISSING_RING : ''}`}
                   value={fio2}
                   onChange={e => { setFio2(e.target.value); setFio2Error(''); }}
                 />
@@ -322,13 +347,14 @@ export default function KalkulatorPF() {
           </div>
 
           <div className="flex flex-col px-4 py-3 gap-2">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Dukungan Napas</span>
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+              <label htmlFor="pf-support" className={ROW_LABEL}>Dukungan Napas</label>
               <select
+                id="pf-support"
                 value={fio2Mode === 'lowflow' ? 'udara' : support}
                 disabled={fio2Mode === 'lowflow'}
                 onChange={e => setSupport(e.target.value as RespSupport)}
-                className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white text-[13px] w-full max-w-[220px] disabled:opacity-60"
+                className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white text-[13px] flex-1 min-w-[11rem] max-w-full disabled:opacity-60"
               >
                 {(Object.keys(SUPPORT_LABEL) as RespSupport[]).map(k => <option key={k} value={k}>{SUPPORT_LABEL[k]}</option>)}
               </select>
@@ -342,10 +368,10 @@ export default function KalkulatorPF() {
             <p className="text-[11px] text-slate-500">Menentukan kelayakan klasifikasi ARDS (Berlin butuh PEEP/CPAP ≥5; Global 2023 menerima HFNC ≥30 L/m).</p>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0" title="Mean airway pressure dari ventilator — bukan MAP arteri">Paw (tekanan jalan napas rerata)</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="14" value={map} onChange={e => setMap(e.target.value)} />
+          <div className={ROW}>
+            <label htmlFor="pf-paw" className={ROW_LABEL} title="Mean airway pressure dari ventilator — bukan MAP arteri">Paw (tekanan jalan napas rerata)</label>
+            <div className={ROW_FIELD}>
+              <input id="pf-paw" type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="14" value={map} onChange={e => setMap(e.target.value)} />
               <span className="text-[11px] font-semibold text-slate-500 w-12 text-left">cmH₂O</span>
             </div>
           </div>
@@ -367,53 +393,47 @@ export default function KalkulatorPF() {
               <button className={`flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${spo2Source === 'abg' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setSpo2Source('abg')}>ABG SaO₂</button>
             </div>
             <div className="flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="94" value={spo2} onChange={e => setSpo2(e.target.value)} />
+              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="94" value={spo2} onChange={e => setSpo2(e.target.value)} aria-label="SpO₂ / SaO₂ (%)" inputMode="decimal" />
               <span className="text-[11px] font-semibold text-slate-500 w-6 text-left">%</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Pplat</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="25" value={pplat} onChange={e => setPplat(e.target.value)} />
+          <div className={ROW}>
+            <label htmlFor="pf-pplat" className={ROW_LABEL}>Pplat</label>
+            <div className={ROW_FIELD}>
+              <input id="pf-pplat" type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="25" value={pplat} onChange={e => setPplat(e.target.value)} />
               <span className="text-[11px] font-semibold text-slate-500 w-12 text-left">cmH₂O</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PEEP</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="5" value={peep} onChange={e => setPeep(e.target.value)} />
+          <div className={ROW}>
+            <label htmlFor="pf-peep" className={ROW_LABEL}>PEEP</label>
+            <div className={ROW_FIELD}>
+              <input id="pf-peep" type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="5" value={peep} onChange={e => setPeep(e.target.value)} />
               <span className="text-[11px] font-semibold text-slate-500 w-12 text-left">cmH₂O</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">PaCO₂ ABG</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional" value={paco2} onChange={e => setPaco2(e.target.value)} />
+          <div className={ROW}>
+            <label htmlFor="pf-paco2" className={ROW_LABEL}>PaCO₂ ABG</label>
+            <div className={ROW_FIELD}>
+              <input id="pf-paco2" type="number" inputMode="decimal" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional" value={paco2} onChange={e => setPaco2(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mmHg</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-3 gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">pH ABG</span>
-            <div className="flex-1 flex items-center justify-end gap-2">
-              <input type="number" step="0.01" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional (tipe 2)" value={ph} onChange={e => setPh(e.target.value)} />
+          <div className={ROW}>
+            <label htmlFor="pf-ph" className={ROW_LABEL}>pH ABG</label>
+            <div className={ROW_FIELD}>
+              <input id="pf-ph" type="number" inputMode="decimal" step="0.01" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" placeholder="Opsional (tipe 2)" value={ph} onChange={e => setPh(e.target.value)} />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left"></span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="px-4">
-        <button onClick={calculate} className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px]">
-          Hitung P/F & Klasifikasi
-        </button>
-      </div>
-
       {result && (
-        <div className="mt-4 space-y-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div id="pf-hasil" className="mt-4 space-y-4 scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
             <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.pfColor}`}>{result.pf !== null ? 'P/F Ratio — Klasifikasi Oksigenasi' : 'Tanpa AGD — Klasifikasi dengan S/F'}</div>
             {result.pf !== null ? (
@@ -752,6 +772,17 @@ export default function KalkulatorPF() {
           'Paw', 'MV-mekanik', 'OI', 'OSI', 'DP', 'ΔP', 'Pplat', 'VT', 'IBW', 'Crs', 'ARDS', 'ARDSNet', 'VILI', 'HFNC',
           'HFNO', 'NIV', 'NRM', 'ECMO', 'VV', 'NMBA', 'PPOK', 'MG', 'FRC', 'CT', 'USG', 'ATS', 'ESICM', 'SCCM',
         ]}
+      />
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung P/F & Klasifikasi"
+        summary={barSummary}
+        summaryTone={result ? (result.pf !== null ? TONE_BAR[result.pfTone as Tone] : (result.meetsOxygenation ? 'bad' : 'neutral')) : 'neutral'}
+        caption={barCaption}
+        missing={calc.missing}
+        resultTargetId="pf-hasil"
+        emptyText={fio2Error || 'Lengkapi data untuk melihat hasil'}
       />
     </div>
   );

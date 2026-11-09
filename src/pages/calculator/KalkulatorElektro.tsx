@@ -15,6 +15,9 @@ import { useKalsiumState, KalsiumInputs, KalsiumResult } from './components/Elek
 import { useMagnesiumState, MagnesiumInputs, MagnesiumResult } from './components/ElektroMagnesium';
 import { patientGenderToClinical } from '../../utils/patientContext';
 import { AbbrLegend } from '../../components/ui/AbbrLegend';
+import { CalcActionBar } from '../../components/ui/CalcActionBar';
+import { focusInput, type RequiredInput } from '../../hooks/useCalcTrigger';
+import { naSummary, kSummary, caSummary, mgSummary } from '../../utils/elektroSummary';
 
 // Klasifikasi gejala hiponatremia (Spasovski 2014, ERBP/ESE/ESICM).
 // Indikasi NaCl 3% ditentukan oleh GEJALA, bukan angka natrium semata.
@@ -146,7 +149,28 @@ export default function KalkulatorElektro() {
   const naPreview = parseFloat(na) > 0 ? glucoseCorrectedNa(parseFloat(na), parseFloat(glu)).value : NaN;
 
   const res = shown && tab === 'na' ? naRes : null;
-  const calculate = () => setShown(true);
+  // Input wajib per tab (tanpa ini hasil tidak bisa dihitung).
+  const required: RequiredInput[] =
+    tab === 'na' ? [
+      { id: 'el-bw', label: 'Berat badan', filled: parseFloat(bw) > 0 },
+      { id: 'el-na', label: 'Na serum', filled: parseFloat(na) > 0 },
+    ]
+    : tab === 'k' ? [{ id: 'el-k', label: 'K serum', filled: parseFloat(k) > 0 }]
+    : tab === 'ca' ? [{ id: 'el-ca', label: 'Ca total', filled: parseFloat(ca) > 0 }]
+    : [{ id: 'el-mg', label: 'Mg serum', filled: parseFloat(mg) > 0 }];
+  const missing = shown ? required.filter(r => !r.filled) : [];
+  const isMissing = (id: string) => missing.some(m => m.id === id);
+  const calculate = () => {
+    setShown(true);
+    const first = required.find(r => !r.filled);
+    if (first) focusInput(first.id);
+  };
+  const summary =
+    !shown ? null
+    : tab === 'na' ? naSummary(naRes)
+    : tab === 'k' ? kSummary(k)
+    : tab === 'ca' ? caSummary(ca, alb)
+    : mgSummary(mg);
 
   // Ganti Ureum↔BUN: angka yang sudah diisi ikut dikonversi (×/÷ 60/28), bukan ditafsir ulang.
   const changeUreaUnit = (next: UreaUnit) => {
@@ -226,15 +250,10 @@ export default function KalkulatorElektro() {
          </h2>
          
          <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-            <div className="flex items-center justify-between px-4 py-3 gap-4">
-               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
-               <div className="flex-1 flex items-center justify-end gap-2">
-                 <input 
-                   type="number" 
-                   value={bw} 
-                   onChange={e=>setBw(e.target.value)} 
-                   placeholder="70" 
-                   className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+            <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+               <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+                 <input id="el-bw" aria-label="Berat badan (kg)" type="number" inputMode="decimal" value={bw} onChange={e=>setBw(e.target.value)} placeholder="70" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-bw') ? ' ring-2 ring-[var(--sys-red)]' : ''}`}
                  />
                  <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
                </div>
@@ -242,36 +261,36 @@ export default function KalkulatorElektro() {
 
             {tab === 'na' && (
               <>
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Na Serum</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" value={na} onChange={e=>setNa(e.target.value)} placeholder="135" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Serum</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+                     <input id="el-na" aria-label="Na serum (mEq/L)" type="number" inputMode="decimal" value={na} onChange={e=>setNa(e.target.value)} placeholder="135" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-na') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mEq/L</span>
                    </div>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Jenis Kelamin</span>
-                   <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={sex} onChange={e=>setSex(e.target.value)}>
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Jenis Kelamin</span>
+                   <select className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={sex} onChange={e=>setSex(e.target.value)}>
                      <option value="m">Laki-laki</option>
                      <option value="f">Perempuan</option>
                    </select>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Usia</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Usia</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                      <input type="number" value={age} onChange={e=>setAge(e.target.value)} placeholder="untuk faktor TBW" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">tahun</span>
                    </div>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Glukosa GDS</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Glukosa GDS</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                      <input type="number" value={glu} onChange={e=>setGlu(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
                 <FieldRow label={ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} sub="untuk osmolalitas terhitung">
-                  <div className="flex-1 flex items-center justify-end gap-2">
+                  <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                     <input type="number" value={ureum} onChange={e=>setUreum(e.target.value)} placeholder="Opsional" className={inputCls} />
                     <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
                       <option value="ureum">Ureum</option>
@@ -289,18 +308,18 @@ export default function KalkulatorElektro() {
                     </FieldRow>
                   </>
                 )}
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Onset</span>
-                   <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={onset} onChange={e=>{ setOnset(e.target.value); setHyperDrop(e.target.value === 'akut' ? '24' : '10'); }}>
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Onset</span>
+                   <select className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={onset} onChange={e=>{ setOnset(e.target.value); setHyperDrop(e.target.value === 'akut' ? '24' : '10'); }}>
                      <option value="kronik">Kronik / Tidak tahu</option>
                      <option value="akut">Akut (&lt;48 jam)</option>
                    </select>
                 </div>
                 {naPreview > 145 && (
                   <>
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Cairan koreksi</span>
-                   <select className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={naFluid} onChange={e=>setNaFluid(e.target.value)}>
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Cairan koreksi</span>
+                   <select className="flex-1 min-w-[9rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={naFluid} onChange={e=>setNaFluid(e.target.value)}>
                      {NA_FLUIDS.map(f => <option key={f.id} value={f.id}>{f.label} ({f.na} mEq/L)</option>)}
                    </select>
                 </div>
@@ -342,22 +361,22 @@ export default function KalkulatorElektro() {
 
             {tab === 'k' && (
               <>
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">K Serum</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" step="0.1" value={k} onChange={e=>setK(e.target.value)} placeholder="3.5" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">K Serum</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+                     <input id="el-k" aria-label="K serum (mEq/L)" type="number" inputMode="decimal" step="0.1" value={k} onChange={e=>setK(e.target.value)} placeholder="3.5" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-k') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mEq/L</span>
                    </div>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4 border-t border-slate-100 dark:border-slate-800">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">pH Arteri</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">pH Arteri</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                      <input type="number" step="0.01" value={ph} onChange={e=>setPh(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
                    </div>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4 border-t border-slate-100 dark:border-slate-800">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Pre-Koreksi</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">GDS Pre-Koreksi</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                      <input type="number" step="1" value={gdsK} onChange={e=>setGdsK(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
@@ -368,23 +387,23 @@ export default function KalkulatorElektro() {
 
             {tab === 'ca' && (
               <>
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Ca Total</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" step="0.1" value={ca} onChange={e=>setCa(e.target.value)} placeholder="8.5" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Ca Total</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+                     <input id="el-ca" aria-label="Ca total (mg/dL)" type="number" inputMode="decimal" step="0.1" value={ca} onChange={e=>setCa(e.target.value)} placeholder="8.5" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-ca') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4 border-t border-slate-100 dark:border-slate-800">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Albumin</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Albumin</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                      <input type="number" step="0.1" value={alb} onChange={e=>setAlb(e.target.value)} placeholder="4.0" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">g/dL</span>
                    </div>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4 border-t border-slate-100 dark:border-slate-800">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">pH Arteri</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">pH Arteri</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                      <input type="number" step="0.01" value={caPh} onChange={e=>setCaPh(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
                    </div>
                 </div>
@@ -394,16 +413,16 @@ export default function KalkulatorElektro() {
 
             {tab === 'mg' && (
               <>
-                <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Mg Serum</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
-                     <input type="number" step="0.1" value={mg} onChange={e=>setMg(e.target.value)} placeholder="1.7" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Mg Serum</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
+                     <input id="el-mg" aria-label="Mg serum (mg/dL)" type="number" inputMode="decimal" step="0.1" value={mg} onChange={e=>setMg(e.target.value)} placeholder="1.7" className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${isMissing('el-mg') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mg/dL</span>
                    </div>
                 </div>
-                <div className="flex items-center justify-between px-4 py-3 gap-4 border-t border-slate-100 dark:border-slate-800">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">eGFR / CrCl</span>
-                   <div className="flex-1 flex items-center justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2 border-t border-slate-100 dark:border-slate-800">
+                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">eGFR / CrCl</span>
+                   <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                      <input type="number" step="1" value={egfr} onChange={e=>setEgfr(e.target.value)} placeholder="Opsional" className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" />
                      <span className="text-xs font-semibold text-slate-500 w-12 text-left">mL/min</span>
                    </div>
@@ -413,13 +432,7 @@ export default function KalkulatorElektro() {
             )}
          </div>
 
-         <div className="mt-4">
-            <button onClick={calculate} className={`w-full py-3.5 text-white font-semibold rounded-2xl shadow-sm hover:shadow active:scale-[0.98] transition-all text-[15px] ${tab === 'na' ? 'bg-cyan-600 hover:bg-cyan-700' : tab === 'k' ? 'bg-red-600 hover:bg-red-700' : tab === 'ca' ? 'bg-stone-500 hover:bg-stone-600' : 'bg-green-600 hover:bg-green-700'}`}>
-               Hitung Koreksi
-            </button>
-         </div>
-
-         <div className="mt-4 pb-6">
+         <div id="el-hasil" className="mt-4 pb-6 scroll-mt-4">
             {shown && <InputWarning messages={[
               weightPlausibilityWarning(parseFloat(bw)),
               tab === 'na' ? rangeWarning(parseFloat(na), 100, 180, 'Na', ' mEq/L') : null,
@@ -466,6 +479,16 @@ export default function KalkulatorElektro() {
           'ARB', 'MRA', 'ESKD', 'RAAS-i', 'HD', 'ILCOR', 'PTH', 'PPI', 'KDOQI', 'ROMK', 'TURP', 'SSRI', 'HTS', 'UOP',
           'IWL', 'ATN', 'QRS', 'QT',
         ]}
+      />
+      <CalcActionBar
+        armed={shown}
+        onCalculate={calculate}
+        label={`Hitung Koreksi ${tab === 'na' ? 'Natrium' : tab === 'k' ? 'Kalium' : tab === 'ca' ? 'Kalsium' : 'Magnesium'}`}
+        summary={summary?.text ?? null}
+        summaryTone={summary?.tone ?? 'neutral'}
+        caption={summary && (tab === 'ca' || tab === 'mg') ? 'Interpretasi & dosis di rincian · diperbarui otomatis' : undefined}
+        missing={missing}
+        resultTargetId="el-hasil"
       />
     </div>
   );

@@ -3,9 +3,11 @@ import { ActivePatientBriefCard } from '../../components/ActivePatientBriefCard'
 import { UnifiedSyncBanner, type SyncField } from '../../components/UnifiedSyncBanner';
 import { fio2ToPercentString } from '../../utils/abg';
 import { Accordion } from '../../components/ui/Accordion';
-import { Activity, Beaker, Brain, HeartPulse, Wind, Droplets, AlertTriangle, Calculator, Info } from 'lucide-react';
+import { Activity, Beaker, Brain, HeartPulse, Wind, Droplets, AlertTriangle, Info } from 'lucide-react';
 import { useClinicalStore } from '../../store/useClinicalStore';
-import { useHistoryStore } from '../../store/useHistoryStore';
+import { SaveToHistoryButton } from '../../components/ui/SaveToHistoryButton';
+import { CalcActionBar, type CalcTone } from '../../components/ui/CalcActionBar';
+import { useCalcTrigger } from '../../hooks/useCalcTrigger';
 import {
   sofaRespFromPf, sofaRespFromSf, sofaCoag, sofaLiver, sofaCns, sofaRenalCreatinine, sofaRenalUrine,
   normalizeFio2, ferreiraMortality, ferreiraTier, FERREIRA_INITIAL_SOFA, SF_SPO2_RELIABLE_MAX, SF_THRESHOLDS,
@@ -23,6 +25,7 @@ interface OrganScore {
 
 interface SofaResult {
   total: number;
+  tier: SofaRiskTier;
   organScores: OrganScore[];
   skippedOrgans: string[];
   isPartial: boolean;
@@ -43,6 +46,7 @@ const TIER_STYLE: Record<SofaRiskTier, { label: string; color: string }> = {
   tinggi: { label: 'Risiko Tinggi', color: 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' },
   sangatTinggi: { label: 'Risiko Sangat Tinggi', color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' },
 };
+const TIER_TONE: Record<SofaRiskTier, CalcTone> = { rendah: 'good', sedang: 'warn', tinggi: 'bad', sangatTinggi: 'bad' };
 const PARTIAL_STYLE = 'text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700';
 
 const CategoryHeader = ({ icon: Icon, title, tooltip }: { icon: any; title: string; tooltip: React.ReactNode }) => {
@@ -316,6 +320,7 @@ export default function ScoringSofa() {
 
     setResult({
       total,
+      tier: ferreiraTier(total),
       organScores,
       skippedOrgans,
       isPartial,
@@ -329,13 +334,13 @@ export default function ScoringSofa() {
       notes,
     });
     
-    useHistoryStore.getState().addEntry(
-      'scoring_sofa',
-      `SOFA: ${total}`,
-      { pao2, fio2Mode, fio2Desimal, fio2Persen, spo2, ventMekanik, trombosit, bilirubin, cvVal, gcs, kreatinin, urineOutput, sofaBaseline },
-      isPartial ? `Skor parsial ${total} (${skippedOrgans.length} organ kosong)` : `Skor Total: ${total} — mortalitas (Ferreira, SOFA awal) ${mortalityText}`
-    );
   };
+
+  // Hitung sekali → setelah itu skor ikut berubah otomatis saat input diubah (tidak ada hasil basi).
+  const calc = useCalcTrigger({
+    compute: () => handleCalculate(),
+    deps: [pao2, fio2Persen, fio2Desimal, fio2Mode, useSpO2, spo2, ventMekanik, trombosit, bilirubin, cvVal, gcs, kreatinin, urineOutput, sofaBaseline],
+  });
 
   const getScoreColor = (score: number | null) => {
     if (score === null) return 'text-slate-400 dark:text-slate-500';
@@ -358,7 +363,7 @@ export default function ScoringSofa() {
 
   const inputClass = "w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const selectClass = "w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
-  const cardClass = "bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm";
+  const cardClass = "bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 md:p-5 shadow-sm";
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
@@ -366,7 +371,7 @@ export default function ScoringSofa() {
       <UnifiedSyncBanner fields={syncFields} />
 
       <div className={cardClass}>
-        <div className="flex items-center gap-3 mb-2">
+        <div className="hidden md:flex items-center gap-3 mb-2">
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
             <Activity className="w-5 h-5" />
           </div>
@@ -376,9 +381,9 @@ export default function ScoringSofa() {
           </div>
         </div>
         
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 mb-6 flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-          <p className="text-sm text-blue-800 dark:text-blue-300">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-2.5 md:p-3 mb-4 md:mb-6 flex items-start gap-2.5 md:gap-3">
+          <Info className="w-4 h-4 md:w-5 md:h-5 text-blue-500 shrink-0 mt-0.5" />
+          <p className="text-[13px] md:text-sm text-blue-800 dark:text-blue-300">
             <strong>Gunakan nilai terburuk dalam 24 jam</strong> untuk tiap parameter. Parameter yang tidak tersedia boleh dikosongkan — skor menjadi <strong>parsial</strong> (minimal) dan mortalitas tidak ditampilkan.
           </p>
         </div>
@@ -653,20 +658,11 @@ export default function ScoringSofa() {
           </div>
         </div>
 
-        <div className="mt-8">
-          <button
-            onClick={handleCalculate}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-          >
-            <Calculator className="w-5 h-5" />
-            Hitung SOFA Score
-          </button>
-        </div>
       </div>
 
       {/* HASIL */}
       {result && (
-        <div className={`${cardClass} animate-in fade-in slide-in-from-bottom-4`}>
+        <div id="sofa-hasil" className={`${cardClass} scroll-mt-4 animate-in fade-in slide-in-from-bottom-4`}>
           <div className={`p-4 rounded-xl border ${result.mortalityColor} flex flex-col md:flex-row items-center justify-between gap-4 mb-6`}>
             <div>
               <div className="text-sm font-semibold opacity-80 uppercase tracking-wider mb-1">
@@ -763,6 +759,14 @@ export default function ScoringSofa() {
               </div>
             </div>
           )}
+
+          <SaveToHistoryButton
+            module="scoring_sofa"
+            label={`SOFA: ${result.total}`}
+            className="w-full mb-4"
+            inputs={{ pao2, fio2Mode, fio2Desimal, fio2Persen, spo2, ventMekanik, trombosit, bilirubin, cvVal, gcs, kreatinin, urineOutput, sofaBaseline }}
+            summary={result.isPartial ? `Skor parsial ${result.total} (${result.skippedOrgans.length} organ kosong)` : `Skor Total: ${result.total} — mortalitas (Ferreira, SOFA awal) ${result.mortalityText}`}
+          />
 
           <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1 pt-4 border-t border-slate-200 dark:border-slate-800">
             <div>📚 [1] Vincent JL et al. Intensive Care Med 1996;22:707</div>
@@ -949,6 +953,15 @@ export default function ScoringSofa() {
           'SOFA', 'qSOFA', 'SIRS', 'SSC', 'ICU', 'AGD', 'PaO2', 'FiO2', 'P/F', 'S/F', 'SpO2', 'NIV', 'PLT', 'MAP',
           'NE', 'EPI', 'DA', 'DOB', 'SSP', 'GCS', 'Cr', 'UO', 'RR',
         ]}
+      />
+      <CalcActionBar
+        armed={calc.armed}
+        onCalculate={calc.trigger}
+        label="Hitung SOFA"
+        summary={result ? `SOFA ${result.total}${result.isPartial ? ' (parsial)' : ''}${result.delta !== null ? ` · Δ ${result.delta >= 0 ? '+' : ''}${result.delta}` : ''}` : null}
+        summaryTone={result ? (result.isPartial ? 'neutral' : TIER_TONE[result.tier]) : 'neutral'}
+        caption={result ? (result.isPartial ? `${result.skippedOrgans.length} organ belum diisi — mortalitas tidak diinterpretasi` : `${result.mortalityCategory} · mortalitas ${result.mortalityText} (Ferreira)`) : undefined}
+        resultTargetId="sofa-hasil"
       />
     </div>
   );

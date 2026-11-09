@@ -1,6 +1,6 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, ChevronRight, UserPlus, Scale, Activity, Flame, Heart, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, UserPlus, UserCheck, RefreshCw, CheckCircle2, X } from 'lucide-react';
 import { usePatientStore } from '../store/usePatientStore';
 import { useClinicalStore } from '../store/useClinicalStore';
 import { formatDataAge } from '../utils/patientContext';
@@ -10,176 +10,160 @@ interface ActivePatientBriefCardProps {
   title?: string;
 }
 
+/** Hari rawat ke-n (hari MRS = hari ke-1). */
+function dayOfCare(mrsDate?: string): { day: number; label: string } | null {
+  if (!mrsDate) return null;
+  const mrs = new Date(mrsDate);
+  if (isNaN(mrs.getTime())) return null;
+  const today = new Date();
+  mrs.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.ceil(Math.abs(today.getTime() - mrs.getTime()) / (1000 * 60 * 60 * 24));
+  return { day: diffDays + 1, label: mrs.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) };
+}
+
+/**
+ * Kartu pasien aktif versi ringkas: satu baris identitas (nama · usia · JK · BB · H-n) + status data.
+ * Detail (kategori, MRS, lengkapi data, tutup pasien) disembunyikan di balik tombol buka.
+ */
 export function ActivePatientBriefCard({ onAutofill, title }: ActivePatientBriefCardProps) {
   const patient = usePatientStore();
   const clinicalStore = useClinicalStore();
+  const [open, setOpen] = useState(false);
+  const [reloaded, setReloaded] = useState(false);
   const hasPatientData = !!patient.weightKg || !!patient.nama;
 
-  const handleAutofillAction = () => {
-    if (onAutofill) {
-      onAutofill({
-        weightKg: patient.weightKg || clinicalStore.data.weight || '',
-        // Jangan mengarang suhu: kosong bila belum pernah diisi.
-        temp: clinicalStore.data.temp || '',
-        age: patient.ageYears || clinicalStore.data.age || '',
-        gender: patient.gender || clinicalStore.data.gender || '',
-      });
-    }
+  const handleReload = () => {
+    if (!onAutofill) return;
+    onAutofill({
+      weightKg: patient.weightKg || clinicalStore.data.weight || '',
+      // Jangan mengarang suhu: kosong bila belum pernah diisi.
+      temp: clinicalStore.data.temp || '',
+      age: patient.ageYears || clinicalStore.data.age || '',
+      gender: patient.gender || clinicalStore.data.gender || '',
+    });
+    setReloaded(true);
+    window.setTimeout(() => setReloaded(false), 1800);
   };
 
   // Data kerja klinis ikut dikosongkan otomatis oleh store/patientContextSync.ts.
   const handleClosePatient = () => {
+    setOpen(false);
     patient.setActivePatient(null);
   };
 
   if (!hasPatientData) {
     return (
-      <div className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 rounded-2xl select-none relative overflow-hidden">
-        <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-              <UserPlus className="w-5 h-5 animate-pulse" />
-            </div>
-            <div>
-              <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300">Belum Ada Pasien Aktif Terpilih</h4>
-              <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-1">
-                Pilih atau tambah pasien di tab <strong>Pasien</strong> untuk mengisi seluruh isian kalkulator secara otomatis (Autofill).
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/patients"
-            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer transition-all shrink-0 self-end sm:self-center"
-          >
-            Pilih Pasien <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
+      <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10">
+        <UserPlus className="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] font-bold text-amber-800 dark:text-amber-300 leading-tight">{title ?? 'Belum ada pasien aktif'}</p>
+          <p className="text-[11px] text-amber-700/80 dark:text-amber-400/80 leading-snug">Isian tidak terisi otomatis dari data pasien.</p>
         </div>
+        <Link
+          to="/patients"
+          className="shrink-0 min-h-[40px] flex items-center gap-1 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[12px] font-bold"
+        >
+          Pilih Pasien <ChevronRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
     );
   }
 
-  // Format gender
+  const ageLabel = patient.ageYears ? `${patient.ageYears} th` : patient.ageMonths ? `${patient.ageMonths} bln` : '';
   const genderLabel = patient.gender === 'L' ? 'L' : patient.gender === 'P' ? 'P' : '';
-  const ageLabel = patient.ageYears 
-    ? `${patient.ageYears} tahun` 
-    : patient.ageMonths 
-      ? `${patient.ageMonths} bulan` 
-      : '';
+  const care = dayOfCare(patient.mrsDate);
+  const facts = [ageLabel, genderLabel, patient.weightKg ? `${patient.weightKg} kg` : '', care ? `H-${care.day}` : ''].filter(Boolean);
 
-  // Generate a short ID from activePatientId or fallback
-  const shortId = patient.activePatientId ? patient.activePatientId.substring(0, 6) : 'af8242';
-
-  // Calculate day of care
-  let dayOfCareLabel = '';
-  let mrsDateLabel = '';
-  if (patient.mrsDate) {
-    const mrsDate = new Date(patient.mrsDate);
-    if (!isNaN(mrsDate.getTime())) {
-      const today = new Date();
-      // Reset hours to cleanly calculate day difference
-      mrsDate.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-      const diffTime = Math.abs(today.getTime() - mrsDate.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      // Standardize to Day 1 meaning same day
-      dayOfCareLabel = `Hari Ke-${diffDays + 1}`;
-      mrsDateLabel = mrsDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-    }
-  }
-
-  // Count klinis & lab saved
-  const activePatientData = patient.patients.find(p => p.id === patient.activePatientId);
-  const clinicalVarsCount = activePatientData && activePatientData.clinicalData ? Object.keys(activePatientData.clinicalData).length : 0;
+  const filledCount = Object.values(clinicalStore.data).filter(v => typeof v === 'string' && v.trim() !== '').length;
   const stampValues = Object.values(clinicalStore.updatedAt).filter((t): t is number => typeof t === 'number');
   const lastUpdateAge = stampValues.length > 0 ? formatDataAge(Math.max(...stampValues)) : '';
+  const shortId = patient.activePatientId ? patient.activePatientId.substring(0, 6) : '';
 
   return (
-    <div className="bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 rounded-2xl p-4 lg:p-5 relative overflow-hidden space-y-4 shadow-sm">
-      <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-8 -mt-8 pointer-events-none" />
-      
-      {/* Top Row: Pasien Aktif & ID */}
-      <div className="flex items-center justify-between relative z-10">
-        <span className="text-[10px] sm:text-[11px] font-bold bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 px-3 py-1 rounded-full uppercase tracking-wider">
-          Pasien Aktif
+    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-500/15">
+      {/* Baris identitas */}
+      <div className="flex items-center gap-2 px-3 py-2">
+        <button
+          type="button"
+          onClick={() => setOpen(o => !o)}
+          aria-expanded={open}
+          className="min-w-0 flex-1 flex items-center gap-2.5 text-left min-h-[40px]"
+        >
+          <UserCheck className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-[14px] font-extrabold text-[var(--label-primary)] truncate">
+              {title ? <span className="font-semibold text-[var(--label-secondary)]">{title}: </span> : null}
+              {patient.nama || 'Pasien Anonim'}
+            </span>
+            {facts.length > 0 && (
+              <span className="block text-[12px] font-semibold text-[var(--label-secondary)] truncate">{facts.join(' · ')}</span>
+            )}
+          </span>
+          <ChevronDown className={`w-4 h-4 shrink-0 text-[var(--label-secondary)] transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+        <Link
+          to="/patients"
+          className="shrink-0 min-h-[40px] flex items-center px-3 rounded-lg border border-emerald-500/30 bg-[var(--bg-elevated)] text-[12px] font-bold text-emerald-700 dark:text-emerald-300"
+        >
+          Ganti
+        </Link>
+      </div>
+
+      {/* Status data pasien */}
+      <div className="flex items-center gap-2 px-3 py-1.5 border-t border-emerald-500/20 text-[12px]">
+        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <span className="min-w-0 flex-1 truncate text-[var(--label-secondary)]">
+          {!patient.activePatientId
+            ? 'Sesi tanpa pasien — data tidak tersimpan ke daftar pasien'
+            : filledCount > 0
+              ? `${filledCount} nilai terisi dari pasien${lastUpdateAge ? ` · ${lastUpdateAge}` : ''}`
+              : 'Belum ada nilai klinis tersimpan untuk pasien ini'}
         </span>
-        <span className="text-xs text-muted-foreground font-mono">
-          ID: #{shortId}
-        </span>
-      </div>
-
-      {/* Middle Row: Circular Icon & Name / Gender / Age */}
-      <div className="flex items-center gap-3 relative z-10">
-        <div className="p-2 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-full flex-shrink-0 animate-pulse">
-          <CheckCircle2 className="w-5 h-5" />
-        </div>
-        <h2 className="text-lg sm:text-xl font-bold text-[var(--label-primary)] flex flex-wrap items-baseline gap-1.5 min-w-0">
-          <span className="font-extrabold truncate">{patient.nama || 'Pasien Anonim'}</span>
-          <span className="text-xs sm:text-sm font-semibold text-muted-foreground">
-            / {ageLabel} {genderLabel ? `(${genderLabel})` : ''}
-          </span>
-        </h2>
-      </div>
-
-      {/* Bottom Row: Specs Badges */}
-      <div className="flex flex-wrap items-center gap-2 mt-2 text-xs relative z-10">
-        {patient.category && (
-          <span className="capitalize bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold px-3 py-1.5 rounded-xl border border-emerald-500/20 inline-flex items-center gap-1.5 shadow-xs">
-            <Heart className="w-3.5 h-3.5 text-emerald-500" />
-            {patient.category}
-          </span>
-        )}
-
-        {patient.weightKg && (
-          <span className="bg-background/45 dark:bg-black/20 border border-[var(--glass-border)] text-[var(--label-secondary)] px-3 py-1.5 rounded-xl font-bold inline-flex items-center gap-1.5 shadow-xs">
-            <Scale className="w-3.5 h-3.5 text-emerald-500" />
-            BB: <strong className="font-extrabold text-[var(--label-primary)]">{patient.weightKg} kg</strong>
-          </span>
-        )}
-
-        {patient.mrsDate && dayOfCareLabel && (
-          <span className="bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300 font-bold px-3 py-1.5 rounded-xl inline-flex items-center gap-1.5 shadow-xs">
-            <Activity className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-            {dayOfCareLabel}
-            <span className="font-medium opacity-80 ml-0.5">(MRS: {mrsDateLabel})</span>
-          </span>
+        {onAutofill && (
+          <button
+            type="button"
+            onClick={handleReload}
+            title="Isi ulang isian dari data pasien"
+            className="shrink-0 min-h-[32px] flex items-center gap-1 px-2 rounded-md font-bold text-[var(--accent)] hover:bg-[var(--accent-tint)]"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${reloaded ? 'animate-spin' : ''}`} />
+            {reloaded ? 'Dimuat' : 'Muat ulang'}
+          </button>
         )}
       </div>
 
-      <div className="border-t border-emerald-500/20 pt-4 mt-2 relative z-10">
-        <h5 className="font-bold text-emerald-800 dark:text-emerald-300 text-[13px] mb-0.5">
-          Memori Klinis & Lab
-        </h5>
-        <p className="text-slate-500 dark:text-slate-400 text-[11px] mb-3 font-medium">
-          {patient.activePatientId
-            ? `${clinicalVarsCount} variabel tersimpan otomatis${lastUpdateAge ? ` · terakhir ${lastUpdateAge}` : ''}.`
-            : 'Sesi tanpa pasien — data tidak tersimpan ke daftar pasien.'}
-        </p>
-
-        <div className="flex flex-row items-center gap-2">
-          {onAutofill ? (
-            <button
-              onClick={handleAutofillAction}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow-sm transition-all active:scale-[0.98]"
-            >
-              <Activity className="w-3.5 h-3.5 animate-pulse" /> Autofill Data
-            </button>
-          ) : (
+      {/* Detail (dilipat) */}
+      {open && (
+        <div className="px-3 pb-3 pt-2 border-t border-emerald-500/20 space-y-2 text-[12px] text-[var(--label-secondary)]">
+          <dl className="grid grid-cols-2 gap-x-3 gap-y-1">
+            {patient.category && (<><dt>Kategori</dt><dd className="font-semibold text-[var(--label-primary)] capitalize">{patient.category}</dd></>)}
+            {care && (<><dt>MRS</dt><dd className="font-semibold text-[var(--label-primary)]">{care.label} (hari ke-{care.day})</dd></>)}
+            {patient.heightCm && (<><dt>Tinggi</dt><dd className="font-semibold text-[var(--label-primary)]">{patient.heightCm} cm</dd></>)}
+            {shortId && (<><dt>ID</dt><dd className="font-mono text-[var(--label-primary)]">#{shortId}</dd></>)}
+          </dl>
+          <div className="flex flex-wrap gap-2 pt-1">
             <Link
               to="/patients"
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow-sm transition-all active:scale-[0.98]"
+              className="min-h-[40px] flex items-center gap-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
             >
-              <UserPlus className="w-3.5 h-3.5" /> Lengkapi Data
+              <UserPlus className="w-3.5 h-3.5" /> Lengkapi Data Pasien
             </Link>
+            {patient.activePatientId && (
+              <button
+                type="button"
+                onClick={handleClosePatient}
+                className="min-h-[40px] flex items-center gap-1.5 px-3 rounded-lg border border-[var(--sys-red)]/30 text-[var(--sys-red)] font-bold"
+              >
+                <X className="w-3.5 h-3.5" /> Tutup pasien
+              </button>
+            )}
+          </div>
+          {patient.activePatientId && (
+            <p className="text-[11px]">Menutup pasien mengosongkan isian; data tetap tersimpan di daftar pasien.</p>
           )}
-
-          <button
-            onClick={handleClosePatient}
-            className="flex items-center justify-center px-4 py-2 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold rounded-lg text-xs transition-all border border-rose-200 dark:border-rose-500/20 active:scale-[0.98] whitespace-nowrap"
-          >
-            Tutup
-          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }
