@@ -103,10 +103,10 @@ export function RenalOsmolBun() {
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
+            <label htmlFor="osm-urea" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <DecimalInput id="osm-urea" inputMode="decimal" className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]${ring('osm-urea')}`} value={bun} onChange={e=>setBun(e.target.value)} placeholder={ureaUnit === 'ureum' ? '30' : '14'} />
-              <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="min-h-[44px] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
+              <select aria-label="Satuan ureum/BUN" value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="min-h-[44px] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
@@ -155,10 +155,10 @@ export function RenalOsmolBun() {
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-3">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></span>
+            <label htmlFor="osm-urea-2" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput inputMode="decimal" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
-              <select value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="min-h-[44px] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
+              <DecimalInput id="osm-urea-2" inputMode="decimal" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 text-right font-bold focus:ring-2 focus:ring-blue-500/50 text-[14px]" value={bunRatio} onChange={e=>setBunRatio(e.target.value)} placeholder={ureaUnit === 'ureum' ? '40' : '20'} />
+              <select aria-label="Satuan ureum/BUN" value={ureaUnit} onChange={e=>changeUreaUnit(e.target.value as UreaUnit)} className="min-h-[44px] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-2 text-[12px] font-semibold text-slate-700 dark:text-slate-300 cursor-pointer"><option value="ureum">Ureum</option><option value="bun">BUN</option></select>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">

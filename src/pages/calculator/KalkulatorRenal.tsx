@@ -460,7 +460,7 @@ export default function KalkulatorRenal() {
         <div className="flex flex-wrap w-full bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm shrink-0 gap-1">
           <button
             onClick={() => setActiveTab('gfr_crcl')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'gfr_crcl'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -471,7 +471,7 @@ export default function KalkulatorRenal() {
           </button>
           <button
             onClick={() => setActiveTab('aki_stage')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'aki_stage'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -482,7 +482,7 @@ export default function KalkulatorRenal() {
           </button>
           <button
             onClick={() => setActiveTab('fena_feurea')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'fena_feurea'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -493,7 +493,7 @@ export default function KalkulatorRenal() {
           </button>
           <button
             onClick={() => setActiveTab('osmol_bun')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'osmol_bun'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -504,7 +504,7 @@ export default function KalkulatorRenal() {
           </button>
           <button
             onClick={() => setActiveTab('hd_indikasi')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'hd_indikasi'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -950,7 +950,7 @@ export default function KalkulatorRenal() {
                       Ureum Serum <span className="text-[9px] text-slate-500 font-normal">(opsional)</span>
                     </span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <DecimalInput 
+                      <DecimalInput aria-label="Ureum serum (opsional)" 
                         value={sureum} 
                         onChange={e => setSureum(e.target.value)} 
                         placeholder="opsional" 
@@ -1003,7 +1003,7 @@ export default function KalkulatorRenal() {
                       Ureum Urin <span className="text-[9px] text-slate-500 font-normal">(opsional)</span>
                     </span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <DecimalInput 
+                      <DecimalInput aria-label="Ureum urin (opsional)" 
                         value={uureum} 
                         onChange={e => setUureum(e.target.value)} 
                         placeholder="opsional" 

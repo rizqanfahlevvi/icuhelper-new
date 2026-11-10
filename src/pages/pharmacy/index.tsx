@@ -24,7 +24,7 @@ export default function PharmacyIndex() {
             rightContent={
               <button
                 onClick={() => toggleFavorite('/pharmacy')}
-                className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                className={`min-h-[44px] flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
               >
                 <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
                 <span className="hidden sm:inline">{isFav ? 'Difavoritkan' : 'Favoritkan'}</span>
@@ -35,7 +35,7 @@ export default function PharmacyIndex() {
           {/* Global Search Bar */}
           <div className="relative w-full shadow-sm">
             <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input 
+            <input aria-label="Cari obat dan cairan" 
               type="text" 
               placeholder="Cari obat, cairan, kategori, atau indikasi..." 
               value={globalSearch}
@@ -53,7 +53,7 @@ export default function PharmacyIndex() {
           <div className="flex p-1 bg-muted rounded-xl shadow-sm border border-border/50">
             <button
               onClick={() => setActiveTab('obat')}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg flex justify-center items-center gap-2 transition-all ${
+              className={`min-h-[44px] flex-1 py-2 text-sm font-semibold rounded-lg flex justify-center items-center gap-2 transition-all ${
                 activeTab === 'obat' ? 'bg-background shadow-sm text-foreground border border-border/10' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -61,7 +61,7 @@ export default function PharmacyIndex() {
             </button>
             <button
               onClick={() => setActiveTab('cairan')}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg flex justify-center items-center gap-2 transition-all ${
+              className={`min-h-[44px] flex-1 py-2 text-sm font-semibold rounded-lg flex justify-center items-center gap-2 transition-all ${
                 activeTab === 'cairan' ? 'bg-background shadow-sm text-foreground border border-border/10' : 'text-muted-foreground hover:text-foreground'
               }`}
             >

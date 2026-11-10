@@ -165,7 +165,7 @@ export default function PatientsPage() {
           rightContent={
             <button 
               onClick={handleOpenAdd}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--accent)] text-white font-bold rounded-xl shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm cursor-pointer"
+              className="min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--accent)] text-white font-bold rounded-xl shadow-sm hover:opacity-90 active:scale-95 transition-all text-sm cursor-pointer"
             >
               <UserPlus className="w-4 h-4" /> Pasien Baru
             </button>
@@ -245,14 +245,14 @@ export default function PatientsPage() {
               <button
                 onClick={() => setIsLabFormOpen(true)}
                 type="button"
-                className="flex items-center gap-1.5 text-xs font-bold bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white px-3.5 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
+                className="min-h-[44px] flex items-center gap-1.5 text-xs font-bold bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white px-3.5 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
               >
                 <Stethoscope className="w-3.5 h-3.5" /> Lengkapi Data Pasien
               </button>
               <button
                 onClick={() => setActivePatient(null)}
                 type="button"
-                className="text-xs text-rose-500 border border-rose-500/20 hover:bg-rose-500/10 px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer"
+                className="min-h-[44px] text-xs text-rose-500 border border-rose-500/20 hover:bg-rose-500/10 px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer"
               >
                 Tutup Pasien
               </button>
@@ -322,7 +322,7 @@ export default function PatientsPage() {
                 <button
                   type="button"
                   onClick={() => setIsLabFormOpen(false)}
-                  className="px-5 py-2 text-xs font-extrabold bg-neutral-900 text-white dark:bg-white dark:text-black hover:opacity-90 active:scale-95 space-x-2 rounded-xl cursor-pointer shadow-xs"
+                  className="min-h-[44px] px-5 py-2 text-xs font-extrabold bg-neutral-900 text-white dark:bg-white dark:text-black hover:opacity-90 active:scale-95 space-x-2 rounded-xl cursor-pointer shadow-xs"
                 >
                   Selesai & Simpan
                 </button>
@@ -342,7 +342,7 @@ export default function PatientsPage() {
           </p>
           <button 
             onClick={handleOpenAdd}
-            className="mt-4 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-[var(--accent)] text-white rounded-lg hover:opacity-90 transition-opacity"
+            className="min-h-[44px] mt-4 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-[var(--accent)] text-white rounded-lg hover:opacity-90 transition-opacity"
           >
             <Plus className="w-3.5 h-3.5" /> Pasien Baru
           </button>
@@ -360,7 +360,7 @@ export default function PatientsPage() {
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-muted-foreground/60" />
           </div>
-          <input
+          <input aria-label="Cari pasien"
             type="text"
             placeholder="Cari pasien berdasarkan nama..."
             value={searchTerm}
@@ -438,14 +438,14 @@ export default function PatientsPage() {
                     {!isActive && (
                       <button
                         onClick={() => handleSelectActive(p.id)}
-                        className="text-xs font-bold border border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400 px-3 py-2 rounded-xl transition-colors active:scale-95 cursor-pointer"
+                        className="min-h-[44px] text-xs font-bold border border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 dark:text-emerald-400 px-3 py-2 rounded-xl transition-colors active:scale-95 cursor-pointer"
                       >
                         Aktifkan
                       </button>
                     )}
                     <button
                       onClick={() => handleOpenEdit(p)}
-                      className="text-xs font-semibold bg-muted hover:bg-muted/80 text-[var(--label-primary)] px-3 py-2 rounded-xl transition-colors cursor-pointer"
+                      className="min-h-[44px] text-xs font-semibold bg-muted hover:bg-muted/80 text-[var(--label-primary)] px-3 py-2 rounded-xl transition-colors cursor-pointer"
                     >
                       Edit
                     </button>

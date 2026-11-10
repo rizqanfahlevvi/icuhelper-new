@@ -192,14 +192,14 @@ export default function KalkulatorDrug() {
       <div className="mb-2">
         <div className="flex bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl w-full max-w-sm mx-auto shadow-sm">
           <button
-            className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-colors ${panel === 'intubasi' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`}
+            className={`min-h-[44px] flex-1 py-2 text-[13px] font-bold rounded-lg transition-colors ${panel === 'intubasi' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`}
             aria-selected={panel === 'intubasi'}
             onClick={() => setPanel('intubasi')}
           >
             Induksi Intubasi
           </button>
           <button
-            className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-colors ${panel === 'icu' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`}
+            className={`min-h-[44px] flex-1 py-2 text-[13px] font-bold rounded-lg transition-colors ${panel === 'icu' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`}
             aria-selected={panel === 'icu'}
             onClick={() => setPanel('icu')}
           >

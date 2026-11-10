@@ -251,7 +251,7 @@ export default function DrugInteractionChecker({
         {selectedDrugs.length > 0 && (
           <button 
             onClick={clearAll} 
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-lg font-medium transition-colors cursor-pointer self-start sm:self-auto"
+            className="min-h-[44px] flex items-center gap-1.5 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-lg font-medium transition-colors cursor-pointer self-start sm:self-auto"
           >
             <Trash2 className="w-3.5 h-3.5" /> Hapus Semua
           </button>
@@ -306,7 +306,7 @@ export default function DrugInteractionChecker({
                         setSelectedDrugs(prev => [...prev, key]);
                       }
                     }}
-                    className={`px-3 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer ${
+                    className={`min-h-[44px] px-3 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                         : 'bg-background hover:bg-muted text-muted-foreground border-border/80'
@@ -344,7 +344,7 @@ export default function DrugInteractionChecker({
                 {highlightedPair && (
                   <button 
                     onClick={() => setHighlightedPair(null)}
-                    className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md hover:bg-primary/20 transition-all cursor-pointer"
+                    className="min-h-[44px] text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md hover:bg-primary/20 transition-all cursor-pointer"
                   >
                     Lihat Semua
                   </button>
@@ -451,7 +451,7 @@ export default function DrugInteractionChecker({
           <div className="flex gap-1 overflow-x-auto pb-1.5 border-b border-border/50 mb-4 scrollbar-none">
             <button
               onClick={() => setActiveResultTab('all')}
-              className={`flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
+              className={`min-h-[44px] flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
                 activeResultTab === 'all'
                   ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                   : 'bg-background hover:bg-muted/70 text-muted-foreground border-border hover:text-foreground'
@@ -467,7 +467,7 @@ export default function DrugInteractionChecker({
 
             <button
               onClick={() => setActiveResultTab('major')}
-              className={`flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
+              className={`min-h-[44px] flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
                 activeResultTab === 'major'
                   ? 'bg-red-500 text-white border-red-500 shadow-sm'
                   : 'bg-background hover:bg-muted/70 text-red-500 border-border hover:text-red-700 dark:text-red-300'
@@ -483,7 +483,7 @@ export default function DrugInteractionChecker({
 
             <button
               onClick={() => setActiveResultTab('moderate')}
-              className={`flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
+              className={`min-h-[44px] flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
                 activeResultTab === 'moderate'
                   ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
                   : 'bg-background hover:bg-muted/70 text-amber-500 border-border hover:text-amber-700 dark:text-amber-300'
@@ -499,7 +499,7 @@ export default function DrugInteractionChecker({
 
             <button
               onClick={() => setActiveResultTab('safe')}
-              className={`flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
+              className={`min-h-[44px] flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
                 activeResultTab === 'safe'
                   ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                   : 'bg-background hover:bg-muted/70 text-emerald-600 border-border hover:text-emerald-700'

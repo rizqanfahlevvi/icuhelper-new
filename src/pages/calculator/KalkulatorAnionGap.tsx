@@ -92,7 +92,7 @@ export default function KalkulatorAnionGap() {
 
       <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          <label htmlFor="ag-na" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Natrium (Na) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
           <DecimalInput
@@ -107,7 +107,7 @@ export default function KalkulatorAnionGap() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          <label htmlFor="ag-cl" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Klorida (Cl) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
           <DecimalInput
@@ -122,7 +122,7 @@ export default function KalkulatorAnionGap() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          <label htmlFor="ag-hco3" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Bikarbonat (HCO₃) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
           </label>
           <DecimalInput
@@ -137,10 +137,11 @@ export default function KalkulatorAnionGap() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          <label htmlFor="ag-alb" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Albumin <span className="text-xs text-slate-500 font-normal">(g/dL, Opsional)</span>
           </label>
           <DecimalInput
+            id="ag-alb"
             inputMode="decimal"
             value={albumin}
             onChange={(e) => setAlbumin(e.target.value)}

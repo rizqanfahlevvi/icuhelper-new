@@ -345,7 +345,7 @@ export default function KalkulatorKebutuhanCairan() {
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 min-w-[5.5rem] px-2 py-2 text-[12px] font-bold rounded-lg whitespace-nowrap transition-colors ${tab === t.id ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
+            className={`min-h-[44px] flex-1 min-w-[5.5rem] px-2 py-2 text-[12px] font-bold rounded-lg whitespace-nowrap transition-colors ${tab === t.id ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
           >
             {t.label}
           </button>
@@ -464,7 +464,7 @@ export default function KalkulatorKebutuhanCairan() {
               <button 
                 key={key}
                 onClick={() => setRose(key)}
-                className={`py-2 px-3 rounded-xl border text-[12px] font-bold transition-all ${rose === key ? `${data.bgBorder} ${data.colorText}` : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1C1C1E] text-slate-600 dark:text-slate-400'}`}
+                className={`min-h-[44px] py-2 px-3 rounded-xl border text-[12px] font-bold transition-all ${rose === key ? `${data.bgBorder} ${data.colorText}` : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1C1C1E] text-slate-600 dark:text-slate-400'}`}
               >
                 {data.label}
               </button>
@@ -494,8 +494,8 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Status Ventilasi <span className="font-normal text-slate-500">(info IWL)</span></span>
-            <select 
+            <label htmlFor="cairan-vent" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Status Ventilasi <span className="font-normal text-slate-500">(info IWL)</span></label>
+            <select id="cairan-vent" 
               className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
               value={vent} onChange={e => setVent(e.target.value as VentMode)}
             >
@@ -519,9 +519,9 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target UO <span className="font-normal text-slate-500">(pantau)</span></span>
+            <label htmlFor="cairan-uo-target" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target UO <span className="font-normal text-slate-500">(pantau)</span></label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput step="0.1"
+              <DecimalInput id="cairan-uo-target" step="0.1"
                 value={uoTgt} 
                 onChange={e => setUoTgt(e.target.value)} 
                 placeholder="0.5" 

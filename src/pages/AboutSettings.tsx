@@ -123,7 +123,7 @@ export default function AboutSettings() {
               setActiveTab('settings');
               if (vibrationEnabled && navigator.vibrate) navigator.vibrate(30);
             }}
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 ${
+            className={`min-h-[44px] flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 ${
               activeTab === 'settings' 
                 ? 'bg-card text-card-foreground shadow-sm border border-border/50' 
                 : 'text-muted-foreground hover:text-foreground'
@@ -137,7 +137,7 @@ export default function AboutSettings() {
               setActiveTab('about');
               if (vibrationEnabled && navigator.vibrate) navigator.vibrate(30);
             }}
-            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 ${
+            className={`min-h-[44px] flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 ${
               activeTab === 'about' 
                 ? 'bg-card text-card-foreground shadow-sm border border-border/50' 
                 : 'text-muted-foreground hover:text-foreground'
@@ -264,8 +264,10 @@ export default function AboutSettings() {
                     max="2.00"
                     step="0.05"
                     value={fontScale}
+                    aria-label="Ukuran font"
+                    aria-valuetext={`${Math.round(fontScale * 100)}%`}
                     onChange={(e) => setFontScale(parseFloat(e.target.value))}
-                    className="flex-1 accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
+                    className="flex-1 accent-primary h-11 cursor-pointer"
                   />
                   <span className="text-lg text-foreground font-bold">A</span>
                 </div>
@@ -311,8 +313,9 @@ export default function AboutSettings() {
                     max="400"
                     step="50"
                     value={fontWeight}
+                    aria-label="Ketebalan font"
                     onChange={(e) => setFontWeight(parseInt(e.target.value))}
-                    className="flex-1 accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
+                    className="flex-1 accent-primary h-11 cursor-pointer"
                   />
                   <span className="text-xs text-foreground font-black">Sangat Tebal (+400)</span>
                 </div>
@@ -329,9 +332,10 @@ export default function AboutSettings() {
                     Mode kontras tinggi dengan tipografi khusus serif dan spasi longgar untuk membaca teori di lingkungan ICU yang gelap.
                   </p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer ml-3 shrink-0">
+                <label className="relative inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer ml-3 shrink-0">
                   <input
                     type="checkbox"
+                    aria-label="Reading Mode"
                     checked={readingMode}
                     onChange={(e) => setReadingMode(e.target.checked)}
                     className="sr-only peer"
@@ -356,9 +360,10 @@ export default function AboutSettings() {
                       <h5 className="text-sm font-semibold text-foreground">Ikuti Sistem (System Theme)</h5>
                       <p className="text-xs text-muted-foreground">Sesuaikan otomatis dengan pengaturan perangkat</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer text-slate-800 dark:text-slate-200">
+                    <label className="relative inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer text-slate-800 dark:text-slate-200">
                       <input
                         type="checkbox"
+                        aria-label="Ikuti tema sistem"
                         checked={themeMode === 'system'}
                         onChange={(e) => setThemeMode(e.target.checked ? 'system' : 'dark')}
                         className="sr-only peer"
@@ -442,9 +447,10 @@ export default function AboutSettings() {
                       {vibrationEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-muted-foreground" />}
                       Feedback Getaran (Haptics)
                     </span>
-                    <label className="relative inline-flex items-center cursor-pointer text-slate-800 dark:text-slate-200">
+                    <label className="relative inline-flex items-center justify-center min-h-[44px] min-w-[44px] cursor-pointer text-slate-800 dark:text-slate-200">
                       <input
                         type="checkbox"
+                        aria-label="Feedback getaran (haptics)"
                         checked={vibrationEnabled}
                         onChange={(e) => setVibrationEnabled(e.target.checked)}
                         className="sr-only peer"
@@ -497,7 +503,7 @@ export default function AboutSettings() {
                 </div>
                 <button
                   onClick={handleResetAllData}
-                  className="w-full border border-red-500/30 text-red-600 dark:border-red-500/40 dark:text-red-400 font-bold text-xs py-2.5 rounded-xl hover:bg-red-500/10 transition-colors"
+                  className="min-h-[44px] w-full border border-red-500/30 text-red-600 dark:border-red-500/40 dark:text-red-400 font-bold text-xs py-2.5 rounded-xl hover:bg-red-500/10 transition-colors"
                 >
                   Hapus Semua Data Pasien & Reset Pengaturan
                 </button>

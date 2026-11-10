@@ -318,7 +318,7 @@ export default function KalkulatorTransfusi() {
         {(['prc', 'wb', 'ffp', 'tc', 'cryo'] as const).map((t) => (
           <button 
             key={t}
-            className={`flex-1 py-2 text-[12px] md:text-[13px] font-bold rounded-lg transition-all ${tab === t ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'}`} 
+            className={`min-h-[44px] flex-1 py-2 text-[12px] md:text-[13px] font-bold rounded-lg transition-all ${tab === t ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'}`} 
             onClick={() => {
               setTab(t);
             }}
@@ -443,7 +443,7 @@ export default function KalkulatorTransfusi() {
           {tab === 'ffp' && (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">INR Aktual <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">(opsional)</span></span>
+                <label htmlFor="ffp_inr_input" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">INR Aktual <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">(opsional)</span></label>
                 <DecimalInput 
                   id="ffp_inr_input" 
                   step="0.1" 
@@ -577,7 +577,7 @@ export default function KalkulatorTransfusi() {
                     onChange={e => setCryoFib(e.target.value)} 
                     placeholder="cth: 100" 
                   />
-                  <select 
+                  <select aria-label="Satuan fibrinogen" 
                     id="cryo_unit"
                     className="min-h-[44px] bg-slate-100 dark:bg-[#2C2C2E] border-none rounded-lg py-1.5 px-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer"
                     value={cryoFibUnit}
