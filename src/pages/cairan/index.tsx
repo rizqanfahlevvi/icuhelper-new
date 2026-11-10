@@ -100,7 +100,7 @@ export default function CairanIndex(props: CairanIndexProps) {
               rightContent={
                 <button
                   onClick={() => toggleFavorite('/cairan')}
-                  className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                  className={`min-h-[44px] flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                   title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
                 >
                   <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
@@ -118,7 +118,7 @@ export default function CairanIndex(props: CairanIndexProps) {
             36 cairan IV · 8 kategori · Referensi: SMART, BaSICS, SSC 2021
           </div>
           {/* Note: In a full app, this button would trigger a router push to the fluid calculator */}
-          <button className="text-xs bg-card hover:bg-muted border border-border px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors flex items-center gap-1.5 font-bold">
+          <button className="min-h-[44px] text-xs bg-card hover:bg-muted border border-border px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors flex items-center gap-1.5 font-bold">
             <Filter className="w-3.5 h-3.5" /> Kalkulator Kebutuhan
           </button>
         </div>
@@ -127,10 +127,10 @@ export default function CairanIndex(props: CairanIndexProps) {
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Mobile Category Dropdown */}
           <div className="sm:hidden">
-            <select 
+            <select aria-label="Kategori cairan" 
               value={activeCategory} 
               onChange={(e) => setActiveCategory(e.target.value)}
-              className="w-full bg-card border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="min-h-[44px] w-full bg-card border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
             >
               {CATEGORIES.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.label}</option>
@@ -144,7 +144,7 @@ export default function CairanIndex(props: CairanIndexProps) {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                className={`min-h-[44px] px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
                   activeCategory === cat.id 
                     ? 'bg-primary border-primary text-primary-foreground shadow-sm'
                     : 'bg-card border-border hover:border-primary/50 text-muted-foreground'
@@ -158,12 +158,12 @@ export default function CairanIndex(props: CairanIndexProps) {
           {!isEmbedded && (
             <div className="relative shrink-0 sm:w-64">
                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-               <input 
+               <input aria-label="Cari cairan" 
                  type="text" 
                  placeholder="Cari cairan..."
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
-                 className="w-full bg-card border border-border rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-mono"
+                 className="min-h-[44px] w-full bg-card border border-border rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-mono"
                />
             </div>
           )}
@@ -231,7 +231,7 @@ export default function CairanIndex(props: CairanIndexProps) {
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
+            className="min-h-[44px] px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
           >
             Sebelumnya
           </button>
@@ -241,7 +241,7 @@ export default function CairanIndex(props: CairanIndexProps) {
           <button
             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
+            className="min-h-[44px] px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
           >
             Berikutnya
           </button>

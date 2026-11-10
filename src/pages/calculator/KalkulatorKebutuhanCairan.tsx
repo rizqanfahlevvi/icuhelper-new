@@ -345,7 +345,7 @@ export default function KalkulatorKebutuhanCairan() {
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 min-w-[5.5rem] px-2 py-2 text-[12px] font-bold rounded-lg whitespace-nowrap transition-colors ${tab === t.id ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
+            className={`min-h-[44px] flex-1 min-w-[5.5rem] px-2 py-2 text-[12px] font-bold rounded-lg whitespace-nowrap transition-colors ${tab === t.id ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
           >
             {t.label}
           </button>
@@ -361,23 +361,23 @@ export default function KalkulatorKebutuhanCairan() {
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+            <label htmlFor="cairan-bw" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <DecimalInput 
                 id="cairan-bw" inputMode="decimal"
                 value={bw} 
                 onChange={e => {setBw(e.target.value); setFoDry(e.target.value);}} 
                 placeholder="70" 
-                className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ring('cairan-bw')}`}
+                className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ring('cairan-bw')}`}
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Maint.</span>
-            <select 
-              className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
+            <label htmlFor="cairan-target-maint" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Maint.</label>
+            <select id="cairan-target-maint" 
+              className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" 
               value={targetMaint} 
               onChange={e => setTargetMaint(e.target.value)}
             >
@@ -464,7 +464,7 @@ export default function KalkulatorKebutuhanCairan() {
               <button 
                 key={key}
                 onClick={() => setRose(key)}
-                className={`py-2 px-3 rounded-xl border text-[12px] font-bold transition-all ${rose === key ? `${data.bgBorder} ${data.colorText}` : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1C1C1E] text-slate-600 dark:text-slate-400'}`}
+                className={`min-h-[44px] py-2 px-3 rounded-xl border text-[12px] font-bold transition-all ${rose === key ? `${data.bgBorder} ${data.colorText}` : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1C1C1E] text-slate-600 dark:text-slate-400'}`}
               >
                 {data.label}
               </button>
@@ -481,22 +481,22 @@ export default function KalkulatorKebutuhanCairan() {
         
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Suhu Tubuh</span>
+            <label htmlFor="cairan-suhu-tubuh" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Suhu Tubuh</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput step="0.1"
+              <DecimalInput id="cairan-suhu-tubuh" step="0.1"
                 value={temp} 
                 onChange={e => setTemp(e.target.value)} 
                 placeholder="37.0" 
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
+                className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">°C</span>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Status Ventilasi <span className="font-normal text-slate-500">(info IWL)</span></span>
-            <select 
-              className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
+            <label htmlFor="cairan-vent" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Status Ventilasi <span className="font-normal text-slate-500">(info IWL)</span></label>
+            <select id="cairan-vent" 
+              className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
               value={vent} onChange={e => setVent(e.target.value as VentMode)}
             >
               <option value="spontan">Napas spontan</option>
@@ -506,9 +506,9 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Diaphoresis</span>
-            <select 
-              className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
+            <label htmlFor="cairan-diaphoresis" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Diaphoresis</label>
+            <select id="cairan-diaphoresis" 
+              className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all" 
               value={sweat} onChange={e => setSweat(e.target.value as SweatLevel)}
             >
               <option value="none">Tidak ada</option>
@@ -519,13 +519,13 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target UO <span className="font-normal text-slate-500">(pantau)</span></span>
+            <label htmlFor="cairan-uo-target" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target UO <span className="font-normal text-slate-500">(pantau)</span></label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput step="0.1"
+              <DecimalInput id="cairan-uo-target" step="0.1"
                 value={uoTgt} 
                 onChange={e => setUoTgt(e.target.value)} 
                 placeholder="0.5" 
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
+                className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
               />
               <span className="text-[11px] font-semibold text-slate-500 w-12 text-left">mL/kg/j</span>
             </div>
@@ -536,30 +536,30 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">NGT / GT</span>
+            <label htmlFor="cairan-ngt-gt" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">NGT / GT</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput value={ngt} onChange={e => setNgt(e.target.value)} placeholder="0" 
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
+              <DecimalInput id="cairan-ngt-gt" value={ngt} onChange={e => setNgt(e.target.value)} placeholder="0" 
+                className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mL</span>
             </div>
           </div>
           
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Drain / Kateter</span>
+            <label htmlFor="cairan-drain-kateter" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Drain / Kateter</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput value={drain} onChange={e => setDrain(e.target.value)} placeholder="0" 
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
+              <DecimalInput id="cairan-drain-kateter" value={drain} onChange={e => setDrain(e.target.value)} placeholder="0" 
+                className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mL</span>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Lainnya</span>
+            <label htmlFor="cairan-lainnya" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Lainnya</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-              <DecimalInput value={other} onChange={e => setOther(e.target.value)} placeholder="0" 
-                className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
+              <DecimalInput id="cairan-lainnya" value={other} onChange={e => setOther(e.target.value)} placeholder="0" 
+                className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/50 text-[14px] transition-all"
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">mL</span>
             </div>
@@ -662,7 +662,7 @@ export default function KalkulatorKebutuhanCairan() {
         <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 mb-4">
           {cumbalDays.map((val, i) => (
             <div key={i} className="flex flex-col gap-1">
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">H {i + 1}</label>
+              <label htmlFor={`cairan-h${i + 1}`} className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">H {i + 1}</label>
               <DecimalInput
                 id={`cairan-h${i + 1}`} inputMode="decimal"
                 value={val}
@@ -672,7 +672,7 @@ export default function KalkulatorKebutuhanCairan() {
                   setCumbalDays(newDays);
                 }}
                 placeholder="±mL"
-                className={`w-full bg-slate-50 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 outline-none text-center font-mono font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/50 text-[13px] transition-all${i === 0 ? ring('cairan-h1') : ''}`}
+                className={`min-h-[44px] w-full bg-slate-50 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 outline-none text-center font-mono font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/50 text-[13px] transition-all${i === 0 ? ring('cairan-h1') : ''}`}
               />
             </div>
           ))}
@@ -724,27 +724,27 @@ export default function KalkulatorKebutuhanCairan() {
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Kering / Baseline</span>
+            <label htmlFor="cairan-fo-dry" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Kering / Baseline</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <DecimalInput 
                 id="cairan-fo-dry" inputMode="decimal"
                 value={foDry} 
                 onChange={e => setFoDry(e.target.value)} 
                 placeholder="60" 
-                className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/50 text-[14px] transition-all${ring('cairan-fo-dry')}`}
+                className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/50 text-[14px] transition-all${ring('cairan-fo-dry')}`}
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Saat Ini</span>
+            <label htmlFor="cairan-fo-current" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Saat Ini</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
               <DecimalInput 
                 id="cairan-fo-current" inputMode="decimal"
                 value={foCurrent} 
                 onChange={e => setFoCurrent(e.target.value)} 
                 placeholder="66" 
-                className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/50 text-[14px] transition-all${ring('cairan-fo-current')}`}
+                className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500/50 text-[14px] transition-all${ring('cairan-fo-current')}`}
               />
               <span className="text-xs font-semibold text-slate-500 w-10 text-left">kg</span>
             </div>
@@ -798,13 +798,13 @@ export default function KalkulatorKebutuhanCairan() {
               { key: 'oral', label: 'Input Oral/NGT' }
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between px-3 py-2.5 gap-2">
-                <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300 min-w-0">{item.label}</span>
+                <label htmlFor={`cairan-fb-${item.key}`} className="text-[12px] font-medium text-slate-700 dark:text-slate-300 min-w-0">{item.label}</label>
                 <DecimalInput
                   id={`cairan-fb-${item.key}`} inputMode="decimal"
                   value={(fbInputs as any)[item.key]} 
                   onChange={e => setFbInputs({...fbInputs, [item.key]: e.target.value})} 
                   placeholder="0" 
-                  className={`w-20 shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[13px] transition-all${item.key === 'iv' ? ring('cairan-fb-iv') : ''}`}
+                  className={`min-h-[44px] w-20 shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[13px] transition-all${item.key === 'iv' ? ring('cairan-fb-iv') : ''}`}
                 />
               </div>
             ))}
@@ -823,13 +823,13 @@ export default function KalkulatorKebutuhanCairan() {
               { key: 'other', label: 'Output Lain' }
             ].map(item => (
               <div key={item.key} className="flex items-center justify-between px-3 py-2.5 gap-2">
-                <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300 min-w-0">{item.label}</span>
+                <label htmlFor={`cairan-fb-out-${item.key}`} className="text-[12px] font-medium text-slate-700 dark:text-slate-300 min-w-0">{item.label}</label>
                 <DecimalInput
                   id={`cairan-fb-out-${item.key}`} inputMode="decimal"
                   value={(fbOutputs as any)[item.key]} 
                   onChange={e => setFbOutputs({...fbOutputs, [item.key]: e.target.value})} 
                   placeholder="0" 
-                  className="w-20 shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[13px] transition-all"
+                  className="min-h-[44px] w-20 shrink-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1.5 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500/50 text-[13px] transition-all"
                 />
               </div>
             ))}

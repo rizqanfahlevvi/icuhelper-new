@@ -318,7 +318,7 @@ export default function KalkulatorTransfusi() {
         {(['prc', 'wb', 'ffp', 'tc', 'cryo'] as const).map((t) => (
           <button 
             key={t}
-            className={`flex-1 py-2 text-[12px] md:text-[13px] font-bold rounded-lg transition-all ${tab === t ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'}`} 
+            className={`min-h-[44px] flex-1 py-2 text-[12px] md:text-[13px] font-bold rounded-lg transition-all ${tab === t ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'}`} 
             onClick={() => {
               setTab(t);
             }}
@@ -359,11 +359,11 @@ export default function KalkulatorTransfusi() {
           
           {/* 1. Shared Weight Parameter */}
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan Pasien</span>
+            <label htmlFor="bb_transfusion" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan Pasien</label>
             <div className="flex items-center gap-2">
               <DecimalInput 
                 id="bb_transfusion" inputMode="decimal"
-                className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('bb_transfusion')}`} 
+                className={`min-h-[44px] w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('bb_transfusion')}`} 
                 value={bb} 
                 onChange={e => setBb(e.target.value)} 
                 placeholder="cth: 70" 
@@ -376,12 +376,12 @@ export default function KalkulatorTransfusi() {
           {(tab === 'prc' || tab === 'wb') && (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Hemoglobin (Hb) Aktual</span>
+                <label htmlFor="hb_actual" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Hemoglobin (Hb) Aktual</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
                     id="hb_actual" 
                     step="0.1" inputMode="decimal"
-                    className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('hb_actual')}`} 
+                    className={`min-h-[44px] w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('hb_actual')}`} 
                     value={hb} 
                     onChange={e => setHb(e.target.value)} 
                     placeholder="cth: 6.5" 
@@ -391,12 +391,12 @@ export default function KalkulatorTransfusi() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Hemoglobin (Hb)</span>
+                <label htmlFor="hb_target" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Hemoglobin (Hb)</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
                     id="hb_target" 
                     step="0.1" inputMode="decimal"
-                    className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('hb_target')}`} 
+                    className={`min-h-[44px] w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('hb_target')}`} 
                     value={hbt} 
                     onChange={e => setHbt(e.target.value)} 
                     placeholder="cth: 9.0" 
@@ -408,10 +408,10 @@ export default function KalkulatorTransfusi() {
               {tab === 'prc' && (
                 <>
                   <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Jenis Kelamin (untuk EBV)</span>
+                    <label htmlFor="gender_prc" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Jenis Kelamin (untuk EBV)</label>
                     <select 
                       id="gender_prc"
-                      className="w-36 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
+                      className="min-h-[44px] w-36 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
                       value={sex} 
                       onChange={e => setSex(e.target.value)}
                     >
@@ -421,10 +421,10 @@ export default function KalkulatorTransfusi() {
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Rekomendasi Premedikasi</span>
+                    <label htmlFor="premed_selection" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Rekomendasi Premedikasi</label>
                     <select 
                       id="premed_selection"
-                      className="w-48 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
+                      className="min-h-[44px] w-48 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
                       value={premed} 
                       onChange={e => setPremed(e.target.value)}
                     >
@@ -443,11 +443,11 @@ export default function KalkulatorTransfusi() {
           {tab === 'ffp' && (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">INR Aktual <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">(opsional)</span></span>
+                <label htmlFor="ffp_inr_input" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">INR Aktual <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">(opsional)</span></label>
                 <DecimalInput 
                   id="ffp_inr_input" 
                   step="0.1" 
-                  className="w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm" 
+                  className="min-h-[44px] w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm" 
                   value={ffpInr} 
                   onChange={e => setFfpInr(e.target.value)} 
                   placeholder="cth: 2.5" 
@@ -455,10 +455,10 @@ export default function KalkulatorTransfusi() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Dosis yang Diinginkan</span>
+                <label htmlFor="ffp_dose_selection" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Dosis yang Diinginkan</label>
                 <select 
                   id="ffp_dose_selection"
-                  className="w-56 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
+                  className="min-h-[44px] w-56 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
                   value={ffpDose} 
                   onChange={e => setFfpDose(e.target.value)}
                 >
@@ -493,11 +493,11 @@ export default function KalkulatorTransfusi() {
           {tab === 'tc' && (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Trombosit Aktual</span>
+                <label htmlFor="tc_plt_actual" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Trombosit Aktual</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
                     id="tc_plt_actual" inputMode="decimal"
-                    className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('tc_plt_actual')}`} 
+                    className={`min-h-[44px] w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('tc_plt_actual')}`} 
                     value={tcPlt} 
                     onChange={e => setTcPlt(e.target.value)} 
                     placeholder="cth: 15" 
@@ -507,11 +507,11 @@ export default function KalkulatorTransfusi() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Trombosit</span>
+                <label htmlFor="tc_plt_target" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Trombosit</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
                     id="tc_plt_target" inputMode="decimal"
-                    className={`w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('tc_plt_target')}`} 
+                    className={`min-h-[44px] w-28 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('tc_plt_target')}`} 
                     value={tcPltt} 
                     onChange={e => setTcPltt(e.target.value)} 
                     placeholder="cth: 50" 
@@ -521,10 +521,10 @@ export default function KalkulatorTransfusi() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Tipe Sediaan Produk</span>
+                <label htmlFor="tc_type_selection" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Tipe Sediaan Produk</label>
                 <select 
                   id="tc_type_selection"
-                  className="w-48 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
+                  className="min-h-[44px] w-48 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
                   value={tcType} 
                   onChange={e => setTcType(e.target.value as 'rd' | 'sda')}
                 >
@@ -567,19 +567,19 @@ export default function KalkulatorTransfusi() {
           {tab === 'cryo' && (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Fibrinogen Aktual</span>
+                <label htmlFor="cryo_fib_actual" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Fibrinogen Aktual</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
                     id="cryo_fib_actual" 
                     step="0.01" inputMode="decimal"
-                    className={`w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2.5 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('cryo_fib_actual')}`} 
+                    className={`min-h-[44px] w-24 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2.5 py-1.5 text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-sm${ring('cryo_fib_actual')}`} 
                     value={cryoFib} 
                     onChange={e => setCryoFib(e.target.value)} 
                     placeholder="cth: 100" 
                   />
-                  <select 
+                  <select aria-label="Satuan fibrinogen" 
                     id="cryo_unit"
-                    className="bg-slate-100 dark:bg-[#2C2C2E] border-none rounded-lg py-1.5 px-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer"
+                    className="min-h-[44px] bg-slate-100 dark:bg-[#2C2C2E] border-none rounded-lg py-1.5 px-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer"
                     value={cryoFibUnit}
                     onChange={e => setCryoFibUnit(e.target.value as 'mgdl' | 'gdl')}
                   >
@@ -590,10 +590,10 @@ export default function KalkulatorTransfusi() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Fibrinogen</span>
+                <label htmlFor="cryo_target_selection" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Fibrinogen</label>
                 <select 
                   id="cryo_target_selection"
-                  className="w-56 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
+                  className="min-h-[44px] w-56 max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-1.5 text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-sm" 
                   value={cryoTarget} 
                   onChange={e => setCryoTarget(e.target.value)}
                 >

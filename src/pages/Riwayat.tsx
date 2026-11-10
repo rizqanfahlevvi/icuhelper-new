@@ -63,7 +63,7 @@ export default function Riwayat() {
                 onClick={() => {
                   if(confirm('Hapus SEMUA riwayat perhitungan? Tindakan ini tidak dapat dibatalkan.')) clearHistory();
                 }}
-                className="flex items-center gap-2 px-3 py-1.5 text-[12px] font-semibold text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-md transition-colors"
+                className="min-h-[44px] flex items-center gap-2 px-3 py-1.5 text-[12px] font-semibold text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-md transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Hapus Semua</span>

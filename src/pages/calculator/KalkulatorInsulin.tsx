@@ -206,9 +206,9 @@ export default function KalkulatorInsulin() {
       <UnifiedSyncBanner fields={syncFields} />
 
       <div className="flex bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4 mt-2">
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'bbc' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('bbc')}>Basal-Bolus</button>
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'ss' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('ss')}>Sliding Scale</button>
-        <button className={`flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'hipo' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('hipo')}>Koreksi Hipo</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'bbc' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('bbc')}>Basal-Bolus</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'ss' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('ss')}>Sliding Scale</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'hipo' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('hipo')}>Koreksi Hipo</button>
       </div>
 
       <div className="flex flex-col gap-0 mt-2">
@@ -220,23 +220,23 @@ export default function KalkulatorInsulin() {
            <>
              <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
+                   <label htmlFor="ins-bb" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</label>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-bb')} value={bb} onChange={e=>setBb(e.target.value)} />
+                     <DecimalInput className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-bb')} value={bb} onChange={e=>setBb(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-6 text-left">kg</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</span>
+                   <label htmlFor="ins-gds" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</label>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-gds')} value={gds} onChange={e=>setGds(e.target.value)} />
+                     <DecimalInput className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-gds')} value={gds} onChange={e=>setGds(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target GDS</span>
+                   <label htmlFor="ins-target-gds" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target GDS</label>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={target} onChange={e=>setTarget(e.target.value)} placeholder="150" />
+                     <DecimalInput id="ins-target-gds" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={target} onChange={e=>setTarget(e.target.value)} placeholder="150" />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
@@ -244,23 +244,23 @@ export default function KalkulatorInsulin() {
                 {mode === 'bbc' && (
                   <>
                     <div className="flex items-center justify-between px-4 py-3 gap-4">
-                       <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">TDD Sblmnya (opsi)</span>
+                       <label htmlFor="ins-tdd-sblmnya-opsi" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">TDD Sblmnya (opsi)</label>
                        <div className="flex-1 flex items-center justify-end gap-2">
-                         <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={tddPrev} onChange={e=>setTddPrev(e.target.value)} />
+                         <DecimalInput id="ins-tdd-sblmnya-opsi" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={tddPrev} onChange={e=>setTddPrev(e.target.value)} />
                          <span className="text-xs font-semibold text-slate-500 w-10 text-left">unit</span>
                        </div>
                     </div>
                     <div className="flex justify-between px-4 py-3 items-center gap-4">
-                      <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Status Makan</span>
-                      <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={makan} onChange={e=>setMakan(e.target.value)}>
+                      <label htmlFor="ins-status-makan" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Status Makan</label>
+                      <select id="ins-status-makan" className="min-h-[44px] flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={makan} onChange={e=>setMakan(e.target.value)}>
                         <option value="makan">Makan normal (3×)</option>
                         <option value="sebagian">Makan sebagian (1-2×)</option>
                         <option value="puasa">Puasa / NPO</option>
                       </select>
                     </div>
                     <div className="flex justify-between px-4 py-3 items-center gap-4">
-                      <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi Khusus</span>
-                      <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e=>setKondisi(e.target.value)}>
+                      <label htmlFor="ins-kondisi-khusus" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi Khusus</label>
+                      <select id="ins-kondisi-khusus" className="min-h-[44px] flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kondisi} onChange={e=>setKondisi(e.target.value)}>
                         <option value="normal">Tidak ada</option>
                         <option value="steroid">Terapi steroid</option>
                         <option value="ginjal">Kreatinin ≥2,0 / GFR &lt;30 / HD</option>
@@ -423,37 +423,37 @@ export default function KalkulatorInsulin() {
            <>
              <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</span>
+                   <label htmlFor="ins-hipo-gds" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</label>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-gds')} value={hipoGds} onChange={e=>setHipoGds(e.target.value)} placeholder="mis: 45" />
+                     <DecimalInput className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-gds" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-gds')} value={hipoGds} onChange={e=>setHipoGds(e.target.value)} placeholder="mis: 45" />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</span>
+                   <label htmlFor="ins-hipo-bb" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</label>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-bb')} value={hipoBb} onChange={e=>setHipoBb(e.target.value)} />
+                     <DecimalInput className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]" id="ins-hipo-bb" inputMode="decimal" aria-invalid={calc.isMissing('ins-hipo-bb')} value={hipoBb} onChange={e=>setHipoBb(e.target.value)} />
                      <span className="text-xs font-semibold text-slate-500 w-6 text-left">kg</span>
                    </div>
                 </div>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
-                   <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target GDS</span>
+                   <label htmlFor="ins-target-gds-2" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Target GDS</label>
                    <div className="flex-1 flex items-center justify-end gap-2">
-                     <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={hipoTarget} onChange={e=>setHipoTarget(e.target.value)} placeholder="150" />
+                     <DecimalInput id="ins-target-gds-2" className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={hipoTarget} onChange={e=>setHipoTarget(e.target.value)} placeholder="150" />
                      <span className="text-xs font-semibold text-slate-500 w-10 text-left">mg/dL</span>
                    </div>
                 </div>
                 <div className="flex justify-between px-4 py-3 items-center gap-4">
-                  <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kesadaran</span>
-                  <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kesadaran} onChange={e=>setKesadaran(e.target.value)}>
+                  <label htmlFor="ins-kesadaran" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kesadaran</label>
+                  <select id="ins-kesadaran" className="min-h-[44px] flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={kesadaran} onChange={e=>setKesadaran(e.target.value)}>
                     <option value="sadar">Sadar penuh</option>
                     <option value="mengantuk">Mengantuk / konfusi</option>
                     <option value="tidak-sadar">Tidak sadar / NPO</option>
                   </select>
                 </div>
                 <div className="flex justify-between px-4 py-3 items-center gap-4">
-                  <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Route Medis</span>
-                  <select className="flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={route} onChange={e=>setRoute(e.target.value)}>
+                  <label htmlFor="ins-route-medis" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Route Medis</label>
+                  <select id="ins-route-medis" className="min-h-[44px] flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all" value={route} onChange={e=>setRoute(e.target.value)}>
                     <option value="iv">Ada akses IV</option>
                     <option value="oral">Bisa oral / NGT</option>
                     <option value="im">Injeksi IM / SC</option>

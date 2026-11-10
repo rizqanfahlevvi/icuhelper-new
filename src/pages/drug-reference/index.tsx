@@ -212,7 +212,7 @@ export default function DrugReference(props: DrugReferenceProps) {
               rightContent={
                 <button
                   onClick={() => toggleFavorite('/drug-reference')}
-                  className={`flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
+                  className={`min-h-[44px] flex items-center justify-center p-2.5 sm:px-4 sm:py-2.5 rounded-xl border font-bold text-sm shadow-sm transition-all active:scale-95 ${isFav ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'}`}
                   title={isFav ? "Hapus dari Favorit" : "Sematkan ke Favorit"}
                 >
                   <Star className={`w-4 h-4 sm:mr-2 ${isFav ? 'fill-amber-500 text-amber-500' : ''}`} />
@@ -227,7 +227,7 @@ export default function DrugReference(props: DrugReferenceProps) {
         <div className={`flex w-full ${isEmbedded ? '' : 'md:w-auto'} bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm`}>
           <button
             onClick={() => setSubTab('obat')}
-            className={`flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               subTab === 'obat'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -238,7 +238,7 @@ export default function DrugReference(props: DrugReferenceProps) {
           </button>
           <button
             onClick={() => setSubTab('interaksi')}
-            className={`flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               subTab === 'interaksi'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -266,7 +266,7 @@ export default function DrugReference(props: DrugReferenceProps) {
           <div className="relative flex-1">
             <button 
               onClick={() => { setShowCategoryMenu(!showCategoryMenu); setShowEgfrMenu(false); }}
-              className="flex items-center justify-between w-full px-4 py-2 bg-background border border-border rounded-lg text-sm hover:border-primary/50 transition-colors"
+              className="min-h-[44px] flex items-center justify-between w-full px-4 py-2 bg-background border border-border rounded-lg text-sm hover:border-primary/50 transition-colors"
             >
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${activeCategory.color}`}></span>
@@ -280,7 +280,7 @@ export default function DrugReference(props: DrugReferenceProps) {
                   <button 
                     key={cat.id}
                     onClick={() => { setSelectedCategory(cat.id); setShowCategoryMenu(false); }}
-                    className={`flex items-center gap-2 w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted/50 transition-colors ${selectedCategory === cat.id ? 'bg-primary/10 font-bold text-primary' : 'text-muted-foreground'}`}
+                    className={`min-h-[44px] flex items-center gap-2 w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted/50 transition-colors ${selectedCategory === cat.id ? 'bg-primary/10 font-bold text-primary' : 'text-muted-foreground'}`}
                   >
                     <span className={`w-2 h-2 rounded-full ${cat.color}`}></span> {cat.label}
                   </button>
@@ -292,7 +292,7 @@ export default function DrugReference(props: DrugReferenceProps) {
           <div className="relative flex-1">
             <button 
               onClick={() => { setShowEgfrMenu(!showEgfrMenu); setShowCategoryMenu(false); }}
-              className="flex items-center justify-between w-full px-4 py-2 bg-background border border-border rounded-lg text-sm hover:border-primary/50 transition-colors"
+              className="min-h-[44px] flex items-center justify-between w-full px-4 py-2 bg-background border border-border rounded-lg text-sm hover:border-primary/50 transition-colors"
             >
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">⚡</span>
@@ -306,7 +306,7 @@ export default function DrugReference(props: DrugReferenceProps) {
                   <button 
                     key={band.id}
                     onClick={() => { setSelectedEgfrBand(band.id); setShowEgfrMenu(false); }}
-                    className={`block w-full text-left px-3 py-2 text-xs font-mono rounded-md hover:bg-muted/50 transition-colors ${selectedEgfrBand === band.id ? 'bg-primary/10 font-bold text-primary' : 'text-muted-foreground'}`}
+                    className={`min-h-[44px] block w-full text-left px-3 py-2 text-xs font-mono rounded-md hover:bg-muted/50 transition-colors ${selectedEgfrBand === band.id ? 'bg-primary/10 font-bold text-primary' : 'text-muted-foreground'}`}
                   >
                     {band.label}
                   </button>
@@ -318,12 +318,12 @@ export default function DrugReference(props: DrugReferenceProps) {
           {!isEmbedded && (
             <div className="relative flex-1 sm:flex-[1.5]">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input 
+              <input aria-label="Cari obat" 
                 type="text" 
                 placeholder="Cari obat..." 
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
+                className="min-h-[44px] w-full pl-9 pr-8 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-colors"
               />
               {searchTerm && (
                 <button onClick={() => setSearchTerm('')} className="absolute left-[calc(100%-28px)] top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -339,10 +339,10 @@ export default function DrugReference(props: DrugReferenceProps) {
             {Object.keys(ICU_DRUGS).length === 0 ? 'Data obat belum tersedia.' : `Menampilkan ${drugsList.length} obat`}
             {selectedEgfrBand !== 'all' && ` | Mode eGFR Aktif`}
           </span>
-          <select 
+          <select aria-label="Urutkan obat" 
             value={sortOrder} 
             onChange={e => setSortOrder(e.target.value)}
-            className="px-2 py-1.5 bg-background border border-border rounded-md text-xs font-medium focus:outline-none"
+            className="min-h-[44px] px-2 py-1.5 bg-background border border-border rounded-md text-xs font-medium focus:outline-none"
           >
             <option value="name">A–Z Nama</option>
             <option value="category">Kategori</option>
@@ -489,7 +489,7 @@ export default function DrugReference(props: DrugReferenceProps) {
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
+            className="min-h-[44px] px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
           >
             Sebelumnya
           </button>
@@ -499,7 +499,7 @@ export default function DrugReference(props: DrugReferenceProps) {
           <button
             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
+            className="min-h-[44px] px-4 py-2 rounded-xl border border-border bg-card hover:bg-muted disabled:opacity-50 transition-colors text-sm font-bold shadow-sm"
           >
             Berikutnya
           </button>

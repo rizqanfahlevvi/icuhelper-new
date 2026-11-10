@@ -115,8 +115,8 @@ export default function KalkulatorNutrisi() {
     });
   };
 
-  const inputCls = 'w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
-  const selectCls = 'flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
+  const inputCls = 'min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
+  const selectCls = 'min-h-[44px] flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all';
   const reset = () => setRes(null);
 
   const espenE = res ? res.r.energy.find((e) => e.guideline === 'ESPEN')! : null;
@@ -151,16 +151,16 @@ export default function KalkulatorNutrisi() {
 
         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Fase Rawat</span>
-            <select className={selectCls} value={fase} onChange={e => { setFase(e.target.value as NutritionPhase); reset(); }}>
+            <label htmlFor="nut-fase-rawat" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Fase Rawat</label>
+            <select id="nut-fase-rawat" className={selectCls} value={fase} onChange={e => { setFase(e.target.value as NutritionPhase); reset(); }}>
               <option value="akut-awal">{PHASE_LABEL['akut-awal']}</option>
               <option value="akut-lanjut">{PHASE_LABEL['akut-lanjut']}</option>
               <option value="recovery">{PHASE_LABEL.recovery}</option>
             </select>
           </div>
           <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi Klinis</span>
-            <select className={selectCls} value={kondisi} onChange={e => { setKondisi(e.target.value as NutritionCondition); reset(); }}>
+            <label htmlFor="nut-kondisi-klinis" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi Klinis</label>
+            <select id="nut-kondisi-klinis" className={selectCls} value={kondisi} onChange={e => { setKondisi(e.target.value as NutritionCondition); reset(); }}>
               <option value="kritis">Kritis umum (ICU)</option>
               <option value="sepsis">Sepsis / Syok septik</option>
               <option value="ards">ARDS</option>
@@ -171,16 +171,16 @@ export default function KalkulatorNutrisi() {
             </select>
           </div>
           <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Route Nutrisi</span>
-            <select className={selectCls} value={route} onChange={e => { setRoute(e.target.value as Route); reset(); }}>
+            <label htmlFor="nut-route-nutrisi" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Route Nutrisi</label>
+            <select id="nut-route-nutrisi" className={selectCls} value={route} onChange={e => { setRoute(e.target.value as Route); reset(); }}>
               <option value="en">Enteral (NGT/Oral)</option>
               <option value="pn">Parenteral (TPN)</option>
               <option value="mixed">Kombinasi EN + PN</option>
             </select>
           </div>
           <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Risiko Refeeding</span>
-            <select className={selectCls} value={refeeding} onChange={e => { setRefeeding(e.target.value as 'tidak' | 'ya'); reset(); }}>
+            <label htmlFor="nut-risiko-refeeding" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Risiko Refeeding</label>
+            <select id="nut-risiko-refeeding" className={selectCls} value={refeeding} onChange={e => { setRefeeding(e.target.value as 'tidak' | 'ya'); reset(); }}>
               <option value="tidak">Tidak berisiko</option>
               <option value="ya">Berisiko (kriteria NICE/ASPEN)</option>
             </select>
@@ -190,31 +190,31 @@ export default function KalkulatorNutrisi() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BB Aktual</span>
+            <label htmlFor="nut-bb" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BB Aktual</label>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
               <DecimalInput id="nut-bb" inputMode="decimal" aria-invalid={calc.isMissing('nut-bb')} className={`${inputCls} aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)]`} value={bb} onChange={e => { setBb(e.target.value); reset(); }} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kg</span>
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Tinggi Badan</span>
+            <label htmlFor="nut-tinggi-badan" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Tinggi Badan</label>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className={inputCls} value={tb} onChange={e => { setTb(e.target.value); reset(); }} />
+              <DecimalInput id="nut-tinggi-badan" className={inputCls} value={tb} onChange={e => { setTb(e.target.value); reset(); }} />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">cm</span>
             </div>
           </div>
           <div className="flex justify-between px-4 py-3 items-center gap-4">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Jenis Kelamin</span>
-            <select className={selectCls} value={sex} onChange={e => { setSex(e.target.value as NutritionSex); reset(); }}>
+            <label htmlFor="nut-jenis-kelamin" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Jenis Kelamin</label>
+            <select id="nut-jenis-kelamin" className={selectCls} value={sex} onChange={e => { setSex(e.target.value as NutritionSex); reset(); }}>
               <option value="">— Pilih —</option>
               <option value="m">Laki-laki</option>
               <option value="f">Perempuan</option>
             </select>
           </div>
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BBI manual <span className="font-normal text-slate-500">(opsional)</span></span>
+            <label htmlFor="nut-bbi" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">BBI manual <span className="font-normal text-slate-500">(opsional)</span></label>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className={inputCls} value={ibwIn} onChange={e => { setIbwIn(e.target.value); reset(); }} placeholder="Devine" />
+              <DecimalInput id="nut-bbi" className={inputCls} value={ibwIn} onChange={e => { setIbwIn(e.target.value); reset(); }} placeholder="Devine" />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kg</span>
             </div>
           </div>
@@ -222,8 +222,8 @@ export default function KalkulatorNutrisi() {
           {route !== 'pn' && (
             <>
               <div className="flex justify-between px-4 py-3 items-center gap-4">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Densitas Formula EN</span>
-                <select className={selectCls} value={density} onChange={e => { setDensity(e.target.value); reset(); }}>
+                <label htmlFor="nut-densitas-formula-en" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Densitas Formula EN</label>
+                <select id="nut-densitas-formula-en" className={selectCls} value={density} onChange={e => { setDensity(e.target.value); reset(); }}>
                   <option value="1.0">1,0 kkal/mL</option>
                   <option value="1.2">1,2 kkal/mL</option>
                   <option value="1.5">1,5 kkal/mL</option>
@@ -231,18 +231,18 @@ export default function KalkulatorNutrisi() {
                 </select>
               </div>
               <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Protein formula <span className="font-normal text-slate-500">(opsional)</span></span>
+                <label htmlFor="nut-protein" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Protein formula <span className="font-normal text-slate-500">(opsional)</span></label>
                 <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-                  <DecimalInput className={inputCls} value={proteinGL} onChange={e => { setProteinGL(e.target.value); reset(); }} placeholder="label produk" />
+                  <DecimalInput id="nut-protein" className={inputCls} value={proteinGL} onChange={e => { setProteinGL(e.target.value); reset(); }} placeholder="label produk" />
                   <span className="text-xs font-semibold text-slate-500 w-8 text-left">g/L</span>
                 </div>
               </div>
             </>
           )}
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Kalori non-nutrisi <span className="font-normal text-slate-500">(opsional)</span></span>
+            <label htmlFor="nut-nonnutr" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Kalori non-nutrisi <span className="font-normal text-slate-500">(opsional)</span></label>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
-              <DecimalInput className={inputCls} value={nonNutr} onChange={e => { setNonNutr(e.target.value); reset(); }} placeholder="0" />
+              <DecimalInput id="nut-nonnutr" className={inputCls} value={nonNutr} onChange={e => { setNonNutr(e.target.value); reset(); }} placeholder="0" />
               <span className="text-xs font-semibold text-slate-500 w-8 text-left">kkal</span>
             </div>
           </div>

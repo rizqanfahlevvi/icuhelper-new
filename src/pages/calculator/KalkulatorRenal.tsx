@@ -460,7 +460,7 @@ export default function KalkulatorRenal() {
         <div className="flex flex-wrap w-full bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm shrink-0 gap-1">
           <button
             onClick={() => setActiveTab('gfr_crcl')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'gfr_crcl'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -471,7 +471,7 @@ export default function KalkulatorRenal() {
           </button>
           <button
             onClick={() => setActiveTab('aki_stage')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'aki_stage'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -482,7 +482,7 @@ export default function KalkulatorRenal() {
           </button>
           <button
             onClick={() => setActiveTab('fena_feurea')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'fena_feurea'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -493,7 +493,7 @@ export default function KalkulatorRenal() {
           </button>
           <button
             onClick={() => setActiveTab('osmol_bun')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'osmol_bun'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -504,7 +504,7 @@ export default function KalkulatorRenal() {
           </button>
           <button
             onClick={() => setActiveTab('hd_indikasi')}
-            className={`flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'hd_indikasi'
                 ? 'bg-background text-primary shadow-sm border border-border/10 font-black'
                 : 'text-muted-foreground hover:text-foreground'
@@ -534,26 +534,26 @@ export default function KalkulatorRenal() {
                 
                 <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Usia</span>
+                    <label htmlFor="renal-age" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Usia</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                       <DecimalInput
                         id="renal-age" inputMode="decimal"
                         value={age} 
                         onChange={e => setAge(e.target.value)} 
                         placeholder="cth: 53" 
-                        className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-age')}`}
+                        className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-age')}`}
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">tahun</span>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Jenis Kelamin</span>
+                    <label htmlFor="renal-sex" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Jenis Kelamin</label>
                     <select
                       id="renal-sex"
                       value={sex}
                       onChange={e => setSex(e.target.value as 'm' | 'f' | '')}
-                      className={`flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-sex')}`}
+                      className={`min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-sex')}`}
                     >
                       <option value="">— Pilih —</option>
                       <option value="m">Laki-laki</option>
@@ -562,28 +562,28 @@ export default function KalkulatorRenal() {
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
+                    <label htmlFor="renal-weight" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                       <DecimalInput
                         id="renal-weight" inputMode="decimal"
                         value={weight} 
                         onChange={e => setWeight(e.target.value)} 
                         placeholder="cth: 72" 
-                        className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-weight')}`}
+                        className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-weight')}`}
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">kg</span>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Tinggi Badan</span>
+                    <label htmlFor="renal-height" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Tinggi Badan</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                       <DecimalInput
                         id="renal-height" inputMode="decimal"
                         value={height} 
                         onChange={e => setHeight(e.target.value)} 
                         placeholder="cth: 168" 
-                        className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-height')}`}
+                        className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-height')}`}
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">cm</span>
                     </div>
@@ -599,11 +599,11 @@ export default function KalkulatorRenal() {
 
                 <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Satuan Kreatinin</span>
-                    <select
+                    <label htmlFor="renal-satuan-kreatinin" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Satuan Kreatinin</label>
+                    <select id="renal-satuan-kreatinin"
                       value={scrUnit}
                       onChange={e => handleUnitChange(e.target.value as 'mg' | 'umol')}
-                      className="flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+                      className="min-h-[44px] flex-1 min-w-[9rem] max-w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
                     >
                       <option value="mg">mg/dL</option>
                       <option value="umol">µmol/L</option>
@@ -611,7 +611,7 @@ export default function KalkulatorRenal() {
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Serum (SCr)</span>
+                    <label htmlFor="renal-scr" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Serum (SCr)</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                       <DecimalInput
                         id="renal-scr" inputMode="decimal"
@@ -619,7 +619,7 @@ export default function KalkulatorRenal() {
                         onChange={e => setScrVal(e.target.value)} 
                         placeholder={scrUnit === 'mg' ? 'cth: 1.25' : 'cth: 110'} 
                         step="0.01"
-                        className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-scr')}`}
+                        className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringGfr('renal-scr')}`}
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">{scrUnit === 'mg' ? 'mg/dL' : 'µmol/L'}</span>
                     </div>
@@ -917,21 +917,21 @@ export default function KalkulatorRenal() {
                 
                 <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Serum</span>
+                    <label htmlFor="renal-sna" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Serum</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                       <DecimalInput
                         id="renal-sna" inputMode="decimal"
                         value={sna} 
                         onChange={e => setSna(e.target.value)} 
                         placeholder="cth: 138" 
-                        className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringFena('renal-sna')}`}
+                        className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringFena('renal-sna')}`}
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">mEq/L</span>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Serum (SCr)</span>
+                    <label htmlFor="renal-scr2" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Serum (SCr)</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                       <DecimalInput
                         id="renal-scr2" inputMode="decimal"
@@ -939,7 +939,7 @@ export default function KalkulatorRenal() {
                         onChange={e => setScr(e.target.value)} 
                         placeholder="cth: 2.1" 
                         step="0.01"
-                        className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringFena('renal-scr2')}`}
+                        className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringFena('renal-scr2')}`}
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">mg/dL</span>
                     </div>
@@ -950,12 +950,12 @@ export default function KalkulatorRenal() {
                       Ureum Serum <span className="text-[9px] text-slate-500 font-normal">(opsional)</span>
                     </span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <DecimalInput 
+                      <DecimalInput aria-label="Ureum serum (opsional)" 
                         value={sureum} 
                         onChange={e => setSureum(e.target.value)} 
                         placeholder="opsional" 
                         step="0.1"
-                        className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+                        className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">mg/dL</span>
                     </div>
@@ -971,28 +971,28 @@ export default function KalkulatorRenal() {
 
                 <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Urin (UNa)</span>
+                    <label htmlFor="renal-una" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Urin (UNa)</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                       <DecimalInput
                         id="renal-una" inputMode="decimal"
                         value={una} 
                         onChange={e => setUna(e.target.value)} 
                         placeholder="cth: 80" 
-                        className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringFena('renal-una')}`}
+                        className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringFena('renal-una')}`}
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">mEq/L</span>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Urin (UCr)</span>
+                    <label htmlFor="renal-ucr" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Kreatinin Urin (UCr)</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
                       <DecimalInput
                         id="renal-ucr" inputMode="decimal"
                         value={ucr} 
                         onChange={e => setUcr(e.target.value)} 
                         placeholder="cth: 120" 
-                        className={`w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringFena('renal-ucr')}`}
+                        className={`min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${ringFena('renal-ucr')}`}
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">mg/dL</span>
                     </div>
@@ -1003,12 +1003,12 @@ export default function KalkulatorRenal() {
                       Ureum Urin <span className="text-[9px] text-slate-500 font-normal">(opsional)</span>
                     </span>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
-                      <DecimalInput 
+                      <DecimalInput aria-label="Ureum urin (opsional)" 
                         value={uureum} 
                         onChange={e => setUureum(e.target.value)} 
                         placeholder="opsional" 
                         step="0.1"
-                        className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
+                        className="min-h-[44px] w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all"
                       />
                       <span className="text-xs font-semibold text-slate-500 w-14 text-left">mg/dL</span>
                     </div>
