@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Pill, Droplets, Star, Search, XCircle, Beaker } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useFavoritesStore } from '../../store/useFavoritesStore';
@@ -11,6 +12,24 @@ export default function PharmacyIndex() {
   const [globalSearch, setGlobalSearch] = useState('');
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const isFav = isFavorite('/pharmacy');
+
+  // Tautan dari pencarian global: ?tab=obat|cairan&q=…&obat=<id>|cairan=<id>.
+  // Parameter dibaca sekali lalu dibersihkan dari URL; objek openRequest baru = buka detail lagi.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [drugOpen, setDrugOpen] = useState<{ id: string } | null>(null);
+  const [fluidOpen, setFluidOpen] = useState<{ id: string } | null>(null);
+  useEffect(() => {
+    if (![...searchParams.keys()].length) return;
+    const tab = searchParams.get('tab');
+    if (tab === 'obat' || tab === 'cairan') setActiveTab(tab);
+    const q = searchParams.get('q');
+    if (q !== null) setGlobalSearch(q);
+    const obat = searchParams.get('obat');
+    if (obat) { setActiveTab('obat'); setGlobalSearch(''); setDrugOpen({ id: obat }); }
+    const cairan = searchParams.get('cairan');
+    if (cairan) { setActiveTab('cairan'); setGlobalSearch(''); setFluidOpen({ id: cairan }); }
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto pb-20">
@@ -81,7 +100,7 @@ export default function PharmacyIndex() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
             >
-              <DrugReference isEmbedded globalSearch={globalSearch} />
+              <DrugReference isEmbedded globalSearch={globalSearch} openRequest={drugOpen} />
             </motion.div>
           )}
           {activeTab === 'cairan' && (
@@ -92,7 +111,7 @@ export default function PharmacyIndex() {
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
             >
-              <CairanIndex isEmbedded globalSearch={globalSearch} />
+              <CairanIndex isEmbedded globalSearch={globalSearch} openRequest={fluidOpen} />
             </motion.div>
           )}
         </AnimatePresence>

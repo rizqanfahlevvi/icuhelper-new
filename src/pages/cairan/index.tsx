@@ -24,14 +24,22 @@ const CATEGORIES = [
 export interface CairanIndexProps {
   isEmbedded?: boolean;
   globalSearch?: string;
+  /** Permintaan membuka detail cairan (dari pencarian global); objek baru = buka lagi. */
+  openRequest?: { id: string } | null;
 }
 
 export default function CairanIndex(props: CairanIndexProps) {
-  const { isEmbedded = false, globalSearch = '' } = props;
+  const { isEmbedded = false, globalSearch = '', openRequest = null } = props;
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [activeCategory, setActiveCategory] = useState('semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFluid, setSelectedFluid] = useState<FluidItem | null>(null);
+
+  useEffect(() => {
+    if (!openRequest) return;
+    const f = CF_FLUIDS.find((x) => x.id === openRequest.id);
+    if (f) setSelectedFluid(f);
+  }, [openRequest]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
