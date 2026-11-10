@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, BookText, Star, BookOpen } from 'lucide-react';
 import { Accordion } from '../components/ui/Accordion';
 import { referenceData } from '../data/referenceData';
@@ -11,6 +12,15 @@ const GLOSSARY = allAbbreviations();
 export default function Reference() {
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Tautan dari pencarian global: /reference?q=<kata kunci> → kolom cari terisi, lalu URL dibersihkan.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q === null) return;
+    setSearchTerm(q);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const isFav = isFavorite('/reference');
 

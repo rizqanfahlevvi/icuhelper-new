@@ -125,6 +125,18 @@ const NAV_ITEMS: NavItem[] = [
   { name: 'Pengaturan', path: '/settings', icon: Settings }
 ];
 
+/** Menu samping/laci dikelompokkan agar 13 item mudah dipindai. */
+const NAV_GROUPS: { label: string; paths: string[] }[] = [
+  { label: 'Pasien', paths: ['/', '/patients'] },
+  { label: 'Alat Klinis', paths: ['/calculator', '/scoring', '/abg', '/weaning', '/pharmacy', '/monitoring'] },
+  { label: 'Belajar', paths: ['/theory', '/setting', '/reference'] },
+  { label: 'Akun', paths: ['/riwayat', '/settings'] },
+];
+const GROUPED_NAV: { label: string; items: NavItem[] }[] = NAV_GROUPS.map((g) => ({
+  label: g.label,
+  items: g.paths.map((p) => NAV_ITEMS.find((n) => n.path === p)).filter((n): n is NavItem => !!n),
+}));
+
 export default function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -509,23 +521,17 @@ export default function MainLayout() {
           </div>
         )}
 
-        <nav className="flex-1 overflow-x-hidden overflow-y-auto flex flex-col gap-1 no-scrollbar px-3 mt-2">
-          <div className="h-4 flex items-center px-3 mb-2">
-            <AnimatePresence>
-              {isSidebarExpanded && (
-                <motion.span 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-[10px] uppercase tracking-[0.1em] text-[var(--label-secondary)] font-bold whitespace-nowrap block"
-                >
-                  Menu
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </div>
-          {NAV_ITEMS.map((item) => {
+        <nav className="flex-1 overflow-x-hidden overflow-y-auto flex flex-col gap-1 no-scrollbar px-3 mt-2 pb-4" aria-label="Menu utama">
+          {GROUPED_NAV.map((group, gi) => (
+          <div key={group.label} className="flex flex-col gap-1" role="group" aria-label={group.label}>
+          {isSidebarExpanded ? (
+            <span className={`text-[10px] uppercase tracking-[0.1em] text-[var(--label-secondary)] font-bold whitespace-nowrap block px-3 ${gi === 0 ? 'mb-1' : 'mt-3 mb-1'}`}>
+              {group.label}
+            </span>
+          ) : (
+            gi > 0 && <div className="my-2 mx-3 border-t border-[var(--separator)]" aria-hidden />
+          )}
+          {group.items.map((item) => {
             const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
             return (
               <Link
@@ -555,6 +561,8 @@ export default function MainLayout() {
               </Link>
             );
           })}
+          </div>
+          ))}
         </nav>
       </aside>
 
@@ -851,16 +859,19 @@ export default function MainLayout() {
                   </div>
                 )}
 
-                <nav className="flex-1 overflow-y-auto flex flex-col gap-1 p-4 pb-20 no-scrollbar">
-                  <span className="text-[11px] uppercase tracking-[0.15em] text-[var(--label-secondary)] font-bold mb-3 px-2 block">Menu Utama</span>
-                  {NAV_ITEMS.map((item) => {
-                    const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+                <nav className="flex-1 overflow-y-auto flex flex-col gap-0.5 p-4 pb-20 no-scrollbar" aria-label="Menu utama">
+                  {GROUPED_NAV.map((group, gi) => (
+                  <div key={`m-${group.label}`} className="flex flex-col gap-0.5" role="group" aria-label={group.label}>
+                  <span className={`text-[11px] uppercase tracking-[0.15em] text-[var(--label-secondary)] font-bold px-2 block ${gi === 0 ? 'mb-1' : 'mt-3 mb-1'}`}>{group.label}</span>
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path + '/'));
                     return (
                       <Link
                         key={`mobile-${item.name}`}
                         to={item.path}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium transition-colors ${
+                        aria-current={isActive ? 'page' : undefined}
+                        className={`flex items-center gap-3 px-3 py-2.5 min-h-[44px] rounded-xl text-[15px] font-medium transition-colors ${
                           isActive 
                             ? 'bg-[var(--accent-tint)] text-[var(--accent)] font-bold' 
                             : 'text-[var(--label-secondary)] hover:bg-[var(--fill-secondary)] hover:text-[var(--label-primary)]'
@@ -871,6 +882,8 @@ export default function MainLayout() {
                       </Link>
                     );
                   })}
+                  </div>
+                  ))}
                 </nav>
               </motion.aside>
             </div>

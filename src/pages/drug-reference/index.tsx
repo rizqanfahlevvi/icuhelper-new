@@ -45,10 +45,12 @@ const EGFR_BANDS = [
 export interface DrugReferenceProps {
   isEmbedded?: boolean;
   globalSearch?: string;
+  /** Permintaan membuka detail obat (dari pencarian global); objek baru = buka lagi. */
+  openRequest?: { id: string } | null;
 }
 
 export default function DrugReference(props: DrugReferenceProps) {
-  const { isEmbedded = false, globalSearch = '' } = props;
+  const { isEmbedded = false, globalSearch = '', openRequest = null } = props;
   const { isFavorite, toggleFavorite } = useFavoritesStore();
   const [subTab, setSubTab] = useState<'obat' | 'interaksi'>('obat');
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,6 +66,10 @@ export default function DrugReference(props: DrugReferenceProps) {
 
   const [selectedDrugId, setSelectedDrugId] = useState<string | null>(null);
   const [selectedDrugs, setSelectedDrugs] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (openRequest && ICU_DRUGS[openRequest.id]) { setSubTab('obat'); setSelectedDrugId(openRequest.id); }
+  }, [openRequest]);
 
   const isFav = isFavorite('/drug-reference');
 
