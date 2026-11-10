@@ -277,3 +277,6 @@ html.bw-mode,
     padding-right: 4px !important;
   }
 }
+/* Sembunyikan tombol × bawaan browser pada input type=search — app punya tombol hapus sendiri. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
