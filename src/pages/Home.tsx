@@ -94,7 +94,7 @@ export default function Home() {
               ICU<span className="text-[var(--accent)]"> Helper</span>
             </h1>
             <p className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--accent)]">
-              Pendamping harian di IGD &amp; ICU
+              Your Daily Emergency &amp; Intensive Companion
             </p>
           </div>
         </div>
