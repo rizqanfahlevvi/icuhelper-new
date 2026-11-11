@@ -457,7 +457,7 @@ export default function KalkulatorRenal() {
         </div>
 
         {/* Tab Selection Bar */}
-        <div className="flex flex-wrap w-full bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm shrink-0 gap-1">
+        <div data-tabbar className="flex flex-wrap w-full bg-muted/65 p-1 rounded-2xl border border-border/80 shadow-sm shrink-0 gap-1">
           <button
             onClick={() => setActiveTab('gfr_crcl')}
             className={`min-h-[44px] flex-1 min-w-[6.5rem] flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${

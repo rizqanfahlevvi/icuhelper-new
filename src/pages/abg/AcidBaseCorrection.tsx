@@ -556,7 +556,7 @@ export default function AcidBaseCorrection({ abgInputs, patientWeight = '', pati
       </div>
       <div className="p-0">
         
-        <div className="flex w-full border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
+        <div data-tabbar className="flex w-full border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
           <button onClick={() => setActiveTab(1)} className={`min-h-[44px] flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 1 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>🧪 NaHCO₃</button>
           <button onClick={() => setActiveTab(2)} className={`min-h-[44px] flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 2 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>⚗️ KCl / HCl</button>
           <button onClick={() => setActiveTab(3)} className={`min-h-[44px] flex-1 min-w-[100px] py-3 text-[13px] font-bold transition-colors ${activeTab === 3 ? 'border-b-2 border-primary text-[var(--label-primary)] bg-primary/5' : 'text-[var(--label-secondary)] hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>📐 Kompensasi</button>

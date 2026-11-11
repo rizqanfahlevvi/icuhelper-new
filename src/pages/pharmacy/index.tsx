@@ -69,7 +69,7 @@ export default function PharmacyIndex() {
           </div>
 
           {/* Main Tab Switcher */}
-          <div className="flex p-1 bg-muted rounded-xl shadow-sm border border-border/50">
+          <div data-tabbar className="flex p-1 bg-muted rounded-xl shadow-sm border border-border/50">
             <button
               onClick={() => setActiveTab('obat')}
               className={`min-h-[44px] flex-1 py-2 text-sm font-semibold rounded-lg flex justify-center items-center gap-2 transition-all ${

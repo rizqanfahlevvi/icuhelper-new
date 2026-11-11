@@ -238,7 +238,7 @@ export default function KalkulatorElektro() {
       {/* Unified Clinical Synchronization Banner */}
       <UnifiedSyncBanner fields={syncFields} />
       
-      <div className="flex bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4">
+      <div data-tabbar className="flex bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4">
         <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'na' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('na'); setShown(false)}}>Natrium</button>
         <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'k' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('k'); setShown(false)}}>Kalium</button>
         <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'ca' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('ca'); setShown(false)}}>Kalsium</button>

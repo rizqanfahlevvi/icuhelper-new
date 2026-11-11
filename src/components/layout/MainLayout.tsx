@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { Outlet, Link, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import {
   Home, Calculator, Pill, Menu as MenuIcon, BookOpen, BarChart2, FlaskConical, ClipboardList, BookMarked,
   ArrowDownCircle, Monitor, Settings, History, ChevronLeft, X, Sun, Moon, Users, LogOut,
@@ -137,11 +137,76 @@ const GROUPED_NAV: { label: string; items: NavItem[] }[] = NAV_GROUPS.map((g) =>
   items: g.paths.map((p) => NAV_ITEMS.find((n) => n.path === p)).filter((n): n is NavItem => !!n),
 }));
 
+/** Posisi gulir per entri riwayat navigasi — di level modul agar tidak hilang bila layout
+ *  sempat di-unmount (mis. Suspense saat memuat halaman lazy). */
+const SCROLL_POSITIONS = { current: new Map<string, number>() };
+
 export default function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
+  const navigationType = useNavigationType();
+
+  // Posisi gulir: semua halaman berbagi satu kontainer gulir (#main-scrollable-viewport),
+  // jadi tanpa reset halaman baru terbuka di posisi gulir halaman sebelumnya.
+  // Navigasi baru → mulai dari atas; tombol Kembali/maju (POP) → pulihkan posisi terakhir.
+  const scrollPositions = SCROLL_POSITIONS;
+  const prevLocationKey = useRef<string | null>(null);
+  useLayoutEffect(() => {
+    const vp = document.getElementById('main-scrollable-viewport');
+    if (!vp) return;
+    const key = location.key;
+    prevLocationKey.current = key;
+    const saved = navigationType === 'POP' ? scrollPositions.current.get(key) : undefined;
+    const target = saved ?? 0;
+    vp.scrollTop = target;
+    // Halaman lazy bisa belum cukup tinggi saat ini → ulangi tiap frame (maks ±1 dtk) sampai
+    // posisi tercapai. Selama itu posisi tidak dicatat (nilai terpotong tidak menimpa yang tersimpan).
+    let restoring = target > 0;
+    let raf = 0;
+    const startedAt = performance.now();
+    const tick = () => {
+      vp.scrollTop = target;
+      if (Math.abs(vp.scrollTop - target) <= 1 || performance.now() - startedAt > 1000) { restoring = false; return; }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    const stopRestore = () => { restoring = false; cancelAnimationFrame(raf); };
+    // Pengguna menyentuh/menggulir sendiri → hentikan pemulihan.
+    vp.addEventListener('touchstart', stopRestore, { passive: true });
+    vp.addEventListener('wheel', stopRestore, { passive: true });
+    // Catat posisi gulir halaman ini terus-menerus (nilai saat pindah halaman bisa sudah terpotong).
+    const onScroll = () => { if (!restoring && prevLocationKey.current === key) scrollPositions.current.set(key, vp.scrollTop); };
+    vp.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      vp.removeEventListener('scroll', onScroll);
+      vp.removeEventListener('touchstart', stopRestore);
+      vp.removeEventListener('wheel', stopRestore);
+    };
+  }, [location.key, navigationType]);
+
+  // Tab di dalam halaman (Renal, Elektrolit, Cairan, Obat/Cairan, dst.): bila pengguna sudah
+  // menggulir melewati bilah tab lalu mengganti tab, gulir kembali ke bilah tab agar awal isi
+  // tab baru terlihat (bukan ujung bawah konten yang terpotong). Bila bilah tab masih terlihat,
+  // posisi tidak diubah.
+  useEffect(() => {
+    const vp = document.getElementById('main-scrollable-viewport');
+    if (!vp) return;
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      const bar = target?.closest('[data-tabbar], [role="tablist"]');
+      if (!bar || !target?.closest('button, [role="tab"], a')) return;
+      requestAnimationFrame(() => {
+        const vpTop = vp.getBoundingClientRect().top;
+        const barTop = bar.getBoundingClientRect().top;
+        if (barTop < vpTop) vp.scrollTop += barTop - vpTop - 8;
+      });
+    };
+    vp.addEventListener('click', onClick);
+    return () => vp.removeEventListener('click', onClick);
+  }, []);
   const navigate = useNavigate();
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const isCurrentFav = isFavorite(location.pathname);

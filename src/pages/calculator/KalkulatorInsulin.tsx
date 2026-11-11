@@ -205,7 +205,7 @@ export default function KalkulatorInsulin() {
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
-      <div className="flex bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4 mt-2">
+      <div data-tabbar className="flex bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4 mt-2">
         <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'bbc' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('bbc')}>Basal-Bolus</button>
         <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'ss' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('ss')}>Sliding Scale</button>
         <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'hipo' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('hipo')}>Koreksi Hipo</button>

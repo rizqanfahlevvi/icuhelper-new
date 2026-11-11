@@ -338,7 +338,7 @@ export default function KalkulatorKebutuhanCairan() {
       <UnifiedSyncBanner fields={syncFields} />
 
       {/* Pilih bagian — satu bagian tampil sekaligus */}
-      <div role="tablist" aria-label="Bagian kalkulator cairan" className="flex flex-wrap w-full bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl gap-1">
+      <div data-tabbar role="tablist" aria-label="Bagian kalkulator cairan" className="flex flex-wrap w-full bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl gap-1">
         {CAIRAN_TABS.map(t => (
           <button
             key={t.id}
