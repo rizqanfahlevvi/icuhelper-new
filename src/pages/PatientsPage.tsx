@@ -7,6 +7,8 @@ import {
 import { PageHeader } from '../components/ui/PageHeader';
 import { usePatientStore, Patient } from '../store/usePatientStore';
 import { useClinicalStore } from '../store/useClinicalStore';
+import { useHistoryStore } from '../store/useHistoryStore';
+import { PatientSummaryPanel } from '../components/patient/PatientSummaryPanel';
 import { ClinicalDataForm } from '../components/patient/ClinicalDataForm';
 import { cleanClinicalRecord, cleanTimestamps, formatDataAge } from '../utils/patientContext';
 import { AbbrLegend } from '../components/ui/AbbrLegend';
@@ -229,6 +231,8 @@ export default function PatientsPage() {
                 )}
               </span>
             </div>
+
+          <PatientSummaryPanel patient={activePatient} />
 
           {/* Saved Patient Parameters Check */}
           <div className="mt-4 border-t border-[var(--glass-border)] pt-4 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[var(--bg-tertiary)]/70 -mx-5 -mb-5 px-5 py-4">
@@ -453,6 +457,7 @@ export default function PatientsPage() {
                       onClick={() => {
                         if (confirm(`Yakin ingin menghapus pasien ${p.nama}?`)) {
                           deletePatient(p.id);
+                          useHistoryStore.getState().clearPatientHistory(p.id);
                         }
                       }}
                       className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors cursor-pointer"
