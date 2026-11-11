@@ -28,8 +28,8 @@ export default function ScoringCamicu() {
   const getBtnClass = (val: boolean, current: boolean | null) => {
     return `flex-1 py-3 text-sm border rounded-xl transition-all font-bold ${
       current === val
-        ? 'bg-blue-500 text-white shadow-md ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-[#1C1C1E] border-blue-500'
-        : 'bg-slate-50 dark:bg-[#2C2C2E] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'
+        ? 'bg-blue-500 text-white shadow-md ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-[var(--dk-surface-1)] border-blue-500'
+        : 'bg-slate-50 dark:bg-[var(--dk-surface-2)] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)]'
     }`;
   };
 
@@ -38,7 +38,7 @@ export default function ScoringCamicu() {
       {/* Active Patient Widget */}
       <ActivePatientBriefCard />
 
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
          <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
@@ -57,7 +57,7 @@ export default function ScoringCamicu() {
          </div>
 
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-           <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+           <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
              <div className="font-bold text-sm mb-1 text-indigo-500 dark:text-indigo-400">Prasyarat: Cek RASS Terlebih Dahulu</div>
              <div className="text-xs text-muted-foreground mb-3">Berapa nilai RASS saat ini? Jika RASS -4 atau -5, pasien tidak bisa dinilai (UTA). Ulangi saat sedasi dikurangi.</div>
              <div className="flex gap-3">
@@ -68,7 +68,7 @@ export default function ScoringCamicu() {
 
            {rassOk === true && (
              <>
-               <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
+               <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
                  <div className="font-bold text-sm mb-1">Fitur 1: Onset Akut / Fluktuatif</div>
                  <div className="text-xs text-muted-foreground mb-3">Apakah terdapat perubahan akut status mental / RASS dari baseline pasien ATAU berfluktuasi dalam 24 jam terakhir?</div>
                  <div className="flex gap-3">
@@ -78,7 +78,7 @@ export default function ScoringCamicu() {
                </div>
 
                {(f1 === true || f1 === null) && (
-                 <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
+                 <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
                    <div className="font-bold text-sm mb-1">Fitur 2: Gangguan Perhatian (Inattention)</div>
                    <div className="text-xs text-muted-foreground mb-3">Gunakan tes konsentrasi (Uji huruf SAVEAHAART atau gambar). Apakah ada &gt; 2 kesalahan?</div>
                    <div className="flex gap-3">
@@ -89,7 +89,7 @@ export default function ScoringCamicu() {
                )}
 
                {f1 === true && f2 === true && (
-                 <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
+                 <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
                    <div className="font-bold text-sm mb-1">Fitur 3: Perubahan Tingkat Kesadaran (Altered Level)</div>
                    <div className="text-xs text-muted-foreground mb-3">Apakah skor RASS pasien SESUATU SELAIN nol (0)? (+4 s/d +1, atau -1 s/d -3)</div>
                    <div className="flex gap-3">
@@ -100,7 +100,7 @@ export default function ScoringCamicu() {
                )}
 
                {f1 === true && f2 === true && f3 === false && (
-                 <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
+                 <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2">
                    <div className="font-bold text-sm mb-1">Fitur 4: Pemikiran Tidak Terorganisir (Disorganized)</div>
                    <div className="text-xs text-muted-foreground mb-3">Evaluasi dengan 4 pertanyaan iya/tidak (cth: "apakah batu mengapung?"), dan mengacungkan jari/perintah spesifik. Apakah kombinasi error &gt; 1?</div>
                    <div className="flex gap-3">
@@ -133,7 +133,7 @@ export default function ScoringCamicu() {
           <li><strong className="text-foreground">Diagnosis:</strong> CAM-ICU (Ely et al. 2001) adalah alat skrining tervalidasi terhadap kriteria DSM oleh psikiater. Subtipe campuran (54,9%) dan hipoaktif (43,5%) paling sering; hiperaktif murni jarang (1,6%) — delirium hipoaktif mudah terlewat tanpa skrining aktif (Peterson 2006).</li>
           <li><strong className="text-foreground">Prinsip Manajemen:</strong> Antipsikotik tidak direkomendasikan rutin untuk mencegah/mengobati delirium (PADIS 2018; pembaruan PADIS 2025 tidak membuat rekomendasi); dapat dipertimbangkan jangka pendek bila ada distres berat (agitasi berbahaya, halusinasi menakutkan). Utamakan perbaikan penyebab (THINK) dan hindari benzodiazepin. Untuk sedasi, PADIS 2025 menyarankan dexmedetomidine dibanding propofol (rekomendasi kondisional).</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Ely EW et al. (CAM-ICU) JAMA 2001;286:2703 · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Lewis K et al. (PADIS 2025 focused update) Crit Care Med 2025;53:e711 · Hughes CG et al. (MENDS2) N Engl J Med 2021;384:1424 · Peterson JF et al. (subtipe delirium) J Am Geriatr Soc 2006;54:479
         </div>
       </Accordion>

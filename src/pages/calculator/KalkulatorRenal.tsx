@@ -532,7 +532,7 @@ export default function KalkulatorRenal() {
                   <span>Biodata Klinis Pasien</span>
                 </div>
                 
-                <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <label htmlFor="renal-age" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Usia</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -597,7 +597,7 @@ export default function KalkulatorRenal() {
                   <span>Nilai Laboratorium</span>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <label htmlFor="renal-satuan-kreatinin" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Satuan Kreatinin</label>
                     <select id="renal-satuan-kreatinin"
@@ -652,15 +652,15 @@ export default function KalkulatorRenal() {
               </h2>
               
               {crclResults.isPediatric ? (
-                <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800 flex flex-col sm:flex-row">
-                  <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[#2C2C2E]/30">
+                <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800 flex flex-col sm:flex-row">
+                  <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[var(--dk-surface-2)]/30">
                     <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">eGFR Bedside Schwartz (Anak)</div>
                     <div className="font-mono text-3xl font-bold text-slate-800 dark:text-white">
                       {crclResults.schwartz} <span className="text-[12px] font-sans font-medium text-slate-500/70 dark:text-slate-400/70 block sm:inline">mL/min/1.73m²</span>
                     </div>
                     <div className="text-[12px] text-slate-500 mt-2">TB {crclResults.height} cm · SCr {crclResults.scrMgDl} mg/dL</div>
                   </div>
-                  <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[#2C2C2E]/30">
+                  <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[var(--dk-surface-2)]/30">
                     <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">Klasifikasi KDIGO</div>
                     <div className={`font-mono text-3xl font-black ${crclResults.stageColor}`}>
                       {crclResults.stage}
@@ -670,7 +670,7 @@ export default function KalkulatorRenal() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800 flex flex-col sm:flex-row">
+                  <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800 flex flex-col sm:flex-row">
                     <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-teal-50/30 dark:bg-teal-900/10">
                       <div className="text-[12px] font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400 dark:text-teal-400 mb-1">eGFR CKD-EPI (2021)</div>
                       <div className="font-mono text-3xl font-bold text-teal-700 dark:text-teal-300">
@@ -687,7 +687,7 @@ export default function KalkulatorRenal() {
                       <div className="text-[11px] text-sky-600/80 mt-1 font-medium">{crclResults.recommendWeight}</div>
                     </div>
 
-                    <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[#2C2C2E]/30">
+                    <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[var(--dk-surface-2)]/30">
                       <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">Kategori LFG (KDIGO)</div>
                       <div className={`font-mono text-3xl font-black ${crclResults.stageColor}`}>
                         {crclResults.stage}
@@ -702,8 +702,8 @@ export default function KalkulatorRenal() {
                     ⚠️ Semua estimasi (CKD-EPI, MDRD, Cockcroft-Gault) mengasumsikan kreatinin <strong>stabil</strong>. Saat AKI/SCr masih berubah, angka ini menyesatkan — nilai tren & urine output. Kategori G hanya mendiagnosis PGK bila menetap &gt;3 bulan.
                   </div>
 
-                  <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
-                    <div className="flex items-center justify-between p-3 gap-4 bg-slate-50 dark:bg-[#2C2C2E]">
+                  <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
+                    <div className="flex items-center justify-between p-3 gap-4 bg-slate-50 dark:bg-[var(--dk-surface-2)]">
                       <span className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300 select-none">Detail Analisis & Berat Alternatif</span>
                     </div>
                     <div className="flex justify-between items-center p-3 px-4">
@@ -718,7 +718,7 @@ export default function KalkulatorRenal() {
                       <span className="text-[14px] text-slate-700 dark:text-slate-300">Berat Adjusted (AdjBW {crclResults.adjBw} kg)</span>
                       <span className="font-mono font-bold text-[15px] text-slate-900 dark:text-white">{crclResults.cgAdjusted} <span className="text-[11px] text-slate-400">mL/min</span></span>
                     </div>
-                    <div className="flex justify-between items-center p-3 px-4 bg-slate-50/50 dark:bg-[#2C2C2E]/50">
+                    <div className="flex justify-between items-center p-3 px-4 bg-slate-50/50 dark:bg-[var(--dk-surface-2)]/50">
                       <span className="text-[14px] text-slate-700 dark:text-slate-300">BSA ({crclResults.bsa} m²) · Absolute GFR</span>
                       <span className="font-mono font-bold text-[15px] text-slate-900 dark:text-white">{crclResults.absoluteGfr} <span className="text-[11px] text-slate-400">mL/min</span></span>
                     </div>
@@ -915,7 +915,7 @@ export default function KalkulatorRenal() {
                   <span>Spesimen Serum (Darah)</span>
                 </div>
                 
-                <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <label htmlFor="renal-sna" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Serum</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -969,7 +969,7 @@ export default function KalkulatorRenal() {
                   <span>Spesimen Urin (Spot Urine)</span>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                   <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                     <label htmlFor="renal-una" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Na Urin (UNa)</label>
                     <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -1035,8 +1035,8 @@ export default function KalkulatorRenal() {
                 <span>Hasil Analisi FENa & FEUrea</span>
               </div>
               
-              <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800 flex flex-col sm:flex-row mb-4">
-                <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[#2C2C2E]/30">
+              <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800 flex flex-col sm:flex-row mb-4">
+                <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[var(--dk-surface-2)]/30">
                   <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">FENa (Sodium)</div>
                   <div className="font-mono text-4xl font-bold" style={{ color: fenaResults.fc }}>
                     {fenaResults.fena}<span className="text-[18px] opacity-70">%</span>
@@ -1047,7 +1047,7 @@ export default function KalkulatorRenal() {
                 </div>
 
                 {fenaResults.feurea && (
-                  <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[#2C2C2E]/30">
+                  <div className="flex-1 p-4 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-[var(--dk-surface-2)]/30">
                     <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">FEUrea</div>
                     <div className="font-mono text-4xl font-bold" style={{ color: fenaResults.fuc }}>
                       {fenaResults.feurea}<span className="text-[18px] opacity-70">%</span>

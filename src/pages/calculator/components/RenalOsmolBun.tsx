@@ -94,7 +94,7 @@ export function RenalOsmolBun() {
         <h3 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
           Osmolalitas & Osmolar Gap
         </h3>
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <label htmlFor="osm-na" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Sodium (Na)</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -127,14 +127,14 @@ export function RenalOsmolBun() {
 
         {osmRes && (
           <div id="osm-hasil" className="scroll-mt-4 mt-3 grid grid-cols-2 gap-3">
-            <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-center">
+            <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-center">
               <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Osmolalitas Kalkulasi</div>
               <div className="text-2xl font-black text-slate-800 dark:text-slate-200">{osmRes.calcOsm.toFixed(1)}</div>
               <div className="text-[11px] text-slate-500 mt-1">Normal: 275 - 295</div>
               <div className="text-[10px] text-slate-400 mt-1">2×Na + Glu/18 + {ureaUnit === 'ureum' ? 'Ureum/6' : 'BUN/2.8'}</div>
             </div>
             {osmRes.gap !== null ? (
-              <div className={`border rounded-xl p-4 text-center ${osmRes.gap > 10 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200'} dark:bg-[#1C1C1E] dark:border-slate-800`}>
+              <div className={`border rounded-xl p-4 text-center ${osmRes.gap > 10 ? 'bg-red-50 border-red-200' : 'bg-white border-slate-200'} dark:bg-[var(--dk-surface-1)] dark:border-slate-800`}>
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Osmolar Gap</div>
                 <div className={`text-2xl font-black ${osmRes.gap > 10 ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-200'}`}>{osmRes.gap.toFixed(1)}</div>
                 <div className="text-[11px] text-slate-500 mt-1">&gt; 10 = curiga intoksikasi alkohol/toksin</div>
@@ -153,7 +153,7 @@ export function RenalOsmolBun() {
           Rasio BUN : Kreatinin (Diferensiasi AKI)
         </h3>
         
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-3">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-3">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <label htmlFor="osm-urea-2" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">{ureaUnit === 'ureum' ? 'Ureum' : 'BUN'} <span className="block font-normal text-[11px] text-slate-500">mg/dL</span></label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -171,7 +171,7 @@ export function RenalOsmolBun() {
         </div>
 
         {ratioRes && (
-          <div id="osm-rasio" className="scroll-mt-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center">
+          <div id="osm-rasio" className="scroll-mt-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center">
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Rasio BUN:Cr</div>
             {ureaUnit === 'ureum' && <div className="text-[10px] text-slate-400 mb-1">BUN = ureum ÷ 2.14 = {(ureumToBun(parseFloat(bunRatio))).toFixed(1)} mg/dL</div>}
             <div className={`text-3xl font-black ${ratioRes > 20 ? 'text-orange-500' : ratioRes >= 10 ? 'text-blue-500' : 'text-emerald-500'}`}>

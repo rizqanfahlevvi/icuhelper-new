@@ -467,7 +467,7 @@ export default function KalkulatorPulmo() {
           Konversi Ureum ↔ BUN
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 truncate">Ureum (mg/dL)</span>
             <div className="flex-1 min-w-[8rem] flex items-center justify-end gap-2">
@@ -495,7 +495,7 @@ export default function KalkulatorPulmo() {
           CURB-65 Score
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap justify-between px-4 py-3 items-center gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32 truncate">C — Confusion</span>
             <select aria-label="C — Confusion" className="flex-1 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all overflow-hidden text-ellipsis min-h-[44px]" value={curbC} onChange={e => setCurbC(e.target.value)}>
@@ -539,13 +539,13 @@ export default function KalkulatorPulmo() {
 
       {curb.armed && curbRes && (
         <div id="curb-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
             <div className={`text-5xl font-black mb-2 ${curbRes.cls}`}>{curbRes.score}</div>
             <div className={`text-[15px] font-bold mb-1 ${curbRes.cls}`}>{curbRes.interp}</div>
             <div className="text-[13px] text-slate-600 dark:text-slate-400 font-medium mb-4">{curbRes.act}</div>
             <div className="space-y-2 mt-4 text-left">
               {curbRes.rows.map((r:any) => (
-                <div key={r.n} className="flex justify-between items-center text-[13px] bg-slate-50 dark:bg-[#2C2C2E] p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                <div key={r.n} className="flex justify-between items-center text-[13px] bg-slate-50 dark:bg-[var(--dk-surface-2)] p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
                   <div>
                     <span className="font-bold text-slate-800 dark:text-slate-200">{r.n.split('—')[0]}</span> <span className="text-slate-500 font-medium mx-1">{r.d}</span>
                   </div>
@@ -578,12 +578,12 @@ export default function KalkulatorPulmo() {
           20 variabel · Fine MJ et al. NEJM 1997 · Sensitivitas tinggi untuk risiko rendah
         </p>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
              <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Jenis Kelamin</span>
-             <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
-                <button className={`min-h-[44px] px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'm' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('m')}>Laki-laki</button>
-                <button className={`min-h-[44px] px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'f' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('f')}>Perempuan</button>
+             <div className="flex bg-slate-200 dark:bg-[var(--dk-surface-1)] p-1 rounded-lg">
+                <button className={`min-h-[44px] px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'm' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('m')}>Laki-laki</button>
+                <button className={`min-h-[44px] px-4 py-1.5 text-xs font-bold rounded-md ${psiSex === 'f' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setPsiSex('f')}>Perempuan</button>
              </div>
           </div>
           <div className="px-4 py-2 text-[11px] text-slate-500 bg-slate-100/50 dark:bg-slate-800/50 italic text-right">
@@ -602,7 +602,7 @@ export default function KalkulatorPulmo() {
         </div>
 
         <h3 className="px-4 text-[12px] font-bold text-slate-600 dark:text-slate-400 mt-2 mb-1">Komorbiditas</h3>
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Neoplastic disease <span className="text-slate-400 text-[11px] ml-1">+30</span></span>
             <select aria-label="Neoplastic disease +30" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiNeoplastic ? '1' : '0'} onChange={e => setPsiNeoplastic(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
@@ -626,7 +626,7 @@ export default function KalkulatorPulmo() {
         </div>
 
         <h3 className="px-4 text-[12px] font-bold text-slate-600 dark:text-slate-400 mt-2 mb-1">Pemeriksaan Fisik</h3>
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Altered mental status <span className="text-slate-400 text-[11px] ml-1">+20</span></span>
             <select aria-label="Altered mental status +20" className="bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 text-[14px] min-h-[44px]" value={psiAms ? '1' : '0'} onChange={e => setPsiAms(e.target.value === '1')}><option value="0">Tidak</option><option value="1">Ya</option></select>
@@ -662,7 +662,7 @@ export default function KalkulatorPulmo() {
         </div>
 
         <h3 className="px-4 text-[12px] font-bold text-slate-600 dark:text-slate-400 mt-2 mb-1">Lab & Radiologi</h3>
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between gap-4">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">pH Arteri</span>
@@ -721,7 +721,7 @@ export default function KalkulatorPulmo() {
 
       {psi.armed && psiRes && (
         <div id="psi-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
             {psiRes.isClassI && (
               <div className="mb-4 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 p-3 rounded-xl border border-green-200 dark:border-green-800 text-[13px] font-bold">
                 Pasien memenuhi kriteria Class I (usia &lt;50, tanpa komorbid, tanpa abnormalitas tanda vital).
@@ -734,7 +734,7 @@ export default function KalkulatorPulmo() {
             <Accordion title="Lihat Rincian Skor">
                <div className="space-y-1 mt-2 text-left">
                  {psiRes.rows.map((r:any, idx:number) => (
-                   <div key={idx} className="flex justify-between items-center text-[12px] bg-slate-50 dark:bg-[#2C2C2E] p-2 rounded border border-slate-100 dark:border-slate-800">
+                   <div key={idx} className="flex justify-between items-center text-[12px] bg-slate-50 dark:bg-[var(--dk-surface-2)] p-2 rounded border border-slate-100 dark:border-slate-800">
                      <div>
                        <span className="font-bold text-slate-800 dark:text-slate-200 block">{r.name}</span>
                        <span className="text-slate-500">{r.detail}</span>
@@ -769,7 +769,7 @@ export default function KalkulatorPulmo() {
           Prediksi kebutuhan dukungan ventilator/vasopresor pada CAP
         </p>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="flex flex-col px-4 py-3 gap-2">
              <div className="flex items-center justify-between gap-4">
                 <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">S: Systolic BP &lt; 90 mmHg <span className="text-slate-400 text-[11px] ml-1">+2</span></span>
@@ -825,7 +825,7 @@ export default function KalkulatorPulmo() {
 
       {smartCopRes && (
         <div id="sc-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4 text-center">
             <div className={`text-[12px] font-bold uppercase tracking-wider mb-1 ${smartCopRes.cls}`}>{smartCopRes.risk}</div>
             <div className={`text-5xl font-black mb-2 ${smartCopRes.cls}`}>{smartCopRes.score}</div>
             <div className={`text-[14px] font-bold mb-4 text-slate-800 dark:text-slate-200`}>{smartCopRes.desc}</div>
@@ -854,7 +854,7 @@ export default function KalkulatorPulmo() {
           Kriteria mayor dan minor untuk masuk ICU pada CAP
         </p>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 mb-4">
           <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 font-bold text-[12px] uppercase">Kriteria Mayor</div>
           <div className="flex flex-col px-4 py-3 gap-2">
             <label className="flex items-start gap-3 min-h-[44px]">
@@ -927,7 +927,7 @@ export default function KalkulatorPulmo() {
         </div>
 
         <div id="ats-hasil" className="scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className={`border rounded-xl shadow-sm p-4 text-center ${atsResult.isSevere ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-[#1C1C1E] border-slate-200 dark:border-slate-800'}`}>
+          <div className={`border rounded-xl shadow-sm p-4 text-center ${atsResult.isSevere ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-[var(--dk-surface-1)] border-slate-200 dark:border-slate-800'}`}>
             <div className={`text-[12px] font-bold uppercase tracking-wider mb-2 ${atsResult.isSevere ? 'text-red-700 dark:text-red-400' : 'text-slate-500'}`}>Kesimpulan ATS/IDSA</div>
             <div className={`text-[15px] font-bold mb-1 ${atsResult.isSevere ? 'text-red-800 dark:text-red-300' : 'text-slate-800 dark:text-slate-200'}`}>{atsResult.desc}</div>
             <div className={`text-[12px] font-medium ${atsResult.isSevere ? 'text-red-600 dark:text-red-400' : 'text-slate-500'}`}>Mayor: {atsResult.major} | Minor: {atsResult.minor}</div>
@@ -953,14 +953,14 @@ export default function KalkulatorPulmo() {
           A-a Gradient — Analisis Hipoksemia
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">FiO₂ {getFio2Hint()}</span>
               <div className="flex-1 min-w-[8rem] flex flex-col items-end gap-1">
-                <div className="flex items-center gap-1 bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg self-end mb-1">
-                  <button className={`min-h-[44px] px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'decimal' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('decimal')}>Desimal</button>
-                  <button className={`min-h-[44px] px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'percent' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('percent')}>Persen</button>
+                <div className="flex items-center gap-1 bg-slate-200 dark:bg-[var(--dk-surface-1)] p-1 rounded-lg self-end mb-1">
+                  <button className={`min-h-[44px] px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'decimal' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('decimal')}>Desimal</button>
+                  <button className={`min-h-[44px] px-2 py-1 text-[10px] font-bold rounded-md ${aaFio2Mode === 'percent' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`} onClick={() => setAaFio2Mode('percent')}>Persen</button>
                 </div>
                 <DecimalInput id="aa-fio2" aria-label="FiO₂" inputMode="decimal" step={aaFio2Mode === 'decimal' ? '0.01' : '1'} className={`min-h-[44px] ${aa.isMissing('aa-fio2') ? 'ring-2 ring-[var(--sys-red)] ' : ''}w-32 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold transition-all text-[14px] ${aaFio2Error ? 'text-red-500 focus:ring-red-500/50' : 'text-slate-900 dark:text-white focus:ring-blue-500/50'}`} value={aaFio2Raw} onChange={e=>{setAaFio2Raw(e.target.value); setAaFio2Error('');}} placeholder={aaFio2Mode==='percent'?'21':'0.21'}/>
               </div>
@@ -999,17 +999,17 @@ export default function KalkulatorPulmo() {
 
       {aa.armed && aaRes && (
         <div id="aa-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center">
              <div className={`text-[12px] font-bold uppercase tracking-wider mb-1 ${aaRes.ac}`}>A-a Gradient</div>
              <div className="text-4xl font-black text-slate-900 dark:text-white mb-1">{aaRes.grad} <span className="text-[15px] font-semibold text-slate-500">mmHg</span></div>
              <div className="text-[13px] text-slate-700 dark:text-slate-300 mb-5 font-medium">{aaRes.normal !== '—' ? `Normal udara ruang ≤ ${aaRes.normal} mmHg (usia/4 + 4)` : 'Isi usia untuk perkiraan normal (usia/4 + 4)'}</div>
 
              <div className="grid grid-cols-2 gap-3 mb-5">
-               <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-100 dark:border-slate-800 p-3 rounded-xl">
+               <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-100 dark:border-slate-800 p-3 rounded-xl">
                   <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">PAO₂ (Alveolar)</div>
                   <div className="text-[17px] font-black text-slate-800 dark:text-slate-200">{aaRes.calc}</div>
                </div>
-               <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-100 dark:border-slate-800 p-3 rounded-xl">
+               <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-100 dark:border-slate-800 p-3 rounded-xl">
                   <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">PaO₂ (Arteri)</div>
                   <div className="text-[17px] font-black text-slate-800 dark:text-slate-200">{aaPao2}</div>
                </div>
@@ -1062,7 +1062,7 @@ export default function KalkulatorPulmo() {
           <li><strong className="text-foreground">ATS/IDSA Severe CAP:</strong> Kriteria mayor dan minor dari panduan ATS/IDSA 2019 untuk mengidentifikasi pasien CAP yang memerlukan perawatan ICU. 1 Mayor atau 3 Minor mengindikasikan pneumonia berat.</li>
           <li><strong className="text-foreground">Alveolar-arterial (A-a) Gradient:</strong> Digunakan membedakan penyebab hipoksemia. A-a normal (Hipoventilasi, Ketinggian, FiO2 rendah). A-a meningkat (V/Q mismatch, R-L shunt, defek difusi seperti ILD). Normal A-a = (Usia / 4) + 4. Meningkat berkisar 10-20 mmHg tiap penambahan usia.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Lim WS et al. (2003) Guidelines CAP; Fine MJ et al. (1997) NEJM PSI; Charles PG et al. (2008) Clin Infect Dis SMART-COP; Metlay JP et al. (2019) AJRCCM ATS/IDSA Guidelines.
         </div>
       </Accordion>

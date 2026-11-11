@@ -9,7 +9,8 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { Mail, Lock, LogIn, AlertCircle, Chrome, Eye, EyeOff, ExternalLink } from "lucide-react";
-import { auth, db } from "../lib/firebase";
+import { auth } from "../lib/firebase";
+import { db } from "../lib/firestore";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

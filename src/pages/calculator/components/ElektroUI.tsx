@@ -111,7 +111,7 @@ export interface FlowStep { title: string; body: React.ReactNode; state?: FlowSt
  */
 export function StrategyFlow({ title = '🧭 Alur Strategi Koreksi', steps }: { title?: string; steps: FlowStep[] }) {
   return (
-    <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-left shadow-sm">
+    <div className="w-full bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-left shadow-sm">
       <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-3">{title}</div>
       <ol className="space-y-3">
         {steps.map((s, i) => {

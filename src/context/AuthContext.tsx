@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, onSnapshot, Timestamp } from "firebase/firestore";
-import { auth, db } from "../lib/firebase";
+import type { Timestamp } from "firebase/firestore";
+import { auth } from "../lib/firebase";
 import { parseExpiryDate } from "../utils/subscription";
 
 export interface UserProfile {
@@ -34,8 +34,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let unsubscribeFirestore: (() => void) | null = null;
+    // Naik setiap kali status auth berubah: hasil import dinamis yang terlambat untuk
+    // user lama diabaikan (mencegah profil user A terpasang setelah user B login).
+    let generation = 0;
+    let disposed = false;
 
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      const gen = ++generation;
       setUser(currentUser);
 
       // Clean up previous Firestore subscription if user changed or logged out
@@ -45,7 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (currentUser) {
-        // Subscribe to user snapshot in Firestore
+        // Subscribe to user snapshot in Firestore (SDK dimuat dinamis; isLoading tetap
+        // true sampai snapshot pertama/galat — perilaku gerbang otorisasi tidak berubah).
+        Promise.all([import("firebase/firestore"), import("../lib/firestore")]).then(([{ doc, onSnapshot }, { db }]) => {
+        if (disposed || gen !== generation) return;
         const userDocRef = doc(db, "users", currentUser.uid);
         unsubscribeFirestore = onSnapshot(
           userDocRef,
@@ -63,6 +71,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
           }
         );
+        }).catch((error) => {
+          if (disposed || gen !== generation) return;
+          console.error("Gagal memuat Firestore:", error);
+          setUserProfile(null);
+          setIsLoading(false);
+        });
       } else {
         setUserProfile(null);
         setIsLoading(false);
@@ -70,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => {
+      disposed = true;
       unsubscribeAuth();
       if (unsubscribeFirestore) {
         unsubscribeFirestore();

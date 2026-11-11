@@ -136,7 +136,7 @@ export default function KalkulatorPump() {
           Parameter Syringe Pump
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <label htmlFor="pump-bb" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -186,10 +186,10 @@ export default function KalkulatorPump() {
 
       <div className="px-4">
         {info && (
-          <div className="bg-slate-100 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 mb-4">
+          <div className="bg-slate-100 dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl p-4 mb-4">
             <h3 className="font-bold text-[13px] mb-1.5 text-slate-800 dark:text-slate-200">{PUMP_CATEGORIES[cat].find(p=>p[0]===drug)?.[1]}</h3>
             <p className="text-[13px] text-slate-600 dark:text-slate-400 mb-2 leading-relaxed">{info.info}</p>
-            <div className="inline-block px-2 py-1 bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded text-[11px] font-mono text-slate-700 dark:text-slate-300">{info.unit}</div>
+            <div className="inline-block px-2 py-1 bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded text-[11px] font-mono text-slate-700 dark:text-slate-300">{info.unit}</div>
           </div>
         )}
       </div>
@@ -207,14 +207,14 @@ export default function KalkulatorPump() {
 
       {result && (
         <div id="pump-hasil" className="mt-4 scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
             <div className="p-5 text-center bg-blue-50 dark:bg-blue-900/10">
               <div className="text-[12px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">Rate Laju Syringe Pump</div>
               <div className="text-4xl font-black text-blue-700 dark:text-blue-300">
                 {result.rate} <span className="text-[15px] font-semibold text-blue-600/70 dark:text-blue-400/70">mL/jam</span>
               </div>
             </div>
-            <div className="grid grid-cols-2 p-4 gap-4 bg-white dark:bg-[#1C1C1E]">
+            <div className="grid grid-cols-2 p-4 gap-4 bg-white dark:bg-[var(--dk-surface-1)]">
               <div className="text-center">
                 <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1">Syringe & Durasi</div>
                 <div className="font-bold text-[14px] text-slate-800 dark:text-slate-200">{result.v} mL / {result.duration} jam</div>
@@ -293,7 +293,7 @@ export default function KalkulatorPump() {
             - Rate [mL/jam] = (Target Dosis [mcg/kg/menit] &times; BB [kg] &times; 60 menit) / Konsentrasi [mcg/mL].</li>
           <li><strong className="text-foreground">Receptor Vasopressor (Inotropik/Vasokonstriktor):</strong> Norepinefrin lebih condong ke Alpha-1 (vasokonstriksi), Epinefrin memiliki efek Beta-1 predominan pada dosis rendah namun efek Alpha mendominasi pada dosis lebih tinggi.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Overgaard CB et al. (2008) Inotropes and vasopressors. Circulation; Levy B et al. Intensive Care Med.
         </div>
       </Accordion>

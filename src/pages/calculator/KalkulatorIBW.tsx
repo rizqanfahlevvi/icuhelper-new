@@ -182,7 +182,7 @@ export default function KalkulatorIBW() {
            Kalkulator IBW & Parameter Awal
          </h2>
 
-         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+         <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex justify-between px-4 py-3 items-center gap-4">
               <label htmlFor="ibw-sex" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-32">Jenis Kelamin</label>
               <select id="ibw-sex" className={`min-h-[44px] flex-1 min-w-0 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all${calc.isMissing('ibw-sex') ? ' ring-2 ring-[var(--sys-red)]' : ''}`} value={sex} onChange={e=>setSex(e.target.value as 'm'|'f'|'')}>
@@ -237,7 +237,7 @@ export default function KalkulatorIBW() {
          </div>
 
          <div className="mt-3">
-            <div className="p-3 bg-slate-50 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl text-[12px] text-slate-700 dark:text-slate-300 leading-relaxed italic">
+            <div className="p-3 bg-slate-50 dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl text-[12px] text-slate-700 dark:text-slate-300 leading-relaxed italic">
               <strong>Formula Devine (IBW):</strong> <br/>
               L: 50 + 0.91 × (TB − 152.4) <br/>
               P: 45.5 + 0.91 × (TB − 152.4)
@@ -249,25 +249,25 @@ export default function KalkulatorIBW() {
 
         {results && (
           <div id="ibw-hasil" className="scroll-mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300 mt-6">
-            <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
               <div className="p-4 bg-slate-50 dark:bg-slate-900/20">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <div className="bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                  <div className="bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                   <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">IBW</div>
                   <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.ibwR.toFixed(1)} <span className="text-[11px] font-sans">kg</span></div>
                   <div className="text-[11px] text-slate-500 mt-1">Devine formula — dasar VT</div>
                 </div>
-                <div className="bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                <div className="bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                   <div className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">VT Rendah</div>
                   <div className="text-xl font-bold font-mono text-indigo-700 dark:text-indigo-300">{results.vtLowML} <span className="text-[11px] font-sans">mL</span></div>
                   <div className="text-[11px] text-slate-500 mt-1">{results.vtLow} mL/kg (Target awal)</div>
                 </div>
-                <div className="bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                <div className="bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                   <div className="text-[11px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider mb-1">VT Tinggi</div>
                   <div className="text-xl font-bold font-mono text-teal-700 dark:text-teal-300">{results.vtHighML} <span className="text-[11px] font-sans">mL</span></div>
                   <div className="text-[11px] text-slate-500 mt-1">{results.vtHigh} mL/kg (Batas atas)</div>
                 </div>
-                <div className="bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                <div className="bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                   <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">MV Estimasi</div>
                   <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.mv} <span className="text-[11px] font-sans">L/mnt</span></div>
                   <div className="text-[11px] text-slate-500 mt-1">RR 16, VT rendah</div>
@@ -294,7 +294,7 @@ export default function KalkulatorIBW() {
               <div className="text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Rekomendasi Setting Awal — {condition.toUpperCase()}</div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-[13px] whitespace-nowrap">
-                  <thead className="bg-slate-50 dark:bg-[#2C2C2E] border-y border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 uppercase text-[11px] tracking-wider font-semibold">
+                  <thead className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border-y border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 uppercase text-[11px] tracking-wider font-semibold">
                     <tr><th className="px-4 py-2">Parameter</th><th className="px-4 py-2">Nilai</th><th className="px-4 py-2">Keterangan</th></tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-slate-700 dark:text-slate-300">
@@ -349,7 +349,7 @@ export default function KalkulatorIBW() {
                   </tbody>
                 </table>
               </div>
-              <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+              <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Catatan:</span> {results.vtNote} &middot; IBW = {results.ibwR.toFixed(1)} kg ({sex === 'm' ? 'Laki-laki' : 'Perempuan'}, TB {height} cm)
               </div>
             </div>
@@ -379,22 +379,22 @@ export default function KalkulatorIBW() {
               <div className="p-4 border-t border-slate-200 dark:border-slate-800">
                 <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Antropometri & Parameter Klinis</h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                  <div className="bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 p-3 rounded-xl" style={{ borderColor: results.extraParams.bmiColor }}>
+                  <div className="bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 p-3 rounded-xl" style={{ borderColor: results.extraParams.bmiColor }}>
                     <div className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: results.extraParams.bmiColor }}>BMI ({results.extraParams.bmiLabel})</div>
                     <div className="text-xl font-bold font-mono" style={{ color: results.extraParams.bmiColor }}>{results.extraParams.bmi}</div>
                     <div className="text-[11px] text-slate-500 mt-1">kg/m²</div>
                   </div>
-                  <div className="bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                  <div className="bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                     <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">BSA (Mosteller)</div>
                     <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.bsa} <span className="text-[11px] font-sans">m²</span></div>
                     <div className="text-[11px] text-slate-500 mt-1">Dosis kemoterapi</div>
                   </div>
-                  <div className="bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                  <div className="bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                     <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">LBW (Janmahasatian)</div>
                     <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.lbw} <span className="text-[11px] font-sans">kg</span></div>
                     <div className="text-[11px] text-slate-500 mt-1">Propofol/rocuronium</div>
                   </div>
-                  <div className="bg-white dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                  <div className="bg-white dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                     <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">EBV</div>
                     <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.ebv} <span className="text-[11px] font-sans">L</span></div>
                     <div className="text-[11px] text-slate-500 mt-1">{sex === 'm' ? 70 : 65} mL/kg</div>
@@ -403,17 +403,17 @@ export default function KalkulatorIBW() {
 
                 {results.extraParams.ree !== null && (
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                    <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                    <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                       <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">REE (Harris-Benedict revisi)</div>
                       <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.ree}</div>
                       <div className="text-[11px] text-slate-500 mt-1">kcal/hari (istirahat)</div>
                     </div>
-                    <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                    <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                       <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Target Kalori ICU</div>
                       <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.calMin !== null ? `${results.extraParams.calMin}-${results.extraParams.calMax}` : '—'}</div>
                       <div className="text-[11px] text-slate-500 mt-1">{results.extraParams.calMin !== null ? 'kkal/hari (ASPEN 2022: 12–25 kkal/kg)' : 'Obes: gunakan Kalkulator Nutrisi (BBI/ABW)'}</div>
                     </div>
-                    <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
+                    <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 border border-slate-200 dark:border-slate-700 p-3 rounded-xl">
                       <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Target Protein ICU</div>
                       <div className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200">{results.extraParams.protMin !== null ? `${results.extraParams.protMin}-${results.extraParams.protMax}` : '—'}</div>
                       <div className="text-[11px] text-slate-500 mt-1">{results.extraParams.protMin !== null ? 'g/hari (ASPEN 1,2–2,0 g/kg; ESPEN 1,3)' : 'Obes: gunakan Kalkulator Nutrisi'}</div>
@@ -445,7 +445,7 @@ export default function KalkulatorIBW() {
                   <h3 className="text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-3">Panduan Pilihan BB untuk Dosis Obat</h3>
                   <div className="overflow-x-auto bg-white/50 dark:bg-black/20 rounded-xl border border-slate-200 dark:border-slate-800/50">
                     <table className="w-full text-[12px] text-left">
-                      <thead className="bg-slate-100/50 dark:bg-[#2C2C2E]/50 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider font-semibold">
+                      <thead className="bg-slate-100/50 dark:bg-[var(--dk-surface-2)]/50 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider font-semibold">
                         <tr><th className="px-3 py-2">Kategori Obat</th><th className="px-3 py-2">Gunakan Berat</th><th className="px-3 py-2">Nilai</th><th className="px-3 py-2">Alasan Klinis</th></tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100/50 dark:divide-slate-800/20 text-slate-700 dark:text-slate-300">
@@ -517,7 +517,7 @@ export default function KalkulatorIBW() {
           <li><strong className="text-foreground">ARDSNet trial:</strong> VT 6 mL/kg IBW terbukti menurunkan mortalitas 22% vs 12 mL/kg. Seluruh kalkulasi berbasis IBW.</li>
           <li><strong className="text-foreground">Adjusted BW (ABW):</strong> Untuk pasien obesitas ekstrem: ABW = IBW + 0.4 × (Actual BW − IBW). Digunakan untuk dosis obat tertentu, bukan untuk VT ventilator.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 ARDSNet. NEJM 2000;342:1301 · Devine BJ. Drug Intell Clin Pharm 1974;8:650 · Singer P et al. (ESPEN) Clin Nutr 2023;42:1671
         </div>
       </Accordion>

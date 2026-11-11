@@ -28,6 +28,7 @@ import {
 import { useSettingsStore, FontFamily, FontWeight, ThemeMode } from '../store/settingsStore';
 import { getStorageEstimate, refreshCacheAndReload, performHardReset, StorageEstimateInfo } from '../utils/cacheUtils';
 import { AbbrLegend } from '../components/ui/AbbrLegend';
+import { haptic, hapticsSupported } from '../utils/haptics';
 
 export default function AboutSettings() {
   const [activeTab, setActiveTab] = useState<'settings' | 'about'>('settings');
@@ -94,7 +95,7 @@ export default function AboutSettings() {
   ];
 
   const handleRefreshCache = () => {
-    if (vibrationEnabled && navigator.vibrate) navigator.vibrate(100);
+    haptic('success');
     refreshCacheAndReload();
   };
 
@@ -121,7 +122,7 @@ export default function AboutSettings() {
           <button
             onClick={() => {
               setActiveTab('settings');
-              if (vibrationEnabled && navigator.vibrate) navigator.vibrate(30);
+              haptic('tap');
             }}
             className={`min-h-[44px] flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 ${
               activeTab === 'settings' 
@@ -135,7 +136,7 @@ export default function AboutSettings() {
           <button
             onClick={() => {
               setActiveTab('about');
-              if (vibrationEnabled && navigator.vibrate) navigator.vibrate(30);
+              haptic('tap');
             }}
             className={`min-h-[44px] flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-1.5 ${
               activeTab === 'about' 
@@ -439,7 +440,12 @@ export default function AboutSettings() {
                   <div>
                     <h4 className="font-bold text-sm text-foreground">Suara & Getaran (Haptics)</h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Mengatur feedback getaran ringan ketika tombol ditekan.
+                      Getar ringan saat menekan Hitung (pola berbeda bila ada isian wajib yang kosong), menyimpan riwayat, dan menyalin ringkasan.
+                    </p>
+                    <p className={`text-xs mt-1 font-medium ${hapticsSupported() ? 'text-[var(--sys-green)]' : 'text-amber-600 dark:text-amber-400'}`}>
+                      {hapticsSupported()
+                        ? 'Didukung di perangkat ini.'
+                        : 'Perangkat/browser ini tidak mendukung getar dari web (mis. iPhone/Safari) — pengaturan tidak berpengaruh.'}
                     </p>
                   </div>
                   <div className="flex items-center justify-between p-2">
@@ -452,7 +458,7 @@ export default function AboutSettings() {
                         type="checkbox"
                         aria-label="Feedback getaran (haptics)"
                         checked={vibrationEnabled}
-                        onChange={(e) => setVibrationEnabled(e.target.checked)}
+                        onChange={(e) => { setVibrationEnabled(e.target.checked); if (e.target.checked) haptic("success"); }}
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>

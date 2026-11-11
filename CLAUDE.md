@@ -17,7 +17,7 @@ React 19 (route lazy-loaded) · Vite 6 · Tailwind CSS v4 (via `@tailwindcss/vit
 ## Sistem tema & warna (SERING SALAH — baca ini)
 - Token iOS yang VALID: `var(--sys-blue)`, `var(--sys-green)`, `var(--sys-orange)`, `var(--sys-red)`, `var(--accent)`. Token `var(--blue)`/`var(--green)`/`var(--amber)`/`var(--red)` **TIDAK ADA**.
 - Tailwind semantik: `text-destructive` **ADA**; `text-warning` **TIDAK ADA** (pakai `text-amber-600 dark:text-amber-400`).
-- **Jangan** hardcode warna hex/rgb. Pakai token CSS atau kelas Tailwind semantik.
+- **Jangan** hardcode warna hex/rgb. Pakai token CSS atau kelas Tailwind semantik. Permukaan gelap gaya iOS: `dark:bg-[var(--dk-surface-1)]` (#1C1C1E), `--dk-surface-2` (#2C2C2E), `--dk-separator`, dst. (didefinisikan di akhir `src/index.css`).
 - Mendukung light/dark.
 
 ## Koneksi ke Pengaturan (Ukuran & Ketebalan Font) — SERING TERLUPA, WAJIB CEK
@@ -44,7 +44,10 @@ React 19 (route lazy-loaded) · Vite 6 · Tailwind CSS v4 (via `@tailwindcss/vit
    - Jangan memberi nilai default buatan ke input pasien (BB 70, suhu 37, usia 50) — kosongkan dan tampilkan asumsi secara eksplisit bila perlu.
 3. Auto-load nilai dari store di `useEffect(..., [])` saat mount.
 4. **`<CalcSteps>`** (`src/components/ui/CalcSteps.tsx`) — WAJIB untuk setiap hasil yang menghasilkan angka: tiap langkah = rumus + **substitusi angka pasien** + hasil + catatan. Untuk skoring: rincian kontribusi poin per parameter.
-5. `<SaveToHistoryButton module=... label=... inputs=... summary=... />`.
+5. `<SaveToHistoryButton module=... label=... inputs=... summary=... />`. Kunci `module` BARU wajib didaftarkan di `src/data/historyModules.ts` (ada test yang memeriksa). Entri riwayat otomatis dicap pasien aktif.
+   - Input angka: pakai `<DecimalInput>` (`src/components/ui/DecimalInput.tsx`), BUKAN `<input type="number">` — menerima koma desimal, keyboard desimal, Enter→input berikutnya. Setiap input wajib punya label terprogram (`htmlFor`/`aria-label`) dan target sentuh ≥44px.
+   - Tombol hitung: `<CalcActionBar>` + `useCalcTrigger` (bilah bawah sticky). Kalkulator input-angka: tombol Hitung → validasi input wajib → setelah Hitung pertama hasil diperbarui otomatis (tak boleh ada hasil basi). Skoring ketuk-pilih: mode live. Ringkasan di bilah hanya memakai ambang/label yang sudah ada; satuan & per-jam/per-hari sama persis dengan rincian.
+   - Getar: `haptic('tap'|'success'|'warning')` dari `src/utils/haptics.ts` (menghormati pengaturan; no-op di iPhone).
 6. `<Accordion title="📖 Teori & Referensi ...">` dengan sitasi.
 7. Kalkulator penghasil dosis: sertakan disclaimer "alat bantu edukasi & referensi cepat — bukan pengganti penilaian klinis atau keputusan DPJP".
 - Util antropometri: `src/utils/anthropometry.ts` (`calcIbw`, `calcBmi`, `calcBsa`, `calcLbw`, `calcAdjBw`) — jangan tulis ulang rumus IBW/BMI di komponen.

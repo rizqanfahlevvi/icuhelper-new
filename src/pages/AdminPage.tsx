@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, updateDoc, setDoc, deleteDoc, query, orderBy, Timestamp } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { db } from '../lib/firestore';
 import { useAuth } from '../context/AuthContext';
 import { Search, RefreshCcw, ShieldAlert, ArrowLeft, CheckCircle2, Edit2, X, Download, Upload, Trash2 } from 'lucide-react';
 import { isAdminUser } from '../utils/auth';

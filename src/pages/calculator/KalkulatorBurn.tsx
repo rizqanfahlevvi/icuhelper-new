@@ -138,7 +138,7 @@ export default function KalkulatorBurn() {
     const set = isFront ? selectedPartsFront : selectedPartsBack;
     return set.has(id) 
       ? "fill-red-500/90 stroke-red-700 cursor-pointer hover:fill-red-400/90 transition-colors"
-      : "fill-slate-100 dark:fill-[#2C2C2E] stroke-slate-300 dark:stroke-slate-600 cursor-pointer hover:fill-slate-200 dark:hover:fill-slate-700 transition-colors";
+      : "fill-slate-100 dark:fill-[var(--dk-surface-2)] stroke-slate-300 dark:stroke-slate-600 cursor-pointer hover:fill-slate-200 dark:hover:fill-slate-700 transition-colors";
   };
 
   const renderSVG = (isFront: boolean) => {
@@ -190,7 +190,7 @@ export default function KalkulatorBurn() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         
         {/* Interactive SVG Area */}
-        <div id="burn-map" tabIndex={-1} className={`lg:col-span-3 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-3xl p-4 md:p-6 shadow-sm flex flex-col outline-none${calc.isMissing('burn-map') ? ' ring-2 ring-[var(--sys-red)]' : ''}`}>
+        <div id="burn-map" tabIndex={-1} className={`lg:col-span-3 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-3xl p-4 md:p-6 shadow-sm flex flex-col outline-none${calc.isMissing('burn-map') ? ' ring-2 ring-[var(--sys-red)]' : ''}`}>
           <div className="flex justify-between w-full items-center mb-4 md:mb-8">
             <h3 className="font-semibold text-foreground text-lg">Pemetaan 3D Visual</h3>
             <button 
@@ -232,7 +232,7 @@ export default function KalkulatorBurn() {
 
         {/* Resuscitation Calculation Area */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
             <h3 className="font-semibold text-lg text-foreground flex items-center gap-2">
               <Droplets className="w-5 h-5 text-[var(--accent)]" />
               Resusitasi Cairan
@@ -247,7 +247,7 @@ export default function KalkulatorBurn() {
                     value={localAge}
                     placeholder="tahun"
                     onChange={(e) => setLocalAge(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
+                    className="w-full bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
                   />
                 </div>
                 <div>
@@ -260,7 +260,7 @@ export default function KalkulatorBurn() {
                       value={localWeight}
                       placeholder="kg"
                       onChange={(e) => setLocalWeight(e.target.value)}
-                      className="aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)] w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
+                      className="aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--sys-red)] w-full bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 transition-all"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">kg</span>
                   </div>
@@ -277,7 +277,7 @@ export default function KalkulatorBurn() {
                       className={`py-3 rounded-xl text-sm font-semibold transition-all ${
                         factor === val.toString()
                           ? 'bg-[var(--accent)] text-white shadow-md'
-                          : 'bg-slate-100 dark:bg-[#2C2C2E] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                          : 'bg-slate-100 dark:bg-[var(--dk-surface-2)] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                       }`}
                     >
                       {val} mL
@@ -300,7 +300,7 @@ export default function KalkulatorBurn() {
                     min="0"
                     max="8"
                     step="0.5"
-                    className="w-full bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
+                    className="w-full bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all"
                     placeholder="mis. 2"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">jam</span>
@@ -433,7 +433,7 @@ export default function KalkulatorBurn() {
           <li><strong>Pemberian:</strong> 50% dari total cairan diberikan dalam 8 jam pertama (dihitung dari waktu kejadian luka bakar, BUKAN waktu kedatangan di RS). Sisa 50% diberikan dalam 16 jam berikutnya.</li>
           <li><strong>Target Monitor:</strong> Resusitasi dititrasi berdasarkan Urine Output (UO). Dewasa: 0.5 mL/kg/jam. Anak &lt; 30 kg: 1 mL/kg/jam. Luka bakar listrik: 1-1.5 mL/kg/jam.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 American Burn Association (ABA). Advanced Burn Life Support (ABLS) Provider Manual. 2018.
         </div>
       </Accordion>

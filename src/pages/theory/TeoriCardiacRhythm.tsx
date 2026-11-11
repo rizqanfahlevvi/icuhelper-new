@@ -17,7 +17,7 @@ export default function TeoriCardiacRhythm() {
         </h1>
       </div>
 
-      <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm">
         <p className="text-sm text-muted-foreground leading-relaxed mb-6">
           Panduan visual cepat (quick-look) untuk mengenali aritmia yang mengancam nyawa. Selalu konfirmasi dengan kondisi klinis pasien (nadi teraba, perfusi jaringan).
         </p>
@@ -31,7 +31,7 @@ export default function TeoriCardiacRhythm() {
                 Ventricular Fibrillation (VF)
               </h3>
             </div>
-            <div className="p-4 space-y-3 bg-white dark:bg-[#1C1C1E]">
+            <div className="p-4 space-y-3 bg-white dark:bg-[var(--dk-surface-1)]">
               <div className="h-16 w-full relative bg-red-50/50 dark:bg-red-900/10 rounded border border-red-100 dark:border-red-900/30 overflow-hidden flex items-center">
                 <svg viewBox="0 0 400 100" className="w-full h-full stroke-red-500 dark:stroke-red-400 fill-none" strokeWidth="2.5" strokeLinejoin="round" preserveAspectRatio="none">
                   <path d="M0,50 Q10,20 20,60 T40,40 T60,70 T80,30 T100,80 T120,40 T140,90 T160,20 T180,60 T200,30 T220,80 T240,40 T260,70 T280,20 T300,90 T320,30 T340,80 T360,40 T380,70 T400,50" />
@@ -54,7 +54,7 @@ export default function TeoriCardiacRhythm() {
                 Ventricular Tachycardia (VT) - Monomorphic
               </h3>
             </div>
-            <div className="p-4 space-y-3 bg-white dark:bg-[#1C1C1E]">
+            <div className="p-4 space-y-3 bg-white dark:bg-[var(--dk-surface-1)]">
                <div className="h-16 w-full relative bg-red-50/50 dark:bg-red-900/10 rounded border border-red-100 dark:border-red-900/30 overflow-hidden flex items-center">
                 <svg viewBox="0 0 400 100" className="w-full h-full stroke-red-500 dark:stroke-red-400 fill-none" strokeWidth="2.5" strokeLinejoin="round" preserveAspectRatio="none">
                   <path d="M0,50 L20,10 L40,90 L60,10 L80,90 L100,10 L120,90 L140,10 L160,90 L180,10 L200,90 L220,10 L240,90 L260,10 L280,90 L300,10 L320,90 L340,10 L360,90 L380,10 L400,50" />
@@ -78,7 +78,7 @@ export default function TeoriCardiacRhythm() {
                 Torsades de Pointes (Polymorphic VT)
               </h3>
             </div>
-            <div className="p-4 space-y-3 bg-white dark:bg-[#1C1C1E]">
+            <div className="p-4 space-y-3 bg-white dark:bg-[var(--dk-surface-1)]">
                <div className="h-16 w-full relative bg-orange-50/50 dark:bg-orange-900/10 rounded border border-orange-100 dark:border-orange-900/30 overflow-hidden flex items-center">
                 <svg viewBox="0 0 400 100" className="w-full h-full stroke-orange-500 dark:stroke-orange-400 fill-none" strokeWidth="2" strokeLinejoin="round" preserveAspectRatio="none">
                   <path d="M0,50 Q10,40 20,60 Q30,30 40,70 Q50,20 60,80 L70,10 L80,90 L90,20 L100,80 Q110,30 120,70 Q130,40 140,60 Q150,50 160,50 Q170,40 180,60 Q190,30 200,70 Q210,20 220,80 L230,10 L240,90 L250,20 L260,80 Q270,30 280,70 Q290,40 300,60 Q310,50 320,50 Q330,40 340,60 Q350,30 360,70 Q370,20 380,80 L390,10 L400,90" />
@@ -101,7 +101,7 @@ export default function TeoriCardiacRhythm() {
                 Asystole & PEA
               </h3>
             </div>
-            <div className="p-4 space-y-3 bg-white dark:bg-[#1C1C1E]">
+            <div className="p-4 space-y-3 bg-white dark:bg-[var(--dk-surface-1)]">
                <div className="h-16 w-full relative bg-slate-50 dark:bg-slate-900/50 rounded border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center">
                 <svg viewBox="0 0 400 100" className="w-full h-full stroke-slate-500 dark:stroke-slate-400 fill-none" strokeWidth="2.5" strokeLinejoin="round" preserveAspectRatio="none">
                   <path d="M0,50 L400,50" />
@@ -123,7 +123,7 @@ export default function TeoriCardiacRhythm() {
                 Atrial Fibrillation (AFib)
               </h3>
             </div>
-            <div className="p-4 space-y-3 bg-white dark:bg-[#1C1C1E]">
+            <div className="p-4 space-y-3 bg-white dark:bg-[var(--dk-surface-1)]">
               <ul className="text-sm text-slate-700 dark:text-slate-300 space-y-1 list-disc pl-4">
                 <li><strong>Rate/Irama:</strong> Ireguler secara ireguler (irregularly irregular). Atrial rate &gt; 300 bpm, Ventricular rate bervariasi.</li>
                 <li><strong>P Wave:</strong> Tidak ada gelombang P yang jelas; digantikan oleh gelombang fibrilasi (gelombang f) halus atau kasar.</li>
@@ -141,7 +141,7 @@ export default function TeoriCardiacRhythm() {
                 Supraventricular Tachycardia (SVT)
               </h3>
             </div>
-            <div className="p-4 space-y-3 bg-white dark:bg-[#1C1C1E]">
+            <div className="p-4 space-y-3 bg-white dark:bg-[var(--dk-surface-1)]">
               <ul className="text-sm text-slate-700 dark:text-slate-300 space-y-1 list-disc pl-4">
                 <li><strong>Rate/Irama:</strong> Biasanya sangat reguler, kecepatan jantung 150-250 bpm.</li>
                 <li><strong>P Wave:</strong> Sering tenggelam dalam kompleks QRS atau gelombang T sebelumnya karena takikardia ekstrem. Jika terlihat, morfologinya berbeda dengan sinus P.</li>

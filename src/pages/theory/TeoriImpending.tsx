@@ -9,7 +9,7 @@ const fmt = (n: number) => n.toLocaleString('id-ID');
 export default function TeoriImpending() {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
         <h1 className="text-2xl font-bold tracking-tight text-destructive flex items-center gap-2 mb-2">
           Impending Respiratory Failure — Pengenalan Dini
         </h1>

@@ -44,7 +44,7 @@ export default function ScoringWells() {
     return `px-3 py-3 text-[13px] border rounded-xl transition-colors w-full text-left font-medium flex justify-between items-center ${
       active
         ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/50'
-        : 'bg-slate-50 dark:bg-[#2C2C2E] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'
+        : 'bg-slate-50 dark:bg-[var(--dk-surface-2)] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)]'
     }`;
   };
 
@@ -52,7 +52,7 @@ export default function ScoringWells() {
     <div className="w-full max-w-2xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
       <ActivePatientBriefCard />
 
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
              <h2 className="text-xl font-bold flex items-center gap-2">

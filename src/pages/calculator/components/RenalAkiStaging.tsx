@@ -58,7 +58,7 @@ export function RenalAkiStaging() {
   return (
     <div className="flex flex-col gap-4 animate-in fade-in duration-300">
       <UnifiedSyncBanner fields={syncFields} />
-      <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+      <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <div className="p-3 text-[12px] font-bold text-slate-500 uppercase tracking-wide">Kriteria Serum Kreatinin</div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
           <label htmlFor="aki-scr-base" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">SCr Baseline</label>
@@ -80,7 +80,7 @@ export function RenalAkiStaging() {
         </label>
       </div>
 
-      <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+      <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <div className="p-3 text-[12px] font-bold text-slate-500 uppercase tracking-wide">Kriteria Urine Output (UO)</div>
         <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
           <label htmlFor="aki-berat-badan" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</label>
@@ -107,7 +107,7 @@ export function RenalAkiStaging() {
 
 
       {res && (
-        <div id="aki-hasil" className="scroll-mt-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center mt-2">
+        <div id="aki-hasil" className="scroll-mt-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-5 text-center mt-2">
           <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2">Klasifikasi KDIGO 2012</div>
           <div className={`text-2xl font-black ${res.color}`}>{res.desc}</div>
           {res.reasons.length > 0 && (

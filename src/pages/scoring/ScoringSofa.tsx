@@ -364,7 +364,7 @@ export default function ScoringSofa() {
 
   const inputClass = "w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const selectClass = "w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
-  const cardClass = "bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 md:p-5 shadow-sm";
+  const cardClass = "bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 md:p-5 shadow-sm";
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 overflow-x-hidden">
@@ -689,7 +689,7 @@ export default function ScoringSofa() {
               }[org.icon] || Info;
 
               return (
-                <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[#2C2C2E]/30 border border-slate-100 dark:border-slate-800 rounded-lg">
+                <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 border border-slate-100 dark:border-slate-800 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="p-1.5 bg-white dark:bg-slate-800 rounded-md shadow-sm">
                       <IconComp className="w-4 h-4 text-slate-500 dark:text-slate-400" />
@@ -802,7 +802,7 @@ export default function ScoringSofa() {
                   </colgroup>
                   <thead className="bg-slate-50 dark:bg-slate-800/50">
                     <tr className="text-slate-600 dark:text-slate-400">
-                      <th className="px-3 py-2 font-semibold sticky left-0 z-20 bg-slate-50 dark:bg-[#2C2C2E] border-r border-slate-200 dark:border-slate-800">Sistem</th>
+                      <th className="px-3 py-2 font-semibold sticky left-0 z-20 bg-slate-50 dark:bg-[var(--dk-surface-2)] border-r border-slate-200 dark:border-slate-800">Sistem</th>
                       <th className="px-3 py-2 font-semibold">Parameter</th>
                       <th className="px-2 py-2 font-semibold text-center bg-slate-100/30 dark:bg-slate-800/20">0</th>
                       <th className="px-2 py-2 font-semibold text-center">1</th>
@@ -813,7 +813,7 @@ export default function ScoringSofa() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-900">
                     <tr>
-                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[#1C1C1E] border-r border-slate-200 dark:border-slate-800">Respirasi</td>
+                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[var(--dk-surface-1)] border-r border-slate-200 dark:border-slate-800">Respirasi</td>
                       <td className="px-3 py-2">PaO₂/FiO₂ (mmHg)</td>
                       <td className="px-2 py-2 text-center bg-slate-50/20 dark:bg-slate-800/5">≥400</td>
                       <td className="px-2 py-2 text-center">300–399</td>
@@ -822,7 +822,7 @@ export default function ScoringSofa() {
                       <td className="px-2 py-2 text-center">&lt;100*</td>
                     </tr>
                     <tr>
-                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[#1C1C1E] border-r border-slate-200 dark:border-slate-800">Koagulasi</td>
+                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[var(--dk-surface-1)] border-r border-slate-200 dark:border-slate-800">Koagulasi</td>
                       <td className="px-3 py-2">Trombosit (×10³/μL)</td>
                       <td className="px-2 py-2 text-center bg-slate-50/20 dark:bg-slate-800/5">≥150</td>
                       <td className="px-2 py-2 text-center">100–149</td>
@@ -831,7 +831,7 @@ export default function ScoringSofa() {
                       <td className="px-2 py-2 text-center">&lt;20</td>
                     </tr>
                     <tr>
-                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[#1C1C1E] border-r border-slate-200 dark:border-slate-800">Hepar</td>
+                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[var(--dk-surface-1)] border-r border-slate-200 dark:border-slate-800">Hepar</td>
                       <td className="px-3 py-2">Bilirubin (mg/dL)</td>
                       <td className="px-2 py-2 text-center bg-slate-50/20 dark:bg-slate-800/5">&lt;1.2</td>
                       <td className="px-2 py-2 text-center">1.2–1.9</td>
@@ -840,7 +840,7 @@ export default function ScoringSofa() {
                       <td className="px-2 py-2 text-center">≥12.0</td>
                     </tr>
                     <tr>
-                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[#1C1C1E] border-r border-slate-200 dark:border-slate-800">Kardiovaskular</td>
+                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[var(--dk-surface-1)] border-r border-slate-200 dark:border-slate-800">Kardiovaskular</td>
                       <td className="px-3 py-2">MAP/Vasopressor</td>
                       <td className="px-2 py-2 text-center bg-slate-50/20 dark:bg-slate-800/5">MAP≥70</td>
                       <td className="px-2 py-2 text-center">MAP&lt;70</td>
@@ -849,7 +849,7 @@ export default function ScoringSofa() {
                       <td className="px-2 py-2 text-center">DA&gt;15 / E,NE&gt;0.1</td>
                     </tr>
                     <tr>
-                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[#1C1C1E] border-r border-slate-200 dark:border-slate-800">SSP</td>
+                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[var(--dk-surface-1)] border-r border-slate-200 dark:border-slate-800">SSP</td>
                       <td className="px-3 py-2">GCS</td>
                       <td className="px-2 py-2 text-center bg-slate-50/20 dark:bg-slate-800/5">15</td>
                       <td className="px-2 py-2 text-center">13–14</td>
@@ -858,7 +858,7 @@ export default function ScoringSofa() {
                       <td className="px-2 py-2 text-center">&lt;6</td>
                     </tr>
                     <tr>
-                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[#1C1C1E] border-r border-slate-200 dark:border-slate-800">Renal</td>
+                      <td className="px-3 py-2 font-medium sticky left-0 z-10 bg-white dark:bg-[var(--dk-surface-1)] border-r border-slate-200 dark:border-slate-800">Renal</td>
                       <td className="px-3 py-2">Kreatinin (mg/dL)</td>
                       <td className="px-2 py-2 text-center bg-slate-50/20 dark:bg-slate-800/5">&lt;1.2</td>
                       <td className="px-2 py-2 text-center">1.2–1.9</td>

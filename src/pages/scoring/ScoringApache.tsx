@@ -94,7 +94,7 @@ export default function ScoringApache() {
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
          <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
@@ -230,7 +230,7 @@ export default function ScoringApache() {
          </div>
 
          {calc.armed && calc.missing.length === 0 && (
-         <div id="apache-hasil" className="scroll-mt-4 mt-8 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm relative overflow-hidden">
+         <div id="apache-hasil" className="scroll-mt-4 mt-8 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm relative overflow-hidden">
             <div className="flex flex-col md:flex-row gap-6 justify-between items-center px-2">
               <div className="text-center md:text-left">
                 <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-1">APACHE-II SCORE TOTAL</div>
@@ -245,7 +245,7 @@ export default function ScoringApache() {
                   <div className="text-[11px] text-muted-foreground mt-1">Pasien pasca-bedah: mortalitas umumnya lebih rendah daripada angka non-operatif ini.</div>
                 )}
               </div>
-              <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 w-full md:w-auto text-sm space-y-1">
+              <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 w-full md:w-auto text-sm space-y-1">
                  <div className="flex justify-between gap-8">
                    <span className="text-muted-foreground">APS (12 Variabel):</span>
                    <span className="font-bold">{result.aps}</span>
@@ -276,7 +276,7 @@ export default function ScoringApache() {
                 <div className="text-[13px] font-bold text-cyan-600 dark:text-cyan-400 mb-3">🧮 Rincian Kontribusi Poin</div>
                 <div className="space-y-1">
                   {result.breakdown.map((b, i) => (
-                    <div key={i} className="flex items-center justify-between text-[13px] px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#2C2C2E]/40 border border-slate-100 dark:border-slate-800">
+                    <div key={i} className="flex items-center justify-between text-[13px] px-3 py-2 rounded-lg bg-slate-50 dark:bg-[var(--dk-surface-2)]/40 border border-slate-100 dark:border-slate-800">
                       <span className="text-slate-700 dark:text-slate-300">{b.label} <span className="text-slate-400 font-mono">({b.value})</span></span>
                       <span className={`font-bold font-mono ${b.pts === 0 ? 'text-slate-400' : b.pts >= 3 ? 'text-red-500' : 'text-amber-500'}`}>+{b.pts}</span>
                     </div>
@@ -321,7 +321,7 @@ export default function ScoringApache() {
           </table>
           <div className="p-2 text-[11px] text-slate-500 border-t border-slate-100 dark:border-slate-800">Rentang 30–34: sumber sekunder menyebut 73% atau 75%. Pasien pasca-bedah umumnya lebih rendah (kolom pasca-bedah tidak ditampilkan karena belum dapat diverifikasi ke naskah asli).</div>
         </div>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Knaus WA et al. (APACHE-II original) Crit Care Med 1985;13:818 · Zimmerman JE et al. (APACHE-IV validasi) Crit Care Med 2006;34:1297 · Raith EP et al. (SOFA lebih baik dari APACHE-II era Sepsis-3) JAMA 2017;317:290
         </div>
       </Accordion>

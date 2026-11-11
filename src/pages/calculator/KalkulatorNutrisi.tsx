@@ -149,7 +149,7 @@ export default function KalkulatorNutrisi() {
           <Utensils className="w-4 h-4 text-blue-500" /> Kalkulator Nutrisi ICU
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex justify-between px-4 py-3 items-center gap-4">
             <label htmlFor="nut-fase-rawat" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Fase Rawat</label>
             <select id="nut-fase-rawat" className={selectCls} value={fase} onChange={e => { setFase(e.target.value as NutritionPhase); reset(); }}>
@@ -262,7 +262,7 @@ export default function KalkulatorNutrisi() {
 
       {res && espenE && aspenE && espenP && aspenP && (
         <div id="nut-hasil" className="scroll-mt-4 mt-2 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
 
             {res.refeed && (
               <div className="p-4 bg-red-50 dark:bg-red-900/10 text-[12.5px] text-red-800 dark:text-red-300 leading-relaxed space-y-1">
@@ -275,11 +275,11 @@ export default function KalkulatorNutrisi() {
               </div>
             )}
 
-            <div className="p-4 bg-slate-50 dark:bg-[#1C1C1E]">
+            <div className="p-4 bg-slate-50 dark:bg-[var(--dk-surface-1)]">
               <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2">Target Energi — {PHASE_LABEL[fase]}</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[espenE, aspenE].map((e) => (
-                  <div key={e.guideline} className="bg-white dark:bg-[#2C2C2E] p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div key={e.guideline} className="bg-white dark:bg-[var(--dk-surface-2)] p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">{e.label}</div>
                     <div className="text-[20px] font-black text-slate-800 dark:text-slate-100 leading-tight mt-1">
                       {e.upperOnly ? '≤ ' : ''}{fmtRange(e.total)} <span className="text-[12px] font-semibold opacity-70">kkal/hari</span>
@@ -418,7 +418,7 @@ export default function KalkulatorNutrisi() {
               />
             </div>
 
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1C1C1E]">
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[var(--dk-surface-1)]">
               <SaveToHistoryButton
                 module="nutrisi"
                 label={`Nutrisi: ESPEN ${fmtRange(espenE.total)} · ASPEN ${fmtRange(aspenE.total)} kkal`}
@@ -441,7 +441,7 @@ export default function KalkulatorNutrisi() {
           <li><strong className="text-slate-800 dark:text-slate-200">Refeeding syndrome:</strong> nilai risiko dengan kriteria NICE CG32 atau ASPEN 2020 (bukan NRS-2002, yang merupakan skrining malnutrisi). Mulai rendah, naikkan bertahap, pantau fosfat/K/Mg, berikan tiamin sebelum mulai. Doig 2015: restriksi kalori terprotokol pada pasien ICU yang mengalami refeeding meningkatkan kesintasan hari-60 (91% vs 78%).</li>
           <li><strong className="text-slate-800 dark:text-slate-200">Parenteral:</strong> glukosa ≤5 mg/kg/menit, lemak IV ≤1,5 g/kg/hari (ESPEN). Hitung kalori non-nutrisi (propofol, dekstrosa, sitrat) agar tidak overfeeding.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[12px] text-slate-700 dark:text-slate-300 italic leading-relaxed">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[12px] text-slate-700 dark:text-slate-300 italic leading-relaxed">
           📚 Singer P et al. ESPEN guideline ICU. Clin Nutr 2019;38:48–79 · Singer P et al. ESPEN practical & partially revised guideline ICU. Clin Nutr 2023;42:1671–89 · Compher C et al. ASPEN critical care guideline. JPEN 2022;46:12–41 · McClave SA et al. ASPEN/SCCM. JPEN 2016;40:159–211 · Fiaccadori E et al. ESPEN AKI/CKD. Clin Nutr 2021;40:1644–68 · Heyland DK et al. EFFORT Protein. Lancet 2023;401:568–76 · Rice TW et al. EDEN. JAMA 2012;307:795–803 · da Silva JSV et al. ASPEN refeeding. Nutr Clin Pract 2020;35:178–95 · Doig GS et al. Lancet Respir Med 2015;3:943–52.
         </div>
       </Accordion>

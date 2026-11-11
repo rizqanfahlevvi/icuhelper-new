@@ -6,6 +6,7 @@ import type { Patient } from '../../store/usePatientStore';
 import { buildPatientReport, copyText, groupClinicalValues, latestPerModule } from '../../utils/patientReport';
 import { formatDataAge } from '../../utils/patientContext';
 import { historyModuleLabel } from '../../data/historyModules';
+import { haptic } from '../../utils/haptics';
 
 /**
  * Ringkasan pasien aktif: nilai klinis terbaru per kelompok + hasil kalkulasi terakhir
@@ -28,6 +29,7 @@ export function PatientSummaryPanel({ patient }: { patient: Patient }) {
     const text = buildPatientReport(patient, record, stamps, mine);
     const ok = await copyText(text);
     setCopied(ok ? 'ok' : 'fail');
+    haptic(ok ? 'success' : 'warning');
     setTimeout(() => setCopied(null), 2500);
   };
 

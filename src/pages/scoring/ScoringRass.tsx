@@ -27,7 +27,7 @@ export default function ScoringRass() {
       {/* Active Patient Widget */}
       <ActivePatientBriefCard />
 
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
          <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
@@ -51,7 +51,7 @@ export default function ScoringRass() {
                  className={`min-h-[44px] w-full text-left p-2.5 border rounded-xl transition-all ${
                    scoreObj?.val === item.val
                      ? `bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm ring-1 ring-blue-500`
-                     : 'bg-slate-50 dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'
+                     : 'bg-slate-50 dark:bg-[var(--dk-surface-2)] border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)]'
                  }`}
                >
                  <div className="flex items-center gap-3">
@@ -77,7 +77,7 @@ export default function ScoringRass() {
                   
                   <div className="text-sm text-muted-foreground mb-4">{scoreObj.desc}</div>
                   
-                  <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 rounded-lg p-3 border border-slate-200 dark:border-slate-800">
+                  <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 rounded-lg p-3 border border-slate-200 dark:border-slate-800">
                     <strong className="text-xs uppercase text-foreground mb-1 block">Tindakan Klinis:</strong>
                     <div className="text-sm text-foreground/90">{scoreObj.a}</div>
                   </div>
@@ -99,7 +99,7 @@ export default function ScoringRass() {
           <li><strong className="text-foreground">Analgesia First:</strong> Atasi nyeri dahulu (CPOT/NRS) sebelum pemberian sedatif.</li>
           <li><strong className="text-foreground">Target Standar:</strong> PADIS 2018 menyarankan sedasi ringan (kisaran RASS −2 hingga +1, sering ditargetkan 0 s/d −1) dibanding sedasi dalam, kecuali ada indikasi sedasi dalam. PADIS 2025: dexmedetomidine disarankan dibanding propofol untuk sedasi (rekomendasi kondisional).</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Sessler CN et al. Am J Respir Crit Care Med 2002;166:1338 (RASS validasi) · Devlin JW et al. (PADIS 2018) Crit Care Med 2018;46:e825 · Lewis K et al. (PADIS 2025 focused update) Crit Care Med 2025;53:e711 · Vincent JL et al. (eCASH concept) ICM 2016;42:962
         </div>
       </Accordion>

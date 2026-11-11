@@ -141,7 +141,7 @@ export function MagnesiumResult({ s, mg, egfr, bw }: { s: MagnesiumState; mg: st
 
       {/* ② CARA PEMBERIAN */}
       <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
-      <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
+      <div className="w-full bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
         <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">{iv ? `IV (${mmol < 0.5 ? 'Mg <0.5 mmol/L' : 'bergejala'})` : 'Oral dianjurkan — estimasi IV bila oral tidak mungkin'}</div>
         <div className="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">{urgent ? '2 g bolus → ' : ''}{inf > 0 ? `MgSO₄ ${inf} g dalam ${hrsText} jam` : 'tanpa infus lanjutan (Mg ≥ target)'}</div>
         <p className="text-[12px] text-slate-700 dark:text-slate-300">{urgent ? `Total ${plan.total} g · ` : ''}{fmt(inf / 0.2, 1)} mL MgSO₄ 20% · {fmt(inf / 0.4, 1)} mL MgSO₄ 40%{renal ? ' · ⚠ eGFR <30: kurangi & pantau' : ''}</p>

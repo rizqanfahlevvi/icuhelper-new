@@ -24,7 +24,7 @@ export default function ScoringCandida() {
       {/* Active Patient Widget */}
       <ActivePatientBriefCard />
 
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
          <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
@@ -45,7 +45,7 @@ export default function ScoringCandida() {
          </div>
 
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${tpn ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
+            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${tpn ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)]'}`}>
               <input type="checkbox" checked={tpn} onChange={e => setTpn(e.target.checked)} className="mt-1 w-5 h-5 accent-primary" />
               <div className="flex-1">
                 <div className="font-bold text-sm">Total Parenteral Nutrition (TPN/NPT)</div>
@@ -54,7 +54,7 @@ export default function ScoringCandida() {
               <div className="font-bold text-lg text-primary">+1</div>
             </label>
 
-            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${surg ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
+            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${surg ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)]'}`}>
               <input type="checkbox" checked={surg} onChange={e => setSurg(e.target.checked)} className="mt-1 w-5 h-5 accent-primary" />
               <div className="flex-1">
                 <div className="font-bold text-sm">Operasi Mayor Saat Masuk ICU</div>
@@ -63,7 +63,7 @@ export default function ScoringCandida() {
               <div className="font-bold text-lg text-primary">+1</div>
             </label>
 
-            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${multi ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
+            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${multi ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)]'}`}>
               <input type="checkbox" checked={multi} onChange={e => setMulti(e.target.checked)} className="mt-1 w-5 h-5 accent-primary" />
               <div className="flex-1">
                 <div className="font-bold text-sm">Kolonisasi Candida Multifokal</div>
@@ -72,7 +72,7 @@ export default function ScoringCandida() {
               <div className="font-bold text-lg text-primary">+1</div>
             </label>
 
-            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${sepsis ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'}`}>
+            <label className={`min-h-[44px] flex items-start gap-3 p-4 border rounded-xl transition-all cursor-pointer ${sepsis ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm' : 'hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)]'}`}>
               <input type="checkbox" checked={sepsis} onChange={e => setSepsis(e.target.checked)} className="mt-1 w-5 h-5 accent-primary" />
               <div className="flex-1">
                 <div className="font-bold text-sm">Sepsis Berat / Septic Shock</div>
@@ -99,7 +99,7 @@ export default function ScoringCandida() {
           <li><strong className="text-foreground">De-eskalasi:</strong> Turunkan dari ekinokandin ke flukonazol bila pasien sudah klinis stabil dan hasil kultur terbukti sensitif. Pada terapi empiris tanpa respons klinis setelah 4–5 hari dan tanpa bukti kandidiasis invasif, pertimbangkan penghentian (IDSA 2016).</li>
           <li className="list-none -ml-4 pt-1 text-xs italic">Alat bantu edukasi &amp; referensi cepat — bukan pengganti penilaian klinis, pola resistensi lokal, atau keputusan DPJP.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 León C et al. (Candida Score original) Crit Care Med 2006;34:730 · León C et al. (validasi prospektif) Crit Care Med 2009;37:1624 · Pappas PG et al. (IDSA 2016) Clin Infect Dis 2016;62:e1 · Cornely OA et al. (ECMM/ISHAM/ASM global guideline) Lancet Infect Dis 2025;25:e280
         </div>
       </Accordion>

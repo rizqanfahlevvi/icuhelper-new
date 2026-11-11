@@ -338,14 +338,14 @@ export default function KalkulatorKebutuhanCairan() {
       <UnifiedSyncBanner fields={syncFields} />
 
       {/* Pilih bagian — satu bagian tampil sekaligus */}
-      <div role="tablist" aria-label="Bagian kalkulator cairan" className="flex flex-wrap w-full bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl gap-1">
+      <div role="tablist" aria-label="Bagian kalkulator cairan" className="flex flex-wrap w-full bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl gap-1">
         {CAIRAN_TABS.map(t => (
           <button
             key={t.id}
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`min-h-[44px] flex-1 min-w-[5.5rem] px-2 py-2 text-[12px] font-bold rounded-lg whitespace-nowrap transition-colors ${tab === t.id ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
+            className={`min-h-[44px] flex-1 min-w-[5.5rem] px-2 py-2 text-[12px] font-bold rounded-lg whitespace-nowrap transition-colors ${tab === t.id ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-400'}`}
           >
             {t.label}
           </button>
@@ -359,7 +359,7 @@ export default function KalkulatorKebutuhanCairan() {
           <Droplets className="w-4 h-4 text-blue-500" /> {tab === 'basal' ? 'Kebutuhan Cairan Basal ICU' : 'Berat Badan & Maintenance'}
         </h2>
         
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <label htmlFor="cairan-bw" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -395,7 +395,7 @@ export default function KalkulatorKebutuhanCairan() {
               <h2 className="mb-2 text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                 Hasil Kalkulasi Basal
               </h2>
-              <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 grid grid-cols-2">
+              <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 grid grid-cols-2">
                 <div className="p-4 flex flex-col items-center justify-center text-center bg-blue-50/50 dark:bg-blue-900/10">
                   <div className="text-[12px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1">Maintenance (NICE)</div>
                   <div className="font-mono text-2xl font-bold text-blue-700 dark:text-blue-300">
@@ -464,7 +464,7 @@ export default function KalkulatorKebutuhanCairan() {
               <button 
                 key={key}
                 onClick={() => setRose(key)}
-                className={`min-h-[44px] py-2 px-3 rounded-xl border text-[12px] font-bold transition-all ${rose === key ? `${data.bgBorder} ${data.colorText}` : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1C1C1E] text-slate-600 dark:text-slate-400'}`}
+                className={`min-h-[44px] py-2 px-3 rounded-xl border text-[12px] font-bold transition-all ${rose === key ? `${data.bgBorder} ${data.colorText}` : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-[var(--dk-surface-1)] text-slate-600 dark:text-slate-400'}`}
               >
                 {data.label}
               </button>
@@ -479,7 +479,7 @@ export default function KalkulatorKebutuhanCairan() {
           )}
         </div>
         
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <label htmlFor="cairan-suhu-tubuh" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Suhu Tubuh</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -531,7 +531,7 @@ export default function KalkulatorKebutuhanCairan() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-[#1C1C1E]">
+          <div className="flex items-center justify-between px-4 py-2 bg-slate-100 dark:bg-[var(--dk-surface-1)]">
             <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-300 select-none">Kehilangan Abnormal Terukur (mL/hari)</span>
           </div>
 
@@ -568,8 +568,8 @@ export default function KalkulatorKebutuhanCairan() {
 
           {b2Res && (
             <div id="cairan-hasil" className="scroll-mt-4 mt-4 pb-6 animate-in fade-in slide-in-from-bottom-3 duration-300">
-              <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
-                <div className="p-4 bg-slate-50 dark:bg-[#2C2C2E]">
+              <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800">
+                <div className="p-4 bg-slate-50 dark:bg-[var(--dk-surface-2)]">
                   <div className="space-y-1.5 mb-2">
                     <div className="flex justify-between text-[13px] text-slate-700 dark:text-slate-300"><span>Maintenance (termasuk urine & IWL normal)</span><span className="font-mono text-slate-700 dark:text-slate-300">{b2Res.maint.toFixed(0)} mL</span></div>
                     {b2Res.feverExtra > 0 && <div className="flex justify-between text-[13px] font-medium text-slate-700 dark:text-slate-200"><span>+ Demam (estimasi)</span><span className="font-mono text-amber-600 dark:text-amber-400">+{b2Res.feverExtra.toFixed(0)} mL</span></div>}
@@ -672,7 +672,7 @@ export default function KalkulatorKebutuhanCairan() {
                   setCumbalDays(newDays);
                 }}
                 placeholder="±mL"
-                className={`min-h-[44px] w-full bg-slate-50 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 outline-none text-center font-mono font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/50 text-[13px] transition-all${i === 0 ? ring('cairan-h1') : ''}`}
+                className={`min-h-[44px] w-full bg-slate-50 dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 outline-none text-center font-mono font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/50 text-[13px] transition-all${i === 0 ? ring('cairan-h1') : ''}`}
               />
             </div>
           ))}
@@ -722,7 +722,7 @@ export default function KalkulatorKebutuhanCairan() {
           <Scale className="w-4 h-4 text-amber-500" /> Fluid Overload Assessment
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
             <label htmlFor="cairan-fo-dry" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">BB Kering / Baseline</label>
             <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -786,8 +786,8 @@ export default function KalkulatorKebutuhanCairan() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {/* Inputs */}
-          <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-            <div className="px-4 py-2 bg-slate-100 dark:bg-[#1C1C1E] rounded-t-xl">
+          <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="px-4 py-2 bg-slate-100 dark:bg-[var(--dk-surface-1)] rounded-t-xl">
               <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-300">Total Input (mL)</span>
             </div>
             {[
@@ -811,8 +811,8 @@ export default function KalkulatorKebutuhanCairan() {
           </div>
 
           {/* Outputs */}
-          <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
-            <div className="px-4 py-2 bg-slate-100 dark:bg-[#1C1C1E] rounded-t-xl">
+          <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="px-4 py-2 bg-slate-100 dark:bg-[var(--dk-surface-1)] rounded-t-xl">
               <span className="font-bold text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-300">Total Output (mL)</span>
             </div>
             {[
@@ -884,7 +884,7 @@ export default function KalkulatorKebutuhanCairan() {
           <li><strong className="text-slate-800 dark:text-slate-200">Balans kumulatif:</strong> balans lebih positif meningkatkan risiko kematian pada sepsis (Sakr 2017).</li>
           <li><strong className="text-slate-800 dark:text-slate-200">Estimasi praktis (tidak tersumber guideline):</strong> IWL 12 / 9 / 6,5 mL/kg/hari (spontan / HFNC-NIV / ventilator), diaforesis +200 / 500 / 900 mL, demam +10% maintenance per °C di atas 37,5 °C.</li>
         </ul>
-        <div className="mt-4 p-4 bg-slate-100 dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[11px] text-slate-500 dark:text-slate-400 italic">
+        <div className="mt-4 p-4 bg-slate-100 dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[11px] text-slate-500 dark:text-slate-400 italic">
           [1] Malbrain MLNG et al. Principles of fluid management and stewardship in septic shock. Ann Intensive Care 2018;8:66. <br/>
           [2] NICE CG174. Intravenous fluid therapy in adults in hospital (2013, diperbarui 2017). <br/>
           [3] Meyhoff TS et al. (CLASSIC). N Engl J Med 2022;386:2459–70. <br/>

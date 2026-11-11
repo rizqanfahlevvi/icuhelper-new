@@ -114,7 +114,7 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
         <CalcSteps tone="red" title="🧮 Langkah Dasar — dari input ke derajat hiperkalsemia" steps={[corrStep, mmolStep('Ambang SfE: <3.0 mmol/L ringan · 3.0–3.5 sedang · >3.5 berat.')]} />
 
         <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
-        <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
+        <div className="w-full bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
           <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Rehidrasi — langkah pertama{sev === 'ringan' ? ' (bila bergejala / dehidrasi)' : ''}</div>
           <div className="font-mono text-2xl font-bold text-slate-800 dark:text-slate-100">NaCl 0.9% 4–6 L / 24 jam</div>
           <p className="text-[12px] text-slate-700 dark:text-slate-300">≈ 167–250 mL/jam; lalu bisfosfonat IV bila masih perlu (zoledronat 4 mg/15 menit). Diuretik loop hanya bila overload.</p>
@@ -218,7 +218,7 @@ export function KalsiumResult({ s, ca, alb, bw }: { s: KalsiumState; ca: string;
 
       {/* ② CARA PEMBERIAN */}
       <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
-      <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
+      <div className="w-full bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-2">
         <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">{severe ? 'Berat — IV dengan monitor EKG (SfE 2016)' : 'Ringan — oral + terapi penyebab'}</div>
         <div className="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">{severe ? `Bolus 10–20 mL Ca glukonat 10% → infus ${rate} mL/jam` : 'Kalsium oral · ulang Ca 24 jam'}</div>
         {severe && <p className="text-[12px] text-slate-700 dark:text-slate-300">{fmt(inf.mgPerHr, 0)} mg Ca elemental/jam{w > 0 ? ` (${fmt(inf.mgPerKgPerHr, 2)} mg/kg/jam)` : ''} · 1 kantong ±{fmt(bagHours, 0)} jam · titrasi ke {tgt} mg/dL</p>}

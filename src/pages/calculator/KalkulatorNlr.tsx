@@ -164,9 +164,9 @@ export default function KalkulatorNlr() {
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
-      <div className="flex bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4">
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'abs' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('abs')}>Absolut (10³/µL)</button>
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'pct' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('pct')}>Persen (%)</button>
+      <div className="flex bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4">
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'abs' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('abs')}>Absolut (10³/µL)</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'pct' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('pct')}>Persen (%)</button>
       </div>
 
       <div className="flex flex-col gap-0 mt-2">
@@ -174,7 +174,7 @@ export default function KalkulatorNlr() {
            Indeks Inflamasi
          </h2>
          
-         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+         <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             {mode === 'abs' ? (
               <>
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
@@ -256,7 +256,7 @@ export default function KalkulatorNlr() {
          
          {res && (
            <div id="nlr-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-             <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-4">
+             <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm p-4">
                {res.wbcNote && (
                  <div className="flex gap-2.5 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 p-3 rounded-lg border border-red-200 dark:border-red-800/30 text-[13px] mb-4">
                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -265,27 +265,27 @@ export default function KalkulatorNlr() {
                )}
 
                <div className="grid grid-cols-2 gap-3 mb-4">
-                 <div className={`p-3 rounded-xl border ${res.n.color === 'text-red-500' ? 'bg-red-50/50 border-red-200 text-red-800' : res.n.color === 'text-amber-500' ? 'bg-amber-50/50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-800'} dark:bg-[#2C2C2E] dark:border-slate-700 dark:text-slate-200`}>
+                 <div className={`p-3 rounded-xl border ${res.n.color === 'text-red-500' ? 'bg-red-50/50 border-red-200 text-red-800' : res.n.color === 'text-amber-500' ? 'bg-amber-50/50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-800'} dark:bg-[var(--dk-surface-2)] dark:border-slate-700 dark:text-slate-200`}>
                    <div className="text-[11px] font-bold uppercase tracking-wide mb-0.5 opacity-60">NLR</div>
                    <div className="text-2xl font-black">{res.nlr.toFixed(2)}</div>
                    <div className={`text-[10px] font-semibold mt-1 ${res.n.color}`}>{res.n.lbl}</div>
                  </div>
                  {res.plr && (
-                   <div className={`p-3 rounded-xl border ${res.p.color === 'text-red-500' ? 'bg-red-50/50 border-red-200 text-red-800' : res.p.color === 'text-amber-500' ? 'bg-amber-50/50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-800'} dark:bg-[#2C2C2E] dark:border-slate-700 dark:text-slate-200`}>
+                   <div className={`p-3 rounded-xl border ${res.p.color === 'text-red-500' ? 'bg-red-50/50 border-red-200 text-red-800' : res.p.color === 'text-amber-500' ? 'bg-amber-50/50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-800'} dark:bg-[var(--dk-surface-2)] dark:border-slate-700 dark:text-slate-200`}>
                      <div className="text-[11px] font-bold uppercase tracking-wide mb-0.5 opacity-60">PLR</div>
                      <div className="text-2xl font-black">{res.plr.toFixed(1)}</div>
                      <div className={`text-[10px] font-semibold mt-1 ${res.p.color}`}>{res.p.lbl}</div>
                    </div>
                  )}
                  {res.sii && (
-                   <div className={`p-3 rounded-xl border ${res.s.color === 'text-red-500' ? 'bg-red-50/50 border-red-200 text-red-800' : res.s.color === 'text-amber-500' ? 'bg-amber-50/50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-800'} dark:bg-[#2C2C2E] dark:border-slate-700 dark:text-slate-200`}>
+                   <div className={`p-3 rounded-xl border ${res.s.color === 'text-red-500' ? 'bg-red-50/50 border-red-200 text-red-800' : res.s.color === 'text-amber-500' ? 'bg-amber-50/50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-800'} dark:bg-[var(--dk-surface-2)] dark:border-slate-700 dark:text-slate-200`}>
                      <div className="text-[11px] font-bold uppercase tracking-wide mb-0.5 opacity-60">SII</div>
                      <div className="text-2xl font-black">{Math.round(res.sii)}</div>
                      <div className={`text-[10px] font-semibold mt-1 ${res.s.color}`}>{res.s.lbl}</div>
                    </div>
                  )}
                  {res.mlr && (
-                   <div className={`p-3 rounded-xl border ${res.m.color === 'text-red-500' ? 'bg-red-50/50 border-red-200 text-red-800' : res.m.color === 'text-amber-500' ? 'bg-amber-50/50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-800'} dark:bg-[#2C2C2E] dark:border-slate-700 dark:text-slate-200`}>
+                   <div className={`p-3 rounded-xl border ${res.m.color === 'text-red-500' ? 'bg-red-50/50 border-red-200 text-red-800' : res.m.color === 'text-amber-500' ? 'bg-amber-50/50 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-800'} dark:bg-[var(--dk-surface-2)] dark:border-slate-700 dark:text-slate-200`}>
                      <div className="text-[11px] font-bold uppercase tracking-wide mb-0.5 opacity-60">MLR</div>
                      <div className="text-2xl font-black">{res.mlr.toFixed(2)}</div>
                      <div className={`text-[10px] font-semibold mt-1 ${res.m.color}`}>{res.m.lbl}</div>
@@ -359,7 +359,7 @@ export default function KalkulatorNlr() {
         <div className="overflow-x-auto mb-4">
           <table className="w-full text-[12px] text-left border-collapse">
             <thead>
-              <tr className="bg-slate-100 dark:bg-[#2C2C2E] text-slate-700 dark:text-slate-300">
+              <tr className="bg-slate-100 dark:bg-[var(--dk-surface-2)] text-slate-700 dark:text-slate-300">
                 <th className="p-2 border border-slate-200 dark:border-slate-700 font-bold rounded-tl-lg">Indeks</th>
                 <th className="p-2 border border-slate-200 dark:border-slate-700 font-bold">Komponen</th>
                 <th className="p-2 border border-slate-200 dark:border-slate-700 font-bold">Keunggulan</th>
@@ -410,7 +410,7 @@ export default function KalkulatorNlr() {
           <li><strong>Variabilitas diurnal:</strong> NLR sedikit lebih tinggi di pagi hari (cortisol surge). Idealnya diambil konsisten.</li>
           <li><strong>Interpretasi serial:</strong> Tren NLR lebih informatif dari nilai tunggal. NLR yang menurun setelah terapi → respons positif.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Zahorec R. (2001) Ratio of neutrophil to lymphocyte. Bratisl Lek Listy; Hu B et al. (2014) SII Index. Clin Cancer Res. Forget P (2017) What is the normal value of the neutrophil-to-lymphocyte ratio?
         </div>
       </Accordion>

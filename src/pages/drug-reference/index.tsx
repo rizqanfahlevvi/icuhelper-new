@@ -128,7 +128,7 @@ export default function DrugReference(props: DrugReferenceProps) {
     if (cat.includes('hipertensi') || cat.includes('kardio')) {
       return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 dark:bg-blue-500/20';
     }
-    return 'bg-[#ebf3ff] text-[#2563eb] border border-[#dbeafe]/40 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/20';
+    return 'bg-blue-50 text-blue-600 border border-blue-100/40 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/20';
   };
 
   const getRouteBadge = (drug: any) => {
@@ -357,7 +357,7 @@ export default function DrugReference(props: DrugReferenceProps) {
         </div>
       </div>
 
-      <div className="flex items-center justify-center p-3.5 text-center text-[#4b5563] dark:text-[#a1a1aa] bg-[#f8f9ff] dark:bg-muted/15 border border-[#e6e9f5] dark:border-border/60 rounded-2xl text-[12.5px] leading-relaxed font-semibold shadow-sm select-none">
+      <div className="flex items-center justify-center p-3.5 text-center text-gray-600 dark:text-zinc-400 bg-slate-50 dark:bg-muted/15 border border-slate-200 dark:border-border/60 rounded-2xl text-[12.5px] leading-relaxed font-semibold shadow-sm select-none">
         <span>Pilih obat dengan mencentang bulatan putih di kiri kartu obat di bawah untuk mendeteksi interaksi klinis secara otomatis.</span>
       </div>
 

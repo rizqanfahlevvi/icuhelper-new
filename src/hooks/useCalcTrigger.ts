@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { haptic } from '../utils/haptics';
 
 /** Input wajib untuk validasi tombol Hitung. `id` = id elemen input (untuk gulir & fokus). */
 export interface RequiredInput {
@@ -36,7 +37,8 @@ export function useCalcTrigger({ compute, deps, required = [] }: Options) {
     setArmed(true);
     computeRef.current();
     const first = required.find(r => !r.filled);
-    if (first) focusInput(first.id);
+    if (first) { haptic('warning'); focusInput(first.id); }
+    else haptic('success');
   }, [required]);
 
   const reset = useCallback(() => setArmed(false), []);

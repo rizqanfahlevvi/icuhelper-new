@@ -3,6 +3,7 @@ import { useHistoryStore } from '../store/useHistoryStore';
 import { usePatientStore } from '../store/usePatientStore';
 import { copyText } from '../utils/patientReport';
 import { HISTORY_MODULES } from '../data/historyModules';
+import { haptic } from '../utils/haptics';
 import { Trash2, ExternalLink, Clock, Copy, Check, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
@@ -81,7 +82,7 @@ export default function Riwayat() {
             Belum ada riwayat untuk <strong>{activeName || 'pasien aktif'}</strong>. Simpan hasil dari kalkulator dengan tombol “Simpan Riwayat”.
           </div>
         ) : history.length === 0 ? (
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col items-center justify-center py-16 text-center">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col items-center justify-center py-16 text-center">
             <span className="text-5xl mb-4 opacity-50">🗒️</span>
             <h3 className="font-semibold text-foreground">Belum ada riwayat.</h3>
             <p className="text-[13px] text-muted-foreground mt-1 max-w-sm">Ketuk “Simpan Riwayat” di bawah hasil kalkulator atau skoring — hasilnya tersimpan di sini, terkait dengan pasien aktif saat itu.</p>
@@ -91,7 +92,7 @@ export default function Riwayat() {
             {shown.map((entry) => {
               const meta = MODULE_META[entry.module] || { label: entry.module, icon: '🧮', path: `/calculator/${entry.module}` };
               return (
-                <div key={entry.id} className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col sm:flex-row gap-4 p-4 !justify-between items-start">
+                <div key={entry.id} className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col sm:flex-row gap-4 p-4 !justify-between items-start">
                   <div className="flex-1">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold mb-2">
                        <span>{meta.icon}</span> {meta.label}
@@ -111,7 +112,7 @@ export default function Riwayat() {
                       type="button"
                       onClick={async () => {
                         const ok = await copyText(`${entry.label}: ${entry.summary} (${formatTime(entry.timestamp)}${entry.patientName ? ` · ${entry.patientName}` : ''})`);
-                        if (ok) { setCopiedId(entry.id); setTimeout(() => setCopiedId(null), 2000); }
+                        if (ok) { haptic('success'); setCopiedId(entry.id); setTimeout(() => setCopiedId(null), 2000); }
                       }}
                       className="min-h-[44px] px-3 py-1.5 rounded-md bg-muted text-foreground text-[12px] font-semibold flex items-center gap-1.5 border border-border"
                     >

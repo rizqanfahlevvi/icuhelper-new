@@ -251,7 +251,7 @@ export default function KalkulatorPF() {
           Parameter Oksigenasi
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className={ROW}>
             <label htmlFor="pf-pao2" className={ROW_LABEL}>PaO₂ ABG</label>
             <div className={ROW_FIELD}>
@@ -264,18 +264,18 @@ export default function KalkulatorPF() {
             <div className="flex justify-between items-center mb-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Fraksi Oksigen (FiO₂)</span>
             </div>
-            <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg mb-2">
-              <button className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${fio2Mode === 'direct' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setFio2Mode('direct')}>Input Desimal</button>
-              <button className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${fio2Mode === 'lowflow' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setFio2Mode('lowflow')}>Pilih Device</button>
+            <div className="flex bg-slate-200 dark:bg-[var(--dk-surface-1)] p-1 rounded-lg mb-2">
+              <button className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${fio2Mode === 'direct' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setFio2Mode('direct')}>Input Desimal</button>
+              <button className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${fio2Mode === 'lowflow' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setFio2Mode('lowflow')}>Pilih Device</button>
             </div>
             {fio2Mode === 'direct' ? (
               <div className="flex flex-col gap-1.5">
                 {/* Sub-toggle: Desimal vs Persen */}
-                <div className="flex bg-slate-300/50 dark:bg-[#0F0F0F] p-0.5 rounded-lg">
+                <div className="flex bg-slate-300/50 dark:bg-[var(--bg-tertiary)] p-0.5 rounded-lg">
                   <button
                     className={`min-h-[44px] flex-1 text-[11px] py-1 rounded-md font-bold transition-colors ${
                       fio2DirectMode === 'decimal'
-                        ? 'bg-white dark:bg-[#3A3A3C] shadow-sm text-slate-900 dark:text-white'
+                        ? 'bg-white dark:bg-[var(--dk-surface-3)] shadow-sm text-slate-900 dark:text-white'
                         : 'text-slate-500 dark:text-slate-400'
                     }`}
                     onClick={() => { setFio2DirectMode('decimal'); setFio2(''); setFio2Error(''); }}
@@ -285,7 +285,7 @@ export default function KalkulatorPF() {
                   <button
                     className={`min-h-[44px] flex-1 text-[11px] py-1 rounded-md font-bold transition-colors ${
                       fio2DirectMode === 'percent'
-                        ? 'bg-white dark:bg-[#3A3A3C] shadow-sm text-slate-900 dark:text-white'
+                        ? 'bg-white dark:bg-[var(--dk-surface-3)] shadow-sm text-slate-900 dark:text-white'
                         : 'text-slate-500 dark:text-slate-400'
                     }`}
                     onClick={() => { setFio2DirectMode('percent'); setFio2(''); setFio2Error(''); }}
@@ -337,7 +337,7 @@ export default function KalkulatorPF() {
                   <option value="venturi60">Venturi 60%</option>
                 </select>
                 {!device.startsWith('venturi') && (
-                  <div className="flex items-center justify-end gap-2 bg-white dark:bg-[#1C1C1E] rounded-md px-2 py-1 shadow-sm border border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center justify-end gap-2 bg-white dark:bg-[var(--dk-surface-1)] rounded-md px-2 py-1 shadow-sm border border-slate-200 dark:border-slate-800">
                     <DecimalInput aria-label="Aliran O₂ (L/menit)" className="w-16 bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-2 py-1 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[13px] transition-all min-h-[44px]" placeholder="O₂" value={flow} onChange={e => setFlow(e.target.value)} />
                     <span className="text-[11px] font-semibold text-slate-500">L/m</span>
                   </div>
@@ -383,14 +383,14 @@ export default function KalkulatorPF() {
           Parameter Mekanik Ventilasi & SpO₂
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className="flex flex-col px-4 py-3">
             <div className="flex justify-between items-center mb-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">SpO₂ / SaO₂ (%)</span>
             </div>
-            <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg mb-2">
-              <button className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${spo2Source === 'pulse' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setSpo2Source('pulse')}>Pulse Ox (SpO₂)</button>
-              <button className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${spo2Source === 'abg' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setSpo2Source('abg')}>ABG SaO₂</button>
+            <div className="flex bg-slate-200 dark:bg-[var(--dk-surface-1)] p-1 rounded-lg mb-2">
+              <button className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${spo2Source === 'pulse' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setSpo2Source('pulse')}>Pulse Ox (SpO₂)</button>
+              <button className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${spo2Source === 'abg' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setSpo2Source('abg')}>ABG SaO₂</button>
             </div>
             <div className="flex items-center justify-end gap-2">
               <DecimalInput className="w-full bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" placeholder="94" value={spo2} onChange={e => setSpo2(e.target.value)} aria-label="SpO₂ / SaO₂ (%)" inputMode="decimal" />
@@ -434,7 +434,7 @@ export default function KalkulatorPF() {
 
       {result && (
         <div id="pf-hasil" className="mt-4 space-y-4 scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
             <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.pfColor}`}>{result.pf !== null ? 'P/F Ratio — Klasifikasi Oksigenasi' : 'Tanpa AGD — Klasifikasi dengan S/F'}</div>
             {result.pf !== null ? (
               <>
@@ -462,7 +462,7 @@ export default function KalkulatorPF() {
           </div>
 
           {result.oiRes && (
-            <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+            <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
               <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.oiRes.col}`}>Oxygenation Index (OI)</div>
               <div className="text-xl font-bold text-slate-900 dark:text-white mb-1">{result.oiRes.val} — {result.oiRes.cls}</div>
               <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">OI = (Paw {map} × FiO₂ {result.f} × 100) / PaO₂ {result.o2.toFixed(1)}</div>
@@ -470,7 +470,7 @@ export default function KalkulatorPF() {
           )}
 
           {result.dpRes && (
-            <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+            <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
               <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.dpRes.col}`}>Driving Pressure</div>
               <div className="text-xl font-bold text-slate-900 dark:text-white mb-1">{result.dpRes.val} cmH₂O — {result.dpRes.cls}</div>
               <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Pplat {pplat} − PEEP {peep} · Target ≤15 (ideal ≤13)</div>
@@ -481,7 +481,7 @@ export default function KalkulatorPF() {
           )}
 
           {result.osiRes && (
-            <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
+            <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
               <div className="text-[12px] uppercase tracking-wider font-bold mb-1 text-blue-500">OSI (SpO₂-based OI)</div>
               <div className="text-xl font-bold text-slate-900 dark:text-white mb-1">OSI = {result.osiRes.val}</div>
               <div className="text-[13px] font-medium text-slate-700 dark:text-slate-300">OSI = (Paw {map} × FiO₂ {result.f.toFixed(2)} × 100) / SpO₂ {spo2}%</div>
@@ -489,7 +489,7 @@ export default function KalkulatorPF() {
           )}
 
           {result.failType && (
-            <div className={`bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm ${result.failType.c}`}>
+            <div className={`bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm ${result.failType.c}`}>
               <div className={`text-[12px] uppercase tracking-wider font-bold mb-1 ${result.failType.c}`}>Tipe Gagal Napas</div>
               <div className="text-xl font-bold mb-1">{result.failType.t}</div>
               <ul className="list-disc pl-4 space-y-0.5">
@@ -553,7 +553,7 @@ export default function KalkulatorPF() {
             </h3>
             <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
               <table className="w-full text-[12px]">
-                <thead className="bg-slate-100 dark:bg-[#2C2C2E]">
+                <thead className="bg-slate-100 dark:bg-[var(--dk-surface-2)]">
                   <tr>
                     <th className="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">Tipe</th>
                     <th className="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">Mekanisme</th>
@@ -562,25 +562,25 @@ export default function KalkulatorPF() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  <tr className="bg-white dark:bg-[#1C1C1E]">
+                  <tr className="bg-white dark:bg-[var(--dk-surface-1)]">
                     <td className="px-3 py-2 font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">Tipe I<br/><span className="text-[10px] font-normal text-slate-500">Hipoksemik</span></td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">V/Q mismatch, shunting, gangguan difusi</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">PaO₂ &lt;60 mmHg<br/>PaCO₂ normal/rendah<br/>A-a gradient ↑</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Pneumonia, ARDS, Edema paru, Emboli paru</td>
                   </tr>
-                  <tr className="bg-slate-50/50 dark:bg-[#242426]">
+                  <tr className="bg-slate-50/50 dark:bg-[var(--dk-surface-1b)]">
                     <td className="px-3 py-2 font-semibold text-red-600 dark:text-red-400 whitespace-nowrap">Tipe II<br/><span className="text-[10px] font-normal text-slate-500">Hiperkapnik</span></td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Kegagalan pompa ventilasi, hipoventilasi alveolar</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">PaCO₂ &gt;45 mmHg dengan pH &lt;7,35 (akut)<br/>Kronik: pH normal, HCO₃⁻ naik<br/>A-a gradient normal</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Eksaserbasi PPOK, Asma berat, Overdosis opioid, MG crisis</td>
                   </tr>
-                  <tr className="bg-white dark:bg-[#1C1C1E]">
+                  <tr className="bg-white dark:bg-[var(--dk-surface-1)]">
                     <td className="px-3 py-2 font-semibold text-blue-600 dark:text-blue-400 whitespace-nowrap">Tipe III<br/><span className="text-[10px] font-normal text-slate-500">Perioperatif</span></td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Atelektasis, penurunan FRC pasca operasi</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Hipoksemia pasca bedah, SpO₂ turun hari 1–2</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Post-laparotomi, Post-torakotomi, Obesitas + supine</td>
                   </tr>
-                  <tr className="bg-slate-50/50 dark:bg-[#242426]">
+                  <tr className="bg-slate-50/50 dark:bg-[var(--dk-surface-1b)]">
                     <td className="px-3 py-2 font-semibold text-purple-600 dark:text-purple-400 whitespace-nowrap">Tipe IV<br/><span className="text-[10px] font-normal text-slate-500">Syok</span></td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Hipoperfusi, otot napas hipermetabolik</td>
                     <td className="px-3 py-2 text-slate-700 dark:text-slate-300">Gagal napas sekunder syok, laktat ↑</td>
@@ -604,7 +604,7 @@ export default function KalkulatorPF() {
             </p>
             <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
               <table className="w-full text-[12px]">
-                <thead className="bg-slate-100 dark:bg-[#2C2C2E]">
+                <thead className="bg-slate-100 dark:bg-[var(--dk-surface-2)]">
                   <tr>
                     <th className="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">Parameter</th>
                     <th className="px-3 py-2 text-center font-bold text-amber-600 dark:text-amber-400">Mild</th>
@@ -613,23 +613,23 @@ export default function KalkulatorPF() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  <tr className="bg-white dark:bg-[#1C1C1E]">
+                  <tr className="bg-white dark:bg-[var(--dk-surface-1)]">
                     <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">P/F Ratio</td>
                     <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">200–300 mmHg</td>
                     <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">100–200 mmHg</td>
                     <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">&lt;100 mmHg</td>
                   </tr>
-                  <tr className="bg-slate-50/50 dark:bg-[#242426]">
+                  <tr className="bg-slate-50/50 dark:bg-[var(--dk-surface-1b)]">
                     <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">PEEP minimal</td>
                     <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400" colSpan={3}>PEEP/CPAP ≥5 cmH₂O (Berlin: CPAP/NIV hanya kategori ringan; sedang–berat butuh ventilasi invasif)</td>
                   </tr>
-                  <tr className="bg-white dark:bg-[#1C1C1E]">
+                  <tr className="bg-white dark:bg-[var(--dk-surface-1)]">
                     <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">S/F (Global 2023, terintubasi, SpO₂ ≤97%)</td>
                     <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">&gt;235–≤315</td>
                     <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">&gt;148–≤235</td>
                     <td className="px-3 py-2 text-center text-slate-700 dark:text-slate-300">≤148</td>
                   </tr>
-                  <tr className="bg-slate-50/50 dark:bg-[#242426]">
+                  <tr className="bg-slate-50/50 dark:bg-[var(--dk-surface-1b)]">
                     <td className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-300">Mortalitas (Berlin 2012)</td>
                     <td className="px-3 py-2 text-center text-amber-600 dark:text-amber-400 font-bold">~27%</td>
                     <td className="px-3 py-2 text-center text-orange-600 dark:text-orange-400 font-bold">~32%</td>
@@ -647,7 +647,7 @@ export default function KalkulatorPF() {
             </h3>
             <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
               <table className="w-full text-[12px]">
-                <thead className="bg-slate-100 dark:bg-[#2C2C2E]">
+                <thead className="bg-slate-100 dark:bg-[var(--dk-surface-2)]">
                   <tr>
                     <th className="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">Intervensi</th>
                     <th className="px-3 py-2 text-center font-bold text-amber-600 dark:text-amber-400">Mild</th>
@@ -656,33 +656,33 @@ export default function KalkulatorPF() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                  <tr className="bg-white dark:bg-[#1C1C1E]">
+                  <tr className="bg-white dark:bg-[var(--dk-surface-1)]">
                     <td className="px-3 py-2 font-semibold">VT target</td>
                     <td className="px-3 py-2 text-center">6 mL/kg IBW</td>
                     <td className="px-3 py-2 text-center">6 mL/kg IBW</td>
                     <td className="px-3 py-2 text-center">4–6 mL/kg IBW</td>
                   </tr>
-                  <tr className="bg-slate-50/50 dark:bg-[#242426]">
+                  <tr className="bg-slate-50/50 dark:bg-[var(--dk-surface-1b)]">
                     <td className="px-3 py-2 font-semibold">PEEP</td>
                     <td className="px-3 py-2 text-center" colSpan={3}>Kombinasi PEEP/FiO₂ tabel ARDSNet; sedang–berat: PEEP lebih tinggi tanpa recruitment maneuver berkepanjangan (ATS 2024)</td>
                   </tr>
-                  <tr className="bg-white dark:bg-[#1C1C1E]">
+                  <tr className="bg-white dark:bg-[var(--dk-surface-1)]">
                     <td className="px-3 py-2 font-semibold">Prone positioning</td>
                     <td className="px-3 py-2 text-center">Tidak rutin</td>
                     <td className="px-3 py-2 text-center">Bila P/F &lt;150 (FiO₂ ≥0,6, PEEP ≥5)</td>
                     <td className="px-3 py-2 text-center font-bold text-red-600 dark:text-red-400">≥16 j/hari (PROSEVA; ESICM 2023)</td>
                   </tr>
-                  <tr className="bg-slate-50/50 dark:bg-[#242426]">
+                  <tr className="bg-slate-50/50 dark:bg-[var(--dk-surface-1b)]">
                     <td className="px-3 py-2 font-semibold">NMBA (Cisatrakurium)</td>
                     <td className="px-3 py-2 text-center">Tidak</td>
                     <td className="px-3 py-2 text-center">Opsional bila P/F &lt;150</td>
                     <td className="px-3 py-2 text-center">15 mg bolus → 37,5 mg/jam 48 j (ACURASYS); ATS 2024 kondisional</td>
                   </tr>
-                  <tr className="bg-white dark:bg-[#1C1C1E]">
+                  <tr className="bg-white dark:bg-[var(--dk-surface-1)]">
                     <td className="px-3 py-2 font-semibold">Target SpO₂</td>
                     <td className="px-3 py-2 text-center" colSpan={3}>SpO₂ 88–95% / PaO₂ 55–80 mmHg (ARDSNet)</td>
                   </tr>
-                  <tr className="bg-slate-50/50 dark:bg-[#242426]">
+                  <tr className="bg-slate-50/50 dark:bg-[var(--dk-surface-1b)]">
                     <td className="px-3 py-2 font-semibold">ECMO VV</td>
                     <td className="px-3 py-2 text-center">Tidak</td>
                     <td className="px-3 py-2 text-center">Tidak</td>
@@ -697,7 +697,7 @@ export default function KalkulatorPF() {
           </div>
 
           {/* ── DRIVING PRESSURE ── */}
-          <div className="bg-slate-50 dark:bg-[#2C2C2E] rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+          <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] rounded-xl p-4 border border-slate-200 dark:border-slate-700">
             <h3 className="font-bold text-slate-800 dark:text-slate-200 mb-2">
               Driving Pressure (DP) — Prediktor Mortalitas ARDS
             </h3>
@@ -719,7 +719,7 @@ export default function KalkulatorPF() {
             </h3>
             <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
               <table className="w-full text-[12px]">
-                <thead className="bg-slate-100 dark:bg-[#2C2C2E]">
+                <thead className="bg-slate-100 dark:bg-[var(--dk-surface-2)]">
                   <tr>
                     <th className="px-3 py-2 text-left font-bold text-slate-700 dark:text-slate-300">Indeks</th>
                     <th className="px-3 py-2 text-center font-bold text-slate-700 dark:text-slate-300">Formula</th>
@@ -728,13 +728,13 @@ export default function KalkulatorPF() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                  <tr className="bg-white dark:bg-[#1C1C1E]">
+                  <tr className="bg-white dark:bg-[var(--dk-surface-1)]">
                     <td className="px-3 py-2 font-semibold">OI</td>
                     <td className="px-3 py-2 text-center font-mono text-[11px]">Paw × FiO₂ × 100 / PaO₂</td>
                     <td className="px-3 py-2 text-center">Tidak baku (ambang pediatri/neonatus) — tren</td>
                     <td className="px-3 py-2">Mempertimbangkan MAP — lebih akurat dari P/F pada MV</td>
                   </tr>
-                  <tr className="bg-slate-50/50 dark:bg-[#242426]">
+                  <tr className="bg-slate-50/50 dark:bg-[var(--dk-surface-1b)]">
                     <td className="px-3 py-2 font-semibold">OSI</td>
                     <td className="px-3 py-2 text-center font-mono text-[11px]">Paw × FiO₂ × 100 / SpO₂</td>
                     <td className="px-3 py-2 text-center">Tidak baku — tren</td>

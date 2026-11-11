@@ -314,11 +314,11 @@ export default function KalkulatorTransfusi() {
       <UnifiedSyncBanner fields={syncFields} />
 
       {/* Product Tab Bar */}
-      <div className="flex bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl w-full max-w-2xl mx-auto shadow-sm mb-4">
+      <div className="flex bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl w-full max-w-2xl mx-auto shadow-sm mb-4">
         {(['prc', 'wb', 'ffp', 'tc', 'cryo'] as const).map((t) => (
           <button 
             key={t}
-            className={`min-h-[44px] flex-1 py-2 text-[12px] md:text-[13px] font-bold rounded-lg transition-all ${tab === t ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'}`} 
+            className={`min-h-[44px] flex-1 py-2 text-[12px] md:text-[13px] font-bold rounded-lg transition-all ${tab === t ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'}`} 
             onClick={() => {
               setTab(t);
             }}
@@ -329,7 +329,7 @@ export default function KalkulatorTransfusi() {
       </div>
 
       {/* Main Calculation Card */}
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
         
         {/* Dynamic Card Header */}
         <div className="flex items-start gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -358,7 +358,7 @@ export default function KalkulatorTransfusi() {
         <div className="space-y-4">
           
           {/* 1. Shared Weight Parameter */}
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
             <label htmlFor="bb_transfusion" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan Pasien</label>
             <div className="flex items-center gap-2">
               <DecimalInput 
@@ -375,7 +375,7 @@ export default function KalkulatorTransfusi() {
           {/* 2. PRC & WB Specific Inputs */}
           {(tab === 'prc' || tab === 'wb') && (
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="hb_actual" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Hemoglobin (Hb) Aktual</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
@@ -390,7 +390,7 @@ export default function KalkulatorTransfusi() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="hb_target" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Hemoglobin (Hb)</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
@@ -407,7 +407,7 @@ export default function KalkulatorTransfusi() {
 
               {tab === 'prc' && (
                 <>
-                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                     <label htmlFor="gender_prc" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Jenis Kelamin (untuk EBV)</label>
                     <select 
                       id="gender_prc"
@@ -420,7 +420,7 @@ export default function KalkulatorTransfusi() {
                     </select>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+                  <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                     <label htmlFor="premed_selection" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Rekomendasi Premedikasi</label>
                     <select 
                       id="premed_selection"
@@ -442,7 +442,7 @@ export default function KalkulatorTransfusi() {
           {/* 3. FFP Specific Inputs */}
           {tab === 'ffp' && (
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="ffp_inr_input" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">INR Aktual <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">(opsional)</span></label>
                 <DecimalInput 
                   id="ffp_inr_input" 
@@ -454,7 +454,7 @@ export default function KalkulatorTransfusi() {
                 />
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="ffp_dose_selection" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Dosis yang Diinginkan</label>
                 <select 
                   id="ffp_dose_selection"
@@ -492,7 +492,7 @@ export default function KalkulatorTransfusi() {
           {/* 4. TC Specific Inputs */}
           {tab === 'tc' && (
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="tc_plt_actual" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Trombosit Aktual</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
@@ -506,7 +506,7 @@ export default function KalkulatorTransfusi() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="tc_plt_target" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Trombosit</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
@@ -520,7 +520,7 @@ export default function KalkulatorTransfusi() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="tc_type_selection" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Tipe Sediaan Produk</label>
                 <select 
                   id="tc_type_selection"
@@ -535,7 +535,7 @@ export default function KalkulatorTransfusi() {
 
               {/* Inline Trigger Guidance */}
               <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden text-xs bg-slate-50/50 dark:bg-slate-900/10 mt-2">
-                <div className="bg-slate-100 dark:bg-[#2C2C2E] p-2 font-bold text-slate-700 dark:text-slate-300 text-[10px] uppercase tracking-wider">
+                <div className="bg-slate-100 dark:bg-[var(--dk-surface-2)] p-2 font-bold text-slate-700 dark:text-slate-300 text-[10px] uppercase tracking-wider">
                   Ambang Transfusi Trombosit Dewasa (AABB/ICTMG 2025)
                 </div>
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -566,7 +566,7 @@ export default function KalkulatorTransfusi() {
           {/* 5. Cryoprecipitate Specific Inputs */}
           {tab === 'cryo' && (
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="cryo_fib_actual" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Fibrinogen Aktual</label>
                 <div className="flex items-center gap-2">
                   <DecimalInput 
@@ -579,7 +579,7 @@ export default function KalkulatorTransfusi() {
                   />
                   <select aria-label="Satuan fibrinogen" 
                     id="cryo_unit"
-                    className="min-h-[44px] bg-slate-100 dark:bg-[#2C2C2E] border-none rounded-lg py-1.5 px-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer"
+                    className="min-h-[44px] bg-slate-100 dark:bg-[var(--dk-surface-2)] border-none rounded-lg py-1.5 px-2 text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer"
                     value={cryoFibUnit}
                     onChange={e => setCryoFibUnit(e.target.value as 'mgdl' | 'gdl')}
                   >
@@ -589,7 +589,7 @@ export default function KalkulatorTransfusi() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[#2C2C2E]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50 dark:bg-[var(--dk-surface-2)]/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/40">
                 <label htmlFor="cryo_target_selection" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Target Fibrinogen</label>
                 <select 
                   id="cryo_target_selection"
@@ -622,9 +622,9 @@ export default function KalkulatorTransfusi() {
       {/* Calculation Output Card (Result Block) */}
       {res && <InputWarning message={weightPlausibilityWarning(parseFloat(bb))} />}
       {res && (
-        <div id="transfusi-hasil" className="scroll-mt-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div id="transfusi-hasil" className="scroll-mt-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
           
-          <div className="p-4 bg-slate-50 dark:bg-[#2C2C2E]/40 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+          <div className="p-4 bg-slate-50 dark:bg-[var(--dk-surface-2)]/40 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Hasil Kalkulasi Transfusi</span>
             <span className="text-[10px] font-extrabold bg-blue-100 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded">PASIEN AKTIF</span>
           </div>
@@ -649,7 +649,7 @@ export default function KalkulatorTransfusi() {
               </div>
 
               {/* Box 2: Expected Clinical Target Delta Rise */}
-              <div className="bg-slate-50 dark:bg-[#2C2C2E]/40 border border-slate-100 dark:border-slate-800/50 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+              <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/40 border border-slate-100 dark:border-slate-800/50 rounded-xl p-4 flex flex-col items-center justify-center text-center">
                 <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">KENAIKAN KLINIS DIHARAPKAN</span>
                 
                 {res.type === 'prc' && (
@@ -711,7 +711,7 @@ export default function KalkulatorTransfusi() {
             </div>
 
             {/* Sub-result Detailed Information Blocks */}
-            <div className="bg-slate-50 dark:bg-[#2C2C2E]/20 rounded-xl p-4 space-y-3.5 border border-slate-100 dark:border-slate-800">
+            <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/20 rounded-xl p-4 space-y-3.5 border border-slate-100 dark:border-slate-800">
 
               {/* Step-by-step calculation */}
               {res.type === 'prc' && (
@@ -789,7 +789,7 @@ export default function KalkulatorTransfusi() {
               {res.type === 'prc' && res.premednote && (
                 <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80">
                   <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase block tracking-wider">Rekomendasi Premedikasi</span>
-                  <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-medium bg-white dark:bg-[#1C1C1E] p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                  <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-medium bg-white dark:bg-[var(--dk-surface-1)] p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
                     {res.premednote}
                   </p>
                 </div>
@@ -835,7 +835,7 @@ export default function KalkulatorTransfusi() {
               {/* Mobile View: Stacked Cards */}
               <div className="md:hidden space-y-3">
                 {productSpecs.map((p) => (
-                  <div key={p.name} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[#1C1C1E] space-y-2">
+                  <div key={p.name} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[var(--dk-surface-1)] space-y-2">
                     <div className="flex justify-between items-center border-b border-slate-200/60 dark:border-slate-800/60 pb-1.5">
                       <span className="font-bold text-slate-850 dark:text-slate-100">{p.name}</span>
                       <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded font-semibold">{p.volume}</span>
@@ -885,18 +885,18 @@ export default function KalkulatorTransfusi() {
               </div>
             </div>
 
-            <div className="bg-slate-100/50 dark:bg-[#2C2C2E]/40 p-3.5 rounded-xl text-xs space-y-2">
+            <div className="bg-slate-100/50 dark:bg-[var(--dk-surface-2)]/40 p-3.5 rounded-xl text-xs space-y-2">
               <strong className="text-slate-800 dark:text-slate-200 block">Derivasi Formula Volume PRC (Davies et al. 2007)</strong>
               <p className="text-slate-600 dark:text-slate-400">
                 Formula Davies — diturunkan dari 379 transfusi di PICU (ANAK); pada dewasa belum divalidasi, gunakan sebagai estimasi:
                 <br />
-                <code className="font-mono bg-white dark:bg-[#1C1C1E] px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">Volume (mL) = ΔHb (g/dL) × BB (kg) × 3 / Hct_PRC</code>
+                <code className="font-mono bg-white dark:bg-[var(--dk-surface-1)] px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">Volume (mL) = ΔHb (g/dL) × BB (kg) × 3 / Hct_PRC</code>
               </p>
               
               {/* Mobile View: Stacked factors */}
               <div className="md:hidden space-y-2 mt-2">
                 {kFactors.map((f) => (
-                  <div key={f.hct} className={`border rounded-xl p-3 ${f.highlight ? 'bg-blue-500/5 border-blue-200 dark:border-blue-800/50' : 'bg-slate-50/50 dark:bg-[#1C1C1E] border-slate-200 dark:border-slate-800'} text-[11px] space-y-1`}>
+                  <div key={f.hct} className={`border rounded-xl p-3 ${f.highlight ? 'bg-blue-500/5 border-blue-200 dark:border-blue-800/50' : 'bg-slate-50/50 dark:bg-[var(--dk-surface-1)] border-slate-200 dark:border-slate-800'} text-[11px] space-y-1`}>
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-slate-500 dark:text-slate-400">Hematokrit: <strong className="text-slate-800 dark:text-slate-200">{f.hct}</strong></span>
                       <span className={`px-2 py-0.5 rounded font-extrabold text-xs ${f.highlight ? 'bg-blue-100 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`}>{f.factor}</span>
@@ -910,7 +910,7 @@ export default function KalkulatorTransfusi() {
               </div>
 
               {/* Desktop View: Wide Table */}
-              <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#1C1C1E]">
+              <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[var(--dk-surface-1)]">
                 <table className="w-full text-left text-[11px]">
                   <thead className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">
                     <tr>
@@ -972,7 +972,7 @@ export default function KalkulatorTransfusi() {
               {/* Mobile View */}
               <div className="md:hidden space-y-3">
                 {caDoses.map((c) => (
-                  <div key={c.indication} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[#1C1C1E] space-y-2">
+                  <div key={c.indication} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[var(--dk-surface-1)] space-y-2">
                     <div className="border-b border-slate-200/60 dark:border-slate-800/60 pb-1.5 flex justify-between items-start gap-2">
                       <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{c.indication}</span>
                       <span className="text-[10px] bg-red-100 dark:bg-red-500/15 text-red-700 dark:text-red-400 px-2 py-0.5 rounded font-bold whitespace-nowrap">{c.dose}</span>
@@ -986,7 +986,7 @@ export default function KalkulatorTransfusi() {
               </div>
 
               {/* Desktop View */}
-              <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#1C1C1E]">
+              <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[var(--dk-surface-1)]">
                 <table className="w-full min-w-[500px] text-xs text-left divide-y divide-slate-200 dark:divide-slate-800">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 font-semibold text-slate-600">
                     <tr>
@@ -1015,7 +1015,7 @@ export default function KalkulatorTransfusi() {
               {/* Mobile View */}
               <div className="md:hidden space-y-2.5">
                 {caSteps.map((s) => (
-                  <div key={s.step} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[#1C1C1E] space-y-1.5">
+                  <div key={s.step} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[var(--dk-surface-1)] space-y-1.5">
                     <span className="font-bold text-slate-800 dark:text-slate-200 text-xs block border-b border-slate-200/60 dark:border-slate-800/60 pb-1">{s.step}</span>
                     <p className={`text-[11px] ${s.isWarning ? 'text-red-600 dark:text-red-400 font-bold' : 'text-slate-600 dark:text-slate-400 font-medium'}`}>
                       {s.desc}
@@ -1025,7 +1025,7 @@ export default function KalkulatorTransfusi() {
               </div>
 
               {/* Desktop View */}
-              <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#1C1C1E]">
+              <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[var(--dk-surface-1)]">
                 <table className="w-full text-xs text-left divide-y divide-slate-200 dark:divide-slate-800">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 font-semibold text-slate-600">
                     <tr>
@@ -1052,7 +1052,7 @@ export default function KalkulatorTransfusi() {
               {/* Mobile View */}
               <div className="md:hidden space-y-3">
                 {caComparison.map((item) => (
-                  <div key={item.kriteria} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[#1C1C1E] space-y-2">
+                  <div key={item.kriteria} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[var(--dk-surface-1)] space-y-2">
                     <span className="font-bold text-slate-800 dark:text-slate-200 text-xs block border-b border-slate-200/60 dark:border-slate-800/60 pb-1">{item.kriteria}</span>
                     <div className="grid grid-cols-2 gap-2.5 text-[11px]">
                       <div>
@@ -1069,7 +1069,7 @@ export default function KalkulatorTransfusi() {
               </div>
 
               {/* Desktop View */}
-              <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#1C1C1E]">
+              <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[var(--dk-surface-1)]">
                 <table className="w-full text-xs text-left divide-y divide-slate-200 dark:divide-slate-800">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 font-semibold text-slate-600">
                     <tr>
@@ -1111,7 +1111,7 @@ export default function KalkulatorTransfusi() {
             {/* Mobile View */}
             <div className="md:hidden space-y-3">
               {premedRules.map((r) => (
-                <div key={r.condition} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[#1C1C1E] space-y-2">
+                <div key={r.condition} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[var(--dk-surface-1)] space-y-2">
                   <div className="border-b border-slate-200/60 dark:border-slate-800/60 pb-1.5 flex justify-between items-start gap-2">
                     <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{r.condition}</span>
                     <span className="text-[10px] bg-blue-100 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded font-bold whitespace-nowrap">{r.drug}</span>
@@ -1125,7 +1125,7 @@ export default function KalkulatorTransfusi() {
             </div>
 
             {/* Desktop View */}
-            <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#1C1C1E]">
+            <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[var(--dk-surface-1)]">
               <table className="w-full min-w-[500px] text-xs text-left divide-y divide-slate-200 dark:divide-slate-800">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 font-semibold text-slate-600">
                   <tr>
@@ -1166,7 +1166,7 @@ export default function KalkulatorTransfusi() {
             {/* Mobile View */}
             <div className="md:hidden space-y-3">
               {infusionRates.map((r) => (
-                <div key={r.condition} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[#1C1C1E] space-y-2">
+                <div key={r.condition} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[var(--dk-surface-1)] space-y-2">
                   <div className="border-b border-slate-200/60 dark:border-slate-800/60 pb-1.5">
                     <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{r.condition}</span>
                   </div>
@@ -1185,7 +1185,7 @@ export default function KalkulatorTransfusi() {
             </div>
 
             {/* Desktop View */}
-            <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#1C1C1E]">
+            <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[var(--dk-surface-1)]">
               <table className="w-full min-w-[500px] text-xs text-left divide-y divide-slate-200 dark:divide-slate-800">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 font-semibold text-slate-600">
                   <tr>
@@ -1235,7 +1235,7 @@ export default function KalkulatorTransfusi() {
             {/* Mobile View */}
             <div className="md:hidden space-y-3">
               {intervalRules.map((i) => (
-                <div key={i.situation} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[#1C1C1E] space-y-2">
+                <div key={i.situation} className="border border-slate-200 dark:border-slate-800 rounded-xl p-3 bg-slate-50/50 dark:bg-[var(--dk-surface-1)] space-y-2">
                   <div className="border-b border-slate-200/60 dark:border-slate-800/60 pb-1.5">
                     <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{i.situation}</span>
                   </div>
@@ -1254,7 +1254,7 @@ export default function KalkulatorTransfusi() {
             </div>
 
             {/* Desktop View */}
-            <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[#1C1C1E]">
+            <div className="hidden md:block w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-[var(--dk-surface-1)]">
               <table className="w-full min-w-[500px] text-xs text-left divide-y divide-slate-200 dark:divide-slate-800">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 font-semibold text-slate-600">
                   <tr>

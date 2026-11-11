@@ -62,19 +62,19 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
           Parameter Dasar ABG
         </h2>
         
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 w-full shadow-sm">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 w-full shadow-sm">
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Jenis Sampel</span>
-              <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
+              <div className="flex bg-slate-200 dark:bg-[var(--dk-surface-1)] p-1 rounded-lg">
                 <button
-                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType !== 'vena' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
+                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType !== 'vena' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
                   onClick={() => updateInput('sampleType', 'arteri')}
                 >
                   🩸 Arteri (ABG)
                 </button>
                 <button
-                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType === 'vena' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
+                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.sampleType === 'vena' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}
                   onClick={() => updateInput('sampleType', 'vena')}
                 >
                   💧 Vena (VBG)
@@ -112,7 +112,7 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
               />
               <button 
                 onClick={togglePressureUnit}
-                className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0 min-h-[44px]"
+                className="px-2 py-2 bg-slate-200 dark:bg-[var(--dk-separator)] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0 min-h-[44px]"
               >
                 {inputs.paco2Unit}
               </button>
@@ -144,7 +144,7 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
               />
               <button
                 onClick={togglePressureUnit}
-                className="px-2 py-2 bg-slate-200 dark:bg-[#38383A] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0 min-h-[44px]"
+                className="px-2 py-2 bg-slate-200 dark:bg-[var(--dk-separator)] rounded-lg text-[11px] font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all w-14 flex-shrink-0 min-h-[44px]"
                 title="Satuan gas (berlaku untuk PaCO₂ & PaO₂)"
               >
                 {inputs.paco2Unit}
@@ -174,7 +174,7 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
           Oksigenasi, Elektrolit & Klinis
         </h2>
         
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 w-full shadow-sm">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-200 dark:divide-slate-700 w-full shadow-sm">
           
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between">
@@ -189,15 +189,15 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
                 <span className="text-[11px] font-semibold text-slate-500 w-4 text-left">%</span>
               </div>
             </div>
-            <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
+            <div className="flex bg-slate-200 dark:bg-[var(--dk-surface-1)] p-1 rounded-lg">
               <button 
-                className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'abg' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
+                className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'abg' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
                 onClick={() => updateInput('spo2Source', 'abg')}
               >
                 🔬 SaO₂ (ABG)
               </button>
               <button 
-                className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'pulse' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
+                className={`min-h-[44px] flex-1 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.spo2Source === 'pulse' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
                 onClick={() => updateInput('spo2Source', 'pulse')}
               >
                 💡 Pulse Ox
@@ -208,15 +208,15 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
           <div className="flex flex-col px-4 py-3 gap-2">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">FiO₂</span>
-              <div className="flex bg-slate-200 dark:bg-[#1C1C1E] p-1 rounded-lg">
+              <div className="flex bg-slate-200 dark:bg-[var(--dk-surface-1)] p-1 rounded-lg">
                 <button 
-                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'direct' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
+                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'direct' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
                   onClick={() => updateInput('fio2Mode', 'direct')}
                 >
                   🔢 Direct
                 </button>
                 <button 
-                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'lowflow' ? 'bg-white dark:bg-[#2C2C2E] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
+                  className={`min-h-[44px] px-3 text-xs py-1.5 rounded-md font-bold transition-colors ${inputs.fio2Mode === 'lowflow' ? 'bg-white dark:bg-[var(--dk-surface-2)] shadow-sm text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`} 
                   onClick={() => updateInput('fio2Mode', 'lowflow')}
                 >
                   💨 Low-Flow
@@ -335,7 +335,7 @@ export default function AbgInterpreter({ inputs, setInputs, calcResult, showResu
       </div>
 
       {showResult && calcResult && (
-        <div id="abg-hasil" className="scroll-mt-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm mt-6">
+        <div id="abg-hasil" className="scroll-mt-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm mt-6">
           <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800">
             <h3 className="font-extrabold text-[var(--label-primary)] flex items-center gap-2 text-base">
               <CheckCircle2 className="w-5 h-5 text-[var(--accent)]" />

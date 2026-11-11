@@ -238,11 +238,11 @@ export default function KalkulatorElektro() {
       {/* Unified Clinical Synchronization Banner */}
       <UnifiedSyncBanner fields={syncFields} />
       
-      <div className="flex bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4">
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'na' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('na'); setShown(false)}}>Natrium</button>
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'k' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('k'); setShown(false)}}>Kalium</button>
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'ca' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('ca'); setShown(false)}}>Kalsium</button>
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'mg' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('mg'); setShown(false)}}>Magnesium</button>
+      <div className="flex bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4">
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'na' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('na'); setShown(false)}}>Natrium</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'k' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('k'); setShown(false)}}>Kalium</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'ca' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('ca'); setShown(false)}}>Kalsium</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${tab === 'mg' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => {setTab('mg'); setShown(false)}}>Magnesium</button>
       </div>
 
       <div className="flex flex-col gap-0">
@@ -250,7 +250,7 @@ export default function KalkulatorElektro() {
            Parameter Koreksi Elektrolit
          </h2>
          
-         <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+         <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
             <div className="flex flex-wrap items-center justify-between px-4 py-3 gap-x-4 gap-y-2">
                <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-1 min-w-[7rem]">Berat Badan</span>
                <div className="flex-1 min-w-[9rem] flex items-center justify-end gap-2">
@@ -468,7 +468,7 @@ export default function KalkulatorElektro() {
           <li><strong className="text-foreground">Kalsium:</strong> Ca terkoreksi = Ca + 0.8 × (4.0 − albumin) — hanya perkiraan; gunakan Ca ion bila ada. Berat = &lt;1.9 mmol/L (7.6 mg/dL) dan/atau bergejala → Ca glukonat 10% 10–20 mL/10 menit lalu infus 100 mL/1 L @50–100 mL/jam; koreksi Mg. Hiperkalsemia: NaCl 0.9% 4–6 L/24 jam → bisfosfonat IV; diuretik loop hanya bila overload. <em>(SfE 2016)</em></li>
           <li><strong className="text-foreground">Magnesium:</strong> Mg serum tidak mencerminkan Mg tubuh total. IV bila &lt;0.5 mmol/L (≈1.2 mg/dL) atau bergejala; 1 g MgSO₄ ≈ +0.15 mEq/L (18–30 jam); maksimal 1.5 mEq/kg; &lt;6 g dalam 8–12 jam. Aritmia tidak stabil: 2 g dalam 2–15 menit. Gangguan ginjal: sesuaikan & pantau. <em>(Hansen 2018)</em></li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 <strong>Hiponatremia:</strong> Spasovski G, et al. Eur J Endocrinol 2014;170:G1 / Nephrol Dial Transplant 2014;29(Suppl 2):i1 · Verbalis JG, et al. Am J Med 2013;126(10 Suppl 1):S1 · Adrogué HJ, Madias NE. NEJM 2000;342:1581 · Adrogué HJ, Tucker BM, Madias NE. JAMA 2022;328:280 · See XY, et al. J Crit Care Med 2024;10:209 · El Hage L, et al. AACE Clin Case Rep 2018;5:e172 · Vera MA, et al. Lab Med 2022;53:e105. <strong>Hipernatremia:</strong> Adrogué HJ, Madias NE. NEJM 2000;342:1493 · Miller NE, et al. Am Fam Physician 2023;108:476 · Chauhan K, et al. CJASN 2019;14:656 · Chacon-Palma G, et al. Kidney360 2025;6:1305. <strong>Kalium:</strong> Kardalas E, et al. Endocr Connect 2018;7:R135 · Kruse JA, Carlson RW. Arch Intern Med 1990;150:613 · Goyal A, et al. JAMA 2012;307:157 · O'Brien B, et al. JAMA 2024;332:979 · Ford S, et al. Aust Prescr 2026;49:194 · Jessen MK, et al. Resuscitation 2025;208:110489. <strong>Kalsium:</strong> Turner J, et al. Endocr Connect 2016;5:G7 · Walsh J, et al. Endocr Connect 2016;5:G9. <strong>Magnesium:</strong> Hansen BA, Bruserud Ø. J Intensive Care 2018;6:21. <strong>Umum:</strong> Sterns RH. NEJM 2015;372:55.
         </div>
       </Accordion>

@@ -27,7 +27,7 @@ export function RenalHdIndikasi() {
         </div>
       </div>
 
-      <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+      <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <label className="flex items-start gap-3 p-4 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-white/5 transition-colors rounded-t-xl">
           <input type="checkbox" checked={acidosis} onChange={e=>setAcidosis(e.target.checked)} className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
           <div className="flex-1">
@@ -69,7 +69,7 @@ export function RenalHdIndikasi() {
         </label>
       </div>
 
-      <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+      <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
         <div className="p-3 text-[12px] font-bold text-slate-500 uppercase tracking-wide">AKI stage 3 tanpa komplikasi di atas (AKIKI)</div>
         <label className="flex items-start gap-3 p-4 cursor-pointer hover:bg-slate-100/50 dark:hover:bg-white/5 transition-colors">
           <input type="checkbox" checked={oliguria72} onChange={e=>setOliguria72(e.target.checked)} className="mt-1 w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
@@ -111,7 +111,7 @@ export function RenalHdIndikasi() {
       )}
       
       {!isIndicated && !akiki2 && (
-        <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-5 text-center mt-2 text-slate-500 text-[13px]">
+        <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl p-5 text-center mt-2 text-slate-500 text-[13px]">
           Belum ada indikasi mendesak (AEIOU) maupun kriteria AKIKI yang dipilih.
         </div>
       )}

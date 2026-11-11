@@ -24,8 +24,8 @@ export default function ScoringCpis() {
   const btnClass = (val: number, cur: number | null) => {
     return `w-full text-left p-3 text-sm border rounded-xl transition-all ${
       val === cur 
-      ? 'bg-blue-500 text-white shadow-md ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-[#1C1C1E] border-blue-500 font-bold' 
-      : 'bg-slate-50 dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#3C3C3E] text-slate-700 dark:text-slate-300'
+      ? 'bg-blue-500 text-white shadow-md ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-[var(--dk-surface-1)] border-blue-500 font-bold' 
+      : 'bg-slate-50 dark:bg-[var(--dk-surface-2)] border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)] text-slate-700 dark:text-slate-300'
     }`;
   };
 
@@ -34,7 +34,7 @@ export default function ScoringCpis() {
       {/* Active Patient Widget */}
       <ActivePatientBriefCard />
 
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
          <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
@@ -131,7 +131,7 @@ export default function ScoringCpis() {
           <li><strong className="text-foreground">Keterbatasan CPIS:</strong> Sensitivitas dan spesifisitas moderat (65-72%). Panduan ATS/IDSA 2016 tidak lagi merekomendasikan CPIS sebagai alat diagnosis tunggal, melainkan lebih ke arah panduan untuk de-eskalasi antibiotik. Diagnosis klinis VAP tetap berdasarkan tanda klinis + kultur kuantitatif.</li>
           <li><strong className="text-foreground">Pedoman ERS/ESICM/ESCMID/ALAT 2017 (Torres et al.):</strong> diagnosis HAP/VAP tetap berbasis klinis + mikrobiologi; skor seperti CPIS bukan kriteria diagnosis tunggal.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Pugin J et al. (CPIS original) Am Rev Respir Dis 1991;143:1121 · Singh N et al. (modified CPIS + de-eskalasi) Am J Respir Crit Care Med 2000;162:505 · Kalil AC et al. (IDSA/ATS HAP/VAP 2016) Clin Infect Dis 2016;63:e61 · Torres A et al. (ERS/ESICM/ESCMID/ALAT HAP/VAP 2017) Eur Respir J 2017;50:1700582
         </div>
       </Accordion>

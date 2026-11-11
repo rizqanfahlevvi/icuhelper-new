@@ -238,7 +238,7 @@ function HypoK({ s, kv, pv, hasPh, kNorm, w, saveInputs }: { s: KaliumState; kv:
 
       {plan.totalMeq > 0 && (
         <>
-          <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left">
+          <div className="w-full bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left">
             <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Koreksi per sesi (empiris ICU){protoTooSlow ? ' — DIDAHULUKAN untuk pasien ini' : ''}</div>
             <div className="font-mono text-2xl font-bold text-slate-800 dark:text-slate-100">Sesi 1: {sessionMeq} mEq KCl {iv ? 'IV' : 'oral'}</div>
             <div className="text-[13px] text-slate-700 dark:text-slate-300 mt-1 space-y-0.5">

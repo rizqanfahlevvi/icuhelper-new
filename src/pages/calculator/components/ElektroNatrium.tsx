@@ -85,7 +85,7 @@ function TonicityScale({ o }: { o: Osm }) {
   const val = o.hasMeasured ? o.measuredOsm : o.effective;
   const cls = o.hasMeasured ? o.measuredClass : o.calcClass;
   return (
-    <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-left">
+    <div className="w-full bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-left">
       <div className="text-[12px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">Kategori osmolalitas serum</div>
       <p className="text-[12px] text-slate-600 dark:text-slate-400 mb-2">Pasien: <strong className="font-mono">{fmt(val, 1)} mOsm/kg</strong> ({o.hasMeasured ? 'terukur' : 'efektif terhitung'}) → <strong>{cls}</strong></p>
       <div className="grid grid-cols-3 gap-2">
@@ -343,7 +343,7 @@ function HyperNa({ r, na, glu, ureum, ureaUnit, sex, age, onset, saveInputs }: P
 
       {/* ② CARA PEMBERIAN */}
       <div className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 pt-2">② Cara Pemberian</div>
-      <div className="w-full bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-3">
+      <div className="w-full bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 text-left space-y-3">
         <div className="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Cairan: {r.fluid.label} ({r.fluid.na} mEq/L)</div>
         {r.lowersNa && r.volForTarget !== null && r.rateMlHr !== null ? (
           <>

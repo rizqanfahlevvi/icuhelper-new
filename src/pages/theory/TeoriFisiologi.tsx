@@ -8,7 +8,7 @@ export default function TeoriFisiologi() {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
 
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
         <h1 className="text-2xl font-bold tracking-tight text-primary flex items-center gap-2 mb-2">
           Fisiologi Ventilasi Mekanik
         </h1>
@@ -17,12 +17,12 @@ export default function TeoriFisiologi() {
           <div className="font-bold text-[15px] mb-2 text-primary">Prinsip Dasar Ventilasi Mekanik</div>
           <p className="text-muted-foreground">Ventilator bekerja dengan menciptakan <strong className="text-foreground">gradien tekanan positif</strong> dari sirkuit ke alveolus — kebalikan napas spontan yang menggunakan tekanan negatif diafragma. Pemahaman mekanika paru dan interaksi pasien-ventilator esensial untuk optimasi setting dan deteksi komplikasi.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3 text-[12px]">
-            <div className="bg-white dark:bg-[#1C1C1E] rounded-lg p-3 border border-border">
+            <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-lg p-3 border border-border">
               <div className="font-bold text-primary mb-1">Persamaan Gerak</div>
               <p className="font-mono text-muted-foreground">P = (V/C) + (R×Flow) + PEEP</p>
               <p className="text-muted-foreground mt-1">P = tekanan, V = volume, C = compliance, R = resistance</p>
             </div>
-            <div className="bg-white dark:bg-[#1C1C1E] rounded-lg p-3 border border-border">
+            <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-lg p-3 border border-border">
               <div className="font-bold text-primary mb-1">Tujuan Utama</div>
               <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
                 <li>Jaga pertukaran gas (O₂ &amp; CO₂)</li>
@@ -30,7 +30,7 @@ export default function TeoriFisiologi() {
                 <li>Cegah VILI (Ventilator-Induced Lung Injury)</li>
               </ul>
             </div>
-            <div className="bg-white dark:bg-[#1C1C1E] rounded-lg p-3 border border-border">
+            <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-lg p-3 border border-border">
               <div className="font-bold text-primary mb-1">Prinsip Lung-Protective</div>
               <ul className="list-disc pl-4 space-y-1 text-muted-foreground">
                 <li>Vt 6 mL/kgBBi</li>

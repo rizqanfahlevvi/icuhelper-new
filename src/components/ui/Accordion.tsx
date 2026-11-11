@@ -14,9 +14,9 @@ export function Accordion({ title, children, defaultOpen = false, className = ''
 
   return (
     <div className={`mt-6 mb-6 ${className}`}>
-      <div className={`bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all duration-300 rounded-2xl`}>
+      <div className={`bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all duration-300 rounded-2xl`}>
         <button 
-          className="w-full flex items-center justify-between px-4 py-3.5 bg-slate-50/50 dark:bg-[#2C2C2E]/50 text-left min-h-[50px] transition-colors focus:outline-none focus:bg-slate-100 dark:focus:bg-[#3C3C3E]"
+          className="w-full flex items-center justify-between px-4 py-3.5 bg-slate-50/50 dark:bg-[var(--dk-surface-2)]/50 text-left min-h-[50px] transition-colors focus:outline-none focus:bg-slate-100 dark:focus:bg-[var(--dk-surface-4)]"
           onClick={() => setIsOpen(!isOpen)}
           type="button"
         >
@@ -24,7 +24,7 @@ export function Accordion({ title, children, defaultOpen = false, className = ''
           <ChevronDown className={`w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
         {isOpen && (
-          <div className="border-t border-slate-100 dark:border-slate-800 p-4 bg-white dark:bg-[#1C1C1E] text-[13px] leading-relaxed text-slate-600 dark:text-slate-400 animate-in fade-in slide-in-from-top-1 duration-300 w-full max-w-full overflow-hidden min-w-0">
+          <div className="border-t border-slate-100 dark:border-slate-800 p-4 bg-white dark:bg-[var(--dk-surface-1)] text-[13px] leading-relaxed text-slate-600 dark:text-slate-400 animate-in fade-in slide-in-from-top-1 duration-300 w-full max-w-full overflow-hidden min-w-0">
             {children}
           </div>
         )}

@@ -26,7 +26,7 @@ export default function ScoringBfs() {
       {/* Active Patient Widget */}
       <ActivePatientBriefCard />
 
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
          
          <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
            <div>
@@ -53,7 +53,7 @@ export default function ScoringBfs() {
                  className={`min-h-[44px] w-full text-left p-2.5 border rounded-xl transition-all ${
                    scoreObj?.val === item.val
                      ? `bg-blue-50 dark:bg-blue-900/20 border-blue-500 shadow-sm ring-1 ring-blue-500`
-                     : 'bg-slate-50 dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[#3C3C3E]'
+                     : 'bg-slate-50 dark:bg-[var(--dk-surface-2)] border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-[var(--dk-surface-4)]'
                  }`}
                >
                  <div className="flex items-start gap-3">
@@ -77,7 +77,7 @@ export default function ScoringBfs() {
                   <div className={`text-lg font-bold ${scoreObj.c} leading-tight mb-1`}>{scoreObj.label.substring(4)}</div>
                   <div className={`text-sm font-semibold ${scoreObj.c} mb-3`}>{scoreObj.interp}</div>
                   
-                  <div className="bg-slate-50 dark:bg-[#2C2C2E]/60 rounded-lg p-3 border border-slate-200 dark:border-slate-800">
+                  <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)]/60 rounded-lg p-3 border border-slate-200 dark:border-slate-800">
                     <strong className="text-xs uppercase text-foreground mb-1 block">Implikasi ICU:</strong>
                     <div className="text-sm text-foreground/90">{scoreObj.detail}</div>
                   </div>
@@ -99,7 +99,7 @@ export default function ScoringBfs() {
           <li><strong className="text-foreground">Bukti:</strong> Meta-analisis 10 studi (3.030 pasien ICU): frailty berkaitan dengan mortalitas rumah sakit lebih tinggi (RR 1,71) dan mortalitas jangka panjang (RR 1,53); prevalensi frailty ±30% (Muscedere 2017). CFS ≥5 lazim dipakai sebagai batas "frail" (Bagshaw 2014).</li>
           <li><strong className="text-foreground">Keterbatasan:</strong> CFS tidak valid sebagai baseline pada pasien dengan disabilitas perkembangan kronik atau kondisi neurologi kronik parah yang stabil (misal: cerebral palsy). Gunakan kondisi fungsional terbaik 2 minggu sebelum sakit akut.</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Rockwood K et al. (CFS original) CMAJ 2005;173:489 · Rockwood K, Theou O (CFS versi 2.0) Can Geriatr J 2020;23:210 · Muscedere J et al. (frailty & luaran ICU, meta-analisis) Intensive Care Med 2017;43:1105 · Bagshaw SM et al. (frailty pada pasien kritis) CMAJ 2014;186:E95
         </div>
       </Accordion>

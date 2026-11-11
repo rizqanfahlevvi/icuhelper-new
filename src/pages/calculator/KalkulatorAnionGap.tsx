@@ -90,7 +90,7 @@ export default function KalkulatorAnionGap() {
       <ActivePatientBriefCard />
       <UnifiedSyncBanner fields={syncFields} />
 
-      <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
         <div>
           <label htmlFor="ag-na" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Natrium (Na) <span className="text-xs text-slate-500 font-normal">(mEq/L)</span>
@@ -270,7 +270,7 @@ export default function KalkulatorAnionGap() {
           <li><strong>Corrected AG:</strong> AG + 2.5 × (4.0 - Albumin). Albumin adalah anion dominan; tiap penurunan 1 g/dL menurunkan AG ±2,5 mEq/L (Figge 1998). Acuan albumin normal 4,0 g/dL dipakai seragam di ABG, tab AG, dan kalkulator ini.</li>
           <li><strong>Delta Ratio (ΔAG / ΔHCO₃):</strong> Dihitung bila AG tinggi, memakai Corrected AG jika albumin tersedia: (AG efektif − batas atas normal) / (24 − HCO₃). Pita Wrenn: &lt;0,4 NAGMA dominan · 0,4–0,8 campuran · 0,8–2,0 HAGMA murni · &gt;2,0 + alkalosis metabolik. Rentang rasio antar pasien lebar — pakai sebagai petunjuk (Rastegar 2007).</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Kraut JA, Madias NE. Serum anion gap: its uses and limitations in clinical medicine. Clin J Am Soc Nephrol. 2007;2(1):162-174. · Figge J, et al. Anion gap and hypoalbuminemia. Crit Care Med. 1998;26:1807-10. · Wrenn K. The delta (Δ) gap: an approach to mixed acid-base disorders. Ann Emerg Med. 1990;19:1310-3. · Rastegar A. Use of the ΔAG/ΔHCO₃⁻ ratio in the diagnosis of mixed acid-base disorders. J Am Soc Nephrol. 2007;18:2429-31.
         </div>
       </Accordion>

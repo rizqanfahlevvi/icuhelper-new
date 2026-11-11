@@ -196,7 +196,7 @@ export default function KalkulatorVentilatorAdv() {
           Parameter Ventilator Lanjutan
         </h2>
 
-        <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
           <div className={ROW}>
             <label htmlFor="va-kondisi" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0 text-left w-24">Kondisi</label>
             <select id="va-kondisi" className="flex-1 min-w-[10rem] bg-slate-100/80 dark:bg-white/5 border-none rounded-lg px-3 py-2 outline-none text-right font-bold text-slate-900 dark:text-white cursor-pointer focus:ring-2 focus:ring-blue-500/50 text-[14px] transition-all min-h-[44px]" value={kondisi} onChange={e => setKondisi(e.target.value as VentCondition)}>
@@ -233,17 +233,17 @@ export default function KalkulatorVentilatorAdv() {
 
       {shown && (() => { const res = shown; return (
         <div id="va-hasil" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
 
-            <div className="grid grid-cols-2 p-4 gap-4 bg-slate-50 dark:bg-[#1C1C1E]">
-              <div className={`p-3 rounded-xl border ${res.dp > 15 ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700'}`}>
+            <div className="grid grid-cols-2 p-4 gap-4 bg-slate-50 dark:bg-[var(--dk-surface-1)]">
+              <div className={`p-3 rounded-xl border ${res.dp > 15 ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-[var(--dk-surface-2)] border-slate-200 dark:border-slate-700'}`}>
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Driving Pressure</div>
                 <div className={`text-2xl font-black ${res.dp > 15 ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-200'}`}>
                   {Math.round(res.dp)} <span className="text-[12px] font-semibold opacity-70">cmH₂O</span>
                 </div>
                 <div className="text-[10px] font-medium opacity-60 mt-0.5">Target ≤15</div>
               </div>
-              <div className={`p-3 rounded-xl border ${res.mp > MP_RISK_THRESHOLD ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' : 'bg-white dark:bg-[#2C2C2E] border-slate-200 dark:border-slate-700'}`}>
+              <div className={`p-3 rounded-xl border ${res.mp > MP_RISK_THRESHOLD ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800' : 'bg-white dark:bg-[var(--dk-surface-2)] border-slate-200 dark:border-slate-700'}`}>
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-1">Mech. Power</div>
                 <div className={`text-2xl font-black ${res.mp > MP_RISK_THRESHOLD ? 'text-orange-600 dark:text-orange-400' : 'text-slate-800 dark:text-slate-200'}`}>
                   {res.mp.toFixed(1)} <span className="text-[12px] font-semibold opacity-70">J/mnt</span>
@@ -415,7 +415,7 @@ export default function KalkulatorVentilatorAdv() {
           <li><strong className="text-slate-800 dark:text-slate-200">Resistensi & mPaw:</strong> Raw = (Ppeak − Pplat) ÷ flow, valid pada aliran konstan. Tanpa flow & mPaw dari layar ventilator, aplikasi memakai asumsi I:E 1:2 (estimasi).</li>
           <li><strong className="text-slate-800 dark:text-slate-200">Oksigenasi:</strong> P/F hanya dari PaO₂ terukur; tanpa AGD gunakan S/F (≤315 bila SpO₂ ≤97%, definisi Global 2023) dan OSI = FiO₂ × mPaw ÷ SpO₂. OI = FiO₂ × mPaw ÷ PaO₂ (tidak ada ambang dewasa baku).</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[12px] text-slate-700 dark:text-slate-300 italic leading-relaxed">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[12px] text-slate-700 dark:text-slate-300 italic leading-relaxed">
           📚 Fan E et al. ATS/ESICM/SCCM ARDS guideline. AJRCCM 2017;195:1253–63 · Amato MBP et al. NEJM 2015;372:747–55 · Gattinoni L et al. Intensive Care Med 2016;42:1567–75 · Serpa Neto A et al. Intensive Care Med 2018;44:1914–22 · Serpa Neto A et al. JAMA 2012;308:1651–9 · ARDS Network. NEJM 2000;342:1301–8 · Brower RG et al. (ALVEOLI). NEJM 2004;351:327–36 · Guérin C et al. (PROSEVA). NEJM 2013;368:2159–68 · Matthay MA et al. Global definition of ARDS. AJRCCM 2024;209:37–47.
         </div>
       </Accordion>

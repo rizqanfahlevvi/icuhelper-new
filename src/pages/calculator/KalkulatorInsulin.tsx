@@ -205,10 +205,10 @@ export default function KalkulatorInsulin() {
       <ActivePatientBriefCard onAutofill={handleAutofill} />
       <UnifiedSyncBanner fields={syncFields} />
 
-      <div className="flex bg-slate-100 dark:bg-[#2C2C2E] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4 mt-2">
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'bbc' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('bbc')}>Basal-Bolus</button>
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'ss' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('ss')}>Sliding Scale</button>
-        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'hipo' ? 'bg-white dark:bg-[#1C1C1E] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('hipo')}>Koreksi Hipo</button>
+      <div className="flex bg-slate-100 dark:bg-[var(--dk-surface-2)] p-1 rounded-xl w-full max-w-lg mx-auto shadow-sm mb-4 mt-2">
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'bbc' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('bbc')}>Basal-Bolus</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'ss' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('ss')}>Sliding Scale</button>
+        <button className={`min-h-[44px] flex-1 py-1.5 text-[12px] md:text-[13px] font-bold rounded-lg transition-colors ${mode === 'hipo' ? 'bg-white dark:bg-[var(--dk-surface-1)] text-slate-900 dark:text-white shadow-sm' : 'text-slate-700 dark:text-slate-300'}`} onClick={() => setMode('hipo')}>Koreksi Hipo</button>
       </div>
 
       <div className="flex flex-col gap-0 mt-2">
@@ -218,7 +218,7 @@ export default function KalkulatorInsulin() {
 
          {(mode === 'bbc' || mode === 'ss') && (
            <>
-             <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+             <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <label htmlFor="ins-bb" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">Berat Badan</label>
                    <div className="flex-1 flex items-center justify-end gap-2">
@@ -286,7 +286,7 @@ export default function KalkulatorInsulin() {
                      </div>
                    )
                  ) : (
-                   <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4">
+                   <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden p-4">
                       
                       <div className="bg-teal-50 dark:bg-teal-900/10 border border-teal-200 dark:border-teal-800/50 rounded-xl p-4 text-teal-700 dark:text-teal-400 text-center mb-4 shadow-sm">
                          <div className="text-[11px] font-bold uppercase tracking-widest opacity-80 mb-1">Total Diberikan Sekarang</div>
@@ -297,21 +297,21 @@ export default function KalkulatorInsulin() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div className="bg-slate-50 dark:bg-[#2C2C2E] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
+                        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
                           <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Total Daily (TDD)</div>
                           <div className="text-xl font-bold text-slate-800 dark:text-slate-200">{bbcRes.tdd} <span className="font-normal text-[12px] opacity-70">u</span></div>
                           <div className="text-[10px] font-medium opacity-60 text-slate-600 dark:text-slate-400">{bbcRes.tPrev ? 'Dari input' : `${bbcRes.w}kg × ${bbcRes.doseFactor}`}</div>
                         </div>
-                        <div className="bg-slate-50 dark:bg-[#2C2C2E] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
+                        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
                           <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Basal 1×/hari</div>
                           <div className="text-xl font-bold text-slate-800 dark:text-slate-200">{bbcRes.basal} <span className="font-normal text-[12px] opacity-70">u</span></div>
                         </div>
-                        <div className="bg-slate-50 dark:bg-[#2C2C2E] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
+                        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
                           <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Bolus per Makan</div>
                           <div className="text-xl font-bold text-slate-800 dark:text-slate-200">{bbcRes.mealCount > 0 ? bbcRes.bolusPerMeal : '—'}</div>
                           <div className="text-[10px] font-medium opacity-60 text-slate-600 dark:text-slate-400">{bbcRes.mealCount > 0 ? `${bbcRes.mealCount}× sehari` : 'Puasa'}</div>
                         </div>
-                        <div className="bg-slate-50 dark:bg-[#2C2C2E] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
+                        <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] p-3 border border-slate-200 dark:border-slate-700 rounded-xl text-center">
                           <div className="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Correction (CF)</div>
                           <div className="text-xl font-bold text-slate-800 dark:text-slate-200">{bbcRes.cf}</div>
                           <div className="text-[10px] font-medium opacity-60 text-slate-600 dark:text-slate-400">mg/dL per unit</div>
@@ -385,8 +385,8 @@ export default function KalkulatorInsulin() {
 
              {mode === 'ss' && ssArr && ssArr.length > 0 && (
                <div id="ins-hasil-ss" className="scroll-mt-4 mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
-                 <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
-                   <div className="p-3 bg-slate-50 dark:bg-[#2C2C2E] border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-[12px]">
+                 <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+                   <div className="p-3 bg-slate-50 dark:bg-[var(--dk-surface-2)] border-b border-slate-200 dark:border-slate-700 flex justify-between items-center text-[12px]">
                      <span className="font-bold text-slate-500 uppercase">Rentang GDS</span>
                      <span className="font-bold text-slate-500 uppercase">Dosis Insulin</span>
                    </div>
@@ -401,10 +401,10 @@ export default function KalkulatorInsulin() {
                        </div>
                      )})}
                    </div>
-                   <div className="p-4 bg-slate-50 dark:bg-[#2C2C2E] border-t border-slate-200 dark:border-slate-700 text-[12px] text-slate-500 leading-relaxed italic">
+                   <div className="p-4 bg-slate-50 dark:bg-[var(--dk-surface-2)] border-t border-slate-200 dark:border-slate-700 text-[12px] text-slate-500 leading-relaxed italic">
                      *Pemberian secara Subkutan (SC) Rapid Acting Insulin. Pemantauan ketat setiap 4 jam direkomendasikan pada pasien dengan risiko hipoglikemia.
                    </div>
-                   <div className="p-4 bg-slate-50 dark:bg-[#2C2C2E] border-t border-slate-200 dark:border-slate-700">
+                   <div className="p-4 bg-slate-50 dark:bg-[var(--dk-surface-2)] border-t border-slate-200 dark:border-slate-700">
                      <SaveToHistoryButton 
                        module="insulin" 
                        label={`Insulin SS — GDS ${gds}`}
@@ -421,7 +421,7 @@ export default function KalkulatorInsulin() {
 
          {mode === 'hipo' && (
            <>
-             <div className="bg-slate-50 dark:bg-[#2C2C2E] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
+             <div className="bg-slate-50 dark:bg-[var(--dk-surface-2)] border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-800">
                 <div className="flex items-center justify-between px-4 py-3 gap-4">
                    <label htmlFor="ins-hipo-gds" className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex-shrink-0">GDS Saat Ini</label>
                    <div className="flex-1 flex items-center justify-end gap-2">
@@ -467,7 +467,7 @@ export default function KalkulatorInsulin() {
                  <div id="ins-hasil-hipo" className="scroll-mt-4 animate-in fade-in slide-in-from-bottom-3 duration-300 space-y-4">
                    <div className={`px-5 py-3 border rounded-xl text-center text-sm font-bold shadow-sm ${hipoRes.lvlCls}`}>{hipoRes.lvlLbl}</div>
                    
-                   <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+                   <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
                      <div className="text-[11px] font-bold text-slate-500 mb-3 uppercase tracking-wider">Kebutuhan Glukosa</div>
                      <div className="flex justify-between items-center mb-2 text-sm text-slate-800 dark:text-slate-200">
                        <span className="text-slate-600 dark:text-slate-400">Kenaikan (Δ)</span>
@@ -550,7 +550,7 @@ export default function KalkulatorInsulin() {
                    </div>
                  </div>
                ) : (
-                 <div className="flex items-center justify-center p-6 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 text-sm bg-slate-50/50 dark:bg-[#1C1C1E]">
+                 <div className="flex items-center justify-center p-6 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 text-sm bg-slate-50/50 dark:bg-[var(--dk-surface-1)]">
                    Masukkan nilai GDS hipoglikemia (&lt; 70 mg/dL)
                  </div>
                )}
@@ -565,7 +565,7 @@ export default function KalkulatorInsulin() {
           <li><strong className="text-slate-800 dark:text-slate-200">Sliding Scale (Koreksional Independen):</strong> Penggunaan regimen reaktif (hanya memberikan insulin saat gula sudah tinggi). Menurut panduan ADA terbaru, penggunaan Sliding Scale secara independen untuk jangka panjang sangat tidak disarankan karena mencetuskan fluktuasi glukosa yang buruk, namun bisa digunakan sementara.</li>
           <li><strong className="text-slate-800 dark:text-slate-200">Manajemen Hipoglikemia:</strong> Rule of 15: Berikan 15g karbohidrat simpleks (jika pasien sadar) dan cek ulang GDS 15 menit kemudian. Untuk pasien tidak sadar (Koma Hipoglikemik), berikan Dekstrosa IV bolus cepat (D40% sebanyak 25-50 mL atau 1-2 flakon).</li>
         </ul>
-        <div className="mt-4 p-4 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
+        <div className="mt-4 p-4 bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden text-[13px] text-slate-700 dark:text-slate-300 italic">
           📚 Umpierrez GE et al. (RABBIT 2). Diabetes Care 2007;30:2181–6 · Umpierrez GE et al. (RABBIT 2 Surgery). Diabetes Care 2011;34:256–61 · American Diabetes Association. Standards of Care in Diabetes — Diabetes Care in the Hospital (diperbarui tiap tahun) · PERKENI. Konsensus Pengelolaan dan Pencegahan Diabetes Melitus Tipe 2 di Indonesia.
         </div>
       </Accordion>

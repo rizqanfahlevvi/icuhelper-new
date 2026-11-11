@@ -11,7 +11,7 @@ export default function PlaceholderPage({ title, category }: PlaceholderPageProp
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-6 pb-20 overflow-x-hidden">
-      <div className="bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm flex-1 flex flex-col items-center justify-center text-center p-8 min-h-[50vh]">
+      <div className="bg-white dark:bg-[var(--dk-surface-1)] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm flex-1 flex flex-col items-center justify-center text-center p-8 min-h-[50vh]">
         <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 mb-6 group-hover:scale-110 transition-transform">
            <Construction className="w-8 h-8 text-primary/60" />
         </div>

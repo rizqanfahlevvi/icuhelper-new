@@ -6,7 +6,7 @@ import { Abbr } from '../../components/ui/Abbr';
 export default function SettingIndex() {
   const Card = ({ title, icon, colorClass, children }: { title: string, icon: React.ReactNode, colorClass: string, children: React.ReactNode }) => (
     <div className="ios-card group">
-      <div className="p-4 sm:p-5 border-b border-[var(--glass-border)] bg-[#f8f9fa] dark:bg-transparent relative overflow-hidden">
+      <div className="p-4 sm:p-5 border-b border-[var(--glass-border)] bg-slate-50 dark:bg-transparent relative overflow-hidden">
         <h3 className="text-[15px] font-bold text-[var(--label-primary)] flex items-center gap-2 relative z-10">
           <div className="p-1.5 rounded-lg bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700">
             {icon}

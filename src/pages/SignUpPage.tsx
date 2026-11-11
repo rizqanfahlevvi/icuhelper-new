@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { User, Mail, Lock, UserPlus, AlertCircle, CheckCircle, Eye, EyeOff } from "lucide-react";
-import { auth, db } from "../lib/firebase";
+import { auth } from "../lib/firebase";
+import { db } from "../lib/firestore";
 
 export default function SignUpPage() {
   const [namaLengkap, setNamaLengkap] = useState("");
