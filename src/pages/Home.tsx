@@ -80,29 +80,43 @@ export default function Home() {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-4 space-y-5 pb-6 overflow-x-hidden">
-      {/* Hero ringkas — di ponsel nama app & logo sudah ada di header, jadi cukup tagline + pembuat */}
-      <div className="flex items-center gap-2.5 min-w-0 pt-1">
-        <LogoIcon className="hidden md:block w-9 h-9 flex-shrink-0" />
-        <div className="min-w-0 flex-1">
-          <h1 className="hidden md:block text-[20px] font-extrabold tracking-tight text-[var(--label-primary)] leading-tight">
-            ICU<span className="text-[var(--accent)]">Helper</span>
-          </h1>
-          <p className="text-[13px] text-[var(--label-secondary)] leading-snug">
-            Pendamping harian di IGD &amp; ICU
-            <span aria-hidden="true"> · </span>
-            <a
-              href="https://id.linkedin.com/in/rizqanfahlevvi/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-semibold text-[var(--sys-blue)] hover:underline"
-              aria-label="Dibuat oleh Rizqanfahlevvi — buka profil LinkedIn"
-            >
-              <Linkedin className="w-3 h-3 flex-shrink-0 fill-current" />
-              oleh Rizqanfahlevvi
-            </a>
-          </p>
+      {/* Hero identitas — nama app, tagline & pembuat tampil jelas (tetap ringkas tingginya
+          agar kartu pasien aktif masih terlihat di layar pertama). */}
+      <section
+        aria-label="Tentang ICU Helper"
+        className="relative overflow-hidden rounded-3xl border border-[var(--glass-border)] bg-gradient-to-br from-[var(--accent-tint)] via-[var(--bg-elevated)] to-[var(--bg-elevated)] p-5 shadow-sm"
+      >
+        <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[var(--accent)] opacity-[0.08]" />
+        <div className="relative flex items-center gap-3.5">
+          <LogoIcon className="w-14 h-14 flex-shrink-0 drop-shadow-sm" />
+          <div className="min-w-0">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight leading-none text-[var(--label-primary)]">
+              ICU<span className="text-[var(--accent)]"> Helper</span>
+            </h1>
+            <p className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--accent)]">
+              Pendamping harian di IGD &amp; ICU
+            </p>
+          </div>
         </div>
-      </div>
+        <p className="relative mt-3 text-[13px] leading-relaxed text-[var(--label-secondary)] max-w-md">
+          Kalkulator klinis, skoring, dosis obat &amp; cairan, serta teori berbasis bukti — terhubung dengan data pasien Anda.
+        </p>
+        <a
+          href="https://id.linkedin.com/in/rizqanfahlevvi/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Dibuat oleh Rizqanfahlevvi — buka profil LinkedIn"
+          className="relative mt-3.5 inline-flex min-h-[44px] items-center gap-2.5 rounded-xl border border-[var(--glass-border)] bg-[var(--bg-elevated)] px-3 py-1.5 shadow-sm hover:bg-[var(--fill-secondary)] transition-colors"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--sys-blue)] text-white flex-shrink-0">
+            <Linkedin className="w-3.5 h-3.5 fill-current" />
+          </span>
+          <span className="leading-tight">
+            <span className="block text-[10px] font-semibold uppercase tracking-wider text-[var(--label-secondary)]">Dibuat oleh</span>
+            <span className="block text-[14px] font-bold text-[var(--label-primary)]">Rizqanfahlevvi</span>
+          </span>
+        </a>
+      </section>
 
       {/* Patient Summary Card */}
       <div className="space-y-3">
