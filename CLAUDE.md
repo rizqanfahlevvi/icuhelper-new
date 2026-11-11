@@ -32,7 +32,7 @@ React 19 (route lazy-loaded) · Vite 6 · Tailwind CSS v4 (via `@tailwindcss/vit
 - `useClinicalStore` — "data kerja" klinis pasien aktif (`data`, `updatedAt` cap waktu per variabel, `ownerId`). Persist ke localStorage (v1).
 - **Registri variabel = `src/utils/clinicalVariables.ts`** (kunci, label, satuan KANONIK, grup). Menambah variabel pasien baru → tambah di registri (form "Lengkapi Data Pasien" otomatis ikut). Satuan kanonik: kreatinin mg/dL, `ureum` = urea mg/dL (BUN = ÷2,14), FiO₂ **persen**, gas darah = **arteri** mmHg, `glukosa` = GDS (kunci `gds` sudah dihapus).
 - **Konteks pasien = `src/store/patientContextSync.ts`**: ganti pasien → data kerja DIGANTI snapshot (bukan digabung); tutup/hapus → dikosongkan; perubahan otomatis tersimpan ke snapshot pasien aktif; BB/TB/usia/JK dicerminkan dua arah. Jangan memanggil `clinicalStore.setFields(snapshot)` / `clearStore()` manual saat ganti pasien — cukup `setActivePatient(id)`.
-- `useSettingsStore` — font, tema, haptics. `useHistoryStore` — riwayat kalkulasi (maks 30).
+- `useSettingsStore` — font, tema, haptics. `useHistoryStore` — riwayat kalkulasi (maks 100, dicap per pasien). Skor SOFA memakai SOFA Sepsis-3 (Vincent 1996/Singer 2016); SOFA-2 sengaja tidak diimplementasikan (keputusan pemilik).
 - Catatan gender: patient store pakai `'L'/'P'`; sebagian kalkulator pakai `'m'/'f'` secara lokal — konversi eksplisit.
 
 ## Pola standar kalkulator (ikuti saat menambah/mengubah)
